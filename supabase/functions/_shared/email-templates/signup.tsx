@@ -8,11 +8,9 @@ import {
   Container,
   Head,
   Heading,
-  Hr,
   Html,
   Link,
   Preview,
-  Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
 
@@ -29,45 +27,33 @@ export const SignupEmail = ({
   recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="ar" dir="rtl">
-    <Head />
-    <Preview>أكّد بريدك الإلكتروني للانضمام إلى {siteName}</Preview>
+  <Html lang="en" dir="ltr">
+    <Head>
+      <style>{darkModeCss}</style>
+    </Head>
+    <Preview>Confirm your email for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={header}>
-          <Heading style={brand}>UNIGATES</Heading>
-        </Section>
-
-        <Section style={card}>
-          <Heading style={h1}>مرحباً بك في {siteName} 👋</Heading>
-          <Text style={text}>
-            شكراً لتسجيلك في{' '}
-            <Link href={siteUrl} style={link}>
-              <strong>{siteName}</strong>
-            </Link>
-            . لإكمال إنشاء حسابك، يرجى تأكيد بريدك الإلكتروني (
-            <Link href={`mailto:${recipient}`} style={link}>
-              {recipient}
-            </Link>
-            ) عبر الضغط على الزر أدناه:
-          </Text>
-          <Section style={{ textAlign: 'center' as const }}>
-            <Button style={button} href={confirmationUrl}>
-              تأكيد البريد الإلكتروني
-            </Button>
-          </Section>
-          <Text style={smallText}>
-            إذا لم يعمل الزر، انسخ الرابط التالي والصقه في المتصفح:
-          </Text>
-          <Text style={urlText}>{confirmationUrl}</Text>
-        </Section>
-
-        <Hr style={hr} />
-        <Text style={footer}>
-          إذا لم تقم بإنشاء حساب على {siteName}، يمكنك تجاهل هذه الرسالة بأمان.
+        <Heading style={h1}>Confirm your email</Heading>
+        <Text style={text}>
+          Thanks for signing up for{' '}
+          <Link href={siteUrl} style={link}>
+            <strong>{siteName}</strong>
+          </Link>
+          !
         </Text>
-        <Text style={footerBrand}>
-          © {new Date().getFullYear()} {siteName} — دار عبيد للنشر والتوزيع والطباعة
+        <Text style={text}>
+          Please confirm your email address (
+          <Link href={`mailto:${recipient}`} style={link}>
+            {recipient}
+          </Link>
+          ) by clicking the button below:
+        </Text>
+        <Button className="dm-btn" style={button} href={confirmationUrl}>
+          Verify Email
+        </Button>
+        <Text style={footer}>
+          If you didn't create an account, you can safely ignore this email.
         </Text>
       </Container>
     </Body>
@@ -76,74 +62,36 @@ export const SignupEmail = ({
 
 export default SignupEmail
 
-const main = {
-  backgroundColor: '#ffffff',
-  fontFamily: "'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif",
-  padding: '24px 0',
-}
-const container = { maxWidth: '560px', margin: '0 auto', padding: '0 20px' }
-const header = { textAlign: 'center' as const, padding: '16px 0 24px' }
-const brand = {
-  fontSize: '24px',
-  fontWeight: 800 as const,
-  color: 'hsl(174, 72%, 46%)',
-  letterSpacing: '2px',
-  margin: 0,
-}
-const card = {
-  backgroundColor: '#fafafa',
-  border: '1px solid hsl(0, 0%, 90%)',
-  borderRadius: '12px',
-  padding: '28px 24px',
-}
+const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const container = { padding: '20px 25px' }
 const h1 = {
   fontSize: '22px',
-  fontWeight: 700 as const,
-  color: 'hsl(0, 0%, 10%)',
-  margin: '0 0 16px',
-  textAlign: 'right' as const,
+  fontWeight: 'bold' as const,
+  color: '#000000',
+  margin: '0 0 20px',
 }
 const text = {
-  fontSize: '15px',
-  color: 'hsl(0, 0%, 25%)',
-  lineHeight: '1.7',
-  margin: '0 0 24px',
-  textAlign: 'right' as const,
+  fontSize: '14px',
+  color: '#55575d',
+  lineHeight: '1.5',
+  margin: '0 0 25px',
 }
-const link = { color: 'hsl(174, 72%, 40%)', textDecoration: 'underline' }
+const link = { color: 'inherit', textDecoration: 'underline' }
 const button = {
-  backgroundColor: 'hsl(174, 72%, 46%)',
+  backgroundColor: '#000000',
   color: '#ffffff',
-  fontSize: '15px',
-  fontWeight: 700 as const,
+  fontSize: '14px',
+  border: '1px solid #000000',
   borderRadius: '8px',
-  padding: '14px 32px',
+  padding: '12px 20px',
   textDecoration: 'none',
-  display: 'inline-block',
 }
-const smallText = {
-  fontSize: '13px',
-  color: 'hsl(0, 0%, 45%)',
-  margin: '24px 0 8px',
-  textAlign: 'right' as const,
-}
-const urlText = {
-  fontSize: '12px',
-  color: 'hsl(174, 72%, 40%)',
-  wordBreak: 'break-all' as const,
-  margin: 0,
-  textAlign: 'right' as const,
-}
-const hr = { borderColor: 'hsl(0, 0%, 90%)', margin: '28px 0 16px' }
-const footer = {
-  fontSize: '12px',
-  color: 'hsl(0, 0%, 45%)',
-  textAlign: 'center' as const,
-  margin: '0 0 8px',
-}
-const footerBrand = {
-  fontSize: '11px',
-  color: 'hsl(0, 0%, 60%)',
-  textAlign: 'center' as const,
-  margin: 0,
-}
+const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+// Rendered as a text child, which React may HTML-escape: keep this CSS free of >, &, and quotes.
+const darkModeCss = `
+  @media (prefers-color-scheme: dark) {
+    .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
+  }
+  [data-ogsc] .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
+  [data-ogsb] .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
+`

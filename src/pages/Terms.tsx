@@ -43,9 +43,10 @@ const Terms = () => {
           text: "تلتزم المنصة بتوفير بيئة توظيف شفافة للجهات وأصحاب الكفاءات. يلتزم المتقدمون بتقديم بيانات وسير ذاتية ومؤهلات صحيحة وموثقة، ويلتزم أصحاب العمل بعدم استغلال بيانات المتقدمين خارج نطاق التوظيف المعلن.",
         },
         {
-          title: "8. الاشتراكات، المدفوعات وسياسة الاسترداد",
-          text: "تتم المدفوعات والاشتراكات عبر بوابات الدفع الإلكتروني المعتمدة المشفرة بنظام 256-bit SSL. الاشتراكات الفردية قابلة للاسترداد خلال 7 أيام من تاريخ الدفع في حال عدم تحميل أو استهلاك أكثر من 15% من محتوى الدورة. العقود والاشتراكات المؤسسية تخضع للاتفاقيات المبرمة.",
+          title: "8. البائع، الاشتراكات، المدفوعات وسياسة الاسترداد",
+          text: "البائع المسؤول عن خدمات المنظومة هو شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. تتم معالجة جميع المدفوعات عبر Paddle.com الذي يعمل كتاجر مسجّل (Merchant of Record) لكل عمليات البيع ويتولى إصدار الفواتير وتنفيذ عمليات الاسترداد. يمكن طلب استرداد كامل لأي اشتراك أو شراء رقمي خلال 30 يومًا من تاريخ الدفع، ويمكن إلغاء الاشتراك في أي وقت مع استمرار الوصول حتى نهاية المدة المدفوعة. التفاصيل الكاملة في صفحة سياسة الاسترداد (/refund).",
         },
+
         {
           title: "9. القانون الواجب التطبيق والاختصاص القضائي",
           text: "تخضع هذه الشروط والسياسات للأنظمة والقوانين المعمول بها في المملكة العربية السعودية، ويتم فض أي نزاع ودياً أولاً أو اللجوء للجهات القضائية المختصة.",
@@ -85,9 +86,10 @@ const Terms = () => {
           text: "The Career portal provides a verified recruitment environment. Job applicants must provide authentic credentials and resumes, and hiring organizations agree to use applicant data exclusively for legitimate recruitment processes.",
         },
         {
-          title: "8. Subscriptions, Payments & Refund Policy",
-          text: "Financial transactions are secured with 256-bit SSL encryption. Individual learners may request a refund within 7 days of purchase, provided that less than 15% of the course content has been accessed. Institutional contracts are governed by custom terms.",
+          title: "8. Seller, Subscriptions, Payments & Refund Policy",
+          text: "The seller of all services is Dar Obaid Publishing, Distribution & Printing LLC. All payments are processed by Paddle.com, which acts as the Merchant of Record for every sale, issues invoices, and handles refunds. A full refund may be requested within 30 days of payment for any subscription or digital purchase, and subscriptions can be cancelled at any time with access continuing until the end of the paid period. Full details are on the Refund Policy page (/refund).",
         },
+
         {
           title: "9. Governing Law & Jurisdiction",
           text: "These terms are governed by the applicable laws and regulations of the Kingdom of Saudi Arabia. Any disputes shall be resolved amicably or submitted to the competent judicial authorities.",

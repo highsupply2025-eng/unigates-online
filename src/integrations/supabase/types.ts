@@ -3393,16 +3393,7 @@ export type Database = {
         }
         Returns: Json
       }
-      delete_email: {
-        Args: { message_id: number; queue_name: string }
-        Returns: boolean
-      }
       delete_test_accounts: { Args: never; Returns: undefined }
-      email_queue_dispatch: { Args: never; Returns: undefined }
-      enqueue_email: {
-        Args: { payload: Json; queue_name: string }
-        Returns: number
-      }
       ensure_owner_role: { Args: never; Returns: undefined }
       get_bank_details: { Args: never; Returns: Json }
       get_cleanup_candidates: {
@@ -3617,28 +3608,11 @@ export type Database = {
           institution_type: string
         }[]
       }
-      move_to_dlq: {
-        Args: {
-          dlq_name: string
-          message_id: number
-          payload: Json
-          source_queue: string
-        }
-        Returns: number
-      }
       permanently_delete_school: {
         Args: { _school_id: string; _school_name: string }
         Returns: string
       }
       quiz_results_approved: { Args: { _quiz_id: string }; Returns: boolean }
-      read_email_batch: {
-        Args: { batch_size: number; queue_name: string; vt: number }
-        Returns: {
-          message: Json
-          msg_id: number
-          read_ct: number
-        }[]
-      }
       renew_student_subscription: {
         Args: { _department_member_id: string; _months?: number }
         Returns: Json

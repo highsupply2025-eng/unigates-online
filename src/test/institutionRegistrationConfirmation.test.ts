@@ -39,9 +39,8 @@ describe("institution registration confirmation flow", () => {
   }
 
   it("sends Auth mail directly instead of relying on the queue worker", () => {
-    expect(authEmailHook).toContain("parseEmailWebhookPayload, sendLovableEmail");
-    expect(authEmailHook).toContain("await sendLovableEmail(");
-    expect(authEmailHook).toContain("status: 'sent'");
+    expect(authEmailHook).toContain("createAuthEmailHandler");
+    expect(authEmailHook).toContain("senderDomain: SENDER_DOMAIN");
     expect(authEmailHook).not.toContain("enqueue_email");
   });
 

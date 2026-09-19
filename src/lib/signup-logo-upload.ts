@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-type SignupLogoKind = "college" | "institute";
+type SignupLogoKind = "college" | "institute" | "language_center" | "training_center";
 
 type SignupLogoUploadResponse = {
   publicUrl?: string;

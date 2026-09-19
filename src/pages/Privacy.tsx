@@ -50,13 +50,15 @@ const Privacy = () => {
         },
         {
           title: "4. مشاركة المعلومات وعدم بيع البيانات",
-          text: "تلتزم شركة دار عبيد بعدم بيع أو تأجير أو المتاجرة بالبيانات الشخصية لأي طرف ثالث تحت أي ظرف. تقتصر مشاركة البيانات المحدودة على:",
+          text: "شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. هي المتحكم في البيانات (Data Controller) المسؤول عن بياناتك الشخصية. ونلتزم بعدم بيع أو تأجير أو المتاجرة بالبيانات الشخصية لأي طرف ثالث تحت أي ظرف. تقتصر مشاركة البيانات المحدودة على:",
           points: [
             "المؤسسة التعليمية أو صاحب العمل الذي ينتمي إليه المستخدم بشكل رسمي وموثق.",
-            "بوابات الدفع الإلكتروني المعتمدة والمرخصة لمعالجة العمليات المالية المشفرة.",
+            "Paddle.com Market Limited — معالج المدفوعات والتاجر المسجّل (Merchant of Record)، ويستلم الاسم والبريد الإلكتروني وبلد الإقامة وبيانات الفاتورة لإتمام الدفع وإصدار الفواتير والضرائب.",
+            "مزودو الاستضافة السحابية والبريد المعتمدون لتشغيل الخدمة.",
             "الجهات الرسمية والتنظيمية فقط في حال وجود متطلب قانوني ملزم وفق الأنظمة السارية."
           ]
         },
+
         {
           title: "5. حقوق المستخدم والتحكم في البيانات",
           text: "يتمتع جميع مستخدمي UNIGATES بالحقوق الكاملة للتحكم في بياناتهم الشخصية:",
@@ -120,14 +122,16 @@ const Privacy = () => {
           ]
         },
         {
-          title: "4. Zero-Sale Commitment & Data Sharing",
-          text: "Dar Obaid Publishing LLC never sells, monetizes, or rents personal data to any third party. Limited data exchange is strictly restricted to:",
+          title: "4. Data Controller, Zero-Sale Commitment & Data Sharing",
+          text: "Dar Obaid Publishing, Distribution & Printing LLC is the data controller responsible for your personal data. We never sell, monetize, or rent personal data to any third party. Limited data sharing is strictly restricted to:",
           points: [
             "The verified educational institution or prospective employer explicitly linked to your account.",
-            "PCI-DSS compliant payment gateways processing encrypted monetary transactions.",
+            "Paddle.com Market Limited — our payment processor and Merchant of Record, which receives your name, email, country and billing details to process payments, invoicing and tax.",
+            "Approved cloud hosting and email providers required to operate the service.",
             "Official legal and governmental bodies only when mandated by binding statutory requirements."
           ]
         },
+
         {
           title: "5. Your Privacy Rights & Data Control",
           text: "Every UNIGATES user retains complete ownership and control over their personal data:",

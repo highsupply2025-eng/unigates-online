@@ -112,6 +112,8 @@ const SiteFooter = () => {
         { label: t.footerLinks?.helpCenter || translate("مركز المساعدة", "Help Center"), href: "/help-center" },
         { label: t.footerLinks?.terms || translate("الشروط والأحكام", "Terms of Service"), href: "/terms" },
         { label: t.footerLinks?.privacy || translate("سياسة الخصوصية", "Privacy Policy"), href: "/privacy" },
+        { label: translate("سياسة الاسترداد", "Refund Policy"), href: "/refund" },
+
         { label: t.footerLinks?.partnerships || translate("الشراكات", "Partnerships"), href: "/partnerships" },
         { label: t.footerLinks?.contactUs || translate("تواصل معنا", "Contact Us"), href: "/contact" },
       ],

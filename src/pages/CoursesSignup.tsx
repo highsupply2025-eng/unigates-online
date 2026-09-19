@@ -415,10 +415,21 @@ const CoursesSignup = () => {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 pt-2">
               {ROLES.map((r) => {
                 const Icon = r.icon;
+                const isInstitutional = r.value === "training_center" || r.value === "language_center";
+                const handleCardClick = () => {
+                  if (r.value === "training_center") {
+                    navigate("/training-center-registration");
+                  } else if (r.value === "language_center") {
+                    navigate("/language-center-registration");
+                  } else {
+                    setRole(r.value);
+                  }
+                };
+
                 return (
                   <div
                     key={r.value}
-                    onClick={() => setRole(r.value)}
+                    onClick={handleCardClick}
                     className={`group cursor-pointer text-start p-6 rounded-3xl border-2 bg-slate-900/70 hover:bg-slate-900/95 backdrop-blur-xl transition-all duration-300 shadow-xl hover:-translate-y-2 flex flex-col justify-between ${r.glowColor}`}
                   >
                     <div className="space-y-4">
@@ -459,7 +470,7 @@ const CoursesSignup = () => {
                         type="button"
                         className={`w-full font-black text-xs h-10 rounded-xl bg-gradient-to-r ${r.color} text-white shadow-md group-hover:opacity-95 transition-opacity flex items-center justify-center gap-1.5`}
                       >
-                        <span>{tText("تسجيل كـ " + r.labelAr, "Register as " + r.labelEn)}</span>
+                        <span>{isInstitutional ? tText("بوابة " + r.labelAr, "Portal for " + r.labelEn) : tText("تسجيل كـ " + r.labelAr, "Register as " + r.labelEn)}</span>
                         <ArrowIcon className="w-3.5 h-3.5" />
                       </Button>
                     </div>

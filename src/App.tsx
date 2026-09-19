@@ -74,6 +74,12 @@ const CollegeAdminSignup = lazy(() => import("./pages/CollegeAdminSignup"));
 const InstituteRegistration = lazy(() => import("./pages/InstituteRegistration"));
 const InstituteRoleSignup = lazy(() => import("./pages/InstituteRoleSignup"));
 const InstituteAdminSignup = lazy(() => import("./pages/InstituteAdminSignup"));
+const TrainingCenterRegistration = lazy(() => import("./pages/TrainingCenterRegistration"));
+const TrainingCenterRoleSignup = lazy(() => import("./pages/TrainingCenterRoleSignup"));
+const TrainingCenterAdminSignup = lazy(() => import("./pages/TrainingCenterAdminSignup"));
+const LanguageCenterRegistration = lazy(() => import("./pages/LanguageCenterRegistration"));
+const LanguageCenterRoleSignup = lazy(() => import("./pages/LanguageCenterRoleSignup"));
+const LanguageCenterAdminSignup = lazy(() => import("./pages/LanguageCenterAdminSignup"));
 const InstitutionDashboard = lazy(() => import("./pages/InstitutionDashboard"));
 const InstitutionFacultyAdd = lazy(() => import("./pages/InstitutionFacultyAdd"));
 const FacultyInvitationRegistration = lazy(() => import("./pages/FacultyInvitationRegistration"));
@@ -254,6 +260,14 @@ const App = () => (
               <Route path="/signup/institute" element={<Navigate to={`/signup/institute/admin${typeof window !== 'undefined' ? window.location.search : ''}`} replace />} />
               <Route path="/signup/institute/admin" element={<InstituteAdminSignup />} />
               <Route path="/signup/institute/:role" element={<InstituteRoleSignup />} />
+              <Route path="/signup/training-center" element={<Navigate to={`/signup/training-center/admin${typeof window !== 'undefined' ? window.location.search : ''}`} replace />} />
+              <Route path="/signup/training-center/admin" element={<TrainingCenterAdminSignup />} />
+              <Route path="/signup/training-center/:role" element={<TrainingCenterRoleSignup />} />
+              <Route path="/training-center-registration" element={<TrainingCenterRegistration />} />
+              <Route path="/signup/language-center" element={<Navigate to={`/signup/language-center/admin${typeof window !== 'undefined' ? window.location.search : ''}`} replace />} />
+              <Route path="/signup/language-center/admin" element={<LanguageCenterAdminSignup />} />
+              <Route path="/signup/language-center/:role" element={<LanguageCenterRoleSignup />} />
+              <Route path="/language-center-registration" element={<LanguageCenterRegistration />} />
               <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
               <Route path="/institution/faculty/invite/:token" element={<FacultyInvitationRegistration />} />
               <Route path="/institution/student/invite/:token" element={<StudentInvitationRegistration />} />

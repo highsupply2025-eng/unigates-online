@@ -135,9 +135,9 @@ const CoursesPlatform = () => {
       descEn: "Launch accredited multi-instructor diplomas and training programs with central administration.",
       icon: Building2,
       color: "from-amber-500 to-orange-600",
-      ctaAr: "تسجيل مركز تدريب",
-      ctaEn: "Register Center",
-      link: "/courses/signup?role=training_center",
+      ctaAr: "بوابة مراكز التدريب",
+      ctaEn: "Training Center Portal",
+      link: "/training-center-registration",
     },
     {
       roleAr: "مراكز اللغات والترجمة",
@@ -146,9 +146,9 @@ const CoursesPlatform = () => {
       descEn: "Offer foreign language learning programs and international proficiency exam prep (IELTS, TOEFL) with certified coaches.",
       icon: Languages,
       color: "from-rose-500 to-pink-600",
-      ctaAr: "تسجيل مركز لغات",
-      ctaEn: "Register Language Center",
-      link: "/courses/signup?role=language_center",
+      ctaAr: "بوابة مراكز اللغات",
+      ctaEn: "Language Center Portal",
+      link: "/language-center-registration",
     },
     {
       roleAr: "الطلاب والمتدربون",
@@ -408,14 +408,14 @@ const CoursesPlatform = () => {
               </Button>
             </Link>
 
-            <Link to="/courses/signup?role=training_center">
+            <Link to="/training-center-registration">
               <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
                 <Building2 className="w-5 h-5" />
                 {tText("🏢 تسجيل مركز تدريب", "Register Training Center")}
               </Button>
             </Link>
 
-            <Link to="/courses/signup?role=language_center">
+            <Link to="/language-center-registration">
               <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-xl shadow-rose-500/30 gap-2 hover:scale-105 transition-all">
                 <Languages className="w-5 h-5" />
                 {tText("🌐 تسجيل مركز لغات", "Register Language Center")}

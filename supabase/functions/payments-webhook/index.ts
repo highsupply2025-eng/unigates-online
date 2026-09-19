@@ -66,6 +66,21 @@ async function applyInstitutionBusinessLogic(params: {
   }
 }
 
+async function logEmailAttempt(
+  recipientEmail: string,
+  status: "sent" | "suppressed" | "failed",
+  errorMessage?: string,
+) {
+  const supabase = getSupabase();
+  const { error } = await supabase.from("email_send_log").insert({
+    template_name: "subscription-confirmation",
+    recipient_email: recipientEmail,
+    status,
+    error_message: errorMessage ? errorMessage.slice(0, 1000) : null,
+  });
+  if (error) console.error("email_send_log insert failed:", error);
+}
+
 async function sendConfirmationEmail(userId: string, priceId: string) {
   const supabase = getSupabase();
   const { data: profile } = await supabase
@@ -78,25 +93,24 @@ async function sendConfirmationEmail(userId: string, priceId: string) {
   if (!email) return;
 
   const name = (profile as { full_name?: string } | null)?.full_name ?? "";
-  const plan = planFromPriceId(priceId) === "annual" ? "السنوية" : "الشهرية";
+  const planLabel = planFromPriceId(priceId) === "annual" ? "السنوية" : "الشهرية";
 
-  const { error } = await supabase.rpc("enqueue_email", {
-    queue_name: "transactional_emails",
-    payload: {
-      to: email,
-      subject: "تأكيد الاشتراك — UNIGATES",
-      label: "subscription_confirmation",
-      purpose: "transactional",
-      html:
-        `<div dir="rtl" style="font-family:Cairo,Arial,sans-serif">` +
-        `<h2>تم تفعيل اشتراكك</h2>` +
-        `<p>مرحبًا ${name}،</p>` +
-        `<p>تم تأكيد الدفع وتفعيل خطتك ${plan} على منصة UNIGATES.</p>` +
-        `</div>`,
-      message_id: `sub-${userId}-${priceId}-${Date.now()}`,
-    },
-  });
-  if (error) console.error("enqueue_email failed:", error);
+  try {
+    const result = await sendTemplateEmail("subscription-confirmation", email, {
+      templateData: { name, planLabel },
+      idempotencyKey: `subscription-confirmation-${userId}-${priceId}`,
+    });
+
+    if (result.sent) {
+      await logEmailAttempt(email, "sent");
+    } else {
+      await logEmailAttempt(email, "suppressed", "Recipient is suppressed");
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("subscription confirmation email failed:", message);
+    await logEmailAttempt(email, "failed", message);
+  }
 }
 
 async function upsertSubscription(data: any, env: PaddleEnv, statusOverride?: string) {

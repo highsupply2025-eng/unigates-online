@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { verifyWebhook, EventName, type PaddleEnv } from "../_shared/paddle.ts";
 import { sendTemplateEmail } from "../_shared/transactional-email-templates/send-email.ts";
+import { isAllowedPaddleSource } from "../_shared/paddle-ips.ts";
 
 let _supabase: ReturnType<typeof createClient> | null = null;
 function getSupabase() {
@@ -209,6 +210,10 @@ async function handleWebhook(req: Request, env: PaddleEnv) {
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
+  }
+  if (!(await isAllowedPaddleSource(req))) {
+    console.warn("Rejected webhook from non-Paddle source IP");
+    return new Response("Forbidden", { status: 403 });
   }
   const url = new URL(req.url);
   const env = (url.searchParams.get("env") || "sandbox") as PaddleEnv;

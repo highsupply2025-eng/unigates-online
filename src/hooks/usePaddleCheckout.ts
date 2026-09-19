@@ -8,13 +8,16 @@ export function usePaddleCheckout() {
     priceId: string;
     quantity?: number;
     customerEmail?: string;
+    /** Paddle customer ID (`ctm_...`) of the signed-in user, for Paddle Retain. */
+    paddleCustomerId?: string | null;
     customData?: Record<string, string>;
     successUrl?: string;
   }) => {
     setLoading(true);
     try {
-      await initializePaddle();
+      await initializePaddle(options.paddleCustomerId);
       const paddlePriceId = await getPaddlePriceId(options.priceId);
+
 
       window.Paddle.Checkout.open({
         items: [{ priceId: paddlePriceId, quantity: options.quantity ?? 1 }],

@@ -14,9 +14,26 @@ export function getPaddleEnvironment(): "sandbox" | "live" {
 }
 
 let paddleInitialized = false;
+let initializedCustomerId: string | null = null;
 
-export async function initializePaddle() {
-  if (paddleInitialized) return;
+/**
+ * Loads and initializes Paddle.js.
+ *
+ * `paddleCustomerId` must be the signed-in user's Paddle customer ID (`ctm_...`),
+ * never an internal user ID or email. It is passed to Paddle.Initialize as
+ * `pwCustomer` so Paddle Retain can run its retention flows for that customer.
+ */
+export async function initializePaddle(paddleCustomerId?: string | null) {
+  const pwCustomer = paddleCustomerId?.startsWith("ctm_") ? paddleCustomerId : null;
+
+  if (paddleInitialized) {
+    // Re-run Initialize only when a customer identity became available (or changed).
+    if (pwCustomer && pwCustomer !== initializedCustomerId && window.Paddle) {
+      window.Paddle.Initialize({ token: clientToken, pwCustomer: { id: pwCustomer } });
+      initializedCustomerId = pwCustomer;
+    }
+    return;
+  }
 
   if (!clientToken) {
     throw new Error("VITE_PAYMENTS_CLIENT_TOKEN is not set");
@@ -28,7 +45,11 @@ export async function initializePaddle() {
     script.onload = () => {
       const env = getPaddleEnvironment() === "sandbox" ? "sandbox" : "production";
       window.Paddle.Environment.set(env);
-      window.Paddle.Initialize({ token: clientToken });
+      window.Paddle.Initialize({
+        token: clientToken,
+        ...(pwCustomer ? { pwCustomer: { id: pwCustomer } } : {}),
+      });
+      initializedCustomerId = pwCustomer;
       paddleInitialized = true;
       resolve();
     };

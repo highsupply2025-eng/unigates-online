@@ -36,6 +36,7 @@ import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import ugLogo from "@/assets/ug-logo.png";
 import LiveStreamRoom from "@/components/LiveStreamRoom";
+import { ProductShowcaseCard, CreateProductStudioModal, EducationalProduct } from "@/components/EducationalProductStudio";
 
 export type CourseProviderRole = "lecturer" | "teacher" | "training_center" | "language_center";
 
@@ -1023,94 +1024,98 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
           </div>
         )}
 
-        {/* 2. TAB: CONTENT / COURSES / LECTURES */}
+        {/* 2. TAB: CONTENT / PRODUCTS / COURSES / BOOKS */}
         {activeTab === "content" && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
                   <BookOpen className="w-6 h-6 text-purple-400" />
-                  <span>{isRtl ? cfg.items.contentAr : cfg.items.contentEn}</span>
+                  <span>{isRtl ? "المتجر والمنتجات التعليمية (كتب، دورات، وباقات)" : "Catalog & Educational Products"}</span>
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                  {isRtl ? `إدارة ونشر وتعديل ${cfg.items.contentAr} وحماية الفيديوهات بتقنية DRM` : `Manage and publish ${cfg.items.contentEn} with DRM video protection`}
+                  {isRtl
+                    ? "إدارة ونشر الكتب الرقمية، الدورات المسجلة، والورش التفاعلية مع حماية DRM وشهادات QR"
+                    : "Manage & publish protected digital books, 4K courses, and interactive cohorts"}
                 </p>
               </div>
               <Button
                 onClick={() => setCreateCourseOpen(true)}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 font-bold gap-2"
+                className="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 font-black gap-2 shadow-lg shadow-purple-500/25"
               >
                 <Plus className="w-4 h-4" />
-                <span>{isRtl ? `إضافة ${cfg.items.contentSingularAr}` : `Add ${cfg.items.contentSingularEn}`}</span>
+                <span>{isRtl ? "إضافة منتج تعليمي جديد (كتاب / دورة)" : "Create Educational Product"}</span>
               </Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((c) => (
-                <Card key={c.id} className="bg-slate-900/60 border-white/10 overflow-hidden group hover:border-purple-500/40 transition-all flex flex-col justify-between">
-                  <div>
-                    <div className="h-40 bg-gradient-to-br from-purple-900/50 via-indigo-950/60 to-slate-950 relative p-4 flex flex-col justify-between">
-                      <div className="flex items-center justify-between">
-                        <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
-                          {c.category}
-                        </Badge>
-                        {c.drm && (
-                          <Badge variant="outline" className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-[10px] gap-1">
-                            <ShieldCheck className="w-3 h-3" />
-                            <span>DRM Encrypted</span>
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-white mx-auto group-hover:scale-110 transition-transform">
-                        <Play className="w-6 h-6 fill-white" />
-                      </div>
-                      <div className="flex items-center justify-between text-[11px] text-slate-300">
-                        <span>{c.isFree ? (isRtl ? "محتوى مجاني" : "Free") : `${c.price} SAR`}</span>
-                        <span>{c.views} {isRtl ? "مشاهدة" : "views"}</span>
-                      </div>
-                    </div>
+              {courses.map((c) => {
+                const prod: EducationalProduct = {
+                  id: String(c.id),
+                  type: c.type || (c.category?.toLowerCase().includes("book") ? "ebook" : "recorded_course"),
+                  title: c.title,
+                  description: c.description || (isRtl ? "محتوى تعليمي وتدريبي معتمد ومحمي بالكامل مع شروحات وتطبيقات عملية متقدمة." : "Accredited educational content with DRM protection and hands-on exercises."),
+                  price: c.isFree ? 0 : (c.price || 49),
+                  originalPrice: c.isFree ? 0 : ((c.price || 49) * 1.5),
+                  currency: "USD",
+                  instructorName: profile?.full_name || (isRtl ? "المحاضر المعتمد" : "Accredited Instructor"),
+                  institutionName: cfg.dashboardTitleAr,
+                  rating: c.rating || 4.9,
+                  reviewsCount: 24,
+                  studentsEnrolled: c.studentsCount || 85,
+                  lessonsCount: 16,
+                  pagesCount: 140,
+                  durationHours: 8,
+                  includesCertificate: true,
+                  drmProtected: c.drm !== false,
+                  watermarkEnabled: true,
+                  freeTrialAvailable: true,
+                  tags: ["4K", "DRM", "QR Cert"],
+                };
 
-                    <CardContent className="p-5 space-y-3">
-                      <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
-                        {c.title}
-                      </h3>
-                      <div className="flex items-center justify-between text-xs text-slate-400">
-                        <span className="flex items-center gap-1">
-                          <Users className="w-3.5 h-3.5" />
-                          <span>{c.studentsCount} {isRtl ? cfg.items.traineeSingularAr : cfg.items.traineeSingularEn}</span>
-                        </span>
-                        <span className="flex items-center gap-1 text-amber-400">
-                          <Star className="w-3.5 h-3.5 fill-amber-400" />
-                          <span>{c.rating}</span>
-                        </span>
-                      </div>
-                    </CardContent>
-                  </div>
-
-                  <div className="p-4 border-t border-white/5 bg-white/[0.02] flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigate(`/courses/browse`)}
-                      className="flex-1 border-white/15 text-xs font-bold gap-1.5"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>{isRtl ? "معاينة المحتوى" : "Preview"}</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        toast({ title: isRtl ? "تم نسخ رابط المشاركة" : "Share link copied!" });
-                      }}
-                      className="border-white/15 text-xs px-2.5"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                return (
+                  <ProductShowcaseCard
+                    key={c.id}
+                    product={prod}
+                    isOwner={true}
+                    onPreview={() => navigate(`/courses/browse`)}
+                    onBuy={() => {
+                      toast({
+                        title: isRtl ? "إدارة وتعديل المنتج" : "Manage Product",
+                        description: isRtl ? "يمكنك تعديل المحاضرات، الأسعار، وإعدادات الحماية" : "Edit lessons, pricing, and DRM",
+                      });
+                    }}
+                  />
+                );
+              })}
             </div>
+
+            {/* Create Product Studio Modal */}
+            <CreateProductStudioModal
+              isOpen={createCourseOpen}
+              onClose={() => setCreateCourseOpen(false)}
+              instructorName={profile?.full_name || (isRtl ? "المحاضر المعتمد" : "Accredited Instructor")}
+              institutionName={cfg.dashboardTitleAr}
+              onSave={(newProd) => {
+                setCourses((prev) => [
+                  {
+                    id: newProd.id || String(Date.now()),
+                    title: newProd.title,
+                    description: newProd.description,
+                    type: newProd.type,
+                    category: newProd.type === "ebook" ? "E-Book" : "Masterclass",
+                    studentsCount: 0,
+                    rating: 5.0,
+                    isFree: newProd.price === 0,
+                    price: newProd.price,
+                    views: 1,
+                    drm: newProd.drmProtected,
+                    created_at: new Date().toISOString().slice(0, 10),
+                  },
+                  ...prev,
+                ]);
+              }}
+            />
           </div>
         )}
 

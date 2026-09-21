@@ -420,9 +420,9 @@ const CoursesSignup = () => {
                 const isInstitutional = r.value === "training_center" || r.value === "language_center";
                 const handleCardClick = () => {
                   if (r.value === "training_center") {
-                    navigate("/training-center-registration");
+                    navigate("/signup/training-center/admin");
                   } else if (r.value === "language_center") {
-                    navigate("/language-center-registration");
+                    navigate("/signup/language-center/admin");
                   } else {
                     setRole(r.value);
                   }
@@ -472,7 +472,7 @@ const CoursesSignup = () => {
                         type="button"
                         className={`w-full font-black text-xs h-10 rounded-xl bg-gradient-to-r ${r.color} text-white shadow-md group-hover:opacity-95 transition-opacity flex items-center justify-center gap-1.5`}
                       >
-                        <span>{isInstitutional ? tText("بوابة " + r.labelAr, "Portal for " + r.labelEn) : tText("تسجيل كـ " + r.labelAr, "Register as " + r.labelEn)}</span>
+                        <span>{isInstitutional ? tText("تسجيل إدارة " + r.labelAr, "Register Admin for " + r.labelEn) : tText("تسجيل كـ " + r.labelAr, "Register as " + r.labelEn)}</span>
                         <ArrowIcon className="w-3.5 h-3.5" />
                       </Button>
                     </div>

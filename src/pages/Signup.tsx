@@ -80,36 +80,6 @@ const registrationGateways = [
     borderHover: "hover:border-teal-500/60 hover:shadow-teal-500/20",
     lightBg: "bg-teal-50/50 dark:bg-teal-950/20",
   },
-  {
-    id: "training_center",
-    labelAr: "مركز تدريب وأكاديمية",
-    labelEn: "Training Center & Academy",
-    badgeAr: "الأكاديميات المهنية",
-    badgeEn: "Professional Academies",
-    descAr: "إدارة المسارات التدريبية والمدربين المعتمدين والمتدربين مع 20 كريدت ترحيبي مجاناً",
-    descEn: "Manage training tracks, accredited trainers, and trainees with 20 free welcome credits",
-    icon: BookOpenCheck,
-    href: "/training-center-registration",
-    gradient: "from-amber-500 via-orange-600 to-yellow-600",
-    shadow: "shadow-amber-500/25",
-    borderHover: "hover:border-amber-500/60 hover:shadow-amber-500/20",
-    lightBg: "bg-amber-50/50 dark:bg-amber-950/20",
-  },
-  {
-    id: "language_center",
-    labelAr: "مركز لغات وترجمة",
-    labelEn: "Language & Translation Center",
-    badgeAr: "مدارس ومعاهد اللغات",
-    badgeEn: "Language Institutes",
-    descAr: "إدارة برامج اللغات وشعب الترجمة واختبارات IELTS/TOEFL مع 20 كريدت مجاناً",
-    descEn: "Manage language tracks, translation units, and IELTS/TOEFL prep with 20 free credits",
-    icon: Globe,
-    href: "/language-center-registration",
-    gradient: "from-rose-500 via-pink-600 to-red-600",
-    shadow: "shadow-rose-500/25",
-    borderHover: "hover:border-rose-500/60 hover:shadow-rose-500/20",
-    lightBg: "bg-rose-50/50 dark:bg-rose-950/20",
-  },
 ];
 
 const Signup = () => {
@@ -403,13 +373,13 @@ const Signup = () => {
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium max-w-lg mx-auto leading-relaxed">
                 {language === "ar"
-                  ? "اختر نوع المؤسسة أو المركز لإنشاء حساب الإدارة وتفعيل المنظومة مع باقة 20 مقعداً مجاناً لأول شهر"
-                  : "Select your institution or academy to create administration account with 20 free seats for the first month"}
+                  ? "اختر نوع المؤسسة الأكاديمية (كلية جامعية أو معهد عالي) لإنشاء حساب الإدارة وتفعيل المنظومة مع باقة 20 مقعداً مجاناً لأول شهر"
+                  : "Select your higher education institution type (College or Institute) to create leadership administration account with 20 free seats"}
               </p>
             </div>
 
             {/* Grid of Registration Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
               {registrationGateways.map((item) => {
                 const Icon = item.icon;
                 return (

@@ -39,6 +39,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
+import CreditRentalSelector, { CreditPackage } from "@/components/CreditRentalSelector";
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
@@ -107,10 +108,10 @@ const ROLES: {
     value: "lecturer",
     labelAr: "محاضر ومدرب مستقل",
     labelEn: "Instructor & Lecturer",
-    descAr: "أنشئ استوديو دوراتك الخاص، ارفع فيديوهاتك المحمية بنظام DRM، وحدد أسعار اشتراكاتك.",
-    descEn: "Build your course studio, upload DRM-encrypted video lectures, and set custom pricing.",
-    featuresAr: ["حماية الفيديو بنظام DRM", "تحصيل الأرباح مباشرة", "لوحة إحصائيات متقدمة"],
-    featuresEn: ["Enterprise DRM protection", "Direct revenue payout", "Advanced analytics studio"],
+    descAr: "أنشئ استوديو دوراتك الخاص، ارفع فيديوهاتك المحمية بنظام DRM، مع باقة 20 مقعداً مجاناً لأول شهر.",
+    descEn: "Build your course studio, upload DRM-encrypted video lectures, with 20 free seats for the 1st month.",
+    featuresAr: ["🎁 20 كريدت سحابي مجاناً", "حماية الفيديو بنظام DRM", "تحصيل الأرباح مباشرة (عمولة 5%)"],
+    featuresEn: ["🎁 20 Free Welcome Credits", "Enterprise DRM protection", "Direct revenue payout (5% fee)"],
     icon: BookOpenCheck,
     color: "from-purple-600 via-indigo-600 to-pink-600",
     glowColor: "shadow-purple-500/25 border-purple-500/40",
@@ -122,10 +123,10 @@ const ROLES: {
     value: "teacher",
     labelAr: "معلّم متميز",
     labelEn: "Distinguished Teacher",
-    descAr: "قدّم دروس تقوية ومراجعات شاملة للمناهج المدرسية K-12 مع بنوك أسئلة واختبارات تفاعلية.",
-    descEn: "Offer curriculum tutoring and exam prep for K-12 students with auto-graded quizzes.",
-    featuresAr: ["متابعة أداء الطلاب", "بنك أسئلة واختبارات", "بث فصول افتراضية"],
-    featuresEn: ["Student progress tracking", "Interactive quiz bank", "Live virtual classes"],
+    descAr: "قدّم دروس تقوية ومراجعات شاملة للمناهج المدرسية K-12 مع بنوك أسئلة ومساحة 20 طالباً مجاناً.",
+    descEn: "Offer curriculum tutoring and exam prep for K-12 students with 20 free students capacity.",
+    featuresAr: ["🎁 20 كريدت سحابي مجاناً", "متابعة أداء الطلاب وبنوك أسئلة", "بث فصول افتراضية متطورة"],
+    featuresEn: ["🎁 20 Free Welcome Credits", "Student progress tracking", "Live virtual classes"],
     icon: Users,
     color: "from-emerald-500 via-teal-600 to-emerald-700",
     glowColor: "shadow-emerald-500/25 border-emerald-500/40",
@@ -185,6 +186,7 @@ const CoursesSignup = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [creditPlan, setCreditPlan] = useState("welcome_gift");
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -777,6 +779,17 @@ const CoursesSignup = () => {
                         </button>
                       </div>
                     </div>
+
+                    {/* Credit Rental Selector for Educators and Lecturers */}
+                    {(role === "lecturer" || role === "teacher") && (
+                      <div className="pt-2 pb-1">
+                        <CreditRentalSelector
+                          selectedPackageId={creditPlan}
+                          onSelectPackage={(pkg) => setCreditPlan(pkg.id)}
+                          institutionType={role}
+                        />
+                      </div>
+                    )}
 
                     {/* Role Note */}
                     {!selectedRole?.autoApprove && (

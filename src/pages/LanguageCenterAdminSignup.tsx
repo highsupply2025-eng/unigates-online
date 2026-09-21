@@ -19,6 +19,7 @@ import { useSmartBack } from "@/hooks/use-smart-back";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
 import { uploadSignupLogo } from "@/lib/signup-logo-upload";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import CreditRentalSelector from "@/components/CreditRentalSelector";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬", label: "مصر (+20)" },
@@ -522,7 +523,7 @@ const LanguageCenterAdminSignup = () => {
                   </div>
                 </div>
 
-                {/* SECTION 4: Subscription Plan Selection */}
+                {/* SECTION 4: Credit Rental & Language Students Capacity Selection */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2.5 pb-2 border-b border-border/60">
                     <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
@@ -530,44 +531,19 @@ const LanguageCenterAdminSignup = () => {
                     </div>
                     <div>
                       <h3 className="text-base font-black text-foreground">
-                        {isRtl ? "4. باقة الاشتراك المعتمدة" : "4. Center Subscription Tier"}
+                        {isRtl ? "4. باقة المساحة الإيجارية وسعة دارسي اللغات (الكريدت السحابي)" : "4. Credit Rental Space & Language Students Capacity"}
                       </h3>
                       <p className="text-xs text-muted-foreground">
-                        {isRtl ? "اختر الخطة المناسبة ويمكنك ترقيتها في أي وقت" : "Flexible plans with upgrade options anytime"}
+                        {isRtl ? "احصل على 20 كريدت مجاناً لأول شهر، مع إمكانية التوسع واقتناء مساحات إضافية وترحيل الرصيد تلقائياً" : "Get 20 free credits for the first month with automatic credit rollover and scalable add-ons"}
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                    {planOptions.map((plan) => {
-                      const isSelected = subscriptionPlan === plan.id;
-                      return (
-                        <div
-                          key={plan.id}
-                          onClick={() => setSubscriptionPlan(plan.id)}
-                          className={`cursor-pointer p-4 rounded-2xl border-2 transition-all relative flex flex-col justify-between ${
-                            isSelected
-                              ? "border-rose-500 bg-rose-500/10 shadow-lg shadow-rose-500/15 ring-2 ring-rose-500/20"
-                              : "border-border/80 bg-muted/30 hover:border-rose-500/40 hover:bg-muted/60"
-                          }`}
-                        >
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <Badge className="bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/30 font-bold text-[10px]">
-                                {plan.badge}
-                              </Badge>
-                              {isSelected && <CheckCircle2 className="w-4 h-4 text-rose-600 shrink-0" />}
-                            </div>
-                            <h4 className="text-sm font-black text-foreground leading-snug">{plan.title}</h4>
-                            <p className="text-xs text-muted-foreground leading-relaxed">{plan.desc}</p>
-                          </div>
-                          <div className="mt-3 pt-2 border-t border-border/40 text-end font-black text-xs text-rose-600">
-                            {plan.tag}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <CreditRentalSelector
+                    selectedPackageId={subscriptionPlan}
+                    onSelectPackage={(pkg) => setSubscriptionPlan(pkg.id)}
+                    institutionType="language_center"
+                  />
                 </div>
 
                 {/* SECTION 5: Admin Account Credentials */}

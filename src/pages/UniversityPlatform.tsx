@@ -340,20 +340,6 @@ const UniversityPlatform = () => {
                 {isRtl ? "🏢 تسجيل معهد عالي" : "Register Institute"}
               </Button>
             </Link>
-
-            <Link to="/signup">
-              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
-                <GraduationCap className="w-5 h-5" />
-                {isRtl ? "🎓 حساب طالب / عضو تدريس" : "Student / Faculty Signup"}
-              </Button>
-            </Link>
-
-            <Link to="/login">
-              <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
-                <Users className="w-5 h-5" />
-                {isRtl ? "تسجيل الدخول" : "Portal Login"}
-              </Button>
-            </Link>
           </div>
 
           {/* Live Platform Stats Cards */}

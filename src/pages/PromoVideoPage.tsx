@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -238,6 +238,26 @@ export default function PromoVideoPage() {
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const videoElRef = useRef<HTMLVideoElement | null>(null);
+
+  // "0:20 – 0:40" -> 20 (seconds)
+  const sceneStartSeconds = (timeRange: string) => {
+    const first = timeRange.split(/[–-]/)[0].trim();
+    const [m, s] = first.split(":").map((n) => Number(n) || 0);
+    return m * 60 + s;
+  };
+
+  // Jump the real <video> element (and the interactive fallback state) to a scene
+  const jumpToScene = (idx: number) => {
+    setCurrentSceneIndex(idx);
+    setProgressPercent((idx / PROMO_SCENES.length) * 100);
+    const el = videoElRef.current;
+    const scene = PROMO_SCENES[idx];
+    if (el && scene) {
+      el.currentTime = sceneStartSeconds(scene.timeRange);
+      void el.play().catch(() => undefined);
+    }
+  };
 
   const [videos, setVideos] = useState<StudioVideo[]>(() => {
     const saved = localStorage.getItem("unigates_studio_videos");
@@ -518,6 +538,7 @@ export default function PromoVideoPage() {
                   />
                 ) : selectedVideo.videoUrl ? (
                   <video
+                    ref={videoElRef}
                     src={selectedVideo.videoUrl}
                     poster={selectedVideo.thumbnailUrl}
                     title={selectedVideo.titleAr}
@@ -629,8 +650,7 @@ export default function PromoVideoPage() {
                             <button
                               key={sc.id}
                               onClick={() => {
-                                setCurrentSceneIndex(idx);
-                                setProgressPercent((idx / PROMO_SCENES.length) * 100);
+                                jumpToScene(idx);
                               }}
                               className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
                                 currentSceneIndex === idx
@@ -711,8 +731,7 @@ export default function PromoVideoPage() {
                   <div
                     key={scene.id}
                     onClick={() => {
-                      setCurrentSceneIndex(idx);
-                      setProgressPercent((idx / PROMO_SCENES.length) * 100);
+                      jumpToScene(idx);
                       window.scrollTo({ top: 300, behavior: "smooth" });
                     }}
                     className={`p-4 rounded-2xl border-2 transition-all cursor-pointer bg-card hover:-translate-y-1 ${

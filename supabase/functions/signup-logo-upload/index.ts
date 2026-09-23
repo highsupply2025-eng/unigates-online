@@ -69,7 +69,15 @@ Deno.serve(async (req) => {
     const file = formData.get("file");
     const kind = formData.get("kind");
 
-    if (!(file instanceof File) || (kind !== "college" && kind !== "institute")) {
+    // Each institution kind maps to an existing public logos bucket.
+    const BUCKETS: Record<string, string> = {
+      college: "college-logos",
+      institute: "institute-logos",
+      training_center: "institute-logos",
+      language_center: "institute-logos",
+    };
+
+    if (!(file instanceof File) || typeof kind !== "string" || !BUCKETS[kind]) {
       return new Response(
         JSON.stringify({ error: "Missing file or invalid institution type" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -96,9 +104,8 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-
-    const bucket = kind === "college" ? "college-logos" : "institute-logos";
-    const path = `pending/${crypto.randomUUID()}.${ext}`;
+    const bucket = BUCKETS[kind];
+    const path = `pending/${kind}/${crypto.randomUUID()}.${ext}`;
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from(bucket)

@@ -19,7 +19,7 @@ import { useSmartBack } from "@/hooks/use-smart-back";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
 import { uploadSignupLogo } from "@/lib/signup-logo-upload";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
-import CreditRentalSelector from "@/components/CreditRentalSelector";
+import CreditRentalSelector, { CREDIT_TIERS } from "@/components/CreditRentalSelector";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬", label: "مصر (+20)" },
@@ -43,7 +43,7 @@ const LanguageCenterAdminSignup = () => {
   const [searchParams] = useSearchParams();
   const planParam = searchParams.get("plan");
   const [subscriptionPlan, setSubscriptionPlan] = useState(
-    ["free", "monthly", "annual"].includes(planParam || "") ? planParam! : "monthly"
+    CREDIT_TIERS.some((t) => t.id === planParam) ? planParam! : "welcome_gift"
   );
 
   const [centerName, setCenterName] = useState("");

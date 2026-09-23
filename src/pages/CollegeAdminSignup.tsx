@@ -44,7 +44,7 @@ const CollegeAdminSignup = () => {
   const [searchParams] = useSearchParams();
   const planParam = searchParams.get("plan");
   const [subscriptionPlan, setSubscriptionPlan] = useState(
-    ["free", "monthly", "annual"].includes(planParam || "") ? planParam! : "monthly"
+    CREDIT_TIERS.some((t) => t.id === planParam) ? planParam! : "welcome_gift"
   );
 
   const [collegeName, setCollegeName] = useState("");

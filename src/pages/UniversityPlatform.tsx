@@ -320,8 +320,8 @@ const UniversityPlatform = () => {
             </h1>
             <p className="text-sm sm:text-lg md:text-xl text-slate-200/90 font-medium max-w-3xl mx-auto leading-relaxed">
               {isRtl
-                ? "بيئة أكاديمية متكاملة تدير المحاضرات، سلاسل الاعتماد الرقمي للاختبارات، البث المباشر، استوديو التكليفات، واستطلاعات الجودة المجهولة لهيئة التدريس."
-                : "A unified academic ecosystem managing digital exam approval chains, live streaming, assignment grading studio, and anonymous student evaluations."}
+                ? "بيئة أكاديمية متكاملة تدير المحاضرات، سلاسل الاعتماد الرقمي للاختبارات، البث المباشر، استوديو التكليفات، وتقييمات الطلاب لهيئة التدريس."
+                : "A unified academic ecosystem managing digital exam approval chains, live streaming, assignment grading studio, and student evaluations for faculty."}
             </p>
           </div>
 

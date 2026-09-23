@@ -1720,88 +1720,8 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
 
       </main>
 
-      {/* CREATE COURSE / LECTURE MODAL */}
-      <Dialog open={createCourseOpen} onOpenChange={setCreateCourseOpen}>
-        <DialogContent className="bg-slate-900 border-white/15 text-white max-w-lg" dir={dir}>
-          <DialogHeader>
-            <DialogTitle className="text-lg font-black flex items-center gap-2">
-              <Plus className="w-5 h-5 text-purple-400" />
-              <span>{isRtl ? `إضافة ${cfg.items.contentSingularAr} جديدة` : `New ${cfg.items.contentSingularEn}`}</span>
-            </DialogTitle>
-            <DialogDescription className="text-xs text-slate-400">
-              {isRtl ? "أدخل تفاصيل الدورة، السعر، وتفعيل حماية الفيديو بنظام DRM" : "Fill course details, price, and DRM protection options"}
-            </DialogDescription>
-          </DialogHeader>
+      {/* Create-course flow lives in <CreateProductStudioModal /> above (driven by createCourseOpen) */}
 
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-slate-300">{isRtl ? "عنوان المحتوى" : "Title"}</Label>
-              <Input
-                value={newCourse.title}
-                onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
-                placeholder={isRtl ? "مثال: دبلوم الذكاء الاصطناعي التوليدي" : "e.g. AI Masterclass"}
-                className="bg-slate-950 border-white/15 text-white"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs text-slate-300">{isRtl ? "التصنيف / المسار" : "Category"}</Label>
-              <Input
-                value={newCourse.category}
-                onChange={(e) => setNewCourse({ ...newCourse, category: e.target.value })}
-                placeholder={isRtl ? "مثال: برمجة وعلوم حاسب" : "e.g. Computer Science"}
-                className="bg-slate-950 border-white/15 text-white"
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5">
-              <div className="space-y-0.5">
-                <Label className="text-xs text-white font-bold">{isRtl ? "محتوى مجاني" : "Free Content"}</Label>
-                <p className="text-[11px] text-slate-400">{isRtl ? "إتاحة المحتوى لجميع المسجلين مجاناً" : "Make available to all without payment"}</p>
-              </div>
-              <Switch
-                checked={newCourse.isFree}
-                onCheckedChange={(checked) => setNewCourse({ ...newCourse, isFree: checked })}
-              />
-            </div>
-
-            {!newCourse.isFree && (
-              <div className="space-y-1.5">
-                <Label className="text-xs text-slate-300">{isRtl ? "سعر الاشتراك (ريال سعودي)" : "Price (SAR)"}</Label>
-                <Input
-                  type="number"
-                  value={newCourse.price}
-                  onChange={(e) => setNewCourse({ ...newCourse, price: Number(e.target.value) })}
-                  className="bg-slate-950 border-white/15 text-white"
-                />
-              </div>
-            )}
-
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20">
-              <div className="space-y-0.5">
-                <Label className="text-xs text-purple-300 font-bold flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>{isRtl ? "حماية الفيديو بنظام DRM" : "DRM Video Protection"}</span>
-                </Label>
-                <p className="text-[11px] text-slate-400">{isRtl ? "منع التسجيل وتشفير البث مع علامة مائية ديناميكية" : "Prevent screen recording with dynamic watermark"}</p>
-              </div>
-              <Switch
-                checked={newCourse.drmProtected}
-                onCheckedChange={(checked) => setNewCourse({ ...newCourse, drmProtected: checked })}
-              />
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setCreateCourseOpen(false)} className="border-white/15">
-              {isRtl ? "إلغاء" : "Cancel"}
-            </Button>
-            <Button onClick={handleCreateCourse} className="bg-gradient-to-r from-purple-600 to-pink-600 font-bold">
-              {isRtl ? "نشر المحتوى" : "Publish"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* CREATE STREAM MODAL */}
       <Dialog open={createStreamOpen} onOpenChange={setCreateStreamOpen}>

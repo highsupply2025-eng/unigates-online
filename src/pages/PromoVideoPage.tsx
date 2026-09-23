@@ -56,6 +56,24 @@ export interface StudioVideo {
   tags: string[];
 }
 
+const INITIAL_UNIGATES_VIDEO: StudioVideo = {
+  id: "unigates-official-promo-2026",
+  titleAr: "الفيديو الترويجي الرسمي لمنظومة UNIGATES التعليمية",
+  titleEn: "UNIGATES Official Digital Ecosystem Promo Video",
+  category: "promo",
+  speakerAr: "إدارة إنتاج وتطوير UNIGATES",
+  speakerEn: "UNIGATES Production Desk",
+  duration: "01:00",
+  date: "2026-09-24",
+  videoUrl: "/videos/unigates_ad.mp4",
+  thumbnailUrl: "/videos/unigates_thumb.jpg",
+  descriptionAr: "فيديو تعريفي شامل للمنظومة التعليمية الرقمية الموحدة: الكليات، المدارس، الدورات، متجر الكتب، وسوق التوظيف.",
+  descriptionEn: "Official promotional video presenting the unified educational ecosystem across higher education, schools, and professional courses.",
+  views: 1,
+  featured: true,
+  tags: ["UNIGATES", "المنظومة_التعليمية", "فيديو_ترويجي", "تعليم_رقمي", "EdTech"]
+};
+
 export default function PromoVideoPage() {
   const { language, dir } = useLanguage();
   const isAr = language === "ar";
@@ -63,24 +81,24 @@ export default function PromoVideoPage() {
 
   const [isAdminUser, setIsAdminUser] = useState(false);
 
-  // Initialize videos as empty or from localStorage
+  // Initialize videos with the newly produced video or from localStorage
   const [videos, setVideos] = useState<StudioVideo[]>(() => {
     const saved = localStorage.getItem("unigates_studio_videos");
     if (saved) {
       try {
         const parsed: StudioVideo[] = JSON.parse(saved);
-        // Filter out legacy mockup videos if any
-        return parsed.filter(v => v.videoUrl && !v.videoUrl.includes("dQw4w9WgXcQ"));
+        const filtered = parsed.filter(v => v.videoUrl && !v.videoUrl.includes("dQw4w9WgXcQ"));
+        if (filtered.length > 0) return filtered;
       } catch (e) {
-        return [];
+        return [INITIAL_UNIGATES_VIDEO];
       }
     }
-    return [];
+    return [INITIAL_UNIGATES_VIDEO];
   });
 
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedVideo, setSelectedVideo] = useState<StudioVideo | null>(() => videos[0] || null);
+  const [selectedVideo, setSelectedVideo] = useState<StudioVideo | null>(() => videos[0] || INITIAL_UNIGATES_VIDEO);
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const videoElRef = useRef<HTMLVideoElement | null>(null);

@@ -538,6 +538,7 @@ export default function PromoVideoPage() {
                   />
                 ) : selectedVideo.videoUrl ? (
                   <video
+                    ref={videoElRef}
                     src={selectedVideo.videoUrl}
                     poster={selectedVideo.thumbnailUrl}
                     title={selectedVideo.titleAr}
@@ -649,8 +650,7 @@ export default function PromoVideoPage() {
                             <button
                               key={sc.id}
                               onClick={() => {
-                                setCurrentSceneIndex(idx);
-                                setProgressPercent((idx / PROMO_SCENES.length) * 100);
+                                jumpToScene(idx);
                               }}
                               className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${
                                 currentSceneIndex === idx
@@ -731,8 +731,7 @@ export default function PromoVideoPage() {
                   <div
                     key={scene.id}
                     onClick={() => {
-                      setCurrentSceneIndex(idx);
-                      setProgressPercent((idx / PROMO_SCENES.length) * 100);
+                      jumpToScene(idx);
                       window.scrollTo({ top: 300, behavior: "smooth" });
                     }}
                     className={`p-4 rounded-2xl border-2 transition-all cursor-pointer bg-card hover:-translate-y-1 ${

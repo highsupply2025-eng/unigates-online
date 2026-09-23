@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import SimpleHeader from "@/components/SimpleHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -238,6 +238,26 @@ export default function PromoVideoPage() {
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const videoElRef = useRef<HTMLVideoElement | null>(null);
+
+  // "0:20 – 0:40" -> 20 (seconds)
+  const sceneStartSeconds = (timeRange: string) => {
+    const first = timeRange.split(/[–-]/)[0].trim();
+    const [m, s] = first.split(":").map((n) => Number(n) || 0);
+    return m * 60 + s;
+  };
+
+  // Jump the real <video> element (and the interactive fallback state) to a scene
+  const jumpToScene = (idx: number) => {
+    setCurrentSceneIndex(idx);
+    setProgressPercent((idx / PROMO_SCENES.length) * 100);
+    const el = videoElRef.current;
+    const scene = PROMO_SCENES[idx];
+    if (el && scene) {
+      el.currentTime = sceneStartSeconds(scene.timeRange);
+      void el.play().catch(() => undefined);
+    }
+  };
 
   const [videos, setVideos] = useState<StudioVideo[]>(() => {
     const saved = localStorage.getItem("unigates_studio_videos");

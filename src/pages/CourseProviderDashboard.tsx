@@ -352,29 +352,203 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
+  // ---------------------------------------------------------------
+  // REAL DATA LAYER (everything below is scoped to the signed-in
+  // provider account — no sample/demo content anywhere)
+  // ---------------------------------------------------------------
+  const localize = (ar?: string | null, en?: string | null) => (isRtl ? ar || en || "" : en || ar || "");
+
+  const loadAll = async (userId: string) => {
+    // 1. Courses / educational products owned by this account
+    const { data: courseRows } = await supabase
+      .from("courses")
+      .select("*")
+      .eq("creator_id", userId)
+      .order("created_at", { ascending: false });
+    const myCourses = (courseRows || []) as any[];
+    setCourses(
+      myCourses.map((c) => ({
+        ...c,
+        title: localize(c.title_ar, c.title_en),
+        category: localize(c.category_ar, c.category_en),
+        studentsCount: 0,
+        rating: 0,
+        isFree: !!c.is_free,
+        price: Number(c.price || 0),
+        views: 0,
+        drm: true,
+        created_at: String(c.created_at || "").slice(0, 10),
+      })),
+    );
+
+    // 2. Live streams
+    const { data: streamRows } = await supabase
+      .from("live_streams")
+      .select("*")
+      .eq("creator_id", userId)
+      .order("created_at", { ascending: false });
+    setLiveStreams(
+      ((streamRows || []) as any[]).map((s) => ({
+        ...s,
+        title: localize(s.title_ar, s.title_en),
+        viewers_count: 0,
+        scheduled_at: s.scheduled_at ? String(s.scheduled_at).slice(0, 16).replace("T", " ") : "",
+      })),
+    );
+
+    // 3. Schedules
+    const { data: scheduleRows } = await supabase
+      .from("lecture_schedules")
+      .select("*")
+      .eq("creator_id", userId)
+      .order("scheduled_date", { ascending: true });
+    setSchedules(
+      ((scheduleRows || []) as any[]).map((s) => ({
+        ...s,
+        subject: localize(s.title_ar, s.title_en),
+        day: String(s.scheduled_date || "").slice(0, 10),
+        time_start: String(s.start_time || "").slice(0, 5),
+        time_end: String(s.end_time || "").slice(0, 5),
+        hall: localize(s.location_ar, s.location_en),
+      })),
+    );
+
+    // 4. Quizzes & assignments (own content only)
+    const { data: quizRows } = await supabase
+      .from("quizzes")
+      .select("*")
+      .eq("creator_id", userId)
+      .order("created_at", { ascending: false });
+    const myQuizzes = (quizRows || []) as any[];
+
+    const { data: assignmentRows } = await supabase
+      .from("assignments")
+      .select("*")
+      .eq("creator_id", userId)
+      .order("created_at", { ascending: false });
+    const myAssignments = (assignmentRows || []) as any[];
+
+    // 5. Student submissions for those quizzes / assignments
+    let quizSubs: any[] = [];
+    if (myQuizzes.length) {
+      const { data } = await supabase
+        .from("quiz_submissions")
+        .select("*")
+        .in("quiz_id", myQuizzes.map((q) => q.id))
+        .order("submitted_at", { ascending: false });
+      quizSubs = (data || []) as any[];
+    }
+
+    let assignSubs: any[] = [];
+    if (myAssignments.length) {
+      const { data } = await supabase
+        .from("assignment_submissions")
+        .select("*")
+        .in("assignment_id", myAssignments.map((a) => a.id))
+        .order("submitted_at", { ascending: false });
+      assignSubs = (data || []) as any[];
+    }
+
+    // 6. Student display names
+    const studentIds = Array.from(
+      new Set([...quizSubs.map((s) => s.student_id), ...assignSubs.map((s) => s.student_id)].filter(Boolean)),
+    ) as string[];
+    const nameMap: Record<string, string> = {};
+    if (studentIds.length) {
+      const { data: profs } = await supabase.from("profiles").select("user_id, full_name").in("user_id", studentIds);
+      ((profs || []) as any[]).forEach((p) => {
+        nameMap[p.user_id] = p.full_name || "";
+      });
+    }
+
+    const quizTitleById: Record<string, string> = {};
+    myQuizzes.forEach((q) => { quizTitleById[q.id] = localize(q.title_ar, q.title_en); });
+    const assignmentTitleById: Record<string, string> = {};
+    myAssignments.forEach((a) => { assignmentTitleById[a.id] = localize(a.title_ar, a.title_en); });
+
+    setQuizzes(
+      myQuizzes.map((q) => {
+        const subs = quizSubs.filter((s) => s.quiz_id === q.id);
+        const scored = subs.map((s) => Number(s.score ?? s.percentage ?? 0));
+        return {
+          ...q,
+          title: quizTitleById[q.id],
+          duration_mins: q.duration_minutes || 0,
+          passing_score: q.passing_score ?? 0,
+          submissions_count: subs.length,
+          avg_score: scored.length ? Math.round(scored.reduce((a, b) => a + b, 0) / scored.length) : 0,
+        };
+      }),
+    );
+
+    setAssignments(
+      myAssignments.map((a) => ({
+        ...a,
+        title: assignmentTitleById[a.id],
+        due_date: String(a.due_date || "").slice(0, 10),
+        max_grade: Number(a.points || 100),
+        submissions_count: assignSubs.filter((s) => s.assignment_id === a.id).length,
+      })),
+    );
+
+    setAssignmentSubmissions(
+      assignSubs.map((s) => ({
+        ...s,
+        student_name: nameMap[s.student_id] || (isRtl ? "طالب" : "Student"),
+        assignment_title: assignmentTitleById[s.assignment_id] || "",
+        submitted_at: String(s.submitted_at || "").slice(0, 10),
+        score: s.grade !== null && s.grade !== undefined && s.grade !== "" ? Number(s.grade) : null,
+        status: s.graded_at ? "graded" : "pending",
+        feedback: isRtl ? s.feedback_ar || "" : s.feedback_en || "",
+      })),
+    );
+
+    setQuizSubmissions(
+      quizSubs.map((s) => ({
+        ...s,
+        student_name: nameMap[s.student_id] || (isRtl ? "طالب" : "Student"),
+        quiz_title: quizTitleById[s.quiz_id] || "",
+        score: Number(s.score ?? 0),
+        percentage: Number(s.percentage ?? s.score ?? 0),
+        passed: Number(s.percentage ?? s.score ?? 0) >= 50,
+        completed_at: String(s.submitted_at || "").slice(0, 16).replace("T", " "),
+      })),
+    );
+
+    // 7. Ratings students gave to this provider
+    const { data: ratingRows } = await supabase
+      .from("lecturer_ratings")
+      .select("*")
+      .eq("lecturer_id", userId)
+      .order("created_at", { ascending: false });
+    const raterIds = Array.from(new Set(((ratingRows || []) as any[]).map((r) => r.student_id).filter(Boolean))) as string[];
+    const raterNames: Record<string, string> = {};
+    if (raterIds.length) {
+      const { data: profs } = await supabase.from("profiles").select("user_id, full_name").in("user_id", raterIds);
+      ((profs || []) as any[]).forEach((p) => { raterNames[p.user_id] = p.full_name || ""; });
+    }
+    setRatings(
+      ((ratingRows || []) as any[]).map((r) => ({
+        ...r,
+        student_name: raterNames[r.student_id] || (isRtl ? "طالب" : "Student"),
+        comment: r.comment || "",
+        date: String(r.created_at || "").slice(0, 10),
+      })),
+    );
+
+    setMessages([]);
+  };
+
   // Load Initial Data
   useEffect(() => {
     let isMounted = true;
     (async () => {
       try {
         const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!isMounted) return;
         if (!authUser) {
-          // If in preview without auth, show rich demo state
-          setUser({ id: "demo-user", email: "provider@unigates.online" });
-          setProfile({
-            full_name: isRtl ? (cfg.roleNameAr) : cfg.roleNameEn,
-            email: "provider@unigates.online",
-            role: activeRole,
-          });
-          setProfileForm({
-            fullName: isRtl ? cfg.roleNameAr : cfg.roleNameEn,
-            email: "provider@unigates.online",
-            phone: "+966500000000",
-            bio: isRtl ? "مدرب ومحاضر معتمد لدى أكاديمية يونيجيتس للتعليم والتدريب المستمر." : "Accredited Instructor at UNIGATES Academy.",
-            specialty: isRtl ? "علوم الحاسب والذكاء الاصطناعي" : "Computer Science & AI",
-          });
-          populateSampleData();
-          setLoading(false);
+          // No session: send the provider to the login screen instead of demo data
+          navigate("/courses/login");
           return;
         }
 
@@ -387,87 +561,27 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
             fullName: prof.full_name || "",
             email: authUser.email || "",
             phone: prof.phone || "",
-            bio: prof.bio || (isRtl ? "عضو معتمد في المنصة" : "Accredited platform member"),
+            bio: prof.bio || "",
             specialty: prof.specialty || "",
           });
         }
 
-        // Fetch user courses
-        const { data: userCourses } = await supabase
-          .from("courses")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (userCourses && userCourses.length > 0) {
-          setCourses(userCourses);
-        } else {
-          populateSampleData();
-        }
-
-        setLoading(false);
+        await loadAll(authUser.id);
+        if (isMounted) setLoading(false);
       } catch (err) {
         console.error("Error loading dashboard data:", err);
-        populateSampleData();
-        setLoading(false);
+        if (isMounted) {
+          toast({
+            title: isRtl ? "تعذر تحميل بيانات لوحة التحكم" : "Could not load dashboard data",
+            variant: "destructive",
+          });
+          setLoading(false);
+        }
       }
     })();
     return () => { isMounted = false; };
   }, [activeRole, isRtl]);
 
-  const populateSampleData = () => {
-    setCourses([
-      { id: "1", title: isRtl ? `${cfg.items.contentSingularAr}: المسار المتقدم الاحترافي` : `${cfg.items.contentSingularEn}: Professional Masterclass`, category: "Technology & AI", studentsCount: 142, rating: 4.9, isFree: false, price: 299, views: 1850, drm: true, created_at: "2026-03-01" },
-      { id: "2", title: isRtl ? `${cfg.items.contentSingularAr}: الأساسيات والتطبيقات العملية` : `${cfg.items.contentSingularEn}: Fundamentals & Hands-on`, category: "Foundations", studentsCount: 89, rating: 4.8, isFree: true, price: 0, views: 920, drm: true, created_at: "2026-03-05" },
-      { id: "3", title: isRtl ? `${cfg.items.contentSingularAr}: ورش العمل المكثفة والشهادات` : `${cfg.items.contentSingularEn}: Intensive Workshop & Cert`, category: "Certification", studentsCount: 215, rating: 5.0, isFree: false, price: 450, views: 3410, drm: true, created_at: "2026-03-10" },
-    ]);
-
-    setLiveStreams([
-      { id: "ls-1", title: isRtl ? `جلسة بث تفاعلية: مناقشة المشاريع وحل التكليفات` : `Live Interactive Session: Projects & Review`, scheduled_at: "اليوم 08:00 م", viewers_count: 76, status: "scheduled" },
-      { id: "ls-2", title: isRtl ? `بث مباشر: المحاضرة الافتتاحية للمستوى المتقدم` : `Live Stream: Advanced Level Kickoff`, scheduled_at: "غداً 06:00 م", viewers_count: 110, status: "scheduled" },
-    ]);
-
-    setQuizzes([
-      { id: "q-1", title: isRtl ? `الاختبار النصفي الشامل (المستوى الأول)` : `Midterm Assessment (Level 1)`, duration_mins: 45, passing_score: 60, submissions_count: 88, avg_score: 84 },
-      { id: "q-2", title: isRtl ? `اختبار تحديد المستوى والكفاءة` : `Proficiency & Level Benchmark Test`, duration_mins: 30, passing_score: 70, submissions_count: 132, avg_score: 79 },
-    ]);
-
-    setSchedules([
-      { id: "s-1", day: isRtl ? "الأحد" : "Sunday", time_start: "10:00", time_end: "12:00", subject: isRtl ? "المحاضرة النظرية الأولى" : "Theoretical Module 1", hall: "Room A-101" },
-      { id: "s-2", day: isRtl ? "الثلاثاء" : "Tuesday", time_start: "14:00", time_end: "16:00", subject: isRtl ? "التطبيقات العملية والمختبر" : "Hands-on Lab Session", hall: "Lab B-204" },
-      { id: "s-3", day: isRtl ? "الخميس" : "Thursday", time_start: "18:00", time_end: "19:30", subject: isRtl ? "جلسة المراجعة والأسئلة" : "Q&A Office Hours", hall: "Virtual Hall 1" },
-    ]);
-
-    setAssignments([
-      { id: "a-1", title: isRtl ? `مشروع التخرج والتطبيق النهائي` : `Final Capstone Project`, due_date: "2026-09-30", max_grade: 100, submissions_count: 64 },
-      { id: "a-2", title: isRtl ? `التكليف العملي الثاني: التحليل والتطبيق` : `Assignment 2: Case Study & Analysis`, due_date: "2026-09-22", max_grade: 50, submissions_count: 105 },
-    ]);
-
-    setAssignmentSubmissions([
-      { id: "sub-1", student_name: "أحمد عبد الله العتيبي", assignment_title: isRtl ? "مشروع التخرج والتطبيق النهائي" : "Final Capstone Project", submitted_at: "2026-09-14", score: 95, status: "graded", feedback: "عمل متقن ومتميز جداً" },
-      { id: "sub-2", student_name: "سارة محمد الشمري", assignment_title: isRtl ? "مشروع التخرج والتطبيق النهائي" : "Final Capstone Project", submitted_at: "2026-09-14", score: null, status: "pending", feedback: "" },
-      { id: "sub-3", student_name: "خالد بن فيصل القحطاني", assignment_title: isRtl ? "التكليف العملي الثاني" : "Assignment 2", submitted_at: "2026-09-13", score: 48, status: "graded", feedback: "إجابات نموذجية وتحليل عميق" },
-      { id: "sub-4", student_name: "مريم حسن الزهراني", assignment_title: isRtl ? "التكليف العملي الثاني" : "Assignment 2", submitted_at: "2026-09-13", score: null, status: "pending", feedback: "" },
-    ]);
-
-    setQuizSubmissions([
-      { id: "qs-1", student_name: "عبد العزيز فهد الدوسري", quiz_title: isRtl ? "الاختبار النصفي الشامل" : "Midterm Assessment", score: 92, percentage: 92, passed: true, completed_at: "2026-09-14 14:30" },
-      { id: "qs-2", student_name: "نورة سعود الغامدي", quiz_title: isRtl ? "الاختبار النصفي الشامل" : "Midterm Assessment", score: 88, percentage: 88, passed: true, completed_at: "2026-09-14 15:10" },
-      { id: "qs-3", student_name: "عمر يوسف السالم", quiz_title: isRtl ? "اختبار تحديد المستوى والكفاءة" : "Proficiency Test", score: 55, percentage: 55, passed: false, completed_at: "2026-09-13 11:20" },
-      { id: "qs-4", student_name: "ريم طلال العنزي", quiz_title: isRtl ? "اختبار تحديد المستوى والكفاءة" : "Proficiency Test", score: 96, percentage: 96, passed: true, completed_at: "2026-09-13 16:45" },
-    ]);
-
-    setRatings([
-      { id: "r-1", student_name: "فيصل عبد الرحمن", rating: 5, comment: isRtl ? "شرح وافي ومحتوى متقدم جداً استفدت منه كثيراً في عملي." : "Excellent explanations and high quality content.", date: "2026-09-12" },
-      { id: "r-2", student_name: "فاطمة إبراهيم", rating: 5, comment: isRtl ? "تنظيم رائع ودعم مستمر في قنوات التواصل." : "Great organization and constant support.", date: "2026-09-10" },
-      { id: "r-3", student_name: "محمد بدر العوضي", rating: 4, comment: isRtl ? "دورة ممتازة والتطبيقات العملية أضافت لي مهارات حقيقية." : "Very practical and helped build real skills.", date: "2026-09-08" },
-    ]);
-
-    setMessages([
-      { id: "m-1", sender: "إدارة منصة الدورات", title: "اعتماد دورتك الجديدة بنجاح", date: "اليوم 10:15 ص", unread: true },
-      { id: "m-2", sender: "أحمد عبد الله (طالب)", title: "استفسار حول موعد تسليم المشروع", date: "أمس 04:30 م", unread: false },
-      { id: "m-3", sender: "نظام الإشعارات", title: "تم تسجيل 12 متدرب جديد في الدورة", date: "منذ يومين", unread: false },
-    ]);
-  };
 
   // Analytics Sparkline Data
   const sparkData = [24, 38, 45, 62, 58, 75, 92, 115, 140, 168, 195, 230];
@@ -482,116 +596,202 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
   ];
 
   // Actions
-  const handleCreateCourse = () => {
+  const providerName = () => profile?.full_name || user?.email || (isRtl ? "محاضر" : "Instructor");
+
+  const refresh = async () => {
+    if (user?.id) await loadAll(user.id);
+  };
+
+  const failToast = (err: any) =>
+    toast({
+      title: isRtl ? "تعذر الحفظ" : "Could not save",
+      description: err?.message || String(err),
+      variant: "destructive",
+    });
+
+  const handleCreateCourse = async () => {
     if (!newCourse.title) {
       toast({ title: isRtl ? "يرجى كتابة عنوان الدورة" : "Please enter course title", variant: "destructive" });
       return;
     }
-    const created = {
-      id: String(Date.now()),
-      title: newCourse.title,
-      category: newCourse.category || (isRtl ? "تدريب عام" : "General"),
-      studentsCount: 0,
-      rating: 5.0,
-      isFree: newCourse.isFree,
-      price: newCourse.isFree ? 0 : newCourse.price,
-      views: 0,
-      drm: newCourse.drmProtected,
-      created_at: new Date().toISOString().slice(0, 10),
-    };
-    setCourses([created, ...courses]);
-    setCreateCourseOpen(false);
-    setNewCourse({ title: "", description: "", category: "", price: 0, isFree: false, level: "all", drmProtected: true });
-    toast({ title: isRtl ? "تمت إضافة المادة التدريبية بنجاح" : "Course created successfully!" });
+    if (!user?.id) return;
+    try {
+      const name = providerName();
+      const { error } = await supabase.from("courses").insert({
+        title_ar: newCourse.title,
+        title_en: newCourse.title,
+        category_ar: newCourse.category || (isRtl ? "تدريب عام" : "General"),
+        category_en: newCourse.category || "General",
+        instructor_ar: name,
+        instructor_en: name,
+        is_free: newCourse.isFree,
+        price: newCourse.isFree ? 0 : newCourse.price,
+        creator_id: user.id,
+      } as any);
+      if (error) throw error;
+      setCreateCourseOpen(false);
+      setNewCourse({ title: "", description: "", category: "", price: 0, isFree: false, level: "all", drmProtected: true });
+      await refresh();
+      toast({ title: isRtl ? "تمت إضافة المادة التدريبية بنجاح" : "Course created successfully!" });
+    } catch (err) {
+      failToast(err);
+    }
   };
 
-  const handleCreateStream = () => {
+  const handleCreateStream = async () => {
     if (!newStream.title) {
       toast({ title: isRtl ? "يرجى كتابة عنوان البث" : "Please enter stream title", variant: "destructive" });
       return;
     }
-    const created = {
-      id: `ls-${Date.now()}`,
-      title: newStream.title,
-      scheduled_at: newStream.scheduledAt,
-      viewers_count: 0,
-      status: "scheduled",
-    };
-    setLiveStreams([created, ...liveStreams]);
-    setCreateStreamOpen(false);
-    setNewStream({ title: "", description: "", scheduledAt: new Date().toISOString().slice(0, 16), durationMins: 60 });
-    toast({ title: isRtl ? "تم جدولة البث المباشر بنجاح" : "Live stream scheduled!" });
+    if (!user?.id) return;
+    try {
+      const name = providerName();
+      const { error } = await supabase.from("live_streams").insert({
+        creator_id: user.id,
+        title_ar: newStream.title,
+        title_en: newStream.title,
+        instructor_ar: name,
+        instructor_en: name,
+        status: "scheduled",
+        scheduled_at: newStream.scheduledAt ? new Date(newStream.scheduledAt).toISOString() : null,
+      } as any);
+      if (error) throw error;
+      setCreateStreamOpen(false);
+      setNewStream({ title: "", description: "", scheduledAt: new Date().toISOString().slice(0, 16), durationMins: 60 });
+      await refresh();
+      toast({ title: isRtl ? "تم جدولة البث المباشر بنجاح" : "Live stream scheduled!" });
+    } catch (err) {
+      failToast(err);
+    }
   };
 
-  const handleCreateQuiz = () => {
+  // Quizzes / schedules / assignments all belong to a course, so the
+  // provider must have at least one course first.
+  const requireCourse = () => {
+    const courseId = courses[0]?.id;
+    if (!courseId) {
+      toast({
+        title: isRtl ? "أضف محتوى تعليمياً أولاً" : "Create content first",
+        description: isRtl
+          ? "يجب إنشاء دورة أو مادة تعليمية قبل إضافة الاختبارات والجداول والتكليفات."
+          : "Create a course before adding quizzes, schedules or assignments.",
+        variant: "destructive",
+      });
+      return null;
+    }
+    return courseId as string;
+  };
+
+  const handleCreateQuiz = async () => {
     if (!newQuiz.title) {
       toast({ title: isRtl ? "يرجى إدخال عنوان الاختبار" : "Please enter quiz title", variant: "destructive" });
       return;
     }
-    const created = {
-      id: `q-${Date.now()}`,
-      title: newQuiz.title,
-      duration_mins: newQuiz.durationMins,
-      passing_score: newQuiz.passingScore,
-      submissions_count: 0,
-      avg_score: 0,
-    };
-    setQuizzes([created, ...quizzes]);
-    setCreateQuizOpen(false);
-    setNewQuiz({ title: "", durationMins: 30, passingScore: 60, questionsCount: 5, instructions: "" });
-    toast({ title: isRtl ? "تم نشر الاختبار بنجاح" : "Quiz created!" });
+    const courseId = requireCourse();
+    if (!courseId || !user?.id) return;
+    try {
+      const { error } = await supabase.from("quizzes").insert({
+        course_id: courseId,
+        creator_id: user.id,
+        title_ar: newQuiz.title,
+        title_en: newQuiz.title,
+        description_ar: newQuiz.instructions || null,
+        description_en: newQuiz.instructions || null,
+        duration_minutes: newQuiz.durationMins,
+        passing_score: newQuiz.passingScore,
+      } as any);
+      if (error) throw error;
+      setCreateQuizOpen(false);
+      setNewQuiz({ title: "", durationMins: 30, passingScore: 60, questionsCount: 5, instructions: "" });
+      await refresh();
+      toast({ title: isRtl ? "تم نشر الاختبار بنجاح" : "Quiz created!" });
+    } catch (err) {
+      failToast(err);
+    }
   };
 
-  const handleCreateSchedule = () => {
+  const handleCreateSchedule = async () => {
     if (!newSchedule.subject) {
       toast({ title: isRtl ? "يرجى كتابة اسم المحاضرة / المادة" : "Please enter subject", variant: "destructive" });
       return;
     }
-    const created = {
-      id: `s-${Date.now()}`,
-      day: newSchedule.day,
-      time_start: newSchedule.timeStart,
-      time_end: newSchedule.timeEnd,
-      subject: newSchedule.subject,
-      hall: newSchedule.locationOrLink,
-    };
-    setSchedules([...schedules, created]);
-    setCreateScheduleOpen(false);
-    setNewSchedule({ day: "الأحد", timeStart: "10:00", timeEnd: "12:00", subject: "", locationOrLink: "قاعة تفاعلية 1" });
-    toast({ title: isRtl ? "تمت إضافة الموعد إلى الجدول" : "Schedule added!" });
+    const courseId = requireCourse();
+    if (!courseId || !user?.id) return;
+    try {
+      const { error } = await supabase.from("lecture_schedules").insert({
+        course_id: courseId,
+        creator_id: user.id,
+        title_ar: newSchedule.subject,
+        title_en: newSchedule.subject,
+        schedule_type: "lecture",
+        scheduled_date: newSchedule.day && /^\d{4}-\d{2}-\d{2}$/.test(newSchedule.day)
+          ? newSchedule.day
+          : new Date().toISOString().slice(0, 10),
+        start_time: newSchedule.timeStart || null,
+        end_time: newSchedule.timeEnd || null,
+        location_ar: newSchedule.locationOrLink || null,
+        location_en: newSchedule.locationOrLink || null,
+      } as any);
+      if (error) throw error;
+      setCreateScheduleOpen(false);
+      setNewSchedule({ day: new Date().toISOString().slice(0, 10), timeStart: "10:00", timeEnd: "12:00", subject: "", locationOrLink: "" });
+      await refresh();
+      toast({ title: isRtl ? "تمت إضافة الموعد إلى الجدول" : "Schedule added!" });
+    } catch (err) {
+      failToast(err);
+    }
   };
 
-  const handleCreateAssignment = () => {
+  const handleCreateAssignment = async () => {
     if (!newAssignment.title) {
       toast({ title: isRtl ? "يرجى كتابة عنوان التكليف" : "Please enter assignment title", variant: "destructive" });
       return;
     }
-    const created = {
-      id: `a-${Date.now()}`,
-      title: newAssignment.title,
-      due_date: newAssignment.dueDate,
-      max_grade: newAssignment.maxGrade,
-      submissions_count: 0,
-    };
-    setAssignments([created, ...assignments]);
-    setCreateAssignmentOpen(false);
-    setNewAssignment({ title: "", description: "", dueDate: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), maxGrade: 100 });
-    toast({ title: isRtl ? "تم نشر التكليف بنجاح" : "Assignment published!" });
+    const courseId = requireCourse();
+    if (!courseId || !user?.id) return;
+    try {
+      const { error } = await supabase.from("assignments").insert({
+        course_id: courseId,
+        creator_id: user.id,
+        title_ar: newAssignment.title,
+        title_en: newAssignment.title,
+        description_ar: newAssignment.description || null,
+        description_en: newAssignment.description || null,
+        due_date: newAssignment.dueDate ? new Date(newAssignment.dueDate).toISOString() : null,
+        points: newAssignment.maxGrade,
+      } as any);
+      if (error) throw error;
+      setCreateAssignmentOpen(false);
+      setNewAssignment({ title: "", description: "", dueDate: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), maxGrade: 100 });
+      await refresh();
+      toast({ title: isRtl ? "تم نشر التكليف بنجاح" : "Assignment published!" });
+    } catch (err) {
+      failToast(err);
+    }
   };
 
-  const handleGradeSubmission = () => {
+  const handleGradeSubmission = async () => {
     if (!selectedSubmission) return;
-    setAssignmentSubmissions(prev =>
-      prev.map(sub =>
-        sub.id === selectedSubmission.id
-          ? { ...sub, score: gradeScore, feedback: gradeFeedback, status: "graded" }
-          : sub
-      )
-    );
-    setGradeModalOpen(false);
-    setSelectedSubmission(null);
-    toast({ title: isRtl ? "تم رصد الدرجة وإرسال الملاحظات للمتدرب" : "Grade and feedback submitted!" });
+    try {
+      const { error } = await supabase
+        .from("assignment_submissions")
+        .update({
+          grade: String(gradeScore),
+          feedback_ar: gradeFeedback,
+          feedback_en: gradeFeedback,
+          graded_at: new Date().toISOString(),
+        })
+        .eq("id", selectedSubmission.id);
+      if (error) throw error;
+      setGradeModalOpen(false);
+      setSelectedSubmission(null);
+      await refresh();
+      toast({ title: isRtl ? "تم رصد الدرجة وإرسال الملاحظات للمتدرب" : "Grade and feedback submitted!" });
+    } catch (err) {
+      failToast(err);
+    }
   };
+
 
   const handleSaveProfile = async () => {
     setSavingProfile(true);

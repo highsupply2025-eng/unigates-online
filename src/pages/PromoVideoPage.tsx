@@ -56,6 +56,24 @@ export interface StudioVideo {
   tags: string[];
 }
 
+const UNIGATES_LECTURERS_VIDEO: StudioVideo = {
+  id: "unigates-lecturers-campaign-2026",
+  titleAr: "إعلان المحاضرين والمعلمين: استأجر مساحتك الافتراضية ووفر 50% من دخلك",
+  titleEn: "UNIGATES for Lecturers & Instructors Promo Video",
+  category: "promo",
+  speakerAr: "أكاديمية UNIGATES للمحاضرين والمعلمين",
+  speakerEn: "UNIGATES Academy for Educators",
+  duration: "01:00",
+  date: "2026-09-24",
+  videoUrl: "/videos/unigates_lecturers_ad.mp4",
+  thumbnailUrl: "/videos/unigates_lecturers_thumb.jpg",
+  descriptionAr: "كمحاضر أو معلم محترف، انقل تدريسك لمستوى إنترناشونال، استأجر مساحتك الافتراضية بهويتك وشعارك واحتفظ بـ 100% من أرباحك!",
+  descriptionEn: "Create your own independent virtual academy with your custom branding, live stream, LMS, and certificates — keep 100% of your earnings.",
+  views: 1,
+  featured: true,
+  tags: ["UNIGATES", "محاضرين", "معلمين", "تدريس_اونلاين", "اكاديمية_افتراضية", "LMS"]
+};
+
 const INITIAL_UNIGATES_VIDEO: StudioVideo = {
   id: "unigates-official-promo-2026",
   titleAr: "الفيديو الترويجي الرسمي لمنظومة UNIGATES التعليمية",
@@ -70,9 +88,11 @@ const INITIAL_UNIGATES_VIDEO: StudioVideo = {
   descriptionAr: "فيديو تعريفي شامل للمنظومة التعليمية الرقمية الموحدة: الكليات، المدارس، الدورات، متجر الكتب، وسوق التوظيف.",
   descriptionEn: "Official promotional video presenting the unified educational ecosystem across higher education, schools, and professional courses.",
   views: 1,
-  featured: true,
+  featured: false,
   tags: ["UNIGATES", "المنظومة_التعليمية", "فيديو_ترويجي", "تعليم_رقمي", "EdTech"]
 };
+
+const ALL_INITIAL_VIDEOS = [UNIGATES_LECTURERS_VIDEO, INITIAL_UNIGATES_VIDEO];
 
 export default function PromoVideoPage() {
   const { language, dir } = useLanguage();
@@ -81,7 +101,7 @@ export default function PromoVideoPage() {
 
   const [isAdminUser, setIsAdminUser] = useState(false);
 
-  // Initialize videos with the newly produced video or from localStorage
+  // Initialize videos with the newly produced videos or from localStorage
   const [videos, setVideos] = useState<StudioVideo[]>(() => {
     const saved = localStorage.getItem("unigates_studio_videos");
     if (saved) {
@@ -90,10 +110,10 @@ export default function PromoVideoPage() {
         const filtered = parsed.filter(v => v.videoUrl && !v.videoUrl.includes("dQw4w9WgXcQ"));
         if (filtered.length > 0) return filtered;
       } catch (e) {
-        return [INITIAL_UNIGATES_VIDEO];
+        return ALL_INITIAL_VIDEOS;
       }
     }
-    return [INITIAL_UNIGATES_VIDEO];
+    return ALL_INITIAL_VIDEOS;
   });
 
   const [activeCategory, setActiveCategory] = useState<string>("all");

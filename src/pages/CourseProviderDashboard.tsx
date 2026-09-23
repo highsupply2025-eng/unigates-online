@@ -326,7 +326,7 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
   });
 
   const [newSchedule, setNewSchedule] = useState({
-    day: "الأحد",
+    day: new Date().toISOString().slice(0, 10),
     timeStart: "10:00",
     timeEnd: "12:00",
     subject: "",
@@ -1296,24 +1296,28 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
               onClose={() => setCreateCourseOpen(false)}
               instructorName={profile?.full_name || (isRtl ? "المحاضر المعتمد" : "Accredited Instructor")}
               institutionName={cfg.dashboardTitleAr}
-              onSave={(newProd) => {
-                setCourses((prev) => [
-                  {
-                    id: newProd.id || String(Date.now()),
-                    title: newProd.title,
-                    description: newProd.description,
-                    type: newProd.type,
-                    category: newProd.type === "ebook" ? "E-Book" : "Masterclass",
-                    studentsCount: 0,
-                    rating: 5.0,
-                    isFree: newProd.price === 0,
-                    price: newProd.price,
-                    views: 1,
-                    drm: newProd.drmProtected,
-                    created_at: new Date().toISOString().slice(0, 10),
-                  },
-                  ...prev,
-                ]);
+              onSave={async (newProd) => {
+                if (!user?.id) return;
+                try {
+                  const name = providerName();
+                  const categoryLabel = newProd.type === "ebook" ? "E-Book" : "Masterclass";
+                  const { error } = await supabase.from("courses").insert({
+                    title_ar: newProd.title,
+                    title_en: newProd.title,
+                    category_ar: categoryLabel,
+                    category_en: categoryLabel,
+                    instructor_ar: name,
+                    instructor_en: name,
+                    is_free: Number(newProd.price) === 0,
+                    price: Number(newProd.price) || 0,
+                    creator_id: user.id,
+                  } as any);
+                  if (error) throw error;
+                  await refresh();
+                  toast({ title: isRtl ? "تم حفظ المنتج التعليمي بنجاح" : "Educational product saved!" });
+                } catch (err) {
+                  failToast(err);
+                }
               }}
             />
           </div>

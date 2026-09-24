@@ -333,7 +333,7 @@ const CollegeAdminSignup = () => {
                 { icon: ShieldCheck, text: isRtl ? "سلاسل اعتماد رقمية" : "Digital Approval Chains" },
                 { icon: Video, text: isRtl ? "بث مباشر ذكي" : "Smart Live Streaming" },
                 { icon: Award, text: isRtl ? "استوديو التكليفات" : "Assignment Studio" },
-                { icon: Users, text: isRtl ? "تقييمات جودة مجهولة" : "Anonymous Quality Ratings" },
+                { icon: Users, text: isRtl ? "تقييمات" : "Ratings" },
               ].map((feat, idx) => (
                 <div
                   key={idx}

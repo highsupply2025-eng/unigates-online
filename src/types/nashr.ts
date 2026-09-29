@@ -93,7 +93,7 @@ export interface BookSaleRecord {
   id: string;
   bookCode: string;
   bookTitle: string;
-  format: "digital" | "print";
+  format: "digital" | "print" | "both";
   salePrice: number;
   authorRoyaltyPercentage: 20; // Fixed 20%
   authorEarnings: number;

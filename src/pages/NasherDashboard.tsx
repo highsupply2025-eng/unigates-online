@@ -948,7 +948,7 @@ const NasherDashboard = () => {
                         <QrCode className="w-4 h-4" />
                       </Button>
                     </div>
-                  </CardCard>
+                  </Card>
                 ))}
               </div>
             )}

@@ -331,76 +331,76 @@ const EcosystemPortals = () => {
       case "nasher":
         switch (language) {
           case "en": return {
-            title: "Publisher Platform (Nasher)",
-            subtitle: "A smart marketplace for authors to auction manuscripts, receive bids from top publishing houses, and sign digital contracts.",
-            roles: "Authors • Writers • Publishing Houses • Reviewers",
-            f1: "Public manuscript auctions & bidding",
-            f2: "Legally binding digital contracts",
-            f3: "IP protection & escrow payments",
-            f4: "Exclusive UNIGATES bookstore distribution",
+            title: "Nashr Platform (Publishing)",
+            subtitle: "An integrated publishing hub for authors and researchers to submit manuscripts (digital/print), track sales, and receive 20% author royalties.",
+            roles: "Authors • Writers • Researchers • Dar Obeid",
+            f1: "Digital, print, or hybrid publishing",
+            f2: "Direct internal messaging with editors",
+            f3: "Automated 20% royalty calculations",
+            f4: "Instant payout and sales tracking",
           };
           case "fr": return {
-            title: "Plateforme Nasher (Édition)",
-            subtitle: "Marché intelligent pour proposer des manuscrits aux enchères auprès des éditeurs et signer des contrats électroniques certifiés.",
-            roles: "Auteurs • Écrivains • Maisons d'Édition • Évaluateurs",
-            f1: "Enchères publiques sur manuscrits",
-            f2: "Contrats numériques juridiquement certifiés",
-            f3: "Protection de la propriété intellectuelle",
-            f4: "Distribution exclusive sur UNIGATES",
+            title: "Plateforme Nashr (Édition)",
+            subtitle: "Hub d'édition pour auteurs et chercheurs pour soumettre des manuscrits, suivre les ventes et percevoir 20% de redevances.",
+            roles: "Auteurs • Écrivains • Chercheurs • Dar Obeid",
+            f1: "Édition numérique, papier ou hybride",
+            f2: "Communication directe avec l'administration",
+            f3: "20% de redevances sur chaque vente",
+            f4: "Paiements rapides et suivi des ventes",
           };
           case "es": return {
-            title: "Plataforma Nasher (Editorial)",
-            subtitle: "Mercado inteligente para subastar manuscritos entre editoriales certificadas y firmar contratos digitales con validez legal.",
-            roles: "Autores • Escritores • Editoriales • Evaluadores",
-            f1: "Subasta pública de manuscritos y obras",
-            f2: "Contratos digitales legalmente vinculantes",
-            f3: "Protección de propiedad intelectual",
-            f4: "Distribución exclusiva en UNIGATES",
+            title: "Plataforma Nashr (Editorial)",
+            subtitle: "Centro editorial integral para autores e investigadores para publicar obras (digital/impreso) y recibir 20% de regalías.",
+            roles: "Autores • Escritores • Investigadores • Dar Obeid",
+            f1: "Publicación digital, impresa o híbrida",
+            f2: "Mensajería interna directa con editores",
+            f3: "20% de regalías por cada venta",
+            f4: "Seguimiento en vivo y retiro de fondos",
           };
           case "de": return {
-            title: "Nasher Verlagsplattform",
-            subtitle: "Smarter Marktplatz für Manuskriptauktionen zwischen Autoren und Verlagen mit digitaler Vertragsunterzeichnung.",
-            roles: "Autoren • Schriftsteller • Verlage • Gutachter",
-            f1: "Öffentliche Manuskript-Auktionen",
-            f2: "Rechtsgültige digitale Verträge",
-            f3: "Urheberrechtsschutz & Treuhandservice",
-            f4: "Exklusiver UNIGATES-Vertrieb",
+            title: "Nashr Verlagsplattform",
+            subtitle: "Verlagsplattform für Autoren zur Veröffentlichung (digital/print), Verkaufsverfolgung und 20% Tantiemen-Auszahlung.",
+            roles: "Autoren • Schriftsteller • Forscher • Dar Obeid",
+            f1: "Digitale und gedruckte Veröffentlichung",
+            f2: "Direkte Kommunikation mit dem Verlag",
+            f3: "20% Autorentantiemen auf jeden Verkauf",
+            f4: "Schnelle Auszahlungen & Verkaufsstatistik",
           };
           case "zh": return {
-            title: "Nasher 出版与书稿竞价平台",
-            subtitle: "专为著作者打造的智能书稿拍卖市场，对接权威出版社公开竞标，在线签署具有法律效力的电子出版合同。",
-            roles: "作者 • 作家 • 认证出版机构 • 审稿专家",
-            f1: "书稿公开透明竞价与版权拍卖",
-            f2: "受法律保障的区块链式电子合约",
-            f3: "严格知识产权保护与资金托管担保",
-            f4: "UNIGATES 数字书店独家发行直通车",
+            title: "Nashr 出版平台",
+            subtitle: "专为著作者打造的一站式出版管理平台，支持电子书与纸质书出版，实时跟踪销售并享受20%版税收益。",
+            roles: "作者 • 作家 • 学术研究者 • 达尔·奥贝德出版社",
+            f1: "支持电子版、纸质版或双版本出版",
+            f2: "与出版管理团队直接在线沟通",
+            f3: "每笔图书销售自动结算20%作者版税",
+            f4: "透明销售报表与即时收益提现",
           };
           case "ru": return {
-            title: "Издательская Платформа Nasher",
-            subtitle: "Интеллектуальный рынок для аукционов рукописей среди издательств и подписания официальных электронных контрактов.",
-            roles: "Авторы • Писатели • Издательства • Рецензенты",
-            f1: "Публичные аукционы рукописей",
-            f2: "Официальные цифровые контракты",
-            f3: "Защита авторских прав и безопасность",
-            f4: "Эксклюзивная дистрибуция в UNIGATES",
+            title: "Издательская Платформа Nashr",
+            subtitle: "Платформа для авторов и исследователей: публикация книг (цифровой/печатный формат), учет продаж и 20% авторских отчислений.",
+            roles: "Авторы • Писатели • Исследователи • Dar Obeid",
+            f1: "Электронные и печатные издания",
+            f2: "Прямая связь с издательской группой",
+            f3: "20% авторского вознаграждения с продаж",
+            f4: "Прозрачный вывод средств и статистика",
           };
           case "tr": return {
-            title: "Nasher Yayıncılık Platformu",
-            subtitle: "Yazarların eserlerini yayınevlerine ihaleye sunabildiği ve resmi dijital sözleşmeler imzaladığı akıllı yayın pazarı.",
-            roles: "Yazarlar • Eser Sahipleri • Yayınevleri • Hakemler",
-            f1: "El yazması ve kitap ihaleleri",
-            f2: "Hukuken bağlayıcı dijital sözleşmeler",
-            f3: "Fikri mülkiyet koruması ve güvenli ödeme",
-            f4: "UNIGATES mağazasında özel dağıtım",
+            title: "Nashr Yayın Platformu",
+            subtitle: "Yazarlar ve araştırmacılar için dijital ve basılı kitap yayınlama, satış takibi ve %20 telif hakkı kazanç merkezi.",
+            roles: "Yazarlar • Eser Sahipleri • Araştırmacılar • Dar Obeid",
+            f1: "Dijital, basılı veya karma yayıncılık",
+            f2: "Yayıneviyle doğrudan dahili iletişim",
+            f3: "Tüm satışlardan %20 yazar telif geliri",
+            f4: "Canlı satış takibi ve kolay para çekme",
           };
           default: return {
-            title: "منصة ناشر",
-            subtitle: "سوق ذكي لطرح الكتب للمزايدة بين دور النشر المعتمدة، وتوقيع عقود إلكترونية رسمية بإشراف دار عبيد للنشر والتوزيع",
-            roles: "المؤلفين • الكُتّاب • دور النشر المعتمدة • المحكّمين",
-            f1: "طرح الكتب للمزايدة العلنية",
-            f2: "عقود رقمية ملزمة وموثقة قانونياً",
-            f3: "حماية الملكية الفكرية والدفع المشروط",
-            f4: "حصرية التوزيع بمتجر UNIGATES الرقمي",
+            title: "منصة نشر",
+            subtitle: "منظومة متكاملة للمؤلفين والباحثين لرفع المخطوطات ونشرها (رقمياً وورقياً) ومتابعة المبيعات والأرباح بنسبة 20% بإشراف دار عبيد",
+            roles: "المؤلفين • الكُتّاب • الباحثين • إدارة دار عبيد",
+            f1: "نشر رقمي أو ورقي أو كلاهما معاً",
+            f2: "تواصل مباشر ومراجعة مع الإدارة",
+            f3: "أرباح 20% مؤكدة لكل نسخة مباعة",
+            f4: "محفظة مالية وسحب فوري للأرباح",
           };
         }
 
@@ -604,7 +604,7 @@ const EcosystemPortals = () => {
       to: "/nasher",
       badge: isNasherDev
         ? translate("قريباً • قيد التطوير", "Coming Soon • In Dev")
-        : translate("سوق النشر والمزايدات", "Publishing & Bidding"),
+        : translate("نشر ومؤلفات", "Publishing & Works"),
       badgeColor: isNasherDev
         ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
         : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
@@ -621,8 +621,8 @@ const EcosystemPortals = () => {
         { icon: Users, text: nasherContent.f4 },
       ],
       ctaText: isNasherDev
-        ? translate("قريباً — استكشف منصة ناشر", "Coming Soon — Explore Nasher")
-        : translate("دخول منصة ناشر", "Explore Nasher Portal"),
+        ? translate("قريباً — استكشف منصة نشر", "Coming Soon — Explore Nashr")
+        : translate("دخول منصة نشر", "Explore Nashr Platform"),
       roles: nasherContent.roles,
     },
     {

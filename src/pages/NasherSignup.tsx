@@ -1,42 +1,107 @@
-import { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { PenTool, ChevronLeft, ChevronRight, Loader2, Building2, User, ShieldCheck, CheckCircle2, Phone, Sparkles } from "lucide-react";
+import { useState, useId } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { 
+  PenTool, 
+  ChevronLeft, 
+  ChevronRight, 
+  Loader2, 
+  User, 
+  ShieldCheck, 
+  CheckCircle2, 
+  Phone, 
+  Sparkles, 
+  GraduationCap, 
+  Building2, 
+  Mail, 
+  Key, 
+  Copy, 
+  Check, 
+  ArrowRight,
+  BookOpen,
+  Info
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import { AcademicTitle, AuthorProfile } from "@/types/nashr";
+import { NashrDataStore } from "@/services/nashrDataStore";
+
+const ACADEMIC_TITLES = [
+  { value: "prof", labelAr: "أ.د. / أستاذ دكتور", labelEn: "Prof. Dr." },
+  { value: "dr", labelAr: "د. / دكتور", labelEn: "Dr." },
+  { value: "lecturer", labelAr: "أستاذ محاضر / مدرس", labelEn: "Lecturer / Assistant Prof" },
+  { value: "researcher", labelAr: "باحث أكاديمي / زميل بحثي", labelEn: "Academic Researcher" },
+  { value: "author", labelAr: "مؤلف / كاتب أدبي", labelEn: "Author / Writer" },
+  { value: "expert", labelAr: "خبير ومستشار تخصصي", labelEn: "Subject Matter Expert" },
+  { value: "translator", labelAr: "مترجم ومحرر علمي", labelEn: "Academic Translator" },
+];
+
+const SPECIALIZATIONS = [
+  "العلوم السياسية والدراسات الاستراتيجية",
+  "القانون والتشريعات والشريعة",
+  "إدارة الأعمال والاقتصاد والمالية",
+  "الذكاء الاصطناعي وعلوم الحاسب والتقنية",
+  "العلوم الطبية والصيدلانية والرعاية الصحية",
+  "الهندسة والعلوم التطبيقية",
+  "الأدب والنقد واللغات والترجمة",
+  "التربية وعلم النفس والمناهج",
+  "الإعلام والصحافة والاتصال الرقمي",
+  "العلوم الإنسانية والاجتماعية والتاريخ",
+  "العلوم الأساسية (رياضيات، فيزياء، كيمياء، أحياء)"
+];
+
+const generateTempPassword = () => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let str = "NSR-";
+  for (let i = 0; i < 6; i++) {
+    str += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return str;
+};
+
+const generateAuthorCode = () => {
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `AUT-${rand}`;
+};
 
 const NasherSignup = () => {
-  const [searchParams] = useSearchParams();
-  const initialRole = (searchParams.get("role") as "author" | "publisher") || "author";
-  const [role, setRole] = useState<"author" | "publisher">(initialRole);
-
+  const [academicTitle, setAcademicTitle] = useState<AcademicTitle>("prof");
   const [fullName, setFullName] = useState("");
-  const [publisherName, setPublisherName] = useState("");
+  const [specialization, setSpecialization] = useState(SPECIALIZATIONS[0]);
+  const [customSpecialization, setCustomSpecialization] = useState("");
+  const [institution, setInstitution] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [specialization, setSpecialization] = useState("");
+  const [countryCode, setCountryCode] = useState("+20");
+  const [bio, setBio] = useState("");
+  
+  // Registration completion state
   const [loading, setLoading] = useState(false);
+  const [generatedAccount, setGeneratedAccount] = useState<{
+    profile: AuthorProfile;
+    tempPassword: string;
+  } | null>(null);
+  const [copiedPass, setCopiedPass] = useState(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { dir, language } = useLanguage();
+  const { dir } = useLanguage();
   const isRtl = dir === "rtl";
-  const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !fullName) {
+    if (!fullName.trim() || !email.trim() || !phone.trim()) {
       toast({
         title: isRtl ? "بيانات ناقصة" : "Missing Details",
-        description: isRtl ? "يرجى استكمال جميع الحقول المطلوبة." : "Please fill out required fields.",
+        description: isRtl ? "يرجى استكمال الاسم، البريد الإلكتروني، ورقم الهاتف." : "Please fill out name, email, and phone number.",
         variant: "destructive"
       });
       return;
@@ -44,52 +109,86 @@ const NasherSignup = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            publisher_name: role === "publisher" ? publisherName : undefined,
-            nasher_role: role,
-            phone,
-            specialization
-          }
-        }
+      const selectedTitleObj = ACADEMIC_TITLES.find(t => t.value === academicTitle);
+      const titleLabel = isRtl ? (selectedTitleObj?.labelAr || "مؤلف") : (selectedTitleObj?.labelEn || "Author");
+      const finalSpec = specialization === "other" ? customSpecialization : specialization;
+      const authorCode = generateAuthorCode();
+      const tempPassword = generateTempPassword();
+
+      const newProfile: AuthorProfile = {
+        id: `auth-${Date.now()}`,
+        authorCode,
+        fullName: `${titleLabel.split("/")[0].trim()} ${fullName.trim()}`,
+        academicTitle,
+        academicTitleLabel: titleLabel,
+        specialization: finalSpec || "علوم وأبحاث عامة",
+        institution: institution.trim() || undefined,
+        email: email.trim().toLowerCase(),
+        phone: `${countryCode} ${phone.trim()}`,
+        bio: bio.trim() || undefined,
+        isTemporaryPassword: true,
+        joinedDate: new Date().toISOString().split("T")[0]
+      };
+
+      // Save to store
+      NashrDataStore.saveAuthorProfile(newProfile);
+
+      setGeneratedAccount({
+        profile: newProfile,
+        tempPassword
       });
-      if (error) throw error;
 
       toast({
-        title: isRtl ? "🎉 تم إنشاء الحساب بنجاح!" : "Account Created Successfully!",
+        title: isRtl ? "🎉 تم إنشاء حساب المؤلف بنجاح!" : "Author Account Created Successfully!",
         description: isRtl 
-          ? `تم تفعيل حسابك كـ (${role === "author" ? "مؤلف / كاتب" : "دار نشر معتمدة"}). استلم إشعارات عروض الأسعار والعقود مباشرة.`
-          : "Your account is ready to receive bids and sign contracts."
+          ? `مرحباً بك ${newProfile.fullName}. تم تعيين كود المؤلف وكلمة المرور المؤقتة.`
+          : `Welcome ${newProfile.fullName}. Temporary password generated.`
       });
-
-      navigate(`/nasher/dashboard?role=${role}&tab=${role === "author" ? "my_books" : "bids_inbox"}`);
-    } catch (error: any) {
-      // Fallback redirect for seamless UX in case of demo Supabase credentials
+    } catch (err: any) {
       toast({
-        title: isRtl ? "🎉 تم تسجيل الحساب بنجاح!" : "Welcome to Nasher!",
-        description: isRtl ? `تم توجيهك إلى استوديو (${role === "author" ? "المؤلف" : "دار النشر"})` : "Redirected to dashboard"
+        title: isRtl ? "حدث خطأ" : "Error",
+        description: isRtl ? "يرجى المحاولة مرة أخرى." : "Please try again.",
+        variant: "destructive"
       });
-      navigate(`/nasher/dashboard?role=${role}&tab=${role === "author" ? "my_books" : "bids_inbox"}`);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleCopyPassword = () => {
+    if (generatedAccount) {
+      navigator.clipboard.writeText(generatedAccount.tempPassword);
+      setCopiedPass(true);
+      toast({
+        title: isRtl ? "تم النسخ" : "Copied",
+        description: isRtl ? "تم نسخ كلمة المرور المؤقتة إلى الحافظة." : "Temporary password copied to clipboard."
+      });
+      setTimeout(() => setCopiedPass(false), 3000);
+    }
+  };
+
+  const proceedToDashboard = () => {
+    navigate("/nasher/dashboard");
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/60 backdrop-blur-md flex items-center justify-between">
+      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/60 backdrop-blur-md flex items-center justify-between sticky top-0 z-50">
         <Link to="/nasher" className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md flex items-center justify-center text-white">
             <PenTool className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-lg font-black text-foreground">UNIGATES</span>
-            <span className="text-[10px] block font-bold text-amber-600 dark:text-amber-400">منصة ناشر • إنشاء حساب معتمد</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-black text-foreground">UNIGATES</span>
+              <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px] font-bold px-1.5 py-0">
+                {isRtl ? "منصة نشر" : "Nashr"}
+              </Badge>
+            </div>
+            <span className="text-[10px] block font-bold text-muted-foreground">
+              {isRtl ? "بوابة تسجيل المؤلفين والباحثين" : "Author & Researcher Onboarding"}
+            </span>
           </div>
         </Link>
 
@@ -97,170 +196,345 @@ const NasherSignup = () => {
           <ThemeToggle />
           <LanguageSelectorDropdown />
           <Link to="/nasher/login">
-            <Button size="sm" variant="outline" className="font-bold border-amber-500/30">
-              {isRtl ? "تسجيل الدخول" : "Sign In"}
+            <Button size="sm" variant="outline" className="font-bold border-border bg-background/50 hover:bg-muted text-xs h-9 px-3 rounded-xl">
+              {isRtl ? "دخول المؤلفين" : "Author Sign In"}
+            </Button>
+          </Link>
+          <Link to="/nasher">
+            <Button size="sm" variant="outline" className="font-bold border-border bg-background/50 hover:bg-muted text-xs h-9 px-3 rounded-xl gap-1">
+              {isRtl ? <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground" />}
+              <span>{isRtl ? "الرئيسية" : "Home"}</span>
             </Button>
           </Link>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 my-auto">
-        <div className="w-full max-w-lg space-y-6">
-          <div className="text-center space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{isRtl ? "انضم لسوق النشر والمزايدات الحصري" : "Join Exclusive Rights Marketplace"}</span>
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 my-4">
+        <div className="w-full max-w-2xl space-y-6">
+          
+          {/* Header Banner */}
+          {!generatedAccount && (
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold mb-1">
+                <GraduationCap className="w-4 h-4" />
+                <span>{isRtl ? "حساب مؤلف رسمي • نشر رقمي وورقي" : "Official Author Account • Digital & Print Publishing"}</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-foreground">
+                {isRtl ? "تسجيل حساب مؤلف جديد في منصة نشر" : "Register as Author on Nashr Platform"}
+              </h1>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium max-w-lg mx-auto">
+                {isRtl 
+                  ? "سجّل بياناتك الأكاديمية والمهنية لرفع مؤلفاتك، متابعة الاعتماد والمبيعات، وتحصيل نسبة أرباحك 20% فورياً بإشراف دار عبيد للنشر."
+                  : "Register your academic profile to publish works, track bookstore sales, and receive 20% royalties with Dar Obeid."}
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              {isRtl ? "إنشاء حساب في منصة ناشر" : "Create Your Nasher Account"}
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
-              {isRtl ? "استقبل إشعارات المزايدات، عروض الأسعار، وتوقيع العقود بإشراف دار عبيد" : "Get instant notifications for bids, offers & contracts"}
-            </p>
-          </div>
+          )}
 
-          <Card className="border-2 border-border/60 shadow-xl bg-card">
-            <CardHeader className="pb-3 border-b border-border/40">
-              <label className="text-xs font-bold text-muted-foreground block mb-2">
-                {isRtl ? "اختر نوع الحساب:" : "Select Account Type:"}
-              </label>
-              <Tabs value={role} onValueChange={(v) => setRole(v as any)} className="w-full">
-                <TabsList className="grid grid-cols-2 w-full bg-muted/60 p-1">
-                  <TabsTrigger value="author" className="text-xs font-bold data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-                    <User className="w-4 h-4 me-1.5" />
-                    {isRtl ? "مؤلف / كاتب / باحث" : "Author / Writer"}
-                  </TabsTrigger>
-                  <TabsTrigger value="publisher" className="text-xs font-bold data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-                    <Building2 className="w-4 h-4 me-1.5" />
-                    {isRtl ? "دار نشر / مطبعة" : "Publisher / Press"}
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </CardHeader>
+          {/* Success Account Created State (Temporary Password Prompt) */}
+          {generatedAccount ? (
+            <Card className="border-2 border-amber-500/40 shadow-2xl bg-card rounded-3xl overflow-hidden animate-fade-in">
+              <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-6 text-white text-center">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                  <CheckCircle2 className="w-9 h-9 text-white" />
+                </div>
+                <h2 className="text-2xl font-black">{isRtl ? "تم إنشاء حساب المؤلف بنجاح!" : "Author Account Created!"}</h2>
+                <p className="text-xs sm:text-sm text-white/90 mt-1">
+                  {isRtl ? "مرحباً بكم في منظومة نشر. تم إصدار كود المؤلف وكلمة المرور المؤقتة." : "Welcome to Nashr. Your author code & temp password are ready."}
+                </p>
+              </div>
 
-            <CardContent className="p-6">
-              <form onSubmit={handleSignup} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs font-bold mb-1.5 block">
-                      {isRtl ? (role === "author" ? "الاسم الكامل للمؤلف *" : "اسم المسؤول المفوّض *") : "Full Name *"}
-                    </Label>
-                    <Input 
-                      placeholder={isRtl ? "د. أحمد السعيد" : "Dr. Ahmed"}
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                      className="h-10 text-sm"
-                    />
+              <CardContent className="p-6 sm:p-8 space-y-6">
+                {/* Author Info summary */}
+                <div className="p-4 rounded-2xl bg-muted/40 border border-border/80 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground">{isRtl ? "اسم المؤلف:" : "Author Name:"}</span>
+                    <span className="text-sm font-black text-foreground">{generatedAccount.profile.fullName}</span>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground">{isRtl ? "كود المؤلف المعتمد:" : "Author Code:"}</span>
+                    <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-black text-xs px-2.5 py-0.5">
+                      {generatedAccount.profile.authorCode}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground">{isRtl ? "البريد الإلكتروني:" : "Email:"}</span>
+                    <span className="text-xs font-bold text-foreground">{generatedAccount.profile.email}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground">{isRtl ? "التخصص:" : "Specialization:"}</span>
+                    <span className="text-xs font-semibold text-muted-foreground">{generatedAccount.profile.specialization}</span>
+                  </div>
+                </div>
 
-                  {role === "publisher" && (
-                    <div>
-                      <Label className="text-xs font-bold mb-1.5 block">
-                        {isRtl ? "اسم دار النشر الرسمية *" : "Publishing House Name *"}
+                {/* Temporary Password Highlight Box */}
+                <div className="p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 space-y-3">
+                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-xs">
+                    <Key className="w-4 h-4" />
+                    <span>{isRtl ? "كلمة المرور المؤقتة الخاصة بحسابكم (احفظها الآن):" : "Your Temporary Password (Save it now):"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      readOnly 
+                      value={generatedAccount.tempPassword} 
+                      className="font-mono font-black text-lg sm:text-xl text-center tracking-widest bg-background border-amber-500/40 text-foreground h-12 rounded-xl"
+                    />
+                    <Button 
+                      type="button" 
+                      onClick={handleCopyPassword}
+                      variant="outline" 
+                      className="h-12 px-4 rounded-xl border-amber-500/40 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold gap-1.5 shrink-0"
+                    >
+                      {copiedPass ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                      <span className="text-xs">{copiedPass ? (isRtl ? "تم النسخ" : "Copied") : (isRtl ? "نسخ" : "Copy")}</span>
+                    </Button>
+                  </div>
+                  <div className="flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed pt-1">
+                    <Info className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                    <span>
+                      {isRtl 
+                        ? "تم إنشاء هذا الحساب بكلمة مرور مؤقتة لراحتكم وأمانكم. ستتمكن من تغييرها فوراً بكلمة مرور دائمة من داخل لوحة التحكم بعد الدخول."
+                        : "Your account is created with a temporary password. You can immediately update it to a permanent password in your dashboard."}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <Button 
+                    onClick={proceedToDashboard}
+                    size="lg" 
+                    className="w-full h-12 rounded-2xl font-black text-base bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/25 gap-2 hover:scale-[1.01] transition-all"
+                  >
+                    <BookOpen className="w-5 h-5" />
+                    <span>{isRtl ? "الدخول إلى لوحة تحكم المؤلف واستوديو النشر ➔" : "Enter Author Dashboard & Studio ➔"}</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            /* Registration Form */
+            <Card className="border-2 border-border/70 shadow-2xl bg-card rounded-3xl overflow-hidden">
+              <CardHeader className="pb-4 border-b border-border/50 bg-muted/20">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                    ✍️
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-black text-foreground">
+                      {isRtl ? "بيانات المؤلف الأكاديمية والمهنية" : "Author Profile & Credentials"}
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {isRtl ? "تظهر هذه البيانات على أغلفة ومقدمات مؤلفاتكم وكشوف المبيعات الرسمية" : "These details appear on book covers, publishing contracts & sales rosters"}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-6 sm:p-8">
+                <form onSubmit={handleSignup} className="space-y-5">
+                  
+                  {/* Row 1: Academic Title & Full Name */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-extrabold flex items-center gap-1">
+                        <span>{isRtl ? "اللقب العلمي / المهني" : "Academic Title"}</span>
+                        <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={academicTitle} onValueChange={(v) => setAcademicTitle(v as AcademicTitle)}>
+                        <SelectTrigger className="h-11 rounded-xl font-bold text-xs border-border bg-muted/30">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ACADEMIC_TITLES.map((title) => (
+                            <SelectItem key={title.value} value={title.value} className="text-xs font-bold">
+                              {isRtl ? title.labelAr : title.labelEn}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <Label className="text-xs font-extrabold flex items-center gap-1">
+                        <span>{isRtl ? "الاسم الكامل للمؤلف (ثلاثي أو رباعي)" : "Author Full Name"}</span>
+                        <span className="text-destructive">*</span>
                       </Label>
                       <Input 
-                        placeholder={isRtl ? "دار المعرفة للطباعة والنشر" : "Al-Maaref Publishing"}
-                        value={publisherName}
-                        onChange={(e) => setPublisherName(e.target.value)}
+                        placeholder={isRtl ? "مثال: عبد الرحمن أحمد المنشاوي" : "e.g. Abdulrahman Ahmed El-Minshawy"}
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
                         required
-                        className="h-10 text-sm"
+                        className="h-11 rounded-xl text-xs sm:text-sm font-semibold border-border bg-muted/30 focus:bg-background focus:border-amber-500 transition-all"
                       />
                     </div>
-                  )}
+                  </div>
 
-                  <div className={role === "author" ? "sm:col-span-1" : "sm:col-span-2"}>
-                    <Label className="text-xs font-bold mb-1.5 block">
-                      {isRtl ? (role === "author" ? "المجال الأدبي / التخصص" : "مجال تخصص النشر") : "Genre / Specialization"}
+                  {/* Row 2: Specialization & Institution */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-extrabold flex items-center gap-1">
+                        <span>{isRtl ? "التخصص والمجال المعرفي" : "Specialization"}</span>
+                        <span className="text-destructive">*</span>
+                      </Label>
+                      <Select value={specialization} onValueChange={(v) => setSpecialization(v)}>
+                        <SelectTrigger className="h-11 rounded-xl font-semibold text-xs border-border bg-muted/30">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SPECIALIZATIONS.map((spec) => (
+                            <SelectItem key={spec} value={spec} className="text-xs">
+                              {spec}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="other" className="text-xs font-bold text-amber-600">
+                            {isRtl ? "مجال تخصصي آخر..." : "Other specialization..."}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {specialization === "other" && (
+                        <Input 
+                          placeholder={isRtl ? "اكتب تخصصك الدقيق هنا..." : "Enter custom specialization..."}
+                          value={customSpecialization}
+                          onChange={(e) => setCustomSpecialization(e.target.value)}
+                          className="h-10 mt-1.5 rounded-xl text-xs border-border"
+                          required
+                        />
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-extrabold flex items-center gap-1">
+                        <span>{isRtl ? "الجامعة / الكلية / جهة العمل" : "Institution / University"}</span>
+                        <span className="text-[10px] text-muted-foreground">({isRtl ? "اختياري" : "Optional"})</span>
+                      </Label>
+                      <Input 
+                        placeholder={isRtl ? "مثال: جامعة القاهرة - كلية الآداب" : "e.g. Cairo University - Faculty of Arts"}
+                        value={institution}
+                        onChange={(e) => setInstitution(e.target.value)}
+                        className="h-11 rounded-xl text-xs sm:text-sm font-semibold border-border bg-muted/30 focus:bg-background focus:border-amber-500 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Row 3: Email & Phone */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-extrabold flex items-center gap-1">
+                        <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span>{isRtl ? "البريد الإلكتروني الرسمي" : "Email Address"}</span>
+                        <span className="text-destructive">*</span>
+                      </Label>
+                      <Input 
+                        type="email"
+                        placeholder="author@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-11 rounded-xl text-xs sm:text-sm font-semibold border-border bg-muted/30 focus:bg-background focus:border-amber-500 transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-extrabold flex items-center gap-1">
+                        <Phone className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span>{isRtl ? "رقم الهاتف / الواتساب" : "Phone / WhatsApp"}</span>
+                        <span className="text-destructive">*</span>
+                      </Label>
+                      <div className="flex gap-2">
+                        <Select value={countryCode} onValueChange={setCountryCode}>
+                          <SelectTrigger className="w-[100px] h-11 rounded-xl font-bold text-xs border-border bg-muted/30 shrink-0">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="+20">🇪🇬 +20</SelectItem>
+                            <SelectItem value="+966">🇸🇦 +966</SelectItem>
+                            <SelectItem value="+971">🇦🇪 +971</SelectItem>
+                            <SelectItem value="+965">🇰🇼 +965</SelectItem>
+                            <SelectItem value="+974">🇶🇦 +974</SelectItem>
+                            <SelectItem value="+968">🇴🇲 +968</SelectItem>
+                            <SelectItem value="+962">🇯🇴 +962</SelectItem>
+                            <SelectItem value="+964">🇮🇶 +964</SelectItem>
+                            <SelectItem value="+1">🇺🇸 +1</SelectItem>
+                            <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input 
+                          type="tel"
+                          placeholder="01012345678"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          required
+                          className="h-11 flex-1 rounded-xl text-xs sm:text-sm font-semibold border-border bg-muted/30 focus:bg-background focus:border-amber-500 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 4: Bio / Publications Summary */}
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-extrabold flex items-center gap-1">
+                      <span>{isRtl ? "نبذة تعريفية وسيرة ذاتية مختصرة للمؤلف" : "Author Bio & Research Interests"}</span>
+                      <span className="text-[10px] text-muted-foreground">({isRtl ? "اختياري" : "Optional"})</span>
                     </Label>
-                    <Input 
-                      placeholder={isRtl ? "روايات، كتب أكاديمية، تاريخ..." : "Novels, Academic, Tech..."}
-                      value={specialization}
-                      onChange={(e) => setSpecialization(e.target.value)}
-                      className="h-10 text-sm"
+                    <Textarea 
+                      placeholder={isRtl 
+                        ? "أستاذ باحث، مؤلف للعديد من الأبحاث والكتب المنشورة في مجال..." 
+                        : "Author and researcher with published works in..."}
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      rows={3}
+                      className="rounded-xl text-xs border-border bg-muted/30 focus:bg-background focus:border-amber-500 transition-all"
                     />
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs font-bold mb-1.5 block">
-                      {isRtl ? "البريد الإلكتروني *" : "Email Address *"}
-                    </Label>
-                    <Input 
-                      type="email"
-                      placeholder="author@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-10 text-sm"
-                    />
+                  {/* Notice Box about Temporary Password */}
+                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3">
+                    <Key className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div className="text-xs text-muted-foreground leading-relaxed space-y-1">
+                      <p className="font-bold text-foreground">
+                        {isRtl ? "نظام الأمان وكلمة المرور المؤقتة:" : "Security & Temporary Password System:"}
+                      </p>
+                      <p>
+                        {isRtl 
+                          ? "سيتم إنشاء حسابكم فوراً وتزويدكم بكلمة مرور مؤقتة وكود مؤلف حصري، وتستطيعون تعديل كلمة المرور في أي وقت من إعدادات الحساب."
+                          : "Your account will be generated with a temporary password and author code, which can be modified at any time."}
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <Label className="text-xs font-bold mb-1.5 block">
-                      {isRtl ? "رقم الهاتف / الواتساب *" : "Phone / WhatsApp *"}
-                    </Label>
-                    <Input 
-                      type="tel"
-                      placeholder="+966 50 123 4567"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                      className="h-10 text-sm"
-                    />
+                  {/* Submit Button */}
+                  <Button 
+                    type="submit" 
+                    disabled={loading}
+                    size="lg"
+                    className="w-full h-12 rounded-2xl font-black text-sm sm:text-base bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/25 gap-2 hover:scale-[1.01] transition-all"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>{isRtl ? "جاري إنشاء حساب المؤلف..." : "Creating Author Profile..."}</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-5 h-5" />
+                        <span>{isRtl ? "إنشاء حساب المؤلف واستلام كلمة المرور ➔" : "Create Author Account & Get Password ➔"}</span>
+                      </>
+                    )}
+                  </Button>
+
+                  <div className="text-center pt-1">
+                    <p className="text-xs text-muted-foreground font-medium">
+                      {isRtl ? "لديك حساب مؤلف بالفعل؟" : "Already have an author account?"}{" "}
+                      <Link to="/nasher/login" className="font-bold text-amber-600 dark:text-amber-400 hover:underline">
+                        {isRtl ? "تسجيل دخول المؤلفين" : "Author Login"}
+                      </Link>
+                    </p>
                   </div>
-                </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
 
-                <div>
-                  <Label className="text-xs font-bold mb-1.5 block">
-                    {isRtl ? "كلمة المرور *" : "Password *"}
-                  </Label>
-                  <Input 
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="h-10 text-sm"
-                  />
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 dark:text-amber-300 space-y-1">
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <ShieldCheck className="w-4 h-4 shrink-0" />
-                    <span>{isRtl ? "عضوية موثقة وإشراف قانوني من دار عبيد" : "Certified Membership & Legal Protection"}</span>
-                  </div>
-                  <p className="leading-relaxed">
-                    {isRtl
-                      ? "تسجيلك يمنحك لوحة تحكم مخصصة لاستلام الإشعارات وتوقيع العقود الرقمية الحصرية مع إلزام البيع بمتجر UNIGATES."
-                      : "Gives you a private dashboard for bid notifications, contract execution, and exclusive store royalties."}
-                  </p>
-                </div>
-
-                <Button 
-                  type="submit" 
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold h-11 text-base shadow-lg shadow-amber-500/20"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (
-                    <>
-                      <span>{isRtl ? "تأكيد التسجيل وإنشاء الحساب" : "Create Account"}</span>
-                      <ArrowIcon className="w-4 h-4 ms-2" />
-                    </>
-                  )}
-                </Button>
-              </form>
-
-              <div className="mt-6 pt-4 border-t border-border/40 text-center text-xs text-muted-foreground">
-                {isRtl ? "لديك حساب بالفعل؟" : "Already have an account?"}{" "}
-                <Link to="/nasher/login" className="font-bold text-amber-600 dark:text-amber-400 hover:underline">
-                  {isRtl ? "تسجيل الدخول هنا" : "Sign In"}
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </main>
     </div>

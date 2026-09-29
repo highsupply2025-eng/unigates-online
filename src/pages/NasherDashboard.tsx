@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SiteFooter from "@/components/SiteFooter";
 import { 
@@ -7,11 +7,9 @@ import {
   FileText, 
   Building2, 
   ShieldCheck, 
-  Gavel, 
   DollarSign, 
   Sparkles, 
   ShoppingBag, 
-  Scale, 
   CheckCircle2, 
   ArrowLeft, 
   ArrowRight, 
@@ -19,26 +17,34 @@ import {
   TrendingUp, 
   Lock,
   AlertTriangle,
-  FileSignature,
-  Coins,
+  UploadCloud, 
+  Check, 
+  User, 
+  Stamp, 
+  ExternalLink, 
+  Bell, 
+  Eye, 
+  Download, 
+  Printer, 
+  LogOut, 
+  Calendar, 
+  Layers, 
+  Clock, 
+  Briefcase,
+  GraduationCap,
+  CreditCard,
+  MessageSquare,
+  Wallet,
   Send,
-  UploadCloud,
-  Check,
-  Building,
-  User,
-  Stamp,
-  ExternalLink,
-  Bell,
-  Eye,
-  Download,
-  Printer,
-  ChevronRight,
-  LogOut,
-  Calendar,
-  Layers,
-  Inbox,
-  Clock,
-  Briefcase
+  Image as ImageIcon,
+  Video,
+  FileCheck,
+  Key,
+  Copy,
+  PlusCircle,
+  HelpCircle,
+  Banknote,
+  QrCode
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,1283 +52,1401 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
-
-type UserRole = "public" | "author" | "publisher" | "admin";
-
-interface Bid {
-  id: string;
-  publisherName: string;
-  publisherType: string;
-  royaltyPercentage: number;
-  printCostCovered: boolean;
-  editionCopies: number;
-  timelineDays: number;
-  notes: string;
-  submittedDate: string;
-  status: "pending" | "accepted" | "rejected" | "contract_signed";
-}
-
-interface Manuscript {
-  id: string;
-  title: string;
-  authorName: string;
-  genre: string;
-  pageCount: number;
-  synopsis: string;
-  sampleChapter: string;
-  submittedDate: string;
-  status: "open_for_bids" | "contract_pending" | "published_in_store";
-  bids: Bid[];
-  contract?: {
-    id: string;
-    refNumber: string;
-    acceptedBidId: string;
-    publisherName: string;
-    royaltyPercentage: number;
-    authorSigned: boolean;
-    publisherSigned: boolean;
-    darObeidCertified: boolean;
-    signedAt?: string;
-    exclusiveStoreLive: boolean;
-  };
-}
-
-interface NotificationItem {
-  id: string;
-  title: string;
-  message: string;
-  timestamp: string;
-  type: "bid" | "contract" | "payment" | "store";
-  read: boolean;
-  targetRole: "author" | "publisher" | "admin";
-}
-
-const initialManuscripts: Manuscript[] = [
-  {
-    id: "ms-1",
-    title: "أسرار الأندلس المفقودة: دراسة وثائقية",
-    authorName: "د. أحمد السعيد",
-    genre: "تاريخ وبحوث وثائقية",
-    pageCount: 280,
-    synopsis: "دراسة روائية شيقة تسبر أغوار المخطوطات الأندلسية النادرة وتكشف تفاصيل الحياة الفكرية في قرطبة وغرناطة مع تحقيق مخطوطات لم تنشر من قبل.",
-    sampleChapter: "الفصل الأول: البداية من مكتبة الزهراء المنسية في ربيع عام 1492، حيث تكشف الوثائق عن حركة الترجمة الأندلسية الدقيقة...",
-    submittedDate: "2026-09-01",
-    status: "open_for_bids",
-    bids: [
-      {
-        id: "bid-101",
-        publisherName: "دار المعرفة للطباعة والنشر",
-        publisherType: "دار نشر معتمدة",
-        royaltyPercentage: 65,
-        printCostCovered: true,
-        editionCopies: 3000,
-        timelineDays: 25,
-        notes: "طباعة فاخرة ورق شاموا 80 جرام، غلاف مقوى مجلد مع حملة تسويقية حصرية داخل متجر UNIGATES.",
-        submittedDate: "2026-09-02",
-        status: "pending"
-      },
-      {
-        id: "bid-102",
-        publisherName: "دار الأفق الرقمي للنشر",
-        publisherType: "نشر إلكتروني وورقي",
-        royaltyPercentage: 70,
-        printCostCovered: true,
-        editionCopies: 1500,
-        timelineDays: 14,
-        notes: "إطلاق ورقي وإلكتروني متزامن مع كتاب صوتي مسموع عبر المتجر مع رعاية حفلات التوقيع.",
-        submittedDate: "2026-09-04",
-        status: "pending"
-      }
-    ]
-  },
-  {
-    id: "ms-2",
-    title: "الذكاء الاصطناعي التوليدي في التعليم الجامعي",
-    authorName: "م. محمود زكي",
-    genre: "تكنولوجيا وذكاء اصطناعي",
-    pageCount: 340,
-    synopsis: "دليل تطبيقي عملي موجه للجامعات والأساتذة لبناء مناهج متوافقة مع الذكاء الاصطناعي وتطبيق أدوات المساعد الشخصي في التدريس والتقييم.",
-    sampleChapter: "المقدمة: الانتقال من التعليم التقليدي إلى منظومة الذكاء الاصطناعي التوليدي التفاعلية داخل قاعات المحاضرات الحديثة...",
-    submittedDate: "2026-09-03",
-    status: "contract_pending",
-    bids: [
-      {
-        id: "bid-201",
-        publisherName: "دار النهضة الأكاديمية",
-        publisherType: "نشر جامعي وعلمي",
-        royaltyPercentage: 60,
-        printCostCovered: true,
-        editionCopies: 5000,
-        timelineDays: 20,
-        notes: "اعتماد أكاديمي موثق وتوزيع على كافة كليات الحاسبات والتربية داخل منصة UNIGATES.",
-        submittedDate: "2026-09-04",
-        status: "accepted"
-      }
-    ],
-    contract: {
-      id: "cnt-201",
-      refNumber: "OBEID-UNIGATES-2026-089",
-      acceptedBidId: "bid-201",
-      publisherName: "دار النهضة الأكاديمية",
-      royaltyPercentage: 60,
-      authorSigned: true,
-      publisherSigned: true,
-      darObeidCertified: true,
-      signedAt: "2026-09-05",
-      exclusiveStoreLive: true
-    }
-  }
-];
-
-const initialNotifications: NotificationItem[] = [
-  {
-    id: "notif-1",
-    title: "عرض سعر جديد على مخطوطتك!",
-    message: "قدمت «دار المعرفة للطباعة والنشر» عرضاً بنسبة أرباح 65% لكتاب (أسرار الأندلس المفقودة).",
-    timestamp: "منذ 15 دقيقة",
-    type: "bid",
-    read: false,
-    targetRole: "author"
-  },
-  {
-    id: "notif-2",
-    title: "تم توقيع العقد الإلكتروني بنجاح!",
-    message: "تم اعتماد وتوثيق عقد كتاب (الذكاء الاصطناعي في التعليم الجامعي) من دار عبيد.",
-    timestamp: "منذ ساعتين",
-    type: "contract",
-    read: false,
-    targetRole: "publisher"
-  },
-  {
-    id: "notif-3",
-    title: "إشعار إشراف قانوني - دار عبيد",
-    message: "تم تسجيل عقد جديد برقم مرجعي OBEID-UNIGATES-2026-089 مع تفعيل حصرية البيع.",
-    timestamp: "منذ 4 ساعات",
-    type: "contract",
-    read: true,
-    targetRole: "admin"
-  }
-];
+import { 
+  AuthorProfile, 
+  ManuscriptSubmission, 
+  NashrInvoice, 
+  NashrMessage, 
+  BookSaleRecord, 
+  PayoutRequest, 
+  PublishType 
+} from "@/types/nashr";
+import { NashrDataStore } from "@/services/nashrDataStore";
 
 const NasherDashboard = () => {
-  const { language } = useLanguage();
-  const isAr = language === "ar";
-  const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "submit";
+  const [activeTab, setActiveTab] = useState(initialTab);
 
-  // Active Role State (public browse, author, publisher, dar obeid admin)
-  const currentRole = (searchParams.get("role") as UserRole) || "public";
-  const activeTab = searchParams.get("tab") || (currentRole === "public" ? "browse_deals" : currentRole === "author" ? "my_books" : currentRole === "publisher" ? "bids_inbox" : "admin_contracts");
+  const { dir } = useLanguage();
+  const isRtl = dir === "rtl";
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const [manuscripts, setManuscripts] = useState<Manuscript[]>(initialManuscripts);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications);
-  const [selectedManuscript, setSelectedManuscript] = useState<Manuscript>(initialManuscripts[0]);
-  const [selectedBid, setSelectedBid] = useState<Bid | null>(initialManuscripts[0].bids[0] || null);
+  // State from DataStore
+  const [authorProfile, setAuthorProfile] = useState<AuthorProfile>(NashrDataStore.getAuthorProfile());
+  const [submissions, setSubmissions] = useState<ManuscriptSubmission[]>(NashrDataStore.getSubmissions());
+  const [invoices, setInvoices] = useState<NashrInvoice[]>(NashrDataStore.getInvoices());
+  const [messages, setMessages] = useState<NashrMessage[]>(NashrDataStore.getMessages());
+  const [sales, setSales] = useState<BookSaleRecord[]>(NashrDataStore.getSales());
+  const [payouts, setPayouts] = useState<PayoutRequest[]>(NashrDataStore.getPayouts());
+  const [financials, setFinancials] = useState(NashrDataStore.getFinancialSummary());
 
-  // Author submit form states
+  // Form states for New Submission
   const [newTitle, setNewTitle] = useState("");
-  const [newAuthor, setNewAuthor] = useState("");
-  const [newGenre, setNewGenre] = useState("روايات وأدب");
-  const [newPageCount, setNewPageCount] = useState("200");
+  const [newCategory, setNewCategory] = useState("دراسات وأبحاث أكاديمية");
+  const [newPublishType, setNewPublishType] = useState<PublishType>("both");
   const [newSynopsis, setNewSynopsis] = useState("");
-  const [newSample, setNewSample] = useState("");
+  const [newPageCount, setNewPageCount] = useState<number | string>(200);
+  const [newLanguage, setNewLanguage] = useState("العربية");
+  const [coverFileName, setCoverFileName] = useState("");
+  const [manuscriptFileName, setManuscriptFileName] = useState("");
+  const [videoFileName, setVideoFileName] = useState("");
+  const [submittingWork, setSubmittingWork] = useState(false);
 
-  // Publisher bid form states
-  const [bidPublisher, setBidPublisher] = useState("");
-  const [bidRoyalty, setBidRoyalty] = useState("65");
-  const [bidCopies, setBidCopies] = useState("2000");
-  const [bidDays, setBidDays] = useState("20");
-  const [bidNotes, setBidNotes] = useState("");
+  // Form states for Chat
+  const [chatInput, setChatInput] = useState("");
+  const [chatAttachmentName, setChatAttachmentName] = useState("");
 
-  // Contract viewer modal state
-  const [contractToView, setContractToView] = useState<Manuscript | null>(initialManuscripts[1]);
+  // Form states for Payment Receipt Upload Modal
+  const [selectedInvoice, setSelectedInvoice] = useState<NashrInvoice | null>(null);
+  const [paymentMethodSelect, setPaymentMethodSelect] = useState("bank_transfer");
+  const [receiptImagePlaceholder, setReceiptImagePlaceholder] = useState("");
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
 
-  const handleRoleSwitch = (role: UserRole) => {
-    let defaultTab = "browse_deals";
-    if (role === "author") defaultTab = "my_books";
-    if (role === "publisher") defaultTab = "bids_inbox";
-    if (role === "admin") defaultTab = "admin_contracts";
-    setSearchParams({ role, tab: defaultTab });
+  // Form states for Payout Request Modal
+  const [payoutModalOpen, setPayoutModalOpen] = useState(false);
+  const [payoutAmount, setPayoutAmount] = useState<number | string>("");
+  const [payoutMethod, setPayoutMethod] = useState<any>("bank_transfer");
+  const [payoutDetails, setPayoutDetails] = useState("");
+  const [requestingPayout, setRequestingPayout] = useState(false);
+
+  // Password Change Modal
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Sync tab with URL
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (val: string) => {
+    setActiveTab(val);
+    setSearchParams({ tab: val });
   };
 
-  const handleTabChange = (tab: string) => {
-    setSearchParams({ role: currentRole, tab });
+  const refreshData = () => {
+    setAuthorProfile(NashrDataStore.getAuthorProfile());
+    setSubmissions(NashrDataStore.getSubmissions());
+    setInvoices(NashrDataStore.getInvoices());
+    setMessages(NashrDataStore.getMessages());
+    setSales(NashrDataStore.getSales());
+    setPayouts(NashrDataStore.getPayouts());
+    setFinancials(NashrDataStore.getFinancialSummary());
   };
 
-  // 1. Author submits new manuscript
-  const handleAuthorSubmitManuscript = (e: React.FormEvent) => {
+  // Submit New Manuscript
+  const handleSubmitManuscript = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newSynopsis.trim()) {
       toast({
-        title: isAr ? "بيانات ناقصة" : "Missing fields",
-        description: isAr ? "يرجى كتابة عنوان المخطوطة والنبذة المختصرة." : "Please fill in title and synopsis.",
+        title: isRtl ? "بيانات ناقصة" : "Missing fields",
+        description: isRtl ? "يرجى كتابة عنوان المؤلف والنبذة التعريفية." : "Please provide title and synopsis.",
         variant: "destructive"
       });
       return;
     }
 
-    const created: Manuscript = {
-      id: "ms-" + Date.now(),
-      title: newTitle,
-      authorName: newAuthor || (isAr ? "د. محمد فاروق (حسابك)" : "My Account Author"),
-      genre: newGenre,
-      pageCount: parseInt(newPageCount) || 180,
-      synopsis: newSynopsis,
-      sampleChapter: newSample || (isAr ? "الفصل الأول قيد المراجعة الفنية..." : "Sample under review..."),
-      submittedDate: new Date().toISOString().split("T")[0],
-      status: "open_for_bids",
-      bids: []
-    };
+    setSubmittingWork(true);
+    setTimeout(() => {
+      NashrDataStore.addSubmission({
+        authorId: authorProfile.id,
+        authorName: authorProfile.fullName,
+        authorCode: authorProfile.authorCode,
+        title: newTitle.trim(),
+        category: newCategory,
+        publishType: newPublishType,
+        synopsis: newSynopsis.trim(),
+        pageCount: Number(newPageCount) || 150,
+        language: newLanguage,
+        coverImage: coverFileName || undefined,
+        manuscriptFile: manuscriptFileName ? { name: manuscriptFileName, size: "4.2 MB", type: "PDF" } : undefined,
+        introVideo: videoFileName ? { name: videoFileName } : undefined,
+        priceEstimate: newPublishType === "digital" ? 90 : newPublishType === "print" ? 140 : 160
+      });
 
-    setManuscripts([created, ...manuscripts]);
-    setSelectedManuscript(created);
+      refreshData();
+      setSubmittingWork(false);
+      
+      // Reset form
+      setNewTitle("");
+      setNewSynopsis("");
+      setCoverFileName("");
+      setManuscriptFileName("");
+      setVideoFileName("");
 
-    // Add alert notification
-    const newNotif: NotificationItem = {
-      id: "notif-" + Date.now(),
-      title: "تم نشر المخطوطة بنجاح!",
-      message: `مخطوطتك (${newTitle}) أصبحت معروضة الآن لدور النشر لتقديم العروض.`,
-      timestamp: "الآن",
-      type: "bid",
-      read: false,
-      targetRole: "author"
-    };
-    setNotifications([newNotif, ...notifications]);
-
-    toast({
-      title: isAr ? "🎉 تم إدراج المخطوطة في حلبة المزايدة!" : "Manuscript Listed!",
-      description: isAr ? "ستتلقى إشعارات فورية بكل عرض سعر يقدمه الناشرون." : "You will receive instant bid alerts."
-    });
-
-    setNewTitle("");
-    setNewSynopsis("");
-    setNewSample("");
-    handleTabChange("my_books");
-  };
-
-  // 2. Publisher places a bid
-  const handlePublisherPlaceBid = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!bidPublisher.trim()) {
       toast({
-        title: isAr ? "اسم دار النشر مطلوب" : "Publisher name required",
+        title: isRtl ? "🎉 تم إرسال المؤلف بنجاح للمراجعة!" : "Manuscript Submitted Successfully!",
+        description: isRtl 
+          ? "تم تحويل المخطوطة لإدارة دار عبيد للمراجعة والتدقيق والاعتماد."
+          : "Your work is now under review by Dar Obeid editors."
+      });
+    }, 600);
+  };
+
+  // Send Internal Message
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    NashrDataStore.sendMessage(chatInput.trim(), chatAttachmentName || undefined);
+    setChatInput("");
+    setChatAttachmentName("");
+    refreshData();
+  };
+
+  // Handle Payment Receipt Upload
+  const handleConfirmPaymentReceipt = () => {
+    if (!selectedInvoice) return;
+    setUploadingReceipt(true);
+    setTimeout(() => {
+      NashrDataStore.uploadPaymentReceipt(
+        selectedInvoice.id,
+        receiptImagePlaceholder || "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600",
+        paymentMethodSelect === "bank_transfer" ? "تحويل بنكي رسمي" : paymentMethodSelect === "instapay" ? "إنستاباي InstaPay" : "محفظة فودافون كاش"
+      );
+      refreshData();
+      setUploadingReceipt(false);
+      setSelectedInvoice(null);
+      setReceiptImagePlaceholder("");
+      toast({
+        title: isRtl ? "تم رفع إيصال الدفع بنجاح" : "Receipt Uploaded",
+        description: isRtl ? "تم إرسال إيصال السداد للإدارة المالية للمطابقة والاعتماد." : "Payment proof sent for financial verification."
+      });
+    }, 600);
+  };
+
+  // Handle Payout Request
+  const handleRequestPayoutSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const amountNum = Number(payoutAmount);
+    if (!amountNum || amountNum <= 0) {
+      toast({
+        title: isRtl ? "مبلغ غير صحيح" : "Invalid Amount",
+        description: isRtl ? "يرجى تحديد مبلغ صالح للسحب." : "Enter a valid amount.",
         variant: "destructive"
       });
       return;
     }
 
-    const newBid: Bid = {
-      id: "bid-" + Date.now(),
-      publisherName: bidPublisher,
-      publisherType: isAr ? "دار نشر معتمدة" : "Certified Publisher",
-      royaltyPercentage: parseInt(bidRoyalty) || 65,
-      printCostCovered: true,
-      editionCopies: parseInt(bidCopies) || 2000,
-      timelineDays: parseInt(bidDays) || 25,
-      notes: bidNotes || (isAr ? "طباعة فاخرة مع النشر الحصري بمتجر UNIGATES." : "Deluxe print & exclusive store launch."),
-      submittedDate: new Date().toISOString().split("T")[0],
-      status: "pending"
-    };
+    if (amountNum > financials.availableBalance) {
+      toast({
+        title: isRtl ? "الرصيد غير كافٍ" : "Insufficient Balance",
+        description: isRtl ? `الرصيد المتاح للسحب هو ${financials.availableBalance} جنيه.` : `Available balance is ${financials.availableBalance} EGP.`,
+        variant: "destructive"
+      });
+      return;
+    }
 
-    const updated = manuscripts.map((m) => {
-      if (m.id === selectedManuscript.id) {
-        return {
-          ...m,
-          bids: [newBid, ...m.bids]
-        };
-      }
-      return m;
-    });
+    if (!payoutDetails.trim()) {
+      toast({
+        title: isRtl ? "بيانات التحويل مطلوبة" : "Account details required",
+        description: isRtl ? "يرجى كتابة رقم الحساب البنكي أو رقم المحفظة." : "Please provide account or wallet number.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    setManuscripts(updated);
-    setSelectedManuscript({ ...selectedManuscript, bids: [newBid, ...selectedManuscript.bids] });
-    setSelectedBid(newBid);
-
-    // Notify author
-    const newNotif: NotificationItem = {
-      id: "notif-" + Date.now(),
-      title: "عرض سعر جديد لمخطوطتك!",
-      message: `قدمت ${bidPublisher} عرضاً بنسبة أرباح ${bidRoyalty}% لكتاب (${selectedManuscript.title}).`,
-      timestamp: "الآن",
-      type: "bid",
-      read: false,
-      targetRole: "author"
-    };
-    setNotifications([newNotif, ...notifications]);
-
-    toast({
-      title: isAr ? "✨ تم تقديم عرض السعر بنجاح!" : "Bid Sent Successfully!",
-      description: isAr ? "تم إرسال إشعار للمؤلف وفي انتظار مراجعته وقبوله." : "Author has been notified."
-    });
-
-    setBidPublisher("");
-    setBidNotes("");
+    setRequestingPayout(true);
+    setTimeout(() => {
+      NashrDataStore.requestPayout(amountNum, payoutMethod, payoutDetails.trim());
+      refreshData();
+      setRequestingPayout(false);
+      setPayoutModalOpen(false);
+      setPayoutAmount("");
+      setPayoutDetails("");
+      toast({
+        title: isRtl ? "🎉 تم تسجيل طلب السحب بنجاح!" : "Payout Request Submitted!",
+        description: isRtl ? "سيتم مراجعة الطلب وتحويل المبلغ لحسابكم خلال 24-48 ساعة." : "Your payout will be processed within 24-48 hours."
+      });
+    }, 600);
   };
 
-  // 3. Author accepts bid & generates contract
-  const handleAuthorAcceptBid = (manuscriptId: string, bid: Bid) => {
-    const refNum = `OBEID-UNIGATES-2026-${Math.floor(100 + Math.random() * 900)}`;
+  // Change Temporary Password
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      toast({
+        title: isRtl ? "كلمة المرور قصيرة" : "Short password",
+        description: isRtl ? "يجب أن تكون كلمة المرور 6 أحرف على الأقل." : "Password must be at least 6 characters.",
+        variant: "destructive"
+      });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: isRtl ? "كلمات المرور غير متطابقة" : "Passwords do not match",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    const updated = manuscripts.map((m) => {
-      if (m.id === manuscriptId) {
-        return {
-          ...m,
-          status: "contract_pending" as const,
-          bids: m.bids.map((b) => b.id === bid.id ? { ...b, status: "accepted" as const } : { ...b, status: "rejected" as const }),
-          contract: {
-            id: "cnt-" + Date.now(),
-            refNumber: refNum,
-            acceptedBidId: bid.id,
-            publisherName: bid.publisherName,
-            royaltyPercentage: bid.royaltyPercentage,
-            authorSigned: true, // Signed by author on acceptance
-            publisherSigned: false, // Pending publisher signature
-            darObeidCertified: false, // Pending Dar Obeid seal
-            signedAt: new Date().toISOString().split("T")[0],
-            exclusiveStoreLive: false
-          }
-        };
-      }
-      return m;
-    });
-
-    setManuscripts(updated);
-    const updatedMs = updated.find((m) => m.id === manuscriptId) || selectedManuscript;
-    setSelectedManuscript(updatedMs);
-    setContractToView(updatedMs);
-
-    // Notify publisher
-    const newNotif: NotificationItem = {
-      id: "notif-" + Date.now(),
-      title: "🎉 وافق المؤلف على عرضك!",
-      message: `وافق مؤلف (${updatedMs.title}) على عرضك وقام بتوقيع العقد. يرجى مراجعة وتوقيع نسختك.`,
-      timestamp: "الآن",
-      type: "contract",
-      read: false,
-      targetRole: "publisher"
-    };
-    setNotifications([newNotif, ...notifications]);
-
+    NashrDataStore.updatePassword(newPassword);
+    refreshData();
+    setPasswordModalOpen(false);
+    setNewPassword("");
+    setConfirmPassword("");
     toast({
-      title: isAr ? "📜 تم قبول العرض وتوقيع العقد من طرفك!" : "Bid Accepted & Signed by Author!",
-      description: isAr ? "تم إرسال العقد لدار النشر ولإشراف دار عبيد للاعتماد." : "Contract sent to publisher and Dar Obeid."
-    });
-
-    handleTabChange("my_contracts");
-  };
-
-  // 4. Publisher signs contract
-  const handlePublisherSignContract = (manuscriptId: string) => {
-    const updated = manuscripts.map((m) => {
-      if (m.id === manuscriptId && m.contract) {
-        return {
-          ...m,
-          contract: {
-            ...m.contract,
-            publisherSigned: true
-          }
-        };
-      }
-      return m;
-    });
-
-    setManuscripts(updated);
-    toast({
-      title: isAr ? "🖋️ تم توقيع العقد من دار النشر!" : "Publisher Signed Contract!",
-      description: isAr ? "في انتظار ختم وتوثيق دار عبيد للنشر والتوزيع." : "Awaiting Dar Obeid certification seal."
+      title: isRtl ? "🎉 تم تعيين كلمة المرور الدائمة بنجاح!" : "Password Updated Successfully!",
+      description: isRtl ? "تم تأمين حساب المؤلف بكلمة المرور الجديدة الخاصة بك." : "Your permanent password is now active."
     });
   };
 
-  // 5. Dar Obeid Admin certifies contract & unlocks Store Publishing
-  const handleDarObeidCertify = (manuscriptId: string) => {
-    const updated = manuscripts.map((m) => {
-      if (m.id === manuscriptId && m.contract) {
-        return {
-          ...m,
-          status: "published_in_store" as const,
-          contract: {
-            ...m.contract,
-            darObeidCertified: true,
-            exclusiveStoreLive: true
-          }
-        };
-      }
-      return m;
-    });
-
-    setManuscripts(updated);
-
-    // Notification
-    const notif: NotificationItem = {
-      id: "notif-" + Date.now(),
-      title: "✅ تم توثيق ونشر الكتاب بالمتجر الحصري!",
-      message: "أصبح الكتاب متاحاً للشراء في متجر كتب UNIGATES مع تفعيل نسبة الأرباح التلقائية.",
-      timestamp: "الآن",
-      type: "store",
-      read: false,
-      targetRole: "author"
-    };
-    setNotifications([notif, ...notifications]);
-
-    toast({
-      title: isAr ? "🏛️ تم توثيق العقد وختم دار عبيد بنجاح!" : "Certified & Published on Store!",
-      description: isAr ? "تم إدراج الكتاب في متجر UNIGATES وتطبيق شروط الحصرية." : "Book is now live on UNIGATES Store."
-    });
-  };
-
-  const unreadCount = notifications.filter((n) => currentRole === "public" ? true : n.targetRole === currentRole).length;
+  const publishedWorks = submissions.filter(s => s.status === "published");
 
   return (
-    <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={isAr ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       
-      {/* Top Header */}
-      <header className="border-b border-border/40 bg-card/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-          
-          {/* Logo & Platform Name */}
-          <div className="flex items-center gap-3">
-            <Link to="/nasher" className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md flex items-center justify-center text-white">
-                <PenTool className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-black text-foreground">منصة ناشر</span>
-                  <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-[10px] font-bold">
-                    {isAr ? "استوديو الحسابات والعقود" : "Accounts & Contracts Studio"}
-                  </Badge>
-                </div>
-                <span className="text-[10px] block text-muted-foreground font-medium">
-                  {isAr ? "إشراف دار عبيد للنشر والتوزيع • حصرية متجر UNIGATES" : "Dar Obeid Supervision • UNIGATES Exclusivity"}
-                </span>
-              </div>
-            </Link>
+      {/* Top Header Navbar */}
+      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between">
+        <Link to="/nasher" className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md flex items-center justify-center text-white">
+            <PenTool className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-black text-foreground">UNIGATES</span>
+              <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px] font-bold px-1.5 py-0">
+                {isRtl ? "منصة نشر" : "Nashr Studio"}
+              </Badge>
+            </div>
+            <span className="text-[10px] block font-bold text-muted-foreground">
+              {isRtl ? "لوحة تحكم المؤلف واستوديو المبيعات" : "Author Dashboard & Publishing Suite"}
+            </span>
+          </div>
+        </Link>
+
+        {/* User Badge & Fast Actions */}
+        <div className="flex items-center gap-2.5">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 border border-border/70 text-xs">
+            <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+              ✍️
+            </div>
+            <div className="text-start">
+              <span className="font-bold text-foreground block truncate max-w-[170px]">{authorProfile.fullName}</span>
+              <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400 font-bold">{authorProfile.authorCode}</span>
+            </div>
           </div>
 
-          {/* Role Switcher Pills (Author / Publisher / Dar Obeid Admin / Public) */}
-          <div className="flex items-center gap-1.5 p-1 bg-muted/70 rounded-2xl border border-border/60">
-            <Button
-              size="sm"
-              variant={currentRole === "public" ? "default" : "ghost"}
-              onClick={() => handleRoleSwitch("public")}
-              className={`h-8 text-xs font-bold rounded-xl ${currentRole === "public" ? "bg-amber-500 hover:bg-amber-600 text-white" : "text-muted-foreground"}`}
-            >
-              <Eye className="w-3.5 h-3.5 me-1" />
-              {isAr ? "العرض العام" : "Public View"}
-            </Button>
+          <ThemeToggle />
+          <LanguageSelectorDropdown />
 
-            <Button
-              size="sm"
-              variant={currentRole === "author" ? "default" : "ghost"}
-              onClick={() => handleRoleSwitch("author")}
-              className={`h-8 text-xs font-bold rounded-xl ${currentRole === "author" ? "bg-amber-500 hover:bg-amber-600 text-white" : "text-muted-foreground"}`}
-            >
-              <User className="w-3.5 h-3.5 me-1" />
-              {isAr ? "حساب المؤلف" : "Author Account"}
-            </Button>
-
-            <Button
-              size="sm"
-              variant={currentRole === "publisher" ? "default" : "ghost"}
-              onClick={() => handleRoleSwitch("publisher")}
-              className={`h-8 text-xs font-bold rounded-xl ${currentRole === "publisher" ? "bg-amber-500 hover:bg-amber-600 text-white" : "text-muted-foreground"}`}
-            >
-              <Building2 className="w-3.5 h-3.5 me-1" />
-              {isAr ? "حساب دار النشر" : "Publisher Account"}
-            </Button>
-
-            <Button
-              size="sm"
-              variant={currentRole === "admin" ? "default" : "ghost"}
-              onClick={() => handleRoleSwitch("admin")}
-              className={`h-8 text-xs font-bold rounded-xl ${currentRole === "admin" ? "bg-amber-500 hover:bg-amber-600 text-white" : "text-muted-foreground"}`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5 me-1" />
-              {isAr ? "إدارة دار عبيد" : "Dar Obeid Admin"}
-            </Button>
-          </div>
-
-          {/* Actions & Utilities */}
-          <div className="flex items-center gap-2">
-            <Link to="/book-store">
-              <Button size="sm" variant="outline" className="h-8 text-xs font-bold border-amber-500/30">
-                <BookOpen className="w-3.5 h-3.5 me-1 text-amber-500" />
-                {isAr ? "متجر الكتب" : "Book Store"}
-              </Button>
-            </Link>
-
-            <ThemeToggle />
-            <LanguageSelectorDropdown />
-
-            {currentRole === "public" ? (
-              <div className="flex items-center gap-1.5">
-                <Link to="/nasher/login">
-                  <Button size="sm" variant="outline" className="h-8 text-xs font-bold">
-                    {isAr ? "تسجيل دخول" : "Sign In"}
-                  </Button>
-                </Link>
-                <Link to="/nasher/signup">
-                  <Button size="sm" className="h-8 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white">
-                    {isAr ? "إنشاء حساب" : "Sign Up"}
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <Button size="sm" variant="ghost" onClick={() => handleRoleSwitch("public")} className="h-8 text-xs font-bold text-rose-500 hover:text-rose-600 hover:bg-rose-500/10">
-                <LogOut className="w-3.5 h-3.5 me-1" />
-                {isAr ? "خروج" : "Logout"}
-              </Button>
-            )}
-          </div>
-
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            onClick={() => navigate("/nasher")}
+            className="text-xs font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-9 px-2.5 rounded-xl gap-1"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">{isRtl ? "خروج" : "Logout"}</span>
+          </Button>
         </div>
       </header>
 
-      {/* Role Context Bar & Notification Banner */}
-      <div className="border-b border-border/40 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-background py-3 px-4">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
-          
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-            <span className="font-bold text-foreground">
-              {currentRole === "public" && (isAr ? "وضع التصفح العام (عرض الكتب والعروض المفتوحة)" : "Public Browsing Mode")}
-              {currentRole === "author" && (isAr ? "أنت الآن في لوحة تحكم: د. أحمد السعيد (مؤلف معتمد)" : "Active as Author: Dr. Ahmed Al-Saeed")}
-              {currentRole === "publisher" && (isAr ? "أنت الآن في لوحة تحكم: دار المعرفة للطباعة والنشر (ناشر معتمد)" : "Active as Publisher: Al-Maaref Publishing")}
-              {currentRole === "admin" && (isAr ? "أنت الآن في لوحة الإشراف والتوثيق القانوني: إدارة دار عبيد" : "Active as Legal Supervisor: Dar Obeid Desk")}
+      {/* Temporary Password Alert Banner */}
+      {authorProfile.isTemporaryPassword && (
+        <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2.5 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold">
+            <Key className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span>
+              {isRtl 
+                ? "تنبيه أمان: حسابك يعمل حالياً بكلمة مرور مؤقتة. يُفضل تعيين كلمة مرور دائمة لحماية مؤلفاتك وبيانات أرباحك."
+                : "Security Notice: You are using a temporary password. Please set a permanent password."}
             </span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold">
-              <Bell className="w-3.5 h-3.5" />
-              <span>{unreadCount} {isAr ? "إشعارات جديدة" : "New Alerts"}</span>
-            </div>
-            <span className="text-muted-foreground">|</span>
-            <span className="text-muted-foreground font-mono">
-              {isAr ? "حصرية البيع: متجر UNIGATES" : "Exclusive Store Active"}
-            </span>
-          </div>
-
+          <Button 
+            size="sm" 
+            onClick={() => setPasswordModalOpen(true)}
+            className="h-7 px-3 rounded-lg text-xs font-black bg-amber-600 hover:bg-amber-700 text-white shadow-xs shrink-0"
+          >
+            {isRtl ? "تغيير كلمة المرور الآن" : "Set Password"}
+          </Button>
         </div>
-      </div>
+      )}
 
       {/* Main Studio Body */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full space-y-8">
-        
-        {/* ========================================================= */}
-        {/* 1. PUBLIC VIEW (Browse Manuscripts & Open Market Only)   */}
-        {/* ========================================================= */}
-        {currentRole === "public" && (
-          <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-card border-2 border-amber-500/30">
-              <div className="space-y-1 max-w-2xl">
-                <Badge className="bg-amber-500 text-white text-[10px] font-bold mb-1">سوق العروض والمخطوطات</Badge>
-                <h2 className="text-xl sm:text-2xl font-black">
-                  {isAr ? "حلبة المزايدات المفتوحة (للعرض والاستكشاف)" : "Open Manuscript Bidding Arena"}
-                </h2>
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  {isAr 
-                    ? "هذه الشاشة مخصصة لاستعراض الكتب والعروض المطروحة. لتقديم عروض الأسعار أو طرح مخطوطة أو توقيع العقود الرسمية، يرجى تسجيل الدخول بحسابك المعتمد."
-                    : "This screen is for browsing titles and bids. To submit bids or sign contracts, please sign in with your account."}
-                </p>
-              </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
 
-              <div className="flex flex-wrap gap-2">
-                <Button onClick={() => handleRoleSwitch("author")} className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs h-10 px-4">
-                  <User className="w-4 h-4 me-1.5" />
-                  {isAr ? "دخول كـ مؤلف" : "Enter as Author"}
-                </Button>
-                <Button onClick={() => handleRoleSwitch("publisher")} variant="outline" className="border-amber-500/30 font-bold text-xs h-10 px-4">
-                  <Building2 className="w-4 h-4 me-1.5 text-amber-500" />
-                  {isAr ? "دخول كـ دار نشر" : "Enter as Publisher"}
-                </Button>
-              </div>
-            </div>
-
-            {/* Manuscripts Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {manuscripts.map((m) => (
-                <Card key={m.id} className="border-border/60 bg-card hover:border-amber-500/50 shadow-md transition-all flex flex-col justify-between">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0 text-[10px] font-bold">
-                        {m.genre}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground font-mono">{m.bids.length} {isAr ? "عروض متنافسة" : "bids"}</span>
-                    </div>
-                    <CardTitle className="text-base font-bold line-clamp-1">{m.title}</CardTitle>
-                    <CardDescription className="text-xs">
-                      {isAr ? "المؤلف:" : "Author:"} {m.authorName} • {m.pageCount} {isAr ? "صفحة" : "pages"}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                      {m.synopsis}
-                    </p>
-
-                    <div className="p-3 rounded-xl bg-muted/40 border border-border/40 text-xs space-y-1.5">
-                      <div className="flex justify-between font-bold">
-                        <span>{isAr ? "أعلى نسبة أرباح معروضة:" : "Highest Royalty:"}</span>
-                        <span className="text-amber-500">{m.bids[0]?.royaltyPercentage || 65}%</span>
-                      </div>
-                      <div className="text-[11px] text-muted-foreground">
-                        {isAr ? "الناشر المتصدر:" : "Leading Bidder:"} {m.bids[0]?.publisherName || (isAr ? "في انتظار العروض" : "Pending")}
-                      </div>
-                    </div>
-
-                    <div className="pt-2 border-t border-border/40 flex items-center justify-between">
-                      <Badge variant="outline" className="text-[10px]">
-                        {m.status === "open_for_bids" ? (isAr ? "مفتوح للمزايدة" : "Open") : (isAr ? "تم الاتفاق والعقد" : "Contracted")}
-                      </Badge>
-                      <Button size="sm" variant="secondary" onClick={() => handleRoleSwitch("publisher")} className="text-xs h-7 font-bold">
-                        {isAr ? "تقديم عرض سعر (تسجيل دخول)" : "Place Bid (Login)"}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* 2. AUTHOR ACCOUNT DASHBOARD (Submit, Inquiries, Contracts)*/}
-        {/* ========================================================= */}
-        {currentRole === "author" && (
-          <div className="space-y-6">
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-              <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full max-w-3xl mx-auto bg-muted/60 p-1">
-                <TabsTrigger value="my_books" className="text-xs font-bold data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-                  <BookOpen className="w-3.5 h-3.5 me-1.5" />
-                  {isAr ? "مخطوطاتي وعروض الأسعار" : "My Manuscripts & Bids"}
-                </TabsTrigger>
-                <TabsTrigger value="author_submit" className="text-xs font-bold data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-                  <PenTool className="w-3.5 h-3.5 me-1.5" />
-                  {isAr ? "طرح نبذة مخطوطة جديدة" : "Submit New"}
-                </TabsTrigger>
-                <TabsTrigger value="my_contracts" className="text-xs font-bold data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-                  <FileSignature className="w-3.5 h-3.5 me-1.5" />
-                  {isAr ? "عقودي المعتمدة ونسخ العقد" : "My Contracts"}
-                </TabsTrigger>
-                <TabsTrigger value="author_notifications" className="text-xs font-bold data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-                  <Bell className="w-3.5 h-3.5 me-1.5" />
-                  {isAr ? "الإشعارات والتنبيهات" : "Notifications"}
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Author Tab 1: My Manuscripts & Incoming Bids */}
-              <TabsContent value="my_books" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Manuscripts list */}
-                  <div className="space-y-3">
-                    <h3 className="font-bold text-sm flex items-center justify-between">
-                      <span>{isAr ? "قائمة كتبي ومخطوطاتي" : "My Manuscripts"}</span>
-                      <Badge variant="outline">{manuscripts.length}</Badge>
-                    </h3>
-                    {manuscripts.map((m) => (
-                      <div
-                        key={m.id}
-                        onClick={() => setSelectedManuscript(m)}
-                        className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                          selectedManuscript.id === m.id
-                            ? "border-amber-500 bg-amber-500/5 ring-2 ring-amber-500/20 shadow-md"
-                            : "border-border/60 hover:border-border bg-card"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1.5">
-                          <Badge variant="secondary" className="text-[10px] font-semibold">{m.genre}</Badge>
-                          <span className="text-[11px] text-amber-500 font-bold">{m.bids.length} {isAr ? "عروض مقدمة" : "bids"}</span>
-                        </div>
-                        <h4 className="font-bold text-sm line-clamp-1">{m.title}</h4>
-                        <div className="flex items-center justify-between text-xs text-muted-foreground mt-2 pt-2 border-t border-border/40">
-                          <span>{m.pageCount} {isAr ? "صفحة" : "pages"}</span>
-                          <Badge variant="outline" className="text-[10px]">
-                            {m.status === "open_for_bids" ? (isAr ? "مفتوح للعروض" : "Open") : (isAr ? "تم إبرام العقد" : "Contracted")}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
+        {/* Author Executive Header Card */}
+        <Card className="border-2 border-border/80 shadow-xl bg-card rounded-3xl overflow-hidden">
+          <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 p-6 sm:p-8 border-b border-border/60">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              
+              {/* Profile Block */}
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white shadow-xl shadow-amber-500/20 flex items-center justify-center text-2xl sm:text-3xl font-black shrink-0">
+                  ✍️
+                </div>
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-foreground">
+                      {authorProfile.fullName}
+                    </h1>
+                    <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-black text-xs px-2.5 py-0.5">
+                      {isRtl ? "كود المؤلف:" : "Code:"} {authorProfile.authorCode}
+                    </Badge>
                   </div>
-
-                  {/* Incoming Bids & Acceptance Studio */}
-                  <div className="lg:col-span-2 space-y-6">
-                    <Card className="border-border/60 shadow-sm">
-                      <CardHeader className="border-b border-border/40 pb-4">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div>
-                            <CardTitle className="text-lg font-bold">{selectedManuscript.title}</CardTitle>
-                            <CardDescription className="text-xs mt-0.5">
-                              {isAr ? "تاريخ النشر:" : "Listed on:"} {selectedManuscript.submittedDate} • {selectedManuscript.pageCount} {isAr ? "صفحة" : "pages"}
-                            </CardDescription>
-                          </div>
-                          <Badge className="bg-amber-500 text-white font-bold text-xs">
-                            {selectedManuscript.bids.length} {isAr ? "عروض أسعار متنافسة" : "bids"}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-6 space-y-6">
-                        <div>
-                          <h4 className="font-bold text-xs mb-1.5 text-muted-foreground">{isAr ? "نبذة الكتاب:" : "Synopsis:"}</h4>
-                          <p className="text-xs sm:text-sm text-foreground/90 p-3.5 rounded-xl bg-muted/40 border border-border/40 leading-relaxed">
-                            {selectedManuscript.synopsis}
-                          </p>
-                        </div>
-
-                        {/* Competing Bids list */}
-                        <div className="space-y-3">
-                          <h4 className="font-bold text-sm flex items-center gap-2">
-                            <Building2 className="w-4 h-4 text-amber-500" />
-                            {isAr ? "العروض المالية المقدمة من دور النشر (اختر أفضل عرض للموافقة والتوقيع):" : "Publisher Bids:"}
-                          </h4>
-
-                          {selectedManuscript.bids.length === 0 ? (
-                            <div className="text-center py-8 p-4 rounded-xl border border-dashed border-border/60 text-muted-foreground text-xs">
-                              {isAr ? "لم تقدم دور النشر عروضاً بعد على هذه المخطوطة." : "No bids submitted yet."}
-                            </div>
-                          ) : (
-                            selectedManuscript.bids.map((b) => (
-                              <div key={b.id} className="p-4 rounded-2xl border-2 border-border/60 bg-card hover:border-amber-500/40 space-y-3 shadow-sm">
-                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                  <div className="flex items-center gap-2">
-                                    <Building className="w-4 h-4 text-amber-500" />
-                                    <strong className="text-sm font-bold">{b.publisherName}</strong>
-                                    <Badge variant="outline" className="text-[10px]">{b.publisherType}</Badge>
-                                  </div>
-                                  <div className="text-base font-black text-amber-600 dark:text-amber-400">
-                                    {b.royaltyPercentage}% {isAr ? "أرباح للمؤلف" : "Royalties"}
-                                  </div>
-                                </div>
-
-                                <p className="text-xs text-muted-foreground leading-relaxed">{b.notes}</p>
-
-                                <div className="flex flex-wrap items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/40">
-                                  <span>{isAr ? "نسخ الطبعة الأولى:" : "Copies:"} {b.editionCopies.toLocaleString()}</span>
-                                  <span>{isAr ? "مدة التنفيذ:" : "Timeline:"} {b.timelineDays} {isAr ? "يوم" : "days"}</span>
-
-                                  {selectedManuscript.status === "open_for_bids" ? (
-                                    <Button
-                                      size="sm"
-                                      onClick={() => handleAuthorAcceptBid(selectedManuscript.id, b)}
-                                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-8 px-4 rounded-xl shadow-md shadow-emerald-500/20"
-                                    >
-                                      <Check className="w-3.5 h-3.5 me-1.5" />
-                                      {isAr ? "قبول وتوقيع العقد الإلكتروني" : "Accept & Sign Contract"}
-                                    </Button>
-                                  ) : (
-                                    <Badge className="bg-emerald-500 text-white text-[10px] font-bold">
-                                      {b.status === "accepted" ? (isAr ? "العرض المقبول والمعتمد" : "Accepted Bid") : (isAr ? "مرفوض" : "Declined")}
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <p className="text-xs sm:text-sm font-bold text-muted-foreground">
+                    {authorProfile.specialization} {authorProfile.institution ? `• ${authorProfile.institution}` : ""}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-1">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                      {isRtl ? "تاريخ الانضمام:" : "Joined:"} {authorProfile.joinedDate}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Stamp className="w-3.5 h-3.5 text-rose-500" />
+                      {isRtl ? "الناشر الرسمي:" : "Publisher:"} دار عبيد للنشر والتوزيع
+                    </span>
                   </div>
                 </div>
-              </TabsContent>
+              </div>
 
-              {/* Author Tab 2: Submit New Manuscript */}
-              <TabsContent value="author_submit" className="max-w-2xl mx-auto">
-                <Card className="border-2 border-border/60 shadow-xl bg-card">
-                  <CardHeader className="border-b border-border/40 pb-4">
-                    <CardTitle className="text-lg font-black">{isAr ? "طرح مخطوطة جديدة للمزايدة" : "Submit Manuscript for Bids"}</CardTitle>
-                    <CardDescription className="text-xs">
-                      {isAr ? "استقبل عروض أسعار الطباعة والأرباح من دور النشر المعتمدة تحت إشراف دار عبيد" : "Receive competing offers under Dar Obeid legal protection"}
-                    </CardDescription>
+              {/* Quick Wallet Stats Pill */}
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 p-3 rounded-2xl bg-card border border-border/80 shadow-md">
+                <div className="p-3 rounded-xl bg-amber-500/10 text-start">
+                  <span className="text-[10px] font-extrabold text-muted-foreground block">{isRtl ? "الرصيد المتاح للسحب" : "Available Balance"}</span>
+                  <span className="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400">{financials.availableBalance} ج.م</span>
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-500/10 text-start">
+                  <span className="text-[10px] font-extrabold text-muted-foreground block">{isRtl ? "نسبة المؤلف (أرباحك)" : "Author Royalty"}</span>
+                  <span className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400">20% لكل نسخة</span>
+                </div>
+                <Button 
+                  onClick={() => setPayoutModalOpen(true)}
+                  disabled={financials.availableBalance <= 0}
+                  className="h-12 px-4 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/20 gap-1.5"
+                >
+                  <Wallet className="w-4 h-4" />
+                  <span>{isRtl ? "طلب سحب الأرباح" : "Payout"}</span>
+                </Button>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Navigation Tabs Bar */}
+          <div className="px-4 sm:px-6 pt-3 bg-muted/20 border-b border-border/60">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+              <TabsList className="flex flex-wrap h-auto bg-transparent p-0 gap-1 sm:gap-2 justify-start overflow-x-auto">
+                
+                {/* 1. رفع مؤلفات */}
+                <TabsTrigger 
+                  value="submit" 
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                >
+                  <UploadCloud className="w-4 h-4" />
+                  <span>{isRtl ? "📁 رفع مؤلفات جديدة" : "Submit Manuscript"}</span>
+                </TabsTrigger>
+
+                {/* 2. المؤلفات المنشورة */}
+                <TabsTrigger 
+                  value="published" 
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>{isRtl ? "📚 المؤلفات المنشورة" : "Published Works"}</span>
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-bold">
+                    {publishedWorks.length}
+                  </Badge>
+                </TabsTrigger>
+
+                {/* 3. الدفع والفواتير */}
+                <TabsTrigger 
+                  value="payments" 
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>{isRtl ? "💳 الفواتير وطرق الدفع" : "Invoices & Payments"}</span>
+                  {invoices.filter(i => i.status === "unpaid").length > 0 && (
+                    <Badge className="bg-destructive text-white text-[10px] px-1.5 py-0 h-4 font-bold">
+                      {invoices.filter(i => i.status === "unpaid").length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+
+                {/* 4. التواصل الداخلي */}
+                <TabsTrigger 
+                  value="chat" 
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>{isRtl ? "💬 التواصل مع الإدارة" : "Direct Messages"}</span>
+                </TabsTrigger>
+
+                {/* 5. مبيعات الكتب والأرباح */}
+                <TabsTrigger 
+                  value="sales" 
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span>{isRtl ? "📈 مبيعات الكتب (نسبة 20%)" : "Sales & Royalties"}</span>
+                </TabsTrigger>
+
+                {/* 6. إدارة الحساب والأمان */}
+                <TabsTrigger 
+                  value="settings" 
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2 ms-auto"
+                >
+                  <Key className="w-4 h-4" />
+                  <span>{isRtl ? "🔐 الأمان وكلمة المرور" : "Security"}</span>
+                </TabsTrigger>
+
+              </TabsList>
+            </Tabs>
+          </div>
+        </Card>
+
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 1: 📁 رفع مؤلفات (Submit Manuscript) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === "submit" && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Form Column */}
+              <div className="lg:col-span-2 space-y-6">
+                <Card className="border-2 border-border/80 shadow-lg bg-card rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-muted/20 border-b border-border/60 pb-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                        📁
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-black text-foreground">
+                          {isRtl ? "استوديو تقديم ورفع مؤلف جديد للمراجعة" : "Submit New Work for Review"}
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                          {isRtl 
+                            ? "ارفع مخطوطتك، صورة الغلاف، أو الفيديو التعريفي وحدد طريقة النشر المطلوبة"
+                            : "Upload cover, manuscript file, or intro video and choose publishing method"}
+                        </CardDescription>
+                      </div>
+                    </div>
                   </CardHeader>
-                  <CardContent className="p-6">
-                    <form onSubmit={handleAuthorSubmitManuscript} className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-xs font-bold mb-1.5 block">{isAr ? "عنوان الكتاب *" : "Book Title *"}</label>
-                          <Input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} required placeholder={isAr ? "مثال: عبقرية الذكاء الاصطناعي" : "Book Title"} className="h-10 text-sm" />
+
+                  <CardContent className="p-6 space-y-5">
+                    <form onSubmit={handleSubmitManuscript} className="space-y-5">
+                      
+                      {/* Title & Category */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-extrabold flex items-center gap-1">
+                            <span>{isRtl ? "عنوان المؤلف / الكتاب *" : "Book Title *"}</span>
+                          </Label>
+                          <Input 
+                            placeholder={isRtl ? "مثال: النظرية الحديثة في التقييم الأكاديمي" : "e.g. Modern Theory in Academic Evaluation"}
+                            value={newTitle}
+                            onChange={(e) => setNewTitle(e.target.value)}
+                            required
+                            className="h-11 rounded-xl text-xs font-semibold border-border bg-muted/20"
+                          />
                         </div>
-                        <div>
-                          <label className="text-xs font-bold mb-1.5 block">{isAr ? "اسم المؤلف *" : "Author Name *"}</label>
-                          <Input value={newAuthor} onChange={(e) => setNewAuthor(e.target.value)} placeholder={isAr ? "د. أحمد السعيد" : "Author Name"} className="h-10 text-sm" />
+
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-extrabold flex items-center gap-1">
+                            <span>{isRtl ? "المجال / التصنيف العلمي *" : "Category *"}</span>
+                          </Label>
+                          <Select value={newCategory} onValueChange={setNewCategory}>
+                            <SelectTrigger className="h-11 rounded-xl font-bold text-xs border-border bg-muted/20">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="دراسات وأبحاث أكاديمية">دراسات وأبحاث أكاديمية</SelectItem>
+                              <SelectItem value="كتب جامعية ومراجع تدريسية">كتب جامعية ومراجع تدريسية</SelectItem>
+                              <SelectItem value="قانون وتشريعات وسياسة">قانون وتشريعات وسياسة</SelectItem>
+                              <SelectItem value="هندسة وتقنية وذكاء اصطناعي">هندسة وتقنية وذكاء اصطناعي</SelectItem>
+                              <SelectItem value="طب وعلوم صحية وصيدلة">طب وعلوم صحية وصيدلة</SelectItem>
+                              <SelectItem value="إدارة أعمال واقتصاد">إدارة أعمال واقتصاد</SelectItem>
+                              <SelectItem value="أدب وروايات وفكر عام">أدب وروايات وفكر عام</SelectItem>
+                              <SelectItem value="تربية ومناهج تعليمية">تربية ومناهج تعليمية</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-xs font-bold mb-1.5 block">{isAr ? "التصنيف الأدبي / العلمي" : "Genre"}</label>
-                          <Input value={newGenre} onChange={(e) => setNewGenre(e.target.value)} className="h-10 text-sm" />
+                      {/* Publish Type Selection (Digital / Print / Both) */}
+                      <div className="space-y-2 p-4 rounded-2xl bg-amber-500/5 border-2 border-amber-500/20">
+                        <Label className="text-xs font-black text-foreground block">
+                          {isRtl ? "حدد طريقة النشر المطلوبة من دار عبيد: *" : "Select Required Publishing Mode: *"}
+                        </Label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                          
+                          {/* Digital */}
+                          <div 
+                            onClick={() => setNewPublishType("digital")}
+                            className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col items-center text-center gap-2 ${
+                              newPublishType === "digital" 
+                                ? "border-amber-500 bg-amber-500/15 shadow-md" 
+                                : "border-border bg-card hover:bg-muted/40"
+                            }`}
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                              📱
+                            </div>
+                            <div>
+                              <span className="text-xs font-black block">{isRtl ? "نشر رقمي (E-Book)" : "Digital E-Book"}</span>
+                              <span className="text-[10px] text-muted-foreground">{isRtl ? "قراءة فورية وتطبيقات ذكية" : "Instant reading on apps"}</span>
+                            </div>
+                          </div>
+
+                          {/* Print */}
+                          <div 
+                            onClick={() => setNewPublishType("print")}
+                            className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col items-center text-center gap-2 ${
+                              newPublishType === "print" 
+                                ? "border-amber-500 bg-amber-500/15 shadow-md" 
+                                : "border-border bg-card hover:bg-muted/40"
+                            }`}
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold">
+                              📖
+                            </div>
+                            <div>
+                              <span className="text-xs font-black block">{isRtl ? "نشر ورقي (Print)" : "Print Edition"}</span>
+                              <span className="text-[10px] text-muted-foreground">{isRtl ? "طباعة فاخرة وشحن للمكتبات" : "Physical copies & shipping"}</span>
+                            </div>
+                          </div>
+
+                          {/* Both */}
+                          <div 
+                            onClick={() => setNewPublishType("both")}
+                            className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col items-center text-center gap-2 ${
+                              newPublishType === "both" 
+                                ? "border-amber-500 bg-amber-500/15 shadow-md ring-2 ring-amber-500/20" 
+                                : "border-border bg-card hover:bg-muted/40"
+                            }`}
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                              ✨
+                            </div>
+                            <div>
+                              <span className="text-xs font-black block">{isRtl ? "الاثنين معاً (رقمي + ورقي)" : "Hybrid (Digital + Print)"}</span>
+                              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">{isRtl ? "الخيار الأوسع انتشاراً" : "Most Popular"}</span>
+                            </div>
+                          </div>
+
                         </div>
-                        <div>
-                          <label className="text-xs font-bold mb-1.5 block">{isAr ? "عدد الصفحات التقديري" : "Pages"}</label>
-                          <Input type="number" value={newPageCount} onChange={(e) => setNewPageCount(e.target.value)} className="h-10 text-sm" />
+                      </div>
+
+                      {/* File Uploads (Image, File, Video) */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        
+                        {/* 1. Cover Image */}
+                        <div className="p-3.5 rounded-2xl bg-muted/30 border border-border/80 text-center space-y-2">
+                          <ImageIcon className="w-6 h-6 text-amber-500 mx-auto" />
+                          <span className="text-xs font-bold block">{isRtl ? "صورة الغلاف (أو المقترح)" : "Book Cover"}</span>
+                          <Input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={(e) => setCoverFileName(e.target.files?.[0]?.name || "")}
+                            className="text-[10px] h-8 rounded-lg cursor-pointer bg-background"
+                          />
+                          {coverFileName && <span className="text-[10px] font-bold text-emerald-600 block truncate">{coverFileName}</span>}
+                        </div>
+
+                        {/* 2. Manuscript File */}
+                        <div className="p-3.5 rounded-2xl bg-muted/30 border border-border/80 text-center space-y-2">
+                          <FileText className="w-6 h-6 text-blue-500 mx-auto" />
+                          <span className="text-xs font-bold block">{isRtl ? "ملف المخطوطة (PDF / Word)" : "Manuscript File"}</span>
+                          <Input 
+                            type="file" 
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) => setManuscriptFileName(e.target.files?.[0]?.name || "")}
+                            className="text-[10px] h-8 rounded-lg cursor-pointer bg-background"
+                          />
+                          {manuscriptFileName && <span className="text-[10px] font-bold text-emerald-600 block truncate">{manuscriptFileName}</span>}
+                        </div>
+
+                        {/* 3. Intro Video */}
+                        <div className="p-3.5 rounded-2xl bg-muted/30 border border-border/80 text-center space-y-2">
+                          <Video className="w-6 h-6 text-rose-500 mx-auto" />
+                          <span className="text-xs font-bold block">{isRtl ? "فيديو تعريفي (اختياري)" : "Intro Video"}</span>
+                          <Input 
+                            type="file" 
+                            accept="video/*"
+                            onChange={(e) => setVideoFileName(e.target.files?.[0]?.name || "")}
+                            className="text-[10px] h-8 rounded-lg cursor-pointer bg-background"
+                          />
+                          {videoFileName && <span className="text-[10px] font-bold text-emerald-600 block truncate">{videoFileName}</span>}
+                        </div>
+
+                      </div>
+
+                      {/* Synopsis & Estimated Pages */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs font-extrabold flex items-center gap-1">
+                            <span>{isRtl ? "نبذة وملخص المؤلف / الفهرس *" : "Synopsis & Table of Contents *"}</span>
+                          </Label>
+                          <span className="text-[10px] text-muted-foreground">{isRtl ? "تساعد لجنة القراءة بدار عبيد في التحكيم السريع" : "Helps editorial board evaluate"}</span>
+                        </div>
+                        <Textarea 
+                          placeholder={isRtl ? "اكتب نبذة عن أهداف الكتاب، الفئة المستهدفة، والمحاور الرئيسية..." : "Describe book goals, target readers, and key chapters..."}
+                          value={newSynopsis}
+                          onChange={(e) => setNewSynopsis(e.target.value)}
+                          required
+                          rows={4}
+                          className="rounded-xl text-xs border-border bg-muted/20"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-extrabold">{isRtl ? "عدد الصفحات التقديري" : "Estimated Pages"}</Label>
+                          <Input 
+                            type="number" 
+                            value={newPageCount}
+                            onChange={(e) => setNewPageCount(e.target.value)}
+                            className="h-10 rounded-xl text-xs bg-muted/20"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-extrabold">{isRtl ? "لغة المؤلف" : "Language"}</Label>
+                          <Select value={newLanguage} onValueChange={setNewLanguage}>
+                            <SelectTrigger className="h-10 rounded-xl font-bold text-xs bg-muted/20">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="العربية">العربية</SelectItem>
+                              <SelectItem value="الإنجليزية">English</SelectItem>
+                              <SelectItem value="الفرنسية">Français</SelectItem>
+                              <SelectItem value="مزدوج (عربي - إنجليزي)">مزدوج (عربي - إنجليزي)</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
 
-                      <div>
-                        <label className="text-xs font-bold mb-1.5 block">{isAr ? "النبذة التعريفية (ملخص الكتاب) *" : "Synopsis *"}</label>
-                        <Textarea value={newSynopsis} onChange={(e) => setNewSynopsis(e.target.value)} required rows={4} placeholder={isAr ? "اكتب نبذة شيقة توضح فكرة الكتاب وميزاته التنافسية..." : "Write a synopsis..."} className="text-sm" />
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-bold mb-1.5 block">{isAr ? "فصل تجريبي أو عينة من النص (اختياري)" : "Sample Chapter"}</label>
-                        <Textarea value={newSample} onChange={(e) => setNewSample(e.target.value)} rows={3} placeholder={isAr ? "الصق الفصل الأول أو المقدمة للتقييم الأدبي..." : "Paste excerpt..."} className="text-sm" />
-                      </div>
-
-                      <Button type="submit" className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold h-11 text-base shadow-lg shadow-amber-500/25">
-                        <UploadCloud className="w-5 h-5 me-2" />
-                        {isAr ? "طرح النبذة واستقبال عروض الأسعار" : "Publish Synopsis & Open Bids"}
+                      <Button 
+                        type="submit" 
+                        disabled={submittingWork}
+                        size="lg"
+                        className="w-full h-12 rounded-2xl font-black text-sm bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/25 gap-2 hover:scale-[1.01] transition-all"
+                      >
+                        <CheckCircle2 className="w-5 h-5" />
+                        <span>{isRtl ? "إرسال المخطوطة لإدارة المنصة للموافقة والاعتماد ➔" : "Submit Manuscript for Review ➔"}</span>
                       </Button>
+
                     </form>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </div>
 
-              {/* Author Tab 3: My Contracts & E-Signatures */}
-              <TabsContent value="my_contracts" className="max-w-4xl mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-black">{isAr ? "عقودي الرسمية ونسخ العقد المعتمدة" : "My Signed Contracts"}</h3>
-                  <Badge className="bg-amber-500 text-white font-bold">إشراف دار عبيد</Badge>
-                </div>
-
-                {manuscripts.filter((m) => m.contract).map((m) => (
-                  <Card key={m.id} className="border-2 border-amber-500/30 bg-card shadow-lg">
-                    <CardHeader className="border-b border-border/40 pb-4 bg-muted/20">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-serif font-black text-lg border border-amber-500/30">
-                            ع
-                          </div>
-                          <div>
-                            <CardTitle className="text-base font-bold">{m.title}</CardTitle>
-                            <CardDescription className="text-xs font-mono">{m.contract?.refNumber}</CardDescription>
-                          </div>
-                        </div>
-                        <Badge className={m.contract?.darObeidCertified ? "bg-emerald-500" : "bg-amber-500"}>
-                          {m.contract?.darObeidCertified ? (isAr ? "موثق ومنشور بالمتجر" : "Certified & Live") : (isAr ? "بانتظار اكتمال التواقيع" : "Pending")}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-4 text-xs sm:text-sm">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-3.5 rounded-xl bg-muted/40 border border-border/40">
-                        <div>
-                          <span className="text-muted-foreground block text-[11px]">{isAr ? "الناشر المتعاقد:" : "Publisher:"}</span>
-                          <strong className="font-bold">{m.contract?.publisherName}</strong>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground block text-[11px]">{isAr ? "نسبة أرباحك من المبيعات:" : "Royalty Rate:"}</span>
-                          <strong className="font-bold text-amber-500">{m.contract?.royaltyPercentage}% {isAr ? "لكل نسخة" : "per copy"}</strong>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground block text-[11px]">{isAr ? "قناة البيع الحصرية:" : "Exclusive Channel:"}</span>
-                          <strong className="font-bold text-emerald-500">{isAr ? "متجر كتب UNIGATES" : "UNIGATES Store"}</strong>
-                        </div>
-                      </div>
-
-                      {/* Status Badges */}
-                      <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                        <div className="flex items-center gap-3 text-xs">
-                          <div className="flex items-center gap-1.5 text-emerald-500 font-bold">
-                            <CheckCircle2 className="w-4 h-4" />
-                            <span>{isAr ? "توقيعك (المؤلف)" : "Author Signed"}</span>
-                          </div>
-                          <div className={`flex items-center gap-1.5 font-bold ${m.contract?.publisherSigned ? "text-emerald-500" : "text-amber-500"}`}>
-                            <CheckCircle2 className="w-4 h-4" />
-                            <span>{m.contract?.publisherSigned ? (isAr ? "توقيع الناشر" : "Publisher Signed") : (isAr ? "بانتظار توقيع الناشر" : "Pending Publisher")}</span>
-                          </div>
-                          <div className={`flex items-center gap-1.5 font-bold ${m.contract?.darObeidCertified ? "text-emerald-500" : "text-amber-500"}`}>
-                            <Stamp className="w-4 h-4" />
-                            <span>{m.contract?.darObeidCertified ? (isAr ? "ختم دار عبيد" : "Dar Obeid Certified") : (isAr ? "بانتظار الختم" : "Pending Seal")}</span>
-                          </div>
-                        </div>
-
-                        <Button size="sm" variant="outline" onClick={() => setContractToView(m)} className="text-xs font-bold border-amber-500/30">
-                          <FileText className="w-3.5 h-3.5 me-1 text-amber-500" />
-                          {isAr ? "عرض وتحميل نسخة العقد PDF" : "View Contract PDF"}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </TabsContent>
-
-              {/* Author Tab 4: Notifications */}
-              <TabsContent value="author_notifications" className="max-w-3xl mx-auto space-y-4">
-                <h3 className="text-base font-bold">{isAr ? "سجل الإشعارات والتنبيهات المباشرة" : "Live Notification Stream"}</h3>
-                <div className="space-y-3">
-                  {notifications.filter((n) => n.targetRole === "author").map((n) => (
-                    <div key={n.id} className="p-4 rounded-2xl border border-border/60 bg-card flex items-start gap-3 shadow-sm">
-                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
-                        <Bell className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 space-y-1 text-xs">
-                        <div className="flex items-center justify-between">
-                          <strong className="text-sm font-bold text-foreground">{n.title}</strong>
-                          <span className="text-[10px] text-muted-foreground">{n.timestamp}</span>
-                        </div>
-                        <p className="text-muted-foreground leading-relaxed">{n.message}</p>
+              {/* Sidebar Info & Workflow Guide */}
+              <div className="space-y-6">
+                
+                {/* Guide Card */}
+                <Card className="border-2 border-border/80 shadow-md bg-card rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-amber-500/10 border-b border-amber-500/20 pb-3">
+                    <CardTitle className="text-sm font-black flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      <span>{isRtl ? "مراحل اعتماد ونشر المؤلف" : "Publishing Workflow"}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3.5 text-xs">
+                    
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-xs shrink-0">1</div>
+                      <div>
+                        <span className="font-black text-foreground block">{isRtl ? "المراجعة والتدقيق" : "Review & Editing"}</span>
+                        <p className="text-muted-foreground text-[11px] leading-relaxed">{isRtl ? "فحص المخطوطة والتأكد من استيفاء الشروط والتدقيق اللغوي الأكاديمي." : "Manuscript vetting & academic proofreading."}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
 
-        {/* ========================================================= */}
-        {/* 3. PUBLISHER ACCOUNT DASHBOARD (Browse, Bid, Sign & Print)*/}
-        {/* ========================================================= */}
-        {currentRole === "publisher" && (
-          <div className="space-y-6">
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-              <TabsList className="grid grid-cols-2 sm:grid-cols-3 w-full max-w-2xl mx-auto bg-muted/60 p-1">
-                <TabsTrigger value="bids_inbox" className="text-xs font-bold data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-                  <TrendingUp className="w-3.5 h-3.5 me-1.5" />
-                  {isAr ? "المخطوطات وتقديم عروض الأسعار" : "Manuscripts & Bids"}
-                </TabsTrigger>
-                <TabsTrigger value="publisher_contracts" className="text-xs font-bold data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-                  <FileSignature className="w-3.5 h-3.5 me-1.5" />
-                  {isAr ? "العقود وتأكيد التوقيع" : "Sign Contracts"}
-                </TabsTrigger>
-                <TabsTrigger value="publisher_notifications" className="text-xs font-bold data-[state=active]:bg-amber-500 data-[state=active]:text-white">
-                  <Bell className="w-3.5 h-3.5 me-1.5" />
-                  {isAr ? "إشعارات دار النشر" : "Notifications"}
-                </TabsTrigger>
-              </TabsList>
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-6 h-6 rounded-full bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center font-black text-xs shrink-0">2</div>
+                      <div>
+                        <span className="font-black text-foreground block">{isRtl ? "الفاتورة وتجهيز الغلاف" : "Invoice & Formatting"}</span>
+                        <p className="text-muted-foreground text-[11px] leading-relaxed">{isRtl ? "إصدار فاتورة التكلفة وسدادها مع تصميم الغلاف المعتمد وتجهيز ملفات الطباعة." : "Invoice generation, cover design & print files."}</p>
+                      </div>
+                    </div>
 
-              {/* Publisher Tab 1: Explore & Place Bid */}
-              <TabsContent value="bids_inbox" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Open manuscripts list */}
-                  <div className="space-y-3">
-                    <h3 className="font-bold text-sm">{isAr ? "المخطوطات المتاحة للمزايدة" : "Available Manuscripts"}</h3>
-                    {manuscripts.map((m) => (
-                      <div
-                        key={m.id}
-                        onClick={() => setSelectedManuscript(m)}
-                        className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                          selectedManuscript.id === m.id
-                            ? "border-amber-500 bg-amber-500/5 ring-2 ring-amber-500/20 shadow-md"
-                            : "border-border/60 hover:border-border bg-card"
-                        }`}
-                      >
-                        <Badge variant="secondary" className="text-[10px] mb-1">{m.genre}</Badge>
-                        <h4 className="font-bold text-sm line-clamp-1">{m.title}</h4>
-                        <p className="text-xs text-muted-foreground mt-1">{m.authorName} • {m.pageCount} صفحة</p>
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-6 h-6 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center font-black text-xs shrink-0">3</div>
+                      <div>
+                        <span className="font-black text-foreground block">{isRtl ? "الموافقة والنشر المباشر" : "Approval & Publishing"}</span>
+                        <p className="text-muted-foreground text-[11px] leading-relaxed">{isRtl ? "طرح الكتاب في صفحة المؤلفات المنشورة ومتجر UNIGATES فورياً." : "Book goes live on published roster and store."}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xs shrink-0">4</div>
+                      <div>
+                        <span className="font-black text-foreground block">{isRtl ? "مبيعات وأرباح 20% فورية" : "20% Royalties & Payout"}</span>
+                        <p className="text-muted-foreground text-[11px] leading-relaxed">{isRtl ? "تحصيل نسبة المؤلف مباشرة مع إمكانية سحب الأموال لحسابكم في أي وقت." : "Direct author royalty crediting and instant withdrawals."}</p>
+                      </div>
+                    </div>
+
+                  </CardContent>
+                </Card>
+
+                {/* Submissions in review tracker */}
+                <Card className="border-2 border-border/80 shadow-md bg-card rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-muted/20 border-b border-border/60 pb-3">
+                    <CardTitle className="text-sm font-black flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-primary" />
+                      <span>{isRtl ? "مخطوطاتك قيد المتابعة والاعتماد" : "Submissions Status"}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3">
+                    {submissions.map((sub) => (
+                      <div key={sub.id} className="p-3 rounded-2xl bg-muted/30 border border-border/70 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-xs text-foreground truncate">{sub.title}</span>
+                          <Badge className={
+                            sub.status === "published" 
+                              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]"
+                              : sub.status === "approved"
+                              ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[10px]"
+                              : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
+                          }>
+                            {sub.status === "published" ? (isRtl ? "منشور بالمتجر 🟢" : "Published") : (isRtl ? "قيد المراجعة ⏳" : "Under Review")}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                          <span>{sub.category}</span>
+                          <span className="font-mono">{sub.submissionDate}</span>
+                        </div>
+                        {sub.adminFeedback && (
+                          <p className="text-[10px] p-2 rounded-xl bg-background/80 border border-border/50 text-muted-foreground leading-relaxed">
+                            {sub.adminFeedback}
+                          </p>
+                        )}
                       </div>
                     ))}
-                  </div>
+                  </CardContent>
+                </Card>
 
-                  {/* Manuscript details and Bid Submission Form */}
-                  <div className="lg:col-span-2 space-y-6">
-                    <Card className="border-border/60 shadow-sm">
-                      <CardHeader className="border-b border-border/40 pb-4">
-                        <CardTitle className="text-lg font-bold">{selectedManuscript.title}</CardTitle>
-                        <CardDescription className="text-xs">
-                          {isAr ? "المؤلف:" : "Author:"} {selectedManuscript.authorName} • {selectedManuscript.pageCount} صفحة
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="p-6 space-y-6">
-                        <div className="space-y-1.5">
-                          <h4 className="font-bold text-xs text-muted-foreground">{isAr ? "نبذة المخطوطة:" : "Synopsis:"}</h4>
-                          <p className="text-xs sm:text-sm text-foreground/90 p-3.5 rounded-xl bg-muted/40 border border-border/40 leading-relaxed">
-                            {selectedManuscript.synopsis}
-                          </p>
-                        </div>
+              </div>
 
-                        {/* Place Bid Form */}
-                        <div className="p-5 rounded-2xl bg-amber-500/5 border-2 border-amber-500/30 space-y-4">
-                          <h4 className="font-bold text-sm flex items-center gap-2 text-foreground">
-                            <TrendingUp className="w-4 h-4 text-amber-500" />
-                            {isAr ? "تقديم عرض سعر جديد كناشر معتمد:" : "Submit Production Bid:"}
-                          </h4>
-
-                          <form onSubmit={handlePublisherPlaceBid} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                              <label className="text-xs font-bold mb-1 block">{isAr ? "اسم دار النشر الرسمية *" : "Publisher Name *"}</label>
-                              <Input placeholder={isAr ? "دار المعرفة للطباعة والنشر" : "Al-Maaref Publishing"} value={bidPublisher} onChange={(e) => setBidPublisher(e.target.value)} required className="h-9 text-xs" />
-                            </div>
-                            <div>
-                              <label className="text-xs font-bold mb-1 block">{isAr ? "نسبة أرباح المؤلف (%) *" : "Author Royalty (%) *"}</label>
-                              <Input type="number" min="10" max="95" value={bidRoyalty} onChange={(e) => setBidRoyalty(e.target.value)} required className="h-9 text-xs" />
-                            </div>
-                            <div>
-                              <label className="text-xs font-bold mb-1 block">{isAr ? "عدد نسخ الطبعة الأولى:" : "Copies:"}</label>
-                              <Input type="number" value={bidCopies} onChange={(e) => setBidCopies(e.target.value)} className="h-9 text-xs" />
-                            </div>
-                            <div>
-                              <label className="text-xs font-bold mb-1 block">{isAr ? "مدة الطباعة والتجهيز (أيام):" : "Turnaround (Days):"}</label>
-                              <Input type="number" value={bidDays} onChange={(e) => setBidDays(e.target.value)} className="h-9 text-xs" />
-                            </div>
-                            <div className="sm:col-span-2">
-                              <label className="text-xs font-bold mb-1 block">{isAr ? "المواصفات وخطة التسويق الحصري بالمتجر:" : "Specs & Details:"}</label>
-                              <Textarea rows={2} placeholder={isAr ? "نوع الورق والتجليد ومزايا العرض..." : "Binding, paper grade..."} value={bidNotes} onChange={(e) => setBidNotes(e.target.value)} className="text-xs" />
-                            </div>
-
-                            <div className="sm:col-span-2 pt-1">
-                              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 text-xs">
-                                <Send className="w-3.5 h-3.5 me-1.5" />
-                                {isAr ? "إرسال عرض السعر إلى حساب المؤلف" : "Submit Bid to Author"}
-                              </Button>
-                            </div>
-                          </form>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* Publisher Tab 2: Sign Contracts */}
-              <TabsContent value="publisher_contracts" className="max-w-4xl mx-auto space-y-6">
-                <h3 className="text-lg font-black">{isAr ? "العقود الموجهة لدار النشر (توقيع واعتماد)" : "Contracts Requiring Publisher Signature"}</h3>
-                {manuscripts.filter((m) => m.contract).map((m) => (
-                  <Card key={m.id} className="border-2 border-border/60 bg-card p-6 rounded-2xl space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div>
-                        <h4 className="font-bold text-base">{m.title}</h4>
-                        <span className="text-xs text-muted-foreground font-mono">{m.contract?.refNumber} • {isAr ? "المؤلف:" : "Author:"} {m.authorName}</span>
-                      </div>
-                      <Badge className={m.contract?.publisherSigned ? "bg-emerald-500" : "bg-amber-500"}>
-                        {m.contract?.publisherSigned ? (isAr ? "موقع من دار النشر" : "Publisher Signed") : (isAr ? "بانتظار توقيعك" : "Pending Signature")}
-                      </Badge>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-300">
-                      <strong>{isAr ? "بند الحصرية والمسؤولية:" : "Exclusivity Clause:"}</strong>{" "}
-                      {isAr ? "تلتزم دار النشر بطرح وتوزيع الكتاب حصرياً عبر متجر كتب UNIGATES، وأي بيع خارجه يترتب عليه مسؤولية قانونية وتعويضات ملزمة." : "Exclusive sales on UNIGATES Book Store required."}
-                    </div>
-
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                      <Button size="sm" variant="outline" onClick={() => setContractToView(m)} className="text-xs font-bold">
-                        <FileText className="w-3.5 h-3.5 me-1.5 text-amber-500" />
-                        {isAr ? "معاينة بنود العقد الكاملة" : "View Contract Terms"}
-                      </Button>
-
-                      {!m.contract?.publisherSigned ? (
-                        <Button size="sm" onClick={() => handlePublisherSignContract(m.id)} className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs">
-                          <FileSignature className="w-3.5 h-3.5 me-1.5" />
-                          {isAr ? "الموافقة والتوقيع الإلكتروني كدار نشر" : "Sign E-Contract"}
-                        </Button>
-                      ) : (
-                        <div className="text-xs text-emerald-500 font-bold flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span>{isAr ? "تم اعتماد التوقيع وإرساله لدار عبيد" : "Signed & Sent to Dar Obeid"}</span>
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </TabsContent>
-
-              {/* Publisher Tab 3: Notifications */}
-              <TabsContent value="publisher_notifications" className="max-w-3xl mx-auto space-y-4">
-                <h3 className="text-base font-bold">{isAr ? "إشعارات دار النشر" : "Publisher Notifications"}</h3>
-                <div className="space-y-3">
-                  {notifications.filter((n) => n.targetRole === "publisher").map((n) => (
-                    <div key={n.id} className="p-4 rounded-2xl border border-border/60 bg-card flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-orange-500/10 text-orange-600 flex items-center justify-center shrink-0 mt-0.5">
-                        <Bell className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 space-y-1 text-xs">
-                        <div className="flex items-center justify-between">
-                          <strong className="text-sm font-bold">{n.title}</strong>
-                          <span className="text-[10px] text-muted-foreground">{n.timestamp}</span>
-                        </div>
-                        <p className="text-muted-foreground leading-relaxed">{n.message}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
+            </div>
           </div>
         )}
 
-        {/* ========================================================= */}
-        {/* 4. DAR OBEID LEGAL ADMIN DESK (Certify, Seal & Store Lock)*/}
-        {/* ========================================================= */}
-        {currentRole === "admin" && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-card border-2 border-amber-500/40 shadow-xl">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-serif font-black text-2xl border-2 border-amber-500/30 shrink-0">
-                  ع
-                </div>
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-black">{isAr ? "لوحة الإشراف القانوني والتوثيق — دار عبيد للنشر" : "Dar Obeid Legal Desk"}</h2>
-                  <p className="text-xs text-muted-foreground font-medium">
-                    {isAr ? "مراجعة تواقيع الأطراف، إصدار شهادة التوثيق والترقيم الدولي، وتأكيد حصرية البيع داخل متجر UNIGATES" : "Contract audit, ISBN issuance & exclusivity enforcement"}
-                  </p>
-                </div>
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 2: 📚 المؤلفات المنشورة (Published Works) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === "published" && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+                  {isRtl ? "سجل المؤلفات والكتب المنشورة رسمياً" : "Official Published Books Roster"}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {isRtl 
+                    ? "الكتب التي تمت الموافقة عليها واعتمادها من إدارة المنصة ونشرها في متجر كتب UNIGATES"
+                    : "Books vetted and published in the official UNIGATES bookstore"}
+                </p>
               </div>
-              <Badge className="bg-amber-500 text-white font-bold self-start sm:self-auto px-3 py-1">
-                {isAr ? "إشراف رسمي معتمد" : "Official Audit"}
-              </Badge>
+
+              <Button 
+                onClick={() => handleTabChange("submit")}
+                className="h-10 px-4 rounded-xl font-black text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-md gap-1.5"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>{isRtl ? "رفع مؤلف جديد" : "Submit New"}</span>
+              </Button>
             </div>
 
-            {/* Admin Contracts Queue */}
-            <div className="space-y-4">
-              <h3 className="text-base font-bold">{isAr ? "قائمة العقود المرفوعة للاعتماد والختم الرسمي:" : "Contracts Pending Certification:"}</h3>
-              {manuscripts.filter((m) => m.contract).map((m) => (
-                <Card key={m.id} className="border-2 border-border/60 bg-card p-6 rounded-2xl space-y-4 shadow-sm">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
+            {publishedWorks.length === 0 ? (
+              <Card className="p-12 text-center border-2 border-dashed border-border/80 rounded-3xl space-y-3">
+                <BookOpen className="w-12 h-12 text-muted-foreground mx-auto" />
+                <h3 className="text-base font-black">{isRtl ? "لا توجد مؤلفات منشورة بعد" : "No published works yet"}</h3>
+                <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                  {isRtl ? "بمجرد اعتماد وموافقة إدارة المنصة على مخطوطاتك، ستظهر هنا مباشرة مع كود الكتاب ورابط المتجر." : "Once approved, books appear here."}
+                </p>
+                <Button onClick={() => handleTabChange("submit")} className="bg-amber-500 text-white text-xs font-bold rounded-xl">
+                  {isRtl ? "رفع أول مؤلف الآن" : "Submit First Book"}
+                </Button>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {publishedWorks.map((work) => (
+                  <Card key={work.id} className="border-2 border-border/80 shadow-lg bg-card rounded-3xl overflow-hidden flex flex-col justify-between group hover:border-amber-500/50 transition-all">
                     <div>
-                      <h4 className="font-bold text-base">{m.title}</h4>
-                      <p className="text-xs text-muted-foreground font-mono">
-                        {m.contract?.refNumber} • {isAr ? "المؤلف:" : "Author:"} {m.authorName} • {isAr ? "الناشر:" : "Publisher:"} {m.contract?.publisherName}
-                      </p>
-                    </div>
-                    <Badge className={m.contract?.darObeidCertified ? "bg-emerald-500" : "bg-amber-500"}>
-                      {m.contract?.darObeidCertified ? (isAr ? "معتمد ومختوم رسمياً" : "Certified") : (isAr ? "بانتظار الختم والتوثيق" : "Pending Seal")}
-                    </Badge>
-                  </div>
+                      {/* Top Header Strip */}
+                      <div className="p-4 bg-gradient-to-r from-amber-500/10 to-rose-500/10 border-b border-border/60 flex items-center justify-between">
+                        <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-black">
+                          {isRtl ? "معتمد ومنشور بالمتجر 🟢" : "Live in Store"}
+                        </Badge>
+                        <span className="text-[10px] font-mono font-bold text-muted-foreground">
+                          {work.storeBookCode}
+                        </span>
+                      </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs p-3.5 rounded-xl bg-muted/40 border border-border/40">
-                    <div>
-                      <span className="text-muted-foreground block text-[11px]">{isAr ? "توقيع المؤلف:" : "Author Signature:"}</span>
-                      <strong className="text-emerald-500 font-bold">{m.contract?.authorSigned ? "✓ تم التوقيع إلكترونياً" : "قيد الانتظار"}</strong>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block text-[11px]">{isAr ? "توقيع الناشر:" : "Publisher Signature:"}</span>
-                      <strong className={m.contract?.publisherSigned ? "text-emerald-500 font-bold" : "text-amber-500 font-bold"}>
-                        {m.contract?.publisherSigned ? "✓ تم التوقيع والاعتماد" : "قيد الانتظار"}
-                      </strong>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block text-[11px]">{isAr ? "قناة البيع الحصرية:" : "Exclusivity:"}</span>
-                      <strong className="text-amber-500 font-bold">متجر كتب UNIGATES</strong>
-                    </div>
-                  </div>
+                      <div className="p-6 space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-14 h-18 rounded-xl bg-gradient-to-br from-amber-500 to-rose-600 text-white shadow-md flex items-center justify-center text-2xl font-bold shrink-0">
+                            📖
+                          </div>
+                          <div className="space-y-1">
+                            <h3 className="font-black text-sm text-foreground line-clamp-2 leading-tight">
+                              {work.title}
+                            </h3>
+                            <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                              {work.category}
+                            </p>
+                          </div>
+                        </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                    <Button size="sm" variant="outline" onClick={() => setContractToView(m)} className="text-xs font-bold border-amber-500/30">
-                      <FileText className="w-3.5 h-3.5 me-1.5 text-amber-500" />
-                      {isAr ? "معاينة مسودة العقد الثلاثي" : "Inspect E-Contract"}
-                    </Button>
+                        <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+                          {work.synopsis}
+                        </p>
 
-                    {!m.contract?.darObeidCertified ? (
-                      <Button
-                        size="sm"
-                        onClick={() => handleDarObeidCertify(m.id)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-9 px-5 rounded-xl shadow-lg shadow-emerald-500/20"
-                      >
-                        <Stamp className="w-4 h-4 me-1.5" />
-                        {isAr ? "توثيق العقد بختم دار عبيد وإطلاق النشر بالمتجر" : "Certify with Official Seal & Launch"}
-                      </Button>
-                    ) : (
-                      <Link to="/book-store">
-                        <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs h-9">
-                          <ShoppingBag className="w-4 h-4 me-1.5" />
-                          {isAr ? "معاينة الكتاب المنشور بالمتجر الحصري" : "View Live in Store"}
+                        <div className="p-3 rounded-2xl bg-muted/30 border border-border/60 grid grid-cols-2 gap-2 text-[11px]">
+                          <div>
+                            <span className="text-muted-foreground block">{isRtl ? "صيغة النشر:" : "Format:"}</span>
+                            <span className="font-black text-foreground">
+                              {work.publishType === "both" 
+                                ? (isRtl ? "ورقي + رقمي 📦" : "Print & Digital")
+                                : work.publishType === "print"
+                                ? (isRtl ? "ورقي مطبوع 📖" : "Print Only")
+                                : (isRtl ? "رقمي E-Book 📱" : "Digital Only")}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block">{isRtl ? "الصفحات:" : "Pages:"}</span>
+                            <span className="font-black text-foreground">{work.pageCount} {isRtl ? "صفحة" : "pages"}</span>
+                          </div>
+                        </div>
+
+                        {/* Royalty Info */}
+                        <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between text-xs">
+                          <span className="font-bold text-emerald-800 dark:text-emerald-300">{isRtl ? "نسبة ربح المؤلف:" : "Royalty Rate:"}</span>
+                          <span className="font-black text-emerald-600 dark:text-emerald-400 font-mono">20% ({((work.priceEstimate || 100) * 0.2).toFixed(0)} ج.م / نسخة)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-muted/20 border-t border-border/60 flex items-center gap-2">
+                      <Link to={work.storeUrl || "/book-store"} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full text-xs font-bold rounded-xl gap-1.5 border-border hover:bg-muted">
+                          <ExternalLink className="w-3.5 h-3.5 text-primary" />
+                          <span>{isRtl ? "عرض في متجر الكتب" : "View in Store"}</span>
                         </Button>
                       </Link>
-                    )}
-                  </div>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => {
+                          navigator.clipboard.writeText(`https://unigates.online/book-store?code=${work.storeBookCode}`);
+                          toast({ title: isRtl ? "تم نسخ رابط الكتاب" : "Link Copied" });
+                        }}
+                        className="h-9 px-2.5 rounded-xl text-muted-foreground hover:text-foreground"
+                      >
+                        <QrCode className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardCard>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 3: 💳 الفواتير وطرق الدفع (Invoices & Payments) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === "payments" && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+                  {isRtl ? "الفواتير وتكاليف النشر وطرق السداد" : "Invoices & Payment Methods"}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {isRtl 
+                    ? "فواتير التكلفة المحددة من المنصة للمؤلف مع إمكانية سدادها ورفع إيصال الدفع"
+                    : "Publishing cost invoices with online payment & proof upload"}
+                </p>
+              </div>
+            </div>
+
+            {/* Invoices List */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              <div className="lg:col-span-2 space-y-4">
+                <Card className="border-2 border-border/80 shadow-md bg-card rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-muted/20 border-b border-border/60 pb-3">
+                    <CardTitle className="text-sm font-black flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-amber-500" />
+                      <span>{isRtl ? "فواتير النشر الصادرة" : "Issued Invoices"}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6 space-y-4">
+                    {invoices.map((inv) => (
+                      <div 
+                        key={inv.id} 
+                        className={`p-5 rounded-2xl border-2 transition-all space-y-3 ${
+                          inv.status === "paid" 
+                            ? "border-emerald-500/30 bg-emerald-500/5" 
+                            : inv.status === "under_review"
+                            ? "border-blue-500/30 bg-blue-500/5"
+                            : "border-amber-500/40 bg-amber-500/5 shadow-md"
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-black text-sm text-foreground">{inv.invoiceNumber}</span>
+                            <Badge className={
+                              inv.status === "paid" 
+                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]"
+                                : inv.status === "under_review"
+                                ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[10px]"
+                                : "bg-destructive/15 text-destructive border-destructive/30 text-[10px]"
+                            }>
+                              {inv.status === "paid" 
+                                ? (isRtl ? "تم السداد بنجاح ✅" : "Paid") 
+                                : inv.status === "under_review" 
+                                ? (isRtl ? "الإيصال قيد المراجعة ⏳" : "Under Review") 
+                                : (isRtl ? "بانتظار السداد ⚠️" : "Unpaid")}
+                            </Badge>
+                          </div>
+                          <span className="text-base font-black text-foreground font-mono">
+                            {inv.amount} {inv.currency}
+                          </span>
+                        </div>
+
+                        <div className="space-y-1 text-xs">
+                          <span className="font-bold text-foreground block">{inv.manuscriptTitle}</span>
+                          <p className="text-muted-foreground text-[11px] leading-relaxed">{inv.description}</p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50 text-[11px] text-muted-foreground">
+                          <span>{isRtl ? "تاريخ الإصدار:" : "Date:"} {inv.createdAt}</span>
+                          {inv.paymentMethod && (
+                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                              {inv.paymentMethod}
+                            </span>
+                          )}
+                          {inv.status === "unpaid" && (
+                            <Button 
+                              onClick={() => setSelectedInvoice(inv)}
+                              size="sm" 
+                              className="h-8 px-3.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+                            >
+                              {isRtl ? "اختيار طريقة الدفع ورفع الإيصال ➔" : "Pay & Upload Receipt"}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
                 </Card>
-              ))}
+              </div>
+
+              {/* Payment Methods Guide */}
+              <div className="space-y-6">
+                <Card className="border-2 border-border/80 shadow-md bg-card rounded-3xl overflow-hidden">
+                  <CardHeader className="bg-amber-500/10 border-b border-amber-500/20 pb-3">
+                    <CardTitle className="text-sm font-black flex items-center gap-2">
+                      <Banknote className="w-4 h-4 text-amber-500" />
+                      <span>{isRtl ? "طرق الدفع المتوفرة رسمياً" : "Official Payment Methods"}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3.5 text-xs">
+                    
+                    {/* Bank Transfer */}
+                    <div className="p-3 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
+                      <span className="font-black text-foreground block">🏛️ {isRtl ? "التحويل البنكي المباشر:" : "Bank Transfer:"}</span>
+                      <p className="text-[11px] text-muted-foreground">
+                        {isRtl ? "البنك الأهلي المصري - حساب دار عبيد للنشر والتوزيع" : "National Bank of Egypt - Dar Obeid Publishing"}
+                      </p>
+                      <p className="font-mono text-[10px] font-bold text-primary">IBAN: EG380002000100000012345678901</p>
+                    </div>
+
+                    {/* InstaPay */}
+                    <div className="p-3 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
+                      <span className="font-black text-foreground block">⚡ {isRtl ? "إنستاباي (InstaPay):" : "InstaPay:"}</span>
+                      <p className="font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">darobeid@instapay</p>
+                    </div>
+
+                    {/* Vodafone Cash */}
+                    <div className="p-3 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
+                      <span className="font-black text-foreground block">📱 {isRtl ? "محافظ إلكترونية (فودافون كاش / اتصالات):" : "E-Wallets:"}</span>
+                      <p className="font-mono text-[11px] font-bold text-rose-600 dark:text-rose-400">0100 987 6543</p>
+                    </div>
+
+                    {/* GCC / International */}
+                    <div className="p-3 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
+                      <span className="font-black text-foreground block">🌐 {isRtl ? "دول الخليج والدولي (STC Pay / بطاقات ائتمان):" : "Gulf & Global:"}</span>
+                      <p className="text-[11px] text-muted-foreground">{isRtl ? "سداد، فيزا وماستركارد الدولية، وApple Pay" : "Visa, MasterCard, STC Pay & Apple Pay"}</p>
+                    </div>
+
+                  </CardContent>
+                </Card>
+              </div>
+
             </div>
           </div>
         )}
 
-        {/* ========================================================= */}
-        {/* CONTRACT PREVIEW & SIGNATURE VIEWER MODAL/CARD           */}
-        {/* ========================================================= */}
-        {contractToView && contractToView.contract && (
-          <div className="pt-8 border-t-2 border-border/60">
-            <Card className="border-2 border-amber-500/40 shadow-2xl bg-card max-w-4xl mx-auto">
-              <CardHeader className="border-b border-border/40 pb-4 bg-muted/20">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-serif font-black text-2xl border border-amber-500/30">
-                      ع
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 4: 💬 التواصل الداخلي مع الإدارة (Direct Messages) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === "chat" && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+                  {isRtl ? "التواصل الداخلي المباشر مع إدارة المنصة" : "Direct Editorial & Admin Messaging"}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {isRtl 
+                    ? "قناة مراسلة مشفرة ومباشرة مع فريق دار عبيد لمناقشة تعديلات المخطوطة، الغلاف، والتحكيم"
+                    : "Direct chat with Dar Obeid editors regarding manuscripts, covers, and reviews"}
+                </p>
+              </div>
+            </div>
+
+            <Card className="border-2 border-border/80 shadow-xl bg-card rounded-3xl overflow-hidden flex flex-col h-[600px]">
+              
+              {/* Chat Header */}
+              <div className="p-4 bg-muted/30 border-b border-border/60 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold text-lg">
+                    🏢
+                  </div>
+                  <div>
+                    <span className="font-black text-sm text-foreground block">
+                      {isRtl ? "إدارة دار عبيد للنشر والتوزيع" : "Dar Obeid Publishing Administration"}
+                    </span>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      {isRtl ? "فريق التحرير والتدقيق متصل الآن" : "Editorial Team Online"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chat Message List */}
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-background/50">
+                {messages.map((msg) => {
+                  const isAuthor = msg.sender === "author";
+                  return (
+                    <div 
+                      key={msg.id} 
+                      className={`flex flex-col ${isAuthor ? "items-end" : "items-start"}`}
+                    >
+                      <div className="flex items-center gap-1.5 mb-1 px-1">
+                        <span className="text-[10px] font-bold text-muted-foreground">
+                          {msg.senderName} ({msg.senderTitle})
+                        </span>
+                        <span className="text-[9px] text-muted-foreground font-mono">{msg.timestamp}</span>
+                      </div>
+                      
+                      <div className={`p-4 rounded-2xl max-w-xl text-xs leading-relaxed shadow-sm ${
+                        isAuthor 
+                          ? "bg-amber-500 text-white rounded-te-xs" 
+                          : "bg-muted/80 text-foreground border border-border/80 rounded-ts-xs"
+                      }`}>
+                        <p>{msg.text}</p>
+                        {msg.attachmentName && (
+                          <div className={`mt-2 p-2 rounded-xl flex items-center gap-2 text-[10px] font-bold ${
+                            isAuthor ? "bg-white/20 text-white" : "bg-background border border-border"
+                          }`}>
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>{msg.attachmentName}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg font-black">{isAr ? "عقد طباعة ونشر وتوزيع إلكتروني موحد" : "Publishing & Distribution Contract"}</CardTitle>
-                      <CardDescription className="text-xs font-mono">{contractToView.contract.refNumber}</CardDescription>
+                  );
+                })}
+              </div>
+
+              {/* Chat Input Bar */}
+              <div className="p-4 bg-card border-t border-border/60">
+                <form onSubmit={handleSendMessage} className="space-y-2">
+                  {chatAttachmentName && (
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-muted text-xs">
+                      <span className="text-muted-foreground truncate">{chatAttachmentName}</span>
+                      <Button size="sm" variant="ghost" onClick={() => setChatAttachmentName("")} className="h-6 px-2 text-[10px]">
+                        إلغاء
+                      </Button>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      placeholder={isRtl ? "اكتب استفسارك أو ملاحظتك لإدارة دار عبيد..." : "Type your message to Dar Obeid team..."}
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      className="h-11 rounded-xl text-xs border-border bg-muted/20 flex-1"
+                    />
+                    <Button 
+                      type="submit" 
+                      size="sm" 
+                      className="h-11 px-5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-md gap-1.5 shrink-0"
+                    >
+                      <Send className="w-4 h-4" />
+                      <span>{isRtl ? "إرسال" : "Send"}</span>
+                    </Button>
+                  </div>
+                </form>
+              </div>
+
+            </Card>
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 5: 📈 مبيعات الكتب والأرباح (Sales & 20% Royalty) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === "sales" && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+                  {isRtl ? "مبيعات الكتب ونسبة أرباح المؤلف (20%)" : "Book Sales & 20% Author Royalty"}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {isRtl 
+                    ? "تتبع مبيعات كتبكم رقمياً وورقياً مع احتساب فوري لنسبة الـ 20% وإمكانية سحب الأرباح"
+                    : "Track digital and print sales with real-time 20% royalty calculation and payouts"}
+                </p>
+              </div>
+
+              <Button 
+                onClick={() => setPayoutModalOpen(true)}
+                disabled={financials.availableBalance <= 0}
+                className="h-10 px-5 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md gap-2"
+              >
+                <Wallet className="w-4 h-4" />
+                <span>{isRtl ? "طلب سحب الأرباح المتاحة" : "Request Payout"}</span>
+              </Button>
+            </div>
+
+            {/* Financial Summary KPI Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              
+              <Card className="p-4 sm:p-5 rounded-3xl border-2 border-border/80 bg-card shadow-sm space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">{isRtl ? "الرصيد المتاح للسحب" : "Available Balance"}</span>
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">💰</div>
+                </div>
+                <div className="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">
+                  {financials.availableBalance} <span className="text-xs font-normal">ج.م</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">{isRtl ? "جاهز للسحب الفوري لحسابكم" : "Ready for immediate payout"}</p>
+              </Card>
+
+              <Card className="p-4 sm:p-5 rounded-3xl border-2 border-border/80 bg-card shadow-sm space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">{isRtl ? "إجمالي أرباح المؤلف (20%)" : "Total Royalties (20%)"}</span>
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">📈</div>
+                </div>
+                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                  {financials.totalAuthorRoyalties} <span className="text-xs font-normal">ج.م</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">{isRtl ? "من إجمالي مبيعات الكتب" : "Calculated from all sales"}</p>
+              </Card>
+
+              <Card className="p-4 sm:p-5 rounded-3xl border-2 border-border/80 bg-card shadow-sm space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">{isRtl ? "إجمالي النسخ المباعة" : "Total Copies Sold"}</span>
+                  <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center font-bold">📚</div>
+                </div>
+                <div className="text-2xl font-black text-foreground font-mono">
+                  {financials.totalCopiesSold} <span className="text-xs font-normal">{isRtl ? "نسخة" : "copies"}</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  {financials.digitalCopiesSold} {isRtl ? "رقمي" : "digital"} • {financials.printCopiesSold} {isRtl ? "ورقي" : "print"}
+                </p>
+              </Card>
+
+              <Card className="p-4 sm:p-5 rounded-3xl border-2 border-border/80 bg-card shadow-sm space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">{isRtl ? "الأرباح المسحوبة سابقاً" : "Withdrawn Amount"}</span>
+                  <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center font-bold">🏦</div>
+                </div>
+                <div className="text-2xl font-black text-purple-600 dark:text-purple-400 font-mono">
+                  {financials.totalWithdrawn} <span className="text-xs font-normal">ج.م</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground">{isRtl ? "تم تحويلها لحسابكم بنجاح" : "Successfully transferred"}</p>
+              </Card>
+
+            </div>
+
+            {/* Sales Table */}
+            <Card className="border-2 border-border/80 shadow-md bg-card rounded-3xl overflow-hidden">
+              <CardHeader className="bg-muted/20 border-b border-border/60 pb-3">
+                <CardTitle className="text-sm font-black flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-500" />
+                  <span>{isRtl ? "سجل مبيعات الكتب المباشرة وعائدات الـ 20%" : "Live Book Sales Roster"}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 overflow-x-auto">
+                <table className="w-full text-xs text-start">
+                  <thead className="bg-muted/40 border-b border-border/60 text-muted-foreground font-black">
+                    <tr>
+                      <th className="p-3.5 text-start">{isRtl ? "الكتاب / الكود" : "Book / Code"}</th>
+                      <th className="p-3.5 text-start">{isRtl ? "صيغة البيع" : "Format"}</th>
+                      <th className="p-3.5 text-start">{isRtl ? "سعر البيع" : "Sale Price"}</th>
+                      <th className="p-3.5 text-start">{isRtl ? "نسبة المؤلف (20%)" : "Royalty (20%)"}</th>
+                      <th className="p-3.5 text-start">{isRtl ? "المشتري / رقم الطلب" : "Buyer / Order"}</th>
+                      <th className="p-3.5 text-start">{isRtl ? "التاريخ" : "Date"}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/60">
+                    {sales.map((s) => (
+                      <tr key={s.id} className="hover:bg-muted/20 transition-colors">
+                        <td className="p-3.5">
+                          <span className="font-bold text-foreground block truncate max-w-xs">{s.bookTitle}</span>
+                          <span className="font-mono text-[10px] text-muted-foreground">{s.bookCode}</span>
+                        </td>
+                        <td className="p-3.5">
+                          <Badge variant="outline" className="text-[10px] font-bold">
+                            {s.format === "digital" ? "رقمي 📱" : "ورقي 📖"}
+                          </Badge>
+                        </td>
+                        <td className="p-3.5 font-mono font-bold text-foreground">
+                          {s.salePrice} ج.م
+                        </td>
+                        <td className="p-3.5 font-mono font-black text-emerald-600 dark:text-emerald-400">
+                          +{s.authorEarnings} ج.م (20%)
+                        </td>
+                        <td className="p-3.5">
+                          <span className="text-foreground font-semibold block truncate max-w-[150px]">{s.buyerName}</span>
+                          <span className="text-[10px] font-mono text-muted-foreground">{s.orderNumber}</span>
+                        </td>
+                        <td className="p-3.5 text-muted-foreground font-mono">
+                          {s.date}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+
+            {/* Payouts History */}
+            <Card className="border-2 border-border/80 shadow-md bg-card rounded-3xl overflow-hidden">
+              <CardHeader className="bg-muted/20 border-b border-border/60 pb-3">
+                <CardTitle className="text-sm font-black flex items-center gap-2">
+                  <Wallet className="w-4 h-4 text-primary" />
+                  <span>{isRtl ? "سجل طلبات سحب الأرباح" : "Payout Requests History"}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6 space-y-3">
+                {payouts.map((pay) => (
+                  <div key={pay.id} className="p-4 rounded-2xl bg-muted/30 border border-border/70 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-sm text-foreground">{pay.amount} {pay.currency}</span>
+                        <Badge className={
+                          pay.status === "completed" 
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]"
+                            : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
+                        }>
+                          {pay.status === "completed" ? (isRtl ? "تم التحويل بنجاح ✅" : "Completed") : (isRtl ? "قيد المعالجة ⏳" : "Pending")}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">{pay.accountDetails}</p>
+                    </div>
+
+                    <div className="text-end text-[11px] text-muted-foreground">
+                      <span className="block font-mono">{pay.requestDate}</span>
+                      {pay.transactionRef && <span className="text-[10px] font-mono text-primary">{pay.transactionRef}</span>}
                     </div>
                   </div>
+                ))}
+              </CardContent>
+            </Card>
 
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => window.print()} className="text-xs font-bold">
-                      <Printer className="w-3.5 h-3.5 me-1.5" />
-                      {isAr ? "طباعة العقد" : "Print"}
-                    </Button>
-                    <Badge className="bg-amber-500 text-white font-bold">معتمد برعاية دار عبيد</Badge>
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 6: 🔐 إدارة الحساب والأمان (Security & Password) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === "settings" && (
+          <div className="space-y-6 animate-fade-in max-w-2xl mx-auto">
+            <Card className="border-2 border-border/80 shadow-xl bg-card rounded-3xl overflow-hidden">
+              <CardHeader className="bg-muted/20 border-b border-border/60 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                    🔐
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-black text-foreground">
+                      {isRtl ? "إعدادات الأمان وتغيير كلمة المرور" : "Security & Password Management"}
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {isRtl 
+                        ? "قم بتحديث كلمة المرور المؤقتة وتأمين حساب المؤلف ووسائل سحب الأرباح"
+                        : "Update your temporary password and secure your author account"}
+                    </CardDescription>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-6 sm:p-8 space-y-6 text-xs sm:text-sm leading-relaxed">
-                {/* Contract Parties */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-muted/40 border border-border/40">
-                  <div>
-                    <span className="text-[11px] text-muted-foreground block">{isAr ? "الطرف الأول (المؤلف):" : "Party 1 (Author):"}</span>
-                    <strong className="font-bold text-sm text-foreground">{contractToView.authorName}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[11px] text-muted-foreground block">{isAr ? "الطرف الثاني (الناشر):" : "Party 2 (Publisher):"}</span>
-                    <strong className="font-bold text-sm text-foreground">{contractToView.contract.publisherName}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[11px] text-muted-foreground block">{isAr ? "الطرف الثالث (المشرف والضامن):" : "Party 3 (Supervisor):"}</span>
-                    <strong className="font-bold text-sm text-amber-600 dark:text-amber-400">دار عبيد للنشر والتوزيع</strong>
-                  </div>
-                </div>
 
-                {/* Strict Legal Exclusivity Terms */}
-                <div className="space-y-3">
-                  <div className="p-3.5 rounded-xl border border-border/60 bg-background/60">
-                    <strong className="text-foreground font-bold">{isAr ? "البند الأول (العمل الأدبي ونسبة الأرباح):" : "Clause 1:"}</strong>{" "}
-                    {isAr
-                      ? `تم الاتفاق على نشر وتوزيع كتاب (${contractToView.title}) وتخصيص نسبة أرباح ${contractToView.contract.royaltyPercentage}% للمؤلف تصرف شهرياً وبشكل تلقائي.`
-                      : `Publication of "${contractToView.title}" with ${contractToView.contract.royaltyPercentage}% author royalties.`}
+              <CardContent className="p-6 sm:p-8 space-y-6">
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-extrabold">{isRtl ? "كلمة المرور الجديدة *" : "New Password *"}</Label>
+                    <Input 
+                      type="password"
+                      placeholder="••••••••"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      className="h-11 rounded-xl text-xs bg-muted/20"
+                    />
                   </div>
 
-                  <div className="p-4 rounded-xl border-2 border-rose-500/40 bg-rose-500/5 space-y-1.5">
-                    <div className="flex items-center gap-2 font-bold text-rose-600 dark:text-rose-400 text-xs sm:text-sm">
-                      <AlertTriangle className="w-4 h-4 shrink-0" />
-                      <span>{isAr ? "البند الثاني (الحصرية الإلزامية والمسؤولية القانونية الصارمة):" : "Clause 2 (Mandatory Exclusivity & Legal Liability):"}</span>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-extrabold">{isRtl ? "تأكيد كلمة المرور الجديدة *" : "Confirm New Password *"}</Label>
+                    <Input 
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      className="h-11 rounded-xl text-xs bg-muted/20"
+                    />
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full h-11 rounded-xl font-black text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-md gap-1.5"
+                  >
+                    <Key className="w-4 h-4" />
+                    <span>{isRtl ? "حفظ وتعيين كلمة المرور الدائمة" : "Save New Password"}</span>
+                  </Button>
+                </form>
+
+                {/* Bank / Wallet Payout Info */}
+                <div className="pt-6 border-t border-border/60 space-y-3">
+                  <h3 className="font-black text-xs text-foreground flex items-center gap-1.5">
+                    <Banknote className="w-4 h-4 text-emerald-500" />
+                    <span>{isRtl ? "البيانات المصرفية المعتمدة لتحويل الأرباح" : "Registered Payout Details"}</span>
+                  </h3>
+
+                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/70 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{isRtl ? "اسم صاحب الحساب:" : "Account Holder:"}</span>
+                      <span className="font-bold text-foreground">{authorProfile.bankDetails?.accountHolder}</span>
                     </div>
-                    <p className="text-xs text-foreground/90 font-medium leading-relaxed">
-                      {isAr
-                        ? "يلتزم الطرف الثاني (الناشر) بطرح الكتاب وبيعه وتوزيعه حصرياً ومطلقاً داخل «متجر كتب UNIGATES». ويُحظر تماماً بيع أو توزيع أو تفويض أي جهة أخرى بتداول الكتاب ورقياً أو رقمياً خارج المنصة دون موافقة كتابية رسمية من دار عبيد والكاتب. وفي حال ثبوت بيع الكتاب خارج متجر كتب UNIGATES، يُساءل الناشر جنائياً ومدنياً وتُفرض عليه غرامة تعويضية ملزمة لصالح الكاتب والمنصة."
-                        : "The Publisher strictly undertakes to sell and distribute the book EXCLUSIVELY through UNIGATES Book Store. Selling outside incurs strict civil and criminal liability."}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Signatures and Seals */}
-                <div className="pt-4 border-t border-border/40 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                  <div className="p-4 rounded-xl border border-border/60 bg-muted/20 space-y-1.5">
-                    <span className="text-[11px] text-muted-foreground block">{isAr ? "توقيع المؤلف" : "Author Signature"}</span>
-                    <div className="font-serif italic font-bold text-amber-600 h-7 flex items-center justify-center">
-                      {contractToView.contract.authorSigned ? contractToView.authorName : "—"}
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{isRtl ? "البنك المعتمد:" : "Bank Name:"}</span>
+                      <span className="font-bold text-foreground">{authorProfile.bankDetails?.bankName}</span>
                     </div>
-                    <Badge variant="outline" className="text-[9px]">
-                      {contractToView.contract.authorSigned ? "✓ تم التوقيع" : "بانتظار التوقيع"}
-                    </Badge>
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-border/60 bg-muted/20 space-y-1.5">
-                    <span className="text-[11px] text-muted-foreground block">{isAr ? "توقيع الناشر" : "Publisher Signature"}</span>
-                    <div className="font-serif italic font-bold text-foreground h-7 flex items-center justify-center">
-                      {contractToView.contract.publisherSigned ? contractToView.contract.publisherName : "—"}
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{isRtl ? "رقم الحساب / IBAN:" : "IBAN / Account:"}</span>
+                      <span className="font-mono font-bold text-foreground">{authorProfile.bankDetails?.ibanOrAccount}</span>
                     </div>
-                    <Badge variant="outline" className="text-[9px]">
-                      {contractToView.contract.publisherSigned ? "✓ تم التوقيع والاعتماد" : "بانتظار التوقيع"}
-                    </Badge>
-                  </div>
-
-                  <div className="p-4 rounded-xl border-2 border-amber-500/40 bg-amber-500/10 space-y-1.5">
-                    <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300 block">{isAr ? "ختم دار عبيد للنشر" : "Dar Obeid Seal"}</span>
-                    <div className="h-7 flex items-center justify-center text-amber-600">
-                      <Stamp className="w-5 h-5 animate-pulse" />
-                    </div>
-                    <Badge className="bg-amber-500 text-white text-[9px] font-bold">
-                      {contractToView.contract.darObeidCertified ? "موثق رسمياً" : "بانتظار الختم"}
-                    </Badge>
                   </div>
                 </div>
 
@@ -1332,6 +1456,193 @@ const NasherDashboard = () => {
         )}
 
       </main>
+
+      {/* ------------------------------------------------------------- */}
+      {/* MODAL: Upload Payment Receipt */}
+      {/* ------------------------------------------------------------- */}
+      <Dialog open={!!selectedInvoice} onOpenChange={(open) => !open && setSelectedInvoice(null)}>
+        <DialogContent className="sm:max-w-md rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black">
+              {isRtl ? "سداد الفاتورة ورفع إيصال التحويل" : "Pay Invoice & Upload Receipt"}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              {selectedInvoice?.invoiceNumber} - {selectedInvoice?.amount} {selectedInvoice?.currency}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold">{isRtl ? "طريقة الدفع المستخدمة:" : "Payment Method:"}</Label>
+              <Select value={paymentMethodSelect} onValueChange={setPaymentMethodSelect}>
+                <SelectTrigger className="h-10 rounded-xl text-xs font-bold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bank_transfer">{isRtl ? "تحويل بنكي (البنك الأهلي)" : "Bank Transfer"}</SelectItem>
+                  <SelectItem value="instapay">{isRtl ? "إنستاباي (InstaPay)" : "InstaPay"}</SelectItem>
+                  <SelectItem value="vodafone_cash">{isRtl ? "فودافون كاش / محفظة إلكترونية" : "Vodafone Cash"}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-muted/40 border border-border/80 text-center space-y-2">
+              <UploadCloud className="w-8 h-8 text-amber-500 mx-auto" />
+              <span className="text-xs font-bold block">{isRtl ? "إرفاق صورة إيصال الدفع / لقطة الشاشة *" : "Upload Payment Receipt *"}</span>
+              <Input 
+                type="file" 
+                accept="image/*"
+                onChange={(e) => setReceiptImagePlaceholder(e.target.files?.[0]?.name || "receipt.jpg")}
+                className="text-xs h-9 rounded-xl bg-background cursor-pointer"
+              />
+              {receiptImagePlaceholder && (
+                <span className="text-[10px] font-bold text-emerald-600 block">
+                  {isRtl ? `تم اختيار: ${receiptImagePlaceholder}` : `Selected: ${receiptImagePlaceholder}`}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setSelectedInvoice(null)} className="rounded-xl text-xs font-bold">
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button 
+              onClick={handleConfirmPaymentReceipt} 
+              disabled={uploadingReceipt}
+              className="rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-white"
+            >
+              {isRtl ? "تأكيد وإرسال الإيصال للإدارة" : "Submit Receipt"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ------------------------------------------------------------- */}
+      {/* MODAL: Payout Request */}
+      {/* ------------------------------------------------------------- */}
+      <Dialog open={payoutModalOpen} onOpenChange={setPayoutModalOpen}>
+        <DialogContent className="sm:max-w-md rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black">
+              {isRtl ? "طلب سحب الأرباح لحسابكم" : "Request Royalty Payout"}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              {isRtl ? `الرصيد المتاح للسحب حالياً: ${financials.availableBalance} ج.م` : `Available Balance: ${financials.availableBalance} EGP`}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleRequestPayoutSubmit} className="space-y-4 py-2">
+            
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold">{isRtl ? "المبلغ المطلوب سحبه (ج.م) *" : "Payout Amount (EGP) *"}</Label>
+              <Input 
+                type="number"
+                max={financials.availableBalance}
+                min={50}
+                placeholder={isRtl ? `الحد الأقصى ${financials.availableBalance}` : `Max ${financials.availableBalance}`}
+                value={payoutAmount}
+                onChange={(e) => setPayoutAmount(e.target.value)}
+                required
+                className="h-10 rounded-xl text-xs font-mono font-bold"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold">{isRtl ? "وسيلة التحويل المعتمدة: *" : "Payout Method: *"}</Label>
+              <Select value={payoutMethod} onValueChange={setPayoutMethod}>
+                <SelectTrigger className="h-10 rounded-xl text-xs font-bold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bank_transfer">{isRtl ? "حساب بنكي (تحويل فوري)" : "Bank Transfer"}</SelectItem>
+                  <SelectItem value="instapay">{isRtl ? "إنستاباي (InstaPay)" : "InstaPay"}</SelectItem>
+                  <SelectItem value="vodafone_cash">{isRtl ? "محفظة فودافون كاش / إلكترونية" : "Vodafone Cash"}</SelectItem>
+                  <SelectItem value="stc_pay">{isRtl ? "STC Pay (الخليج)" : "STC Pay"}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold">{isRtl ? "بيانات الحساب / رقم الهاتف / IBAN: *" : "Account / IBAN / Wallet Number: *"}</Label>
+              <Input 
+                placeholder={isRtl ? "مثال: البنك الأهلي - رقم 12345678901 أو 01001234567" : "e.g. Bank account or wallet number"}
+                value={payoutDetails}
+                onChange={(e) => setPayoutDetails(e.target.value)}
+                required
+                className="h-10 rounded-xl text-xs"
+              />
+            </div>
+
+            <DialogFooter className="gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setPayoutModalOpen(false)} className="rounded-xl text-xs font-bold">
+                {isRtl ? "إلغاء" : "Cancel"}
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={requestingPayout}
+                className="rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {isRtl ? "تأكيد طلب السحب ➔" : "Confirm Payout ➔"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ------------------------------------------------------------- */}
+      {/* MODAL: Change Temporary Password */}
+      {/* ------------------------------------------------------------- */}
+      <Dialog open={passwordModalOpen} onOpenChange={setPasswordModalOpen}>
+        <DialogContent className="sm:max-w-md rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black">
+              {isRtl ? "تعيين كلمة مرور دائمة للحساب" : "Set Permanent Password"}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              {isRtl ? "أدخل كلمة المرور الشخصية الجديدة لحماية حساب المؤلف" : "Enter a new secure password"}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleChangePassword} className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold">{isRtl ? "كلمة المرور الجديدة" : "New Password"}</Label>
+              <Input 
+                type="password"
+                placeholder="••••••••"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                className="h-10 rounded-xl text-xs"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold">{isRtl ? "تأكيد كلمة المرور" : "Confirm Password"}</Label>
+              <Input 
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="h-10 rounded-xl text-xs"
+              />
+            </div>
+
+            <DialogFooter className="gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setPasswordModalOpen(false)} className="rounded-xl text-xs font-bold">
+                {isRtl ? "إلغاء" : "Cancel"}
+              </Button>
+              <Button 
+                type="submit" 
+                className="rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-white"
+              >
+                {isRtl ? "حفظ كلمة المرور" : "Save Password"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <SiteFooter />
     </div>

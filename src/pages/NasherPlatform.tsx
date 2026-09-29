@@ -17,7 +17,6 @@ import {
   ArrowRight,
   BookOpen,
   DollarSign,
-  Gavel,
   Lock,
   Stamp,
   Users,
@@ -33,7 +32,11 @@ import {
   BookMarked,
   Printer,
   Library,
-  GraduationCap
+  GraduationCap,
+  CreditCard,
+  MessageSquare,
+  Wallet,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -45,44 +48,44 @@ import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopme
 
 const NasherPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { dir, language, tText } = useLanguage();
+  const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
   const navigate = useNavigate();
 
   const statItems = [
     {
-      count: "100%",
-      label: isRtl ? "حماية قانونية وعقود موثقة" : "Legally Enforced Rights",
-      icon: Scale,
+      count: "20%",
+      label: isRtl ? "نسبة أرباح المؤلف من كل نسخة" : "Author Royalty Rate",
+      icon: TrendingUp,
       color: "from-amber-500 to-orange-500",
       glow: "shadow-amber-500/20"
     },
     {
-      count: "دار عبيد",
-      label: isRtl ? "إشراف وطباعة وتوثيق رسمي" : "Official Legal Supervision",
-      icon: Stamp,
+      count: "رقمي + ورقي",
+      label: isRtl ? "خيارات نشر مرنة ومتعددة" : "Digital & Print Publishing",
+      icon: BookOpen,
       color: "from-rose-500 to-pink-600",
       glow: "shadow-rose-500/20"
     },
     {
-      count: "حصرية",
-      label: isRtl ? "البيع حصرياً بمتجر UNIGATES" : "Exclusive Store Sales",
-      icon: ShoppingBag,
+      count: "دار عبيد",
+      label: isRtl ? "إشراف وطباعة وتوزيع رسمي" : "Official Legal Publishing",
+      icon: Stamp,
       color: "from-purple-500 to-indigo-600",
       glow: "shadow-purple-500/20"
     },
     {
-      count: "Escrow",
-      label: isRtl ? "دفع آمن بالضمان المالي" : "Secure Escrow Settlement",
+      count: "100%",
+      label: isRtl ? "حماية حقوق الملكية الفكرية" : "Intellectual Property Rights",
       icon: ShieldCheck,
       color: "from-emerald-500 to-teal-500",
       glow: "shadow-emerald-500/20"
     },
     {
-      count: "30+ دار",
-      label: isRtl ? "دور نشر معتمدة متنافسة" : "Accredited Publishers",
-      icon: Building2,
+      count: "فوري",
+      label: isRtl ? "سحب الأرباح وتتبع المبيعات" : "Instant Payout Requests",
+      icon: Wallet,
       color: "from-blue-500 to-cyan-500",
       glow: "shadow-blue-500/20"
     }
@@ -91,675 +94,449 @@ const NasherPlatform = () => {
   const workflowSteps = [
     {
       step: "01",
-      titleAr: "1. طرح نبذة المخطوطة",
-      titleEn: "1. Submit Synopsis",
-      descAr: "يقوم الكاتب برفع نبذة موجزة، الفهرس، وفصل تجريبي مع تحديد نوع العمل الأدبي أو الأكاديمي لحفظ حقوقه ببصمة زمنية فورية.",
-      descEn: "The author uploads a concise synopsis, table of contents, sample chapter, and specifies category with instant timestamping.",
+      titleAr: "1. إنشاء حساب المؤلف ورفع المخطوطة",
+      titleEn: "1. Register & Submit Manuscript",
+      descAr: "ينشئ المؤلف حسابه بكلمة مرور مؤقتة، ويرفع ملف المخطوطة والغلاف والفيديو التعريفي مع تحديد صيغة النشر (رقمي / ورقي / كلاهما).",
+      descEn: "Author registers with temp password, submits manuscript, cover, and specifies publish format (Digital / Print / Hybrid).",
       icon: PenTool,
       color: "from-amber-500 to-orange-500",
-      badgeAr: "حفظ حقوق الكاتب",
-      badgeEn: "Author Protection"
+      badgeAr: "حفظ الألقاب والبيانات",
+      badgeEn: "Academic Titles"
     },
     {
       step: "02",
-      titleAr: "2. مزايدة وتنافس دور النشر",
-      titleEn: "2. Publisher Bidding",
-      descAr: "تتنافس دور النشر المعتمدة بتقديم عروض مالية شفافة تغطي تكلفة الطباعة، نسبة أرباح الكاتب، نوعية الورق، وجدول التسليم.",
-      descEn: "Accredited publishers place transparent bids covering print costs, author royalties, paper grade, and timelines.",
-      icon: TrendingUp,
+      titleAr: "2. المراجعة والتحكيم بدار عبيد",
+      titleEn: "2. Editorial Review & Approval",
+      descAr: "تقوم لجنة القراءة والتدقيق اللغوي بدار عبيد للنشر والتوزيع بمراجعة العمل واعتماده مع إصدار فاتورة التكلفة الرسمية.",
+      descEn: "Dar Obeid editorial board reviews, proofreads, and approves manuscript with an official cost invoice.",
+      icon: Stamp,
       color: "from-orange-500 to-rose-500",
-      badgeAr: "أعلى عائد مالي",
-      badgeEn: "Maximum ROI"
+      badgeAr: "تحكيم أكاديمي دقيق",
+      badgeEn: "Peer Review"
     },
     {
       step: "03",
-      titleAr: "3. عقد إلكتروني موثق من دار عبيد",
-      titleEn: "3. Dar Obeid Legal Contract",
-      descAr: "توقيع عقد إلكتروني رسمي ثلاثي الأطراف يحدد التزامات الطباعة، نسبة الأرباح، ويقر بحصرية البيع داخل متجر كتب UNIGATES.",
-      descEn: "Signing an official tripartite e-contract detailing printing specs, royalties, and mandatory UNIGATES store exclusivity.",
-      icon: FileSignature,
+      titleAr: "3. سداد الفاتورة والتجهيز الفني",
+      titleEn: "3. Payment & Formatting",
+      descAr: "سداد الفاتورة عبر خيارات الدفع المتعددة ورفع إيصال السداد، مع تجهيز الغلاف النهائي والإيداع الرقمي والطباعة الورقية.",
+      descEn: "Pay invoice via bank/wallet, upload receipt, finalize book cover design, and complete ISBN indexing.",
+      icon: CreditCard,
       color: "from-rose-500 to-pink-600",
-      badgeAr: "توثيق قانوني ملزم",
-      badgeEn: "Legally Binding"
+      badgeAr: "إيصالات دفع فورية",
+      badgeEn: "Proof Verification"
     },
     {
       step: "04",
-      titleAr: "4. الدفع بالضمان والنشر الحصري",
-      titleEn: "4. Escrow & Store Launch",
-      descAr: "إيداع رسوم الإنتاج في حساب الضمان، وبدء الطباعة الفاخرة ثم إدراج الكتاب حصرياً داخل متجر كتب UNIGATES مع تحويل الأرباح تلقائياً.",
-      descEn: "Production funds are secured in escrow, high-quality printing begins, and the book launches exclusively on UNIGATES Store.",
+      titleAr: "4. النشر بالمتجر وتحصيل أرباح 20%",
+      titleEn: "4. Bookstore Launch & 20% Royalties",
+      descAr: "طرح الكتاب في متجر UNIGATES، ومتابعة المبيعات الحية لحظياً مع قيد نسبة الـ 20% في محفظة المؤلف وإمكانية سحبها كأموال.",
+      descEn: "Launch book on UNIGATES store, track live sales, receive 20% automatic royalties, and withdraw payouts easily.",
       icon: ShoppingBag,
       color: "from-emerald-500 to-teal-600",
-      badgeAr: "مبيعات حصرية",
-      badgeEn: "Exclusive Sales"
-    }
-  ];
-
-  const roleCards = [
-    {
-      roleAr: "المؤلفون والكتّاب والباحثون",
-      roleEn: "Authors & Writers",
-      descAr: "اطرح مخطوطتك الأدبية أو العلمية، واستقبل عروض أسعار متنافسة من كبرى دور النشر مع ضمان كامل لحقوق الملكية الفكرية وأعلى عائد أرباح.",
-      descEn: "Submit your manuscript, receive competing offers from top publishing houses, and secure maximum royalties.",
-      icon: PenTool,
-      color: "from-amber-500 via-orange-500 to-amber-600",
-      ctaAr: "اطرح نبذة كتابك للمزايدة",
-      ctaEn: "Submit Manuscript",
-      link: "/nasher/dashboard?tab=submit",
-      featuresAr: [
-        "بصمة زمنية إلكترونية لحفظ الملكية",
-        "حرية اختيار أفضل عرض سعر وأعلى نسبة أرباح",
-        "عقد إلكتروني معتمد برعاية دار عبيد",
-        "أرباح شهرية تلقائية عبر محفظتك"
-      ],
-      featuresEn: [
-        "Digital timestamp for copyright protection",
-        "Freedom to choose the highest royalty bid",
-        "Certified tripartite contract with Dar Obeid",
-        "Automated monthly royalty payouts"
-      ]
-    },
-    {
-      roleAr: "دور النشر والمطابع المعتمدة",
-      roleEn: "Publishing Houses & Presses",
-      descAr: "استكشف أحدث المخطوطات والكتب الواعدة، قدم عروض أسعارك وطباعتك مباشرة، واكسب حقوق النشر الحصري عبر متجر UNIGATES الرقمي والورقي.",
-      descEn: "Discover promising manuscripts, place production bids, and gain exclusive distribution rights across UNIGATES.",
-      icon: Building2,
-      color: "from-purple-600 via-indigo-600 to-blue-600",
-      ctaAr: "استكشف المخطوطات وقدم عرضاً",
-      ctaEn: "Explore & Bid",
-      link: "/nasher/dashboard?tab=deals",
-      featuresAr: [
-        "الوصول المباشر لكتاب ومؤلفين مميزين",
-        "منظومة عقود موحدة ومحمية قانونياً",
-        "سوق توزيع حصري يصل لآلاف الجامعات والمدارس",
-        "تحصيل مالي آمن عبر نظام الضمان Escrow"
-      ],
-      featuresEn: [
-        "Direct access to distinguished authors",
-        "Unified legally compliant contracting engine",
-        "Exclusive distribution to schools & universities",
-        "Secure automated Escrow payment protection"
-      ]
-    }
-  ];
-
-  const liveManuscripts = [
-    {
-      id: "ms-1",
-      titleAr: "أسرار الأندلس المفقودة: دراسة وثائقية",
-      titleEn: "Secrets of Lost Andalusia",
-      authorAr: "د. أحمد السعيد",
-      authorEn: "Dr. Ahmed Al-Saeed",
-      genreAr: "تاريخ وبحوث وثائقية",
-      genreEn: "History & Research",
-      pages: 280,
-      bidsCount: 3,
-      highestBidAr: "65% أرباح للكاتب + طباعة مجلد فاخر",
-      highestBidEn: "65% Royalties + Hardcover Deluxe",
-      descAr: "دراسة روائية شيقة تسبر أغوار المخطوطات الأندلسية النادرة وتكشف تفاصيل الحياة الفكرية في قرطبة وغرناطة مع تحقيق مخطوطات لم تنشر من قبل.",
-      descEn: "A narrative exploration of rare Andalusian manuscripts highlighting intellectual life in Cordoba & Granada."
-    },
-    {
-      id: "ms-2",
-      titleAr: "الذكاء الاصطناعي التوليدي في التعليم الجامعي",
-      titleEn: "Generative AI in Higher Education",
-      authorAr: "م. محمود زكي",
-      authorEn: "Eng. Mahmoud Zaki",
-      genreAr: "تكنولوجيا وذكاء اصطناعي",
-      genreEn: "Tech & AI",
-      pages: 340,
-      bidsCount: 5,
-      highestBidAr: "70% أرباح للكاتب + نشر ورقي ورقمي وصوتي",
-      highestBidEn: "70% Royalties + Print & Audiobook",
-      descAr: "دليل تطبيقي عملي موجه للجامعات والأساتذة لبناء مناهج متوافقة مع الذكاء الاصطناعي وتطبيق أدوات المساعد الشخصي في التدريس والتقييم.",
-      descEn: "Practical blueprint for universities adopting AI in curriculum design, instruction, and automated evaluation."
-    },
-    {
-      id: "ms-3",
-      titleAr: "استراتيجيات الاستثمار الحديث وإدارة المخاطر",
-      titleEn: "Modern Investment Strategies",
-      authorAr: "أ. سارة القحطاني",
-      authorEn: "Sarah Al-Qahtani",
-      genreAr: "علوم مالية واقتصاد",
-      genreEn: "Finance & Economics",
-      pages: 210,
-      bidsCount: 4,
-      highestBidAr: "68% أرباح + توزيع حصري في معارض الكتاب",
-      highestBidEn: "68% Royalties + International Fairs",
-      descAr: "أدوات إدارة المخاطر واستشراف الأسواق المالية في ظل التحول الرقمي والاقتصاد التشاركي العالمي وتطبيقات التقنية المالية FinTech.",
-      descEn: "Risk management tools and emerging market forecasts in the digital transformational era and fintech innovations."
+      badgeAr: "أرباح وسحب أموال",
+      badgeEn: "Direct Royalties"
     }
   ];
 
   const faqs = [
     {
-      qAr: "كيف تضمن منصة ناشر حماية حقوق الملكية الفكرية للكاتب عند طرح النبذة؟",
-      qEn: "How does Nasher protect the author's copyright upon synopsis submission?",
-      aAr: "بمجرد تقديم الكاتب لنبذة المخطوطة، تقوم المنصة بتوليد بصمة زمنية إلكترونية مشفرة (Cryptographic Timestamp) غير قابلة للتعديل تثبت أسبقية الملكية الفكرية للكاتب، كما تلتزم دور النشر المعتمدة باتفاقية عدم إفصاح (NDA) رقمية ملزمة.",
-      aEn: "Upon submission, an immutable cryptographic timestamp is generated proving copyright authorship. In addition, certified publishers are bound by digital Non-Disclosure Agreements."
+      qAr: "ما هي منصة نشر وما هو دور دار عبيد للنشر والتوزيع؟",
+      qEn: "What is Nashr Platform and Dar Obeid's role?",
+      aAr: "منصة نشر هي البوابة الرقمية المعتمدة لتمكين المؤلفين والباحثين وأعضاء هيئة التدريس من رفع مؤلفاتهم، اختيار صيغة النشر (رقمياً عبر متجر الكتب أو ورقياً بالطباعة والشحن)، ومتابعة مبيعاتهم وتحصيل نسبة أرباحهم المحددة بنسبة 20% بإشراف دار عبيد للنشر والتوزيع.",
+      aEn: "Nashr Platform enables authors, researchers, and scholars to submit manuscripts for digital and print publishing, monitor live bookstore sales, and receive 20% author royalties managed by Dar Obeid Publishing."
     },
     {
-      qAr: "ما هو دور دار عبيد للنشر والتوزيع والطباعة في منصة ناشر؟",
-      qEn: "What is Dar Obeid's role on the Nasher Platform?",
-      aAr: "دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م هي المشرف القانوني والراعي الرسمي لكافة عقود النشر المبرمة، حيث تشرف على صياغة العقود الإلكترونية الثلاثية، إصدار الترقيم الدولي المعتمد ISBN، وضمان جودة ومواصفات الطباعة والالتزام بالحصرية.",
-      aEn: "Dar Obeid Publishing & Printing LLC acts as the official legal supervisor and escrow guarantor, overseeing tripartite e-contracts, ISBN issuance, printing quality standards, and platform exclusivity compliance."
+      qAr: "كيف يعمل نظام كلمة المرور المؤقتة عند إنشاء حساب المؤلف؟",
+      qEn: "How does the temporary password work during registration?",
+      aAr: "عند التسجيل، تصدر المنصة كلمة مرور مؤقتة وكود مؤلف رسمي فريد. يستطيع المؤلف تسجيل الدخول بها فوراً والاطلاع على لوحته، مع إمكانية تعيين كلمة مرور شخصية دائمة من تبويب الأمان داخل لوحة التحكم.",
+      aEn: "Upon signup, a unique temp password and author code are generated. The author can sign in immediately and set a permanent password in dashboard security settings."
     },
     {
-      qAr: "ما هو بند الحصرية الإلزامية وما هي التبعات القانونية لمخالفته؟",
-      qEn: "What is the mandatory exclusivity clause and the legal liabilities for breach?",
-      aAr: "تعتمد منصة ناشر بند حصرية ملزم ينص على أن جميع الكتب المتفق عليها تُباع وتوزع ورقياً ورقمياً حصرياً عبر «متجر كتب UNIGATES». وفي حال قيام الناشر ببيع أو توزيع الكتاب خارج المنصة دون إذن خطي من دار عبيد والكاتب، يُساءل الناشر مدنياً وجنائياً وتُفرض عليه تعويضات مالية كاملة لصالح الكاتب والمنصة.",
-      aEn: "All published books must be sold exclusively through UNIGATES Book Store. Distributing or selling outside UNIGATES incurs severe civil and criminal legal liability, with statutory compensation payable to the Author and Platform."
+      qAr: "ما هي الخيارات المتاحة لنشر المؤلفات والكتب؟",
+      qEn: "What publishing options are available for manuscripts?",
+      aAr: "تتيح المنصة 3 خيارات مرنة: (1) النشر الرقمي E-Book للقراءة الفورية عبر التطبيقات، (2) النشر الورقي المطبوع الفاخر مع الشحن والتوزيع، أو (3) النشر المزدوج (رقمي + ورقي معاً) لتحقيق أقصى انتشار.",
+      aEn: "Authors can choose: (1) Digital E-Book for online reading, (2) High-quality print edition with global shipping, or (3) Hybrid edition (Digital + Print) for maximum reach."
     },
     {
-      qAr: "كيف يتم الدفع وتوزيع الأرباح بين الكاتب والناشر؟",
-      qEn: "How are payments handled and royalties distributed between author and publisher?",
-      aAr: "تدار المعاملات المالية عبر نظام الضمان الذكي (Escrow)، حيث يتم حجز تكلفة الإنتاج حتى تسليم الطبعة المعتمدة، وعند بيع كل نسخة ورقية أو رقمية عبر متجر الكتب، تُحول نسبة أرباح الكاتب المحددة بالعقد تلقائياً وفوراً إلى محفظته الرقمية.",
-      aEn: "Transactions are secured via Escrow. When copies are purchased on UNIGATES Book Store, agreed royalties are automatically and immediately credited to the author's digital wallet."
+      qAr: "كيف يتم احتساب نسبة أرباح المؤلف (20%) وسحب الأموال؟",
+      qEn: "How are the 20% author royalties calculated and paid out?",
+      aAr: "ترتبط كل نسخة تباع من الكتاب (رقمياً أو ورقياً) في متجر كتب UNIGATES بكود المؤلف، ويتم قيد 20% من ثمن البيع تلقائياً في محفظة المؤلف. يستطيع المؤلف طلب سحب أرباحه في أي وقت للتحويل البنكي أو المحفظة الإلكترونية.",
+      aEn: "Every sold copy on UNIGATES Bookstore is linked to the author code, crediting 20% directly into the author wallet. Authors can request payouts to their bank accounts or e-wallets at any time."
     }
   ];
 
   return (
     <PlatformUnderDevelopmentOverlay platform="nasher">
-      <div className="min-h-screen bg-background flex flex-col selection:bg-amber-600 selection:text-white" dir={dir}>
-        {/* Top Hero Section */}
+      <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
+        
+        {/* Top Hero Section with Rich Gradient */}
         <div className="relative overflow-hidden border-b border-border/40">
-        {/* Atmospheric gradients */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-amber-950/80 to-stone-950/95" />
-        <div className="absolute inset-0">
-          <div className="absolute top-0 start-1/4 w-96 h-96 bg-amber-500/20 rounded-full blur-[140px]" />
-          <div className="absolute bottom-0 end-10 w-[500px] h-[500px] bg-orange-600/20 rounded-full blur-[160px]" />
-          <div className="absolute top-1/3 end-1/3 w-80 h-80 bg-rose-500/15 rounded-full blur-[120px]" />
-        </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-amber-950/70 to-rose-950/80" />
+          <div className="absolute inset-0">
+            <div className="absolute top-0 start-1/4 w-96 h-96 bg-amber-500/15 rounded-full blur-[140px]" />
+            <div className="absolute bottom-0 end-10 w-[500px] h-[500px] bg-rose-600/15 rounded-full blur-[160px]" />
+            <div className="absolute top-1/3 end-1/3 w-80 h-80 bg-orange-500/15 rounded-full blur-[120px]" />
+          </div>
 
-        {/* Dedicated Navbar */}
-        <header className="relative z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-4 border-b border-white/10 backdrop-blur-md">
-          <Link to="/" className="flex items-center gap-3 group min-w-0">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-xl shadow-amber-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
-              <PenTool className="w-6 h-6" />
+          {/* Navigation Bar */}
+          <header className="relative z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-4 border-b border-white/10 backdrop-blur-md">
+            <Link to="/" className="flex items-center gap-3 group min-w-0">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-xl shadow-amber-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
+                <PenTool className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
+                  UNIGATES
+                </span>
+                <p className="text-[10px] font-bold text-amber-300 tracking-wide">
+                  {isRtl ? "منصة نشر (للمؤلفين والباحثين)" : "Nashr Platform (Authors & Researchers)"}
+                </p>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation Links */}
+            <div className="hidden md:flex items-center gap-2.5">
+              <Link to="/nasher/login">
+                <Button size="sm" className="font-bold px-4 h-10 text-xs bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md">
+                  {isRtl ? "دخول المؤلفين" : "Author Sign In"}
+                </Button>
+              </Link>
+              <Link to="/nasher/signup">
+                <Button size="sm" className="font-bold px-5 h-10 text-xs bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-lg shadow-amber-500/25">
+                  {isRtl ? "تسجيل مؤلف جديد" : "Register as Author"}
+                </Button>
+              </Link>
+              <ThemeToggle />
+              <LanguageSelectorDropdown />
             </div>
-            <div>
-              <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
-                UNIGATES
+
+            {/* Mobile Menu Button */}
+            <div className="flex md:hidden items-center gap-2">
+              <ThemeToggle />
+              <LanguageSelectorDropdown />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-white hover:bg-white/10"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </Button>
+            </div>
+          </header>
+
+          {/* Mobile Drawer */}
+          {mobileMenuOpen && (
+            <div className="relative z-40 md:hidden bg-slate-950/95 backdrop-blur-2xl border-b border-white/10 px-6 py-6 space-y-4 animate-fade-in text-white">
+              <Link to="/nasher/signup" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button className="w-full bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white font-bold h-11">
+                  {isRtl ? "تسجيل مؤلف جديد" : "Register as Author"}
+                </Button>
+              </Link>
+              <Link to="/nasher/login" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button variant="outline" className="w-full border-white/20 text-white bg-white/5 font-bold h-11">
+                  {isRtl ? "دخول المؤلفين" : "Author Sign In"}
+                </Button>
+              </Link>
+              <Link to="/nasher/dashboard" onClick={() => setMobileMenuOpen(false)} className="block pt-2">
+                <Button variant="ghost" className="w-full text-amber-300 font-bold h-11">
+                  {isRtl ? "استوديو لوحة التحكم" : "Author Dashboard"}
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          {/* Hero Content */}
+          <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-12 pt-12 sm:pt-20 pb-16 sm:pb-24 text-center space-y-8">
+            
+            {/* Pill Tag */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-amber-300 shadow-xl animate-bounce-subtle">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span className="text-xs sm:text-sm font-bold tracking-wide">
+                {isRtl ? "منصة نشر • منظومة المؤلفين الشاملة بإشراف دار عبيد" : "Nashr • The Author Publishing Suite by Dar Obeid"}
               </span>
-              <p className="text-[10px] font-bold text-amber-300 tracking-wide">
-                {isRtl ? "منصة ناشر • سوق المزايدات والعقود الحصرية" : "Nasher • Bids & Exclusive Contracts"}
+            </div>
+
+            {/* Main Headline */}
+            <div className="space-y-4">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-tight drop-shadow-lg tracking-tight">
+                {isRtl ? (
+                  <>
+                    انشر مؤلفاتك <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">رقمياً وورقياً</span> واحصل على 20% أرباح فورية
+                  </>
+                ) : (
+                  <>
+                    Publish Your Works <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">Digitally & in Print</span> with 20% Royalties
+                  </>
+                )}
+              </h1>
+              <p className="text-sm sm:text-lg md:text-xl text-slate-200/90 font-medium max-w-3xl mx-auto leading-relaxed">
+                {isRtl
+                  ? "منصة متكاملة للمؤلفين والباحثين الأكاديميين لإيداع المخطوطات، اعتماد التدقيق اللغوي وتصميم الأغلفة، تتبع المبيعات لحظياً، وسحب الأرباح مباشرة."
+                  : "An end-to-end platform for authors and researchers to submit manuscripts, get peer-reviewed by Dar Obeid, track live sales, and withdraw payouts."}
               </p>
             </div>
-          </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-2.5">
-            <Link to="/nasher/dashboard?tab=deals">
-              <Button size="sm" variant="outline" className="font-bold px-4 h-10 text-sm bg-white/5 hover:bg-white/15 text-white border-white/20">
-                <TrendingUp className="w-4 h-4 me-1.5 text-amber-400" />
-                {isRtl ? "حلبة المزايدات" : "Bidding Arena"}
-              </Button>
-            </Link>
+            {/* Quick Action CTA Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <Link to="/nasher/signup">
+                <Button size="lg" className="h-12 px-7 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
+                  <PenTool className="w-5 h-5" />
+                  {isRtl ? "✍️ تسجيل مؤلف جديد" : "Register Author"}
+                </Button>
+              </Link>
 
-            <Link to="/nasher/dashboard?tab=submit">
-              <Button size="sm" variant="outline" className="font-bold px-4 h-10 text-sm bg-white/5 hover:bg-white/15 text-white border-white/20">
-                <PenTool className="w-4 h-4 me-1.5 text-orange-400" />
-                {isRtl ? "طرح مخطوطة" : "Submit Manuscript"}
-              </Button>
-            </Link>
+              <Link to="/nasher/login">
+                <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
+                  <Lock className="w-5 h-5" />
+                  {isRtl ? "🔐 دخول المؤلفين" : "Author Sign In"}
+                </Button>
+              </Link>
 
-            <Link to="/nasher/dashboard?tab=contract">
-              <Button size="sm" variant="outline" className="font-bold px-4 h-10 text-sm bg-white/5 hover:bg-white/15 text-white border-white/20">
-                <FileSignature className="w-4 h-4 me-1.5 text-rose-400" />
-                {isRtl ? "عقود دار عبيد" : "Dar Obeid Contracts"}
-              </Button>
-            </Link>
+              <Link to="/nasher/dashboard">
+                <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/5 hover:bg-white/15 text-amber-300 border-amber-400/30 shadow-lg backdrop-blur-md gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  {isRtl ? "استوديو لوحة التحكم" : "Open Studio"}
+                </Button>
+              </Link>
+            </div>
 
-            <Link to="/book-store">
-              <Button size="sm" variant="outline" className="font-bold px-4 h-10 text-sm bg-white/5 hover:bg-white/15 text-white border-white/20">
-                <BookOpen className="w-4 h-4 me-1.5 text-amber-300" />
-                {isRtl ? "متجر الكتب" : "Book Store"}
-              </Button>
-            </Link>
-
-            <ThemeToggle />
-            <LanguageSelectorDropdown />
-
-            <Link to="/nasher/dashboard">
-              <Button size="sm" className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-5 h-10 shadow-lg shadow-amber-500/25">
-                <Sparkles className="w-4 h-4 me-1.5" />
-                {isRtl ? "استوديو الصفقات" : "Deals Studio"}
-              </Button>
-            </Link>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="flex items-center gap-2 md:hidden">
-            <ThemeToggle />
-            <LanguageSelectorDropdown />
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-white hover:bg-white/10 p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </Button>
-          </div>
-        </header>
-
-        {/* Mobile Dropdown Menu */}
-        {mobileMenuOpen && (
-          <div className="relative z-40 md:hidden bg-slate-950/95 border-b border-white/10 p-4 space-y-3 backdrop-blur-xl">
-            <Link to="/nasher/dashboard?tab=deals" onClick={() => setMobileMenuOpen(false)} className="block">
-              <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10 font-bold">
-                <TrendingUp className="w-4 h-4 me-2 text-amber-400" />
-                {isRtl ? "حلبة المزايدات" : "Bidding Arena"}
-              </Button>
-            </Link>
-            <Link to="/nasher/dashboard?tab=submit" onClick={() => setMobileMenuOpen(false)} className="block">
-              <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10 font-bold">
-                <PenTool className="w-4 h-4 me-2 text-orange-400" />
-                {isRtl ? "طرح مخطوطة" : "Submit Manuscript"}
-              </Button>
-            </Link>
-            <Link to="/nasher/dashboard?tab=contract" onClick={() => setMobileMenuOpen(false)} className="block">
-              <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10 font-bold">
-                <FileSignature className="w-4 h-4 me-2 text-rose-400" />
-                {isRtl ? "عقود دار عبيد" : "Dar Obeid Contracts"}
-              </Button>
-            </Link>
-            <Link to="/book-store" onClick={() => setMobileMenuOpen(false)} className="block">
-              <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10 font-bold">
-                <BookOpen className="w-4 h-4 me-2 text-amber-300" />
-                {isRtl ? "متجر الكتب الحصري" : "UNIGATES Book Store"}
-              </Button>
-            </Link>
-            <Link to="/nasher/dashboard" onClick={() => setMobileMenuOpen(false)} className="block pt-2">
-              <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold">
-                <Sparkles className="w-4 h-4 me-2" />
-                {isRtl ? "دخول استوديو الصفقات" : "Enter Deals Studio"}
-              </Button>
-            </Link>
-          </div>
-        )}
-
-        {/* Hero Body */}
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-16 md:pt-20 md:pb-24 text-center space-y-8">
-          
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-black shadow-lg shadow-amber-500/10 animate-pulse">
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>{isRtl ? "سوق المزايدات والعقود الذكية الحصرية" : "Smart Bidding & Exclusive Rights Marketplace"}</span>
-          </div>
-
-          <div className="space-y-4">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.2] md:leading-[1.15]">
-              {isRtl ? (
-                <>
-                  منصة <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300">ناشر</span> : جسر العقود بين الكتّاب ودور النشر
-                </>
-              ) : (
-                <>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300">Nasher</span> Platform : Smart Bids Between Authors & Publishers
-                </>
-              )}
-            </h1>
-
-            <p className="text-sm sm:text-lg md:text-xl text-stone-300 max-w-3xl mx-auto leading-relaxed font-medium">
-              {isRtl
-                ? "اطرح نبذة عن كتابك أو مؤلفك، واستقبل عروض أسعار متنافسة للطباعة والأرباح من دور النشر المعتمدة. توقيع عقود إلكترونية رسمية بإشراف دار عبيد للنشر والتوزيع، مع حصرية البيع والتوزيع داخل متجر كتب UNIGATES."
-                : "Submit your manuscript synopsis, receive competing production bids from certified publishers, sign legally binding contracts under Dar Obeid supervision, and distribute exclusively on UNIGATES Book Store."}
-            </p>
-          </div>
-
-          {/* Primary Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <Link to="/nasher/dashboard?tab=submit">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-base h-13 px-8 rounded-2xl shadow-xl shadow-amber-500/30 transition-all hover:scale-105"
-              >
-                <PenTool className="w-5 h-5 me-2.5" />
-                {isRtl ? "أنا كاتب: اطرح كتابك للمزايدة" : "Author: Submit Manuscript"}
-              </Button>
-            </Link>
-
-            <Link to="/nasher/dashboard?tab=deals">
-              <Button
-                size="lg"
-                variant="outline"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/30 font-black text-base h-13 px-8 rounded-2xl backdrop-blur-md transition-all hover:scale-105"
-              >
-                <Building2 className="w-5 h-5 me-2.5 text-amber-400" />
-                {isRtl ? "أنا ناشر: استكشف المخطوطات وقدم عرضاً" : "Publisher: Explore & Bid"}
-              </Button>
-            </Link>
-          </div>
-
-          {/* Dynamic Stats Grid */}
-          <div className="pt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 max-w-5xl mx-auto">
-            {statItems.map((item, idx) => {
-              const Icon = item.icon;
-              return (
+            {/* Live Platform Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 pt-8">
+              {statItems.map((item, i) => (
                 <div
-                  key={idx}
-                  className="group relative rounded-2xl p-4 sm:p-5 bg-white/5 border border-white/10 backdrop-blur-xl hover:border-amber-400/50 transition-all duration-300 hover:-translate-y-1 shadow-lg"
+                  key={i}
+                  className={`p-4 sm:p-5 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-xl border border-white/20 transition-all duration-300 shadow-xl ${item.glow} flex flex-col items-center gap-1.5 group hover:-translate-y-1`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${item.color} p-0.5 shadow-md ${item.glow} flex items-center justify-center text-white`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
+                  <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+                    <item.icon className="w-5 h-5" />
                   </div>
-                  <div className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
                     {item.count}
-                  </div>
-                  <div className="text-[11px] sm:text-xs font-bold text-stone-300 mt-1">
+                  </span>
+                  <span className="text-[11px] text-slate-300 font-bold text-center leading-tight">
                     {item.label}
-                  </div>
+                  </span>
                 </div>
-              );
-            })}
+              ))}
+            </div>
+
           </div>
-
         </div>
-      </div>
 
-      {/* 4-Step Pipeline Section */}
-      <section className="py-16 md:py-24 bg-muted/20 border-b border-border/40">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 font-black px-3.5 py-1 text-xs">
-              {isRtl ? "دورة عمل متكاملة وآمنة" : "End-to-End Workflow"}
+        {/* ------------------------------------------------------------- */}
+        {/* SECTION: The 4 Publishing Workflow Steps */}
+        {/* ------------------------------------------------------------- */}
+        <section className="py-16 sm:py-20 px-4 sm:px-8 md:px-12 max-w-7xl mx-auto w-full space-y-12">
+          <div className="text-center space-y-3 max-w-3xl mx-auto">
+            <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 font-bold px-3 py-1 text-xs">
+              {isRtl ? "دورة النشر المتكاملة" : "Complete Publishing Lifecycle"}
             </Badge>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight">
-              {isRtl ? "كيف تعمل منظومة منصة ناشر؟" : "How Nasher Platform Operates"}
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-foreground">
+              {isRtl ? "كيف تعمل منظومة منصة نشر؟" : "How Nashr Platform Operates"}
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
               {isRtl
-                ? "خطوات ذكية وموثقة تضمن حقوق الملكية الفكرية للكاتب وتمنح الناشر فرصة الاستثمار في أفضل الأعمال الأدبية والأكاديمية."
-                : "A streamlined workflow guaranteeing author copyright while offering publishers high-value manuscripts."}
+                ? "خطوات واضحة وسريعة من تسجيل المؤلف ورفع المخطوطة حتى استلام الأرباح في حسابكم البنكي"
+                : "Clear and streamlined steps from author onboarding to receiving bank royalties"}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {workflowSteps.map((step, idx) => {
-              const Icon = step.icon;
-              return (
-                <Card key={idx} className="border-border/60 relative overflow-hidden bg-card/60 backdrop-blur-sm hover:border-amber-500/50 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
-                  <div className="absolute top-3 end-3 text-4xl font-black text-muted-foreground/10 select-none">
-                    {step.step}
-                  </div>
-                  <CardContent className="p-6 space-y-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${step.color} text-white flex items-center justify-center shadow-lg shadow-amber-500/15`}>
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <Badge variant="secondary" className="text-[10px] font-bold mb-2">
-                        {isRtl ? step.badgeAr : step.badgeEn}
-                      </Badge>
-                      <h3 className="text-base sm:text-lg font-bold text-foreground">
-                        {isRtl ? step.titleAr : step.titleEn}
-                      </h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {isRtl ? step.descAr : step.descEn}
-                    </p>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Role Hubs Section (Author vs Publisher) */}
-      <section className="py-16 md:py-24 border-b border-border/40">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 font-black px-3.5 py-1 text-xs">
-              {isRtl ? "بوابات الأعضاء والشركاء" : "Partner Portals"}
-            </Badge>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight">
-              {isRtl ? "اختر بوابتك وابدأ صفقاتك" : "Select Your Portal & Begin"}
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {roleCards.map((role, idx) => {
-              const Icon = role.icon;
-              return (
-                <Card key={idx} className="border-2 border-border/60 hover:border-amber-500/50 bg-card/70 backdrop-blur-md shadow-xl rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between">
-                  <div className={`h-3 w-full bg-gradient-to-r ${role.color}`} />
-                  <CardContent className="p-6 sm:p-8 space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${role.color} text-white flex items-center justify-center shadow-xl shadow-amber-500/20 shrink-0`}>
-                        <Icon className="w-7 h-7" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-foreground">
-                          {isRtl ? role.roleAr : role.roleEn}
-                        </h3>
-                        <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                          {isRtl ? "بيئة عمل رقمية متكاملة" : "Complete Digital Workspace"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                      {isRtl ? role.descAr : role.descEn}
-                    </p>
-
-                    <div className="space-y-2.5 pt-2 border-t border-border/40">
-                      {(isRtl ? role.featuresAr : role.featuresEn).map((feat, fIdx) => (
-                        <div key={fIdx} className="flex items-center gap-2 text-xs font-semibold text-foreground/90">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                          <span>{feat}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="pt-4">
-                      <Link to={role.link} className="block">
-                        <Button className={`w-full bg-gradient-to-r ${role.color} hover:opacity-95 text-white font-bold h-12 text-sm rounded-xl shadow-lg`}>
-                          <span>{isRtl ? role.ctaAr : role.ctaEn}</span>
-                          <ArrowIcon className="w-4 h-4 ms-2" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Legal Exclusivity & Dar Obeid Supervision Alert Section */}
-      <section className="py-16 bg-gradient-to-b from-amber-500/5 via-background to-background border-b border-border/40">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="bg-card border-2 border-amber-500/40 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6 relative overflow-hidden">
-            
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-6">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-serif font-black text-2xl border border-amber-500/30 shrink-0">
-                  ع
-                </div>
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-foreground">
-                    {isRtl ? "الإشراف القانوني والحصرية الإلزامية" : "Legal Supervision & Mandatory Exclusivity Clause"}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground font-medium">
-                    {isRtl ? "إشراف وتوثيق كامل من: دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م" : "Supervised & Certified by: Dar Obeid Publishing & Printing LLC"}
-                  </p>
-                </div>
-              </div>
-
-              <Badge className="bg-amber-500 text-white font-bold px-3 py-1 self-start sm:self-auto">
-                {isRtl ? "عقود ملزمة قانوناً" : "Legally Binding"}
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="p-5 rounded-2xl bg-muted/40 border border-border/60 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-foreground">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                  <span>{isRtl ? "حصرية البيع والتوزيع المطلقة" : "Strict Platform Exclusivity"}</span>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {isRtl
-                    ? "يلتزم الناشر والمؤلف بطرح الكتاب وبيعه وتوزيعه ورقياً ورقمياً حصرياً عبر «متجر كتب UNIGATES»، لضمان أفضل حماية للملكية الفكرية ومتابعة دقيقة للأرباح."
-                    : "All published titles must be sold and distributed strictly via UNIGATES Book Store to guarantee copyright protection and transparent royalties."}
-                </p>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-rose-600 dark:text-rose-400">
-                  <AlertTriangle className="w-5 h-5 shrink-0" />
-                  <span>{isRtl ? "المسؤولية القانونية الصارمة للمخالفة" : "Strict Legal & Financial Liability"}</span>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {isRtl
-                    ? "إذا تم بيع أو تداول الكتاب خارج متجر كتب UNIGATES دون إذن خطي مسبق من دار عبيد والمؤلف، يساءل الناشر قانونياً ومدنياً وتطبق عليه الجزاءات التعويضية الجنائية والمالية."
-                    : "Unauthorized distribution outside UNIGATES Book Store subjects the publisher to strict civil, financial, and criminal legal penalties."}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border/40 text-xs text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-amber-500" />
-                <span>{isRtl ? "توقيع إلكتروني مشفر بمعايير eIDAS و AES-256 وبصمة زمنية" : "eIDAS & AES-256 Compliant Digital Signatures with Timestamp"}</span>
-              </div>
-              <Link to="/terms" className="text-amber-600 dark:text-amber-400 font-bold hover:underline">
-                {isRtl ? "قراءة الشروط والأحكام الكاملة ←" : "Read Full Legal Terms →"}
-              </Link>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* Live Manuscripts Showcase */}
-      <section className="py-16 md:py-24 border-b border-border/40">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-            <div>
-              <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 font-black mb-2 px-3 py-0.5">
-                {isRtl ? "مخطوطات نشطة ومطروحة للمزايدة" : "Live Bidding Arena"}
-              </Badge>
-              <h2 className="text-2xl sm:text-4xl font-black tracking-tight">
-                {isRtl ? "أحدث طلبات النشر المعروضة حالياً" : "Active Manuscripts Open for Bids"}
-              </h2>
-            </div>
-            <Link to="/nasher/dashboard">
-              <Button variant="outline" className="border-amber-500/30 hover:bg-amber-500/10 font-bold">
-                <span>{isRtl ? "دخول استوديو المزايدات والعقود" : "Enter Bidding Studio"}</span>
-                <ArrowIcon className="w-4 h-4 ms-2" />
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {liveManuscripts.map((ms) => (
-              <Card key={ms.id} className="border-border/60 bg-card hover:border-amber-500/50 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
-                <CardContent className="p-6 space-y-4">
+            {workflowSteps.map((step, idx) => (
+              <Card
+                key={idx}
+                className="border-2 border-border/80 shadow-md bg-card rounded-3xl overflow-hidden hover:border-amber-500/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0 font-bold">
-                      {isRtl ? ms.genreAr : ms.genreEn}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground font-mono font-bold">
-                      {ms.bidsCount} {isRtl ? "عروض متنافسة" : "bids"}
+                    <span className="text-3xl font-black text-amber-500/30 font-mono">
+                      {step.step}
                     </span>
+                    <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-[10px] font-bold">
+                      {isRtl ? step.badgeAr : step.badgeEn}
+                    </Badge>
                   </div>
 
-                  <div>
-                    <h3 className="text-base sm:text-lg font-bold text-foreground line-clamp-1">
-                      {isRtl ? ms.titleAr : ms.titleEn}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {isRtl ? "المؤلف:" : "Author:"} {isRtl ? ms.authorAr : ms.authorEn} • {ms.pages} {isRtl ? "صفحة" : "pages"}
-                    </p>
+                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center text-white shadow-md`}>
+                    <step.icon className="w-6 h-6" />
                   </div>
 
-                  <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                    {isRtl ? ms.descAr : ms.descEn}
+                  <h3 className="text-base font-black text-foreground">
+                    {isRtl ? step.titleAr : step.titleEn}
+                  </h3>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {isRtl ? step.descAr : step.descEn}
                   </p>
-
-                  <div className="pt-3 border-t border-border/40 space-y-3">
-                    <div className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
-                      {isRtl ? ms.highestBidAr : ms.highestBidEn}
-                    </div>
-                    <Link to="/nasher/dashboard?tab=deals" className="block">
-                      <Button size="sm" variant="secondary" className="w-full text-xs font-bold h-8">
-                        {isRtl ? "تقديم عرض سعر / مزايدة" : "Place Bid"}
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
+                </div>
               </Card>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FAQ Section */}
-      <section className="py-16 md:py-24 bg-muted/20 border-b border-border/40">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-            <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 font-bold px-3 py-1">
-              <HelpCircle className="w-3.5 h-3.5 me-1.5 inline" />
-              {isRtl ? "الأسئلة الشائعة" : "Frequently Asked Questions"}
+        {/* ------------------------------------------------------------- */}
+        {/* SECTION: 5 Core Platform Pillars */}
+        {/* ------------------------------------------------------------- */}
+        <section className="py-12 px-4 sm:px-8 md:px-12 bg-muted/20 border-y border-border/60">
+          <div className="max-w-7xl mx-auto space-y-12">
+            
+            <div className="text-center space-y-3 max-w-3xl mx-auto">
+              <Badge className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 font-bold px-3 py-1 text-xs">
+                {isRtl ? "ركائز منصة نشر" : "Platform Features"}
+              </Badge>
+              <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-foreground">
+                {isRtl ? "كل ما يحتاجه المؤلف في بيئة رقمية واحدة" : "Everything an Author Needs in One Suite"}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Feature 1: Submissions */}
+              <Card className="p-6 rounded-3xl border-2 border-border/80 bg-card shadow-md space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xl">
+                  📁
+                </div>
+                <h3 className="font-black text-base text-foreground">{isRtl ? "رفع المؤلفات (رقمي / ورقي / كلاهما)" : "Manuscript Submissions"}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {isRtl 
+                    ? "ارفع ملفات المخطوطة وصورة الغلاف والفيديو التعريفي مع خيارات النشر الرقمي أو الورقي بضغطة زر."
+                    : "Upload manuscript files, cover imagery, and intro videos with flexible digital and print options."}
+                </p>
+              </Card>
+
+              {/* Feature 2: Invoices */}
+              <Card className="p-6 rounded-3xl border-2 border-border/80 bg-card shadow-md space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xl">
+                  💳
+                </div>
+                <h3 className="font-black text-base text-foreground">{isRtl ? "الفواتير وسداد التكاليف ورفع الإيصالات" : "Invoices & Payment Verification"}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {isRtl 
+                    ? "فواتير تكلفة واضحة مع إمكانية السداد عبر البنك أو إنستاباي أو المحافظ ورفع إيصال الدفع للتحقق الفوري."
+                    : "Transparent cost invoices with bank transfer, InstaPay, e-wallets, and instant proof upload."}
+                </p>
+              </Card>
+
+              {/* Feature 3: Internal Chat */}
+              <Card className="p-6 rounded-3xl border-2 border-border/80 bg-card shadow-md space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xl">
+                  💬
+                </div>
+                <h3 className="font-black text-base text-foreground">{isRtl ? "التواصل المباشر مع إدارة دار عبيد" : "Direct Editorial Chat"}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {isRtl 
+                    ? "شات داخلي وتواصل مباشر مع فريق التحرير والتدقيق لمناقشة كافة التفاصيل والملاحظات حول المخطوطة."
+                    : "Direct messaging with Dar Obeid editors to discuss reviews, revisions, and design feedback."}
+                </p>
+              </Card>
+
+              {/* Feature 4: Book Sales & 20% Royalties */}
+              <Card className="p-6 rounded-3xl border-2 border-border/80 bg-card shadow-md space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xl">
+                  📈
+                </div>
+                <h3 className="font-black text-base text-foreground">{isRtl ? "مبيعات الكتب ونسبة أرباح 20% فورية" : "Book Sales & 20% Royalty"}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {isRtl 
+                    ? "ربط كود المؤلف بكافة مبيعات متجر الكتب، واحتساب نسبة 20% تلقائياً مع كشف حساب دقيق لكل عملية."
+                    : "Automatic 20% royalty calculation linked to your author code for all digital and print bookstore sales."}
+                </p>
+              </Card>
+
+              {/* Feature 5: Payouts */}
+              <Card className="p-6 rounded-3xl border-2 border-border/80 bg-card shadow-md space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-xl">
+                  🏦
+                </div>
+                <h3 className="font-black text-base text-foreground">{isRtl ? "سحب الأموال والأرباح الفورية" : "Instant Royalties Payout"}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {isRtl 
+                    ? "اطلب سحب أرباحك في أي وقت لحسابك البنكي أو محفظتك الإلكترونية مع متابعة حالة التحويل."
+                    : "Request immediate payout withdrawals to your bank account or digital wallet with live status tracking."}
+                </p>
+              </Card>
+
+              {/* Feature 6: Security */}
+              <Card className="p-6 rounded-3xl border-2 border-border/80 bg-card shadow-md space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold text-xl">
+                  🔐
+                </div>
+                <h3 className="font-black text-base text-foreground">{isRtl ? "كلمة مرور مؤقتة وتأمين كامل" : "Temp Password & Security"}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {isRtl 
+                    ? "إنشاء حساب سهل وسريع بكلمة مرور مؤقتة مع إمكانية تعيين كلمة مرور دائمة في أي وقت."
+                    : "Instant author onboarding with temp password, easily updated to your personal permanent password."}
+                </p>
+              </Card>
+
+            </div>
+
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------------- */}
+        {/* SECTION: FAQs Accordion */}
+        {/* ------------------------------------------------------------- */}
+        <section className="py-16 sm:py-20 px-4 sm:px-8 md:px-12 max-w-4xl mx-auto w-full space-y-8">
+          <div className="text-center space-y-2">
+            <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 font-bold px-3 py-1 text-xs">
+              {isRtl ? "الأسئلة الشائعة" : "FAQ"}
             </Badge>
-            <h2 className="text-2xl sm:text-4xl font-black">
-              {isRtl ? "كل ما تود معرفته عن منصة ناشر" : "Frequently Asked Questions"}
+            <h2 className="text-2xl sm:text-3xl font-black text-foreground">
+              {isRtl ? "الأسئلة الأكثر تداولاً عن منصة نشر" : "Frequently Asked Questions"}
             </h2>
           </div>
 
           <Accordion type="single" collapsible className="w-full space-y-3">
             {faqs.map((faq, idx) => (
-              <AccordionItem key={idx} value={`faq-${idx}`} className="border border-border/60 bg-card rounded-xl px-4">
-                <AccordionTrigger className="text-sm sm:text-base font-bold text-start hover:no-underline">
+              <AccordionItem
+                key={idx}
+                value={`faq-${idx}`}
+                className="border-2 border-border/80 bg-card rounded-2xl px-5 shadow-xs data-[state=open]:border-amber-500/40"
+              >
+                <AccordionTrigger className="text-xs sm:text-sm font-black text-foreground hover:no-underline py-4 text-start">
                   {isRtl ? faq.qAr : faq.qEn}
                 </AccordionTrigger>
-                <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pt-2">
+                <AccordionContent className="text-xs text-muted-foreground leading-relaxed pb-4">
                   {isRtl ? faq.aAr : faq.aEn}
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
-        </div>
-      </section>
+        </section>
 
-      {/* Final CTA Banner */}
-      <section className="py-16 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white">
-        <div className="container mx-auto px-4 text-center space-y-6 max-w-3xl">
-          <h2 className="text-2xl sm:text-4xl font-black">
-            {isRtl ? "جاهز لنشر كتابك وتحقيق أعلى عائد وأفضل حماية؟" : "Ready to Publish With Full Protection & Maximum Royalties?"}
-          </h2>
-          <p className="text-amber-100 text-sm sm:text-base leading-relaxed font-medium">
-            {isRtl
-              ? "انضم لمئات الكتّاب ودور النشر الرائدة وابدأ صياغة عقودك بضمان قانوني كامل وحصرية تسويقية عبر UNIGATES."
-              : "Join hundreds of leading authors and certified publishing houses with legally guaranteed escrow and exclusive distribution."}
-          </p>
-          <div className="pt-2 flex flex-wrap justify-center gap-4">
-            <Link to="/nasher/dashboard?tab=submit">
-              <Button
-                size="lg"
-                className="bg-white text-orange-600 hover:bg-white/90 font-black px-8 h-12 rounded-xl shadow-lg"
-              >
-                <PenTool className="w-5 h-5 me-2" />
-                {isRtl ? "ابدأ بطرح نبذة كتابك الآن" : "Submit Manuscript Now"}
-              </Button>
-            </Link>
-            <Link to="/book-store">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/40 text-white hover:bg-white/10 font-black h-12 rounded-xl"
-              >
-                <BookOpen className="w-5 h-5 me-2" />
-                {isRtl ? "زيارة متجر كتب UNIGATES" : "Visit UNIGATES Store"}
-              </Button>
-            </Link>
+        {/* ------------------------------------------------------------- */}
+        {/* SECTION: Final CTA Callout */}
+        {/* ------------------------------------------------------------- */}
+        <section className="px-4 sm:px-8 md:px-12 pb-16 max-w-7xl mx-auto w-full">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-amber-600 via-orange-600 to-rose-700 p-8 sm:p-12 text-white text-center shadow-2xl space-y-6">
+            <div className="max-w-2xl mx-auto space-y-3">
+              <h2 className="text-2xl sm:text-4xl font-black tracking-tight">
+                {isRtl ? "هل أنت مستعد لنشر مؤلفك وتوثيق حقوقك؟" : "Ready to Publish Your Next Book?"}
+              </h2>
+              <p className="text-xs sm:text-base text-white/90 font-medium leading-relaxed">
+                {isRtl
+                  ? "انضم الآن إلى منصة نشر، واستفد من خدمات التدقيق الأكاديمي، الطباعة الفاخرة، والتوزيع الحصري مع نسبة أرباح 20% فورية."
+                  : "Join Nashr Platform today, benefit from Dar Obeid publishing workflows, and earn 20% royalties on every sale."}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <Link to="/nasher/signup">
+                <Button size="lg" className="h-12 px-8 font-black text-sm sm:text-base rounded-2xl bg-white hover:bg-slate-100 text-amber-700 shadow-xl gap-2 hover:scale-105 transition-all">
+                  <PenTool className="w-5 h-5 text-amber-600" />
+                  {isRtl ? "تسجيل مؤلف جديد الآن ➔" : "Register as Author ➔"}
+                </Button>
+              </Link>
+              <Link to="/nasher/login">
+                <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-black/20 hover:bg-black/30 text-white border-white/40 backdrop-blur-md">
+                  {isRtl ? "تسجيل الدخول" : "Sign In"}
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
         <SiteFooter />
       </div>

@@ -28,7 +28,7 @@ describe("AI Chat Widget Onboarding Guidance & Link Resolution", () => {
   });
 
   it("should correctly parse markdown links from AI response text including career and nasher portals", () => {
-    const aiResponse = "يمكنك [تسجيل كلية جديدة](/signup/college/admin) أو [استعراض الوظائف](/career) أو [منصة ناشر](/nasher) مباشرة.";
+    const aiResponse = "يمكنك [تسجيل كلية جديدة](/signup/college/admin) أو [استعراض الوظائف](/career) أو [منصة نشر](/nasher) مباشرة.";
     const linkRegex = /\[(.*?)\]\((.*?)\)/g;
 
     const matches = [];
@@ -40,6 +40,6 @@ describe("AI Chat Widget Onboarding Guidance & Link Resolution", () => {
     expect(matches).toHaveLength(3);
     expect(matches[0]).toEqual({ label: "تسجيل كلية جديدة", url: "/signup/college/admin" });
     expect(matches[1]).toEqual({ label: "استعراض الوظائف", url: "/career" });
-    expect(matches[2]).toEqual({ label: "منصة ناشر", url: "/nasher" });
+    expect(matches[2]).toEqual({ label: "منصة نشر", url: "/nasher" });
   });
 });

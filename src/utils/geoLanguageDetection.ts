@@ -4,8 +4,109 @@ const STORAGE_KEY = "unigates_language";
 const MANUAL_SET_KEY = "unigates_language_manually_set";
 
 /**
- * Maps browser locale string (e.g. "ar-SA", "en-US", "en-GB")
- * to the nearest supported UNIGATES Language code (en, ar).
+ * All 22 Arab League & Middle East country codes (ISO 3166-1 alpha-2)
+ */
+export const ARABIC_COUNTRY_CODES = new Set([
+  "EG", // مصر (Egypt)
+  "SA", // السعودية (Saudi Arabia)
+  "AE", // الإمارات (United Arab Emirates)
+  "KW", // الكويت (Kuwait)
+  "QA", // قطر (Qatar)
+  "BH", // البحرين (Bahrain)
+  "OM", // سلطنة عمان (Oman)
+  "JO", // الأردن (Jordan)
+  "IQ", // العراق (Iraq)
+  "LB", // لبنان (Lebanon)
+  "SY", // سوريا (Syria)
+  "PS", // فلسطين (Palestine)
+  "YE", // اليمن (Yemen)
+  "SD", // السودان (Sudan)
+  "LY", // ليبيا (Libya)
+  "DZ", // الجزائر (Algeria)
+  "MA", // المغرب (Morocco)
+  "TN", // تونس (Tunisia)
+  "MR", // موريتانيا (Mauritania)
+  "SO", // الصومال (Somalia)
+  "DJ", // جيبوتي (Djibouti)
+  "KM", // جزر القمر (Comoros)
+]);
+
+/**
+ * Arabic & Middle East timezone keywords and cities
+ */
+const ARABIC_TIMEZONE_KEYWORDS = [
+  "cairo",
+  "egypt",
+  "riyadh",
+  "saudi",
+  "dubai",
+  "uae",
+  "abu_dhabi",
+  "kuwait",
+  "qatar",
+  "doha",
+  "bahrain",
+  "manama",
+  "muscat",
+  "oman",
+  "baghdad",
+  "iraq",
+  "amman",
+  "jordan",
+  "beirut",
+  "lebanon",
+  "damascus",
+  "syria",
+  "gaza",
+  "hebron",
+  "jerusalem",
+  "palestine",
+  "aden",
+  "sanaa",
+  "yemen",
+  "khartoum",
+  "sudan",
+  "tripoli",
+  "libya",
+  "casablanca",
+  "morocco",
+  "algiers",
+  "algeria",
+  "tunis",
+  "tunisia",
+  "nouakchott",
+  "mauritania",
+  "mogadishu",
+  "somalia",
+  "djibouti",
+  "comoro",
+  "africa/cairo",
+  "asia/riyadh",
+  "asia/dubai",
+  "asia/kuwait",
+  "asia/baghdad",
+  "asia/amman",
+  "asia/beirut",
+  "asia/damascus",
+  "asia/gaza",
+  "asia/hebron",
+  "asia/jerusalem",
+  "asia/qatar",
+  "asia/bahrain",
+  "asia/muscat",
+  "asia/aden",
+  "africa/khartoum",
+  "africa/tripoli",
+  "africa/casablanca",
+  "africa/algiers",
+  "africa/tunis",
+  "africa/nouakchott",
+  "africa/mogadishu",
+  "africa/djibouti"
+];
+
+/**
+ * Checks if the browser locale indicates Arabic (e.g. "ar", "ar-EG", "ar-SA")
  */
 export function detectLanguageFromBrowserLocale(): Language | null {
   try {
@@ -22,49 +123,27 @@ export function detectLanguageFromBrowserLocale(): Language | null {
     for (const rawLocale of candidateLocales) {
       if (!rawLocale) continue;
       const clean = rawLocale.toLowerCase().trim();
-
       if (clean.startsWith("ar")) return "ar";
-      if (clean.startsWith("en")) return "en";
     }
   } catch {
-    // Ignore any browser security/environment errors
+    // Ignore browser errors
   }
   return null;
 }
 
 /**
- * Maps system timezone (e.g. "Asia/Riyadh", "Africa/Cairo")
- * to the corresponding native Language code.
+ * Checks if the system timezone belongs to Egypt, the Middle East, or the Arab world
  */
 export function detectLanguageFromTimezone(): Language | null {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
     const lower = tz.toLowerCase();
 
-    // Arabic region timezones
-    if (
-      lower.includes("riyadh") ||
-      lower.includes("cairo") ||
-      lower.includes("dubai") ||
-      lower.includes("kuwait") ||
-      lower.includes("qatar") ||
-      lower.includes("bahrain") ||
-      lower.includes("muscat") ||
-      lower.includes("baghdad") ||
-      lower.includes("amman") ||
-      lower.includes("beirut") ||
-      lower.includes("damascus") ||
-      lower.includes("aden") ||
-      lower.includes("khartoum") ||
-      lower.includes("tripoli") ||
-      lower.includes("casablanca") ||
-      lower.includes("algiers") ||
-      lower.includes("tunis")
-    ) {
-      return "ar";
+    for (const city of ARABIC_TIMEZONE_KEYWORDS) {
+      if (lower.includes(city)) {
+        return "ar";
+      }
     }
-
-    return "en";
   } catch {
     // Ignore timezone error
   }
@@ -72,49 +151,132 @@ export function detectLanguageFromTimezone(): Language | null {
 }
 
 /**
- * Maps an ISO 3166-1 alpha-2 country code to English or Arabic.
+ * Maps an ISO country code to Arabic for Middle East & Arab nations, English for the rest of the world.
  */
 export function mapCountryCodeToLanguage(countryCode: string): Language {
+  if (!countryCode) return "en";
   const c = countryCode.toUpperCase().trim();
-
-  // Arabic countries
-  const arCountries = new Set([
-    "SA", "EG", "AE", "KW", "QA", "BH", "OM", "JO", "LB", "IQ", "YE",
-    "SY", "PS", "SD", "LY", "DZ", "MA", "TN", "MR", "SO", "DJ", "KM"
-  ]);
-  if (arCountries.has(c)) return "ar";
-
-  // Default English for all others
-  return "en";
-}
-
-/**
- * Determines the initial language for the visitor on load.
- * Primary: English, Secondary: Arabic.
- * Always defaults to English unless the user explicitly chose Arabic.
- */
-export function getInitialLanguage(): Language {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY) as Language;
-    const isManuallySet = localStorage.getItem(MANUAL_SET_KEY) === "true";
-    
-    // Only restore Arabic if the user explicitly/manually chose it
-    if (isManuallySet && saved === "ar") {
-      return "ar";
-    }
-  } catch {
-    // Fallback to English
+  if (ARABIC_COUNTRY_CODES.has(c)) {
+    return "ar";
   }
   return "en";
 }
 
 /**
- * Geo detection is disabled so that English remains the strict default for all visitors
- * unless the user manually switches the language from the UI.
+ * Determines the initial language for the visitor on load:
+ * 1. If the user explicitly clicked/chose a language in the UI (stored with manual flag), honor their choice.
+ * 2. If in Egypt, Middle East, or the Arab world (via timezone or locale) -> default to Arabic ("ar").
+ * 3. For the rest of the world -> default to English ("en").
+ */
+export function getInitialLanguage(): Language {
+  try {
+    const isManuallySet = localStorage.getItem(MANUAL_SET_KEY) === "true";
+    const saved = localStorage.getItem(STORAGE_KEY) as Language;
+
+    // 1. Explicit user manual selection
+    if (isManuallySet && (saved === "ar" || saved === "en")) {
+      return saved;
+    }
+
+    // 2. Middle East & Arab World Timezone detection
+    const tzLang = detectLanguageFromTimezone();
+    if (tzLang === "ar") {
+      return "ar";
+    }
+
+    // 3. Browser locale check (Arabic)
+    const localeLang = detectLanguageFromBrowserLocale();
+    if (localeLang === "ar") {
+      return "ar";
+    }
+  } catch {
+    // Fallback
+  }
+  
+  // Rest of the world defaults to English
+  return "en";
+}
+
+/**
+ * Background non-blocking GeoIP detection:
+ * Fetches the user's real country from reliable Geo-IP services.
+ * If in Egypt or Arab World -> Sets to Arabic ("ar").
+ * If in the rest of the world -> Sets to English ("en").
+ * Does not override if user has manually clicked a language switch.
  */
 export async function autoDetectGeoLanguageAsync(
-  _onLanguageDetected: (lang: Language) => void
+  onLanguageDetected: (lang: Language) => void
 ): Promise<void> {
-  // English is the primary default - no automatic override based on geo location.
-  return;
+  try {
+    if (typeof window !== "undefined") {
+      const isManuallySet = localStorage.getItem(MANUAL_SET_KEY) === "true";
+      if (isManuallySet) {
+        return;
+      }
+    }
+
+    let countryCode = "";
+
+    // Service 1: api.country.is (Fast and reliable)
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const res = await fetch("https://api.country.is", {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.country) countryCode = data.country;
+      }
+    } catch {
+      // Fallback
+    }
+
+    // Service 2: geojs.io
+    if (!countryCode) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        const res = await fetch("https://get.geojs.io/v1/ip/country.json", {
+          signal: controller.signal,
+          headers: { Accept: "application/json" },
+        });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.country) countryCode = data.country;
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    // Service 3: ipapi.co
+    if (!countryCode) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        const res = await fetch("https://ipapi.co/json/", {
+          signal: controller.signal,
+          headers: { Accept: "application/json" },
+        });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.country_code) countryCode = data.country_code;
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (countryCode) {
+      const detectedLang = mapCountryCodeToLanguage(countryCode);
+      onLanguageDetected(detectedLang);
+    }
+  } catch {
+    // Fail silently without disrupting user experience
+  }
 }

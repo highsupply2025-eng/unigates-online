@@ -43,7 +43,7 @@ const InstituteAdminSignup = () => {
   const [searchParams] = useSearchParams();
   const planParam = searchParams.get("plan");
   const [subscriptionPlan, setSubscriptionPlan] = useState(
-    CREDIT_TIERS.some((t) => t.id === planParam) ? planParam! : "welcome_gift"
+    ["free", "monthly", "annual"].includes(planParam || "") || CREDIT_TIERS.some((t) => t.id === planParam) ? planParam! : "welcome_gift"
   );
 
   const [instituteName, setInstituteName] = useState("");
@@ -323,11 +323,11 @@ const InstituteAdminSignup = () => {
 
             <Button
               size="sm"
-              variant="ghost"
+              variant="outline"
               onClick={goBack}
-              className="h-9 px-3 rounded-xl font-bold text-xs text-muted-foreground hover:text-foreground hover:bg-muted"
+              className="h-9 px-3.5 rounded-xl font-bold text-xs border-border bg-background/50 hover:bg-muted text-foreground/90 hover:text-foreground shadow-xs transition-all gap-1.5 hover:scale-105 active:scale-95"
             >
-              {isRtl ? <ArrowRight className="w-4 h-4 me-1" /> : <ArrowLeft className="w-4 h-4 me-1" />}
+              {isRtl ? <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground" />}
               <span>{isRtl ? "رجوع" : "Back"}</span>
             </Button>
           </div>

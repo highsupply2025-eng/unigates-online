@@ -7,7 +7,7 @@ describe("Homepage Enhancements & Ecosystem Architecture", () => {
       { id: "school", route: "/school-platform", titleAr: "المنصة المدرسية", titleEn: "School Platform" },
       { id: "courses", route: "/courses", titleAr: "أكاديمية الدورات", titleEn: "Courses Academy" },
       { id: "books", route: "/book-store", titleAr: "متجر الكتب الرقمي", titleEn: "Digital Book Store" },
-      { id: "nasher", route: "/nasher", titleAr: "منصة ناشر", titleEn: "Nasher Platform" },
+      { id: "nasher", route: "/nasher", titleAr: "منصة نشر", titleEn: "Nashr Platform" },
       { id: "career", route: "/career", titleAr: "منصة Career للتوظيف", titleEn: "Career & Talent Platform" },
     ];
 

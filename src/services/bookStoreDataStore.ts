@@ -27,6 +27,7 @@ const STORAGE_KEYS = {
   READER_PROFILE: "unigates_bookstore_reader_profile",
   READING_GOAL: "unigates_bookstore_reading_goal",
   WISHLIST: "unigates_bookstore_wishlist",
+  CURRENT_USER: "unigates_bookstore_current_session",
 };
 
 // Initial Rich Catalog
@@ -1423,6 +1424,29 @@ export class BookStoreDataStore {
         pointEquivalentEGP: 84,
         transactions: []
       };
+    }
+  }
+
+  // ==================== USER AUTH & SESSION MANAGEMENT ====================
+  static getCurrentSession(): { role: "reader" | "publisher"; name: string; email: string } | null {
+    if (typeof window === "undefined") return null;
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  static setCurrentSession(session: { role: "reader" | "publisher"; name: string; email: string }): void {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(session));
+    }
+  }
+
+  static logout(): void {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
     }
   }
 }

@@ -50,6 +50,17 @@ const BookStore = () => {
   const [selectedBookForBuy, setSelectedBookForBuy] = useState<BookStoreItem | null>(null);
   const [selectedFormat, setSelectedFormat] = useState<"digital" | "print">("digital");
   const [wishlist, setWishlist] = useState<string[]>(BookStoreDataStore.getWishlist());
+  const [currentSession, setCurrentSession] = useState<{ role: "reader" | "publisher"; name: string; email: string } | null>(
+    BookStoreDataStore.getCurrentSession()
+  );
+
+  const handleLogout = () => {
+    BookStoreDataStore.logout();
+    setCurrentSession(null);
+    toast({
+      title: isRtl ? "تم تسجيل الخروج بنجاح" : "Logged out successfully",
+    });
+  };
 
   const categories = [
     { id: "all", label: isRtl ? "الكل" : "All" },
@@ -119,21 +130,53 @@ const BookStore = () => {
             </div>
           </Link>
 
-          {/* Nav buttons */}
+          {/* Nav buttons based on Authentication State */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/book-store/reader-dashboard">
-              <Button size="sm" variant="outline" className="font-bold gap-1.5 h-9 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10">
-                <Library className="w-4 h-4 text-amber-500" />
-                <span className="hidden sm:inline">{isRtl ? "مكتبتي الرقمية (قارئ)" : "My Reader Library"}</span>
-              </Button>
-            </Link>
+            {currentSession ? (
+              <>
+                {currentSession.role === "publisher" ? (
+                  <Link to="/book-store/publisher-dashboard">
+                    <Button size="sm" variant="outline" className="font-bold gap-1.5 h-9 border-orange-500/40 text-orange-600 dark:text-orange-400 hover:bg-orange-500/10">
+                      <Building2 className="w-4 h-4 text-orange-500" />
+                      <span>{isRtl ? "استوديو الناشر" : "Publisher Studio"}</span>
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/book-store/reader-dashboard">
+                    <Button size="sm" variant="outline" className="font-bold gap-1.5 h-9 border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10">
+                      <Library className="w-4 h-4 text-amber-500" />
+                      <span>{isRtl ? "مكتبتي الرقمية" : "My Library"}</span>
+                    </Button>
+                  </Link>
+                )}
 
-            <Link to="/book-store/publisher-dashboard">
-              <Button size="sm" variant="outline" className="font-bold gap-1.5 h-9 border-border/60">
-                <Building2 className="w-4 h-4 text-orange-500" />
-                <span className="hidden md:inline">{isRtl ? "بوابة الناشر" : "Publisher Studio"}</span>
-              </Button>
-            </Link>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleLogout}
+                  className="text-xs font-bold text-muted-foreground hover:text-destructive h-9 px-2 gap-1"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{isRtl ? "خروج" : "Logout"}</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/book-store/login">
+                  <Button size="sm" variant="outline" className="font-bold gap-1.5 h-9 border-border/80 text-foreground hover:bg-muted">
+                    <LogIn className="w-4 h-4 text-amber-500" />
+                    <span>{isRtl ? "تسجيل الدخول" : "Login"}</span>
+                  </Button>
+                </Link>
+
+                <Link to="/book-store/signup">
+                  <Button size="sm" variant="outline" className="hidden sm:inline-flex font-bold gap-1.5 h-9 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10">
+                    <User className="w-4 h-4 text-amber-500" />
+                    <span>{isRtl ? "إنشاء حساب" : "Sign Up"}</span>
+                  </Button>
+                </Link>
+              </>
+            )}
 
             <Link to="/book-store/cart">
               <Button size="sm" className="font-bold gap-1.5 h-9 bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-500/20">

@@ -45,14 +45,24 @@ const BookStoreLogin = () => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      // If login succeeds or in demo fallback mode, redirect to selected dashboard
+      BookStoreDataStore.setCurrentSession({
+        role: selectedPortal,
+        name: email.split("@")[0] || (selectedPortal === "publisher" ? "دار عبيد للنشر" : "قارئ متميز"),
+        email: email
+      });
+
       if (selectedPortal === "publisher") {
         navigate("/book-store/publisher-dashboard");
       } else {
         navigate("/book-store/reader-dashboard");
       }
     } catch (error: any) {
-      // In demo mode, redirect gracefully
+      BookStoreDataStore.setCurrentSession({
+        role: selectedPortal,
+        name: email.split("@")[0] || (selectedPortal === "publisher" ? "دار عبيد للنشر" : "قارئ متميز"),
+        email: email
+      });
+
       if (selectedPortal === "publisher") {
         navigate("/book-store/publisher-dashboard");
       } else {

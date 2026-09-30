@@ -34,7 +34,7 @@ import {
   Tag,
   Gift,
   Check,
-  AlertCircle
+  AlertCircle,
   Crown, Coins, Bot, Users, Headphones, Package,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

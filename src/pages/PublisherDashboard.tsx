@@ -36,7 +36,7 @@ import {
   Zap,
   Eye,
   ScanLine,
-  FileSpreadsheet
+  FileSpreadsheet,
   Crown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

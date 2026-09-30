@@ -52,8 +52,8 @@ export function isPlatformUnderDevelopment(
   platform: PlatformKey,
   customHostname?: string
 ): boolean {
-  // University Platform, Courses Academy, and Nashr Platform are always active & live across all domains
-  if (platform === "university" || platform === "courses" || platform === "nasher" || platform === "nashr") {
+  // Courses Academy and Nashr Platform are always active & live across all domains
+  if (platform === "courses" || platform === "nasher" || platform === "nashr") {
     return false;
   }
 
@@ -138,11 +138,22 @@ export function getPlatformMeta(platform: PlatformKey, isRtl: boolean) {
           ? ["محرك بحث وفلترة ذكية للوظائف", "تقديم رقمي مباشر بملف واحد", "فرص تدريب تعاوني حصرية (Co-op)", "استوديو نشر الوظائف للمؤسسات"]
           : ["Smart Job Search & Filters", "Instant 1-Click Digital Apply", "Exclusive Co-op Internships", "Employer Job Posting Hub"],
       };
+    case "university":
+      return {
+        name: isRtl ? "المنصة الجامعية (كليات ومعاهد)" : "University Platform (Colleges & Institutes)",
+        badge: isRtl ? "التعليم العالي والجامعي" : "Higher Education",
+        desc: isRtl
+          ? "بيئة أكاديمية متكاملة لإدارة الكليات والمعاهد وأقسامها، مصممة للعمداء، الوكلاء، رؤساء الأقسام، أعضاء هيئة التدريس، والطلاب."
+          : "Smart academic management for colleges, institutes, deans, department heads, faculty members, and students.",
+        expectedFeatures: isRtl
+          ? ["سلاسل الاعتماد الرقمي للاختبارات والجداول", "استوديو رصد التكليفات والواجبات المستقل", "تقييمات الطلاب واستطلاعات الجودة المجهولة", "الفصول الذكية والبث المباشر عالي الدقة"]
+          : ["Digital Exam Approval Chains", "Autonomous Assignment Studio", "100% Anonymous Quality Ratings", "Interactive Live Classrooms"],
+      };
     default:
       return {
         name: isRtl ? "المنصة الجامعية" : "University Platform",
         badge: isRtl ? "التعليم العالي" : "Higher Education",
-        desc: isRtl ? "المنصة الجامعية المعتمدة والنشطة حالياً." : "The active university platform.",
+        desc: isRtl ? "المنصة الجامعية المعتمدة." : "The university platform.",
         expectedFeatures: [],
       };
   }

@@ -2,13 +2,8 @@ import { describe, it, expect } from "vitest";
 import { isPlatformUnderDevelopment, getPlatformMeta } from "@/lib/platformAvailability";
 
 describe("UniGates Platform Availability & Environment Controller", () => {
-  describe("1. University, Courses & Nashr Platforms (Active & Live Everywhere)", () => {
-    it("remains 100% active and live across all domains including production for University, Courses and Nashr", () => {
-      expect(isPlatformUnderDevelopment("university", "unigates.online")).toBe(false);
-      expect(isPlatformUnderDevelopment("university", "www.unigates.online")).toBe(false);
-      expect(isPlatformUnderDevelopment("university", "localhost")).toBe(false);
-      expect(isPlatformUnderDevelopment("university", "preview.lovable.app")).toBe(false);
-
+  describe("1. Courses & Nashr Platforms (Active & Live Everywhere)", () => {
+    it("remains 100% active and live across all domains including production for Courses and Nashr", () => {
       expect(isPlatformUnderDevelopment("courses", "unigates.online")).toBe(false);
       expect(isPlatformUnderDevelopment("courses", "www.unigates.online")).toBe(false);
       expect(isPlatformUnderDevelopment("courses", "localhost")).toBe(false);
@@ -27,7 +22,10 @@ describe("UniGates Platform Availability & Environment Controller", () => {
   });
 
   describe("2. Production Domain (unigates.online) - Under Development Mode", () => {
-    it("marks School, Book Store, and Career Platforms as under development on unigates.online", () => {
+    it("marks University, School, Book Store, and Career Platforms as under development on unigates.online", () => {
+      expect(isPlatformUnderDevelopment("university", "unigates.online")).toBe(true);
+      expect(isPlatformUnderDevelopment("university", "www.unigates.online")).toBe(true);
+
       expect(isPlatformUnderDevelopment("school", "unigates.online")).toBe(true);
       expect(isPlatformUnderDevelopment("school", "www.unigates.online")).toBe(true);
 
@@ -41,9 +39,11 @@ describe("UniGates Platform Availability & Environment Controller", () => {
 
   describe("3. Lovable & Development Environments - Kept OPEN for ongoing development", () => {
     it("keeps all platforms OPEN on localhost and 127.0.0.1", () => {
+      expect(isPlatformUnderDevelopment("university", "localhost")).toBe(false);
       expect(isPlatformUnderDevelopment("school", "localhost")).toBe(false);
       expect(isPlatformUnderDevelopment("courses", "localhost")).toBe(false);
       expect(isPlatformUnderDevelopment("bookstore", "localhost")).toBe(false);
+      expect(isPlatformUnderDevelopment("university", "127.0.0.1")).toBe(false);
       expect(isPlatformUnderDevelopment("school", "127.0.0.1")).toBe(false);
     });
 

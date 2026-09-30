@@ -16,6 +16,7 @@ const EcosystemPortals = () => {
   const isRtl = dir === "rtl";
   const { ref, isVisible } = useScrollAnimation();
 
+  const isUniDev = isPlatformUnderDevelopment("university");
   const isSchoolDev = isPlatformUnderDevelopment("school");
   const isCoursesDev = isPlatformUnderDevelopment("courses");
   const isBooksDev = isPlatformUnderDevelopment("bookstore");
@@ -504,8 +505,12 @@ const EcosystemPortals = () => {
     {
       id: "university",
       to: "/university-platform",
-      badge: translate("التعليم العالي والجامعي", "Higher Education"),
-      badgeColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+      badge: isUniDev
+        ? translate("قريباً • قيد التطوير", "Coming Soon • In Dev")
+        : translate("التعليم العالي والجامعي", "Higher Education"),
+      badgeColor: isUniDev
+        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+        : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
       title: uniContent.title,
       subtitle: uniContent.subtitle,
       icon: Landmark,
@@ -518,7 +523,9 @@ const EcosystemPortals = () => {
         { icon: Award, text: uniContent.f3 },
         { icon: Users, text: uniContent.f4 },
       ],
-      ctaText: translate("دخول المنصة الجامعية", "Explore University Portal"),
+      ctaText: isUniDev
+        ? translate("قريباً — استكشف المنصة الجامعية", "Coming Soon — Explore University")
+        : translate("دخول المنصة الجامعية", "Explore University Portal"),
       roles: uniContent.roles,
     },
     {

@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Loader2, ArrowRight, ArrowLeft,
   Eye, EyeOff, UserPlus, Mail, Lock,
-  Home
+  Home, Landmark
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

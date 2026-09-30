@@ -72,6 +72,9 @@ const BookStoreReadingClubsPage = lazy(() => import("./pages/BookStoreReadingClu
 const BookStoreAudiobooksPage = lazy(() => import("./pages/BookStoreAudiobooksPage"));
 const BookStoreBundlesPage = lazy(() => import("./pages/BookStoreBundlesPage"));
 const BookStoreGiftPage = lazy(() => import("./pages/BookStoreGiftPage"));
+const PublisherPromotionsPage = lazy(() => import("./pages/PublisherPromotionsPage"));
+const PublisherAnalyticsPage = lazy(() => import("./pages/PublisherAnalyticsPage"));
+const PublisherAntiCounterfeitPage = lazy(() => import("./pages/PublisherAntiCounterfeitPage"));
 const NasherPlatform = lazy(() => import("./pages/NasherPlatform"));
 const NasherDashboard = lazy(() => import("./pages/NasherDashboard"));
 const NasherLogin = lazy(() => import("./pages/NasherLogin"));
@@ -255,6 +258,9 @@ const App = () => (
               <Route path="/book-store/audiobooks" element={<BookStoreAudiobooksPage />} />
               <Route path="/book-store/bundles" element={<BookStoreBundlesPage />} />
               <Route path="/book-store/gift" element={<BookStoreGiftPage />} />
+              <Route path="/book-store/publisher/promotions" element={<PublisherPromotionsPage />} />
+              <Route path="/book-store/publisher/analytics" element={<PublisherAnalyticsPage />} />
+              <Route path="/book-store/publisher/anti-counterfeit" element={<PublisherAntiCounterfeitPage />} />
               {/* Nashr Platform (منصة نشر) */}
               <Route path="/nashr" element={<NasherPlatform />} />
               <Route path="/nashr/dashboard" element={<NasherDashboard />} />

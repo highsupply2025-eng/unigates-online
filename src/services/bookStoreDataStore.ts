@@ -6,7 +6,10 @@ import {
   PublisherSaleRecord, 
   PublisherPayoutRequest,
   CartItem,
-  ShippingAddress
+  ShippingAddress,
+  FlashSalePromotion,
+  BookReadingHeatmap,
+  AntiCounterfeitQRVerification
 } from "@/types/bookStore";
 
 const STORAGE_KEYS = {
@@ -943,5 +946,222 @@ export class BookStoreDataStore {
   static getReadingGoal() {
     const chal = this.getReadingChallenge();
     return { targetBooks: chal.targetBooks, completedBooks: chal.completedBooks, minutesReadToday: 35 };
+  }
+
+  // ==================== ADVANCED PUBLISHER STUDIO FEATURES ====================
+
+  // 1. Dynamic Flash Sales & Promotions
+  static getFlashSales(): FlashSalePromotion[] {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = localStorage.getItem("unigates_bookstore_flash_sales");
+      if (!stored) {
+        const initialSales: FlashSalePromotion[] = [
+          {
+            id: "sale-001",
+            bookId: "bk-dar-001",
+            bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات التعليمية",
+            discountPercentage: 25,
+            originalPrice: 150,
+            discountedPrice: 112.5,
+            durationHours: 48,
+            startDate: new Date().toISOString(),
+            endDate: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
+            status: "active",
+            notifiedWishlistCount: 68
+          },
+          {
+            id: "sale-002",
+            bookId: "bk-dar-002",
+            bookTitle: "أساسيات وتطبيقات الذكاء الاصطناعي التوليدي في الرعاية الصحية",
+            discountPercentage: 20,
+            originalPrice: 180,
+            discountedPrice: 144,
+            durationHours: 24,
+            startDate: new Date().toISOString(),
+            endDate: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+            status: "active",
+            notifiedWishlistCount: 94
+          }
+        ];
+        localStorage.setItem("unigates_bookstore_flash_sales", JSON.stringify(initialSales));
+        return initialSales;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  static createFlashSale(bookId: string, discountPercentage: number, durationHours: number): FlashSalePromotion {
+    const catalog = this.getCatalog();
+    const book = catalog.find((b) => b.id === bookId);
+    const originalPrice = book ? book.price_digital : 150;
+    const discountedPrice = Math.round(originalPrice * (1 - discountPercentage / 100));
+
+    const newSale: FlashSalePromotion = {
+      id: `sale-${Date.now()}`,
+      bookId,
+      bookTitle: book ? book.title_ar : "مرجع دار عبيد",
+      discountPercentage,
+      originalPrice,
+      discountedPrice,
+      durationHours,
+      startDate: new Date().toISOString(),
+      endDate: new Date(Date.now() + durationHours * 3600 * 1000).toISOString(),
+      status: "active",
+      notifiedWishlistCount: Math.floor(Math.random() * 45) + 30
+    };
+
+    const sales = this.getFlashSales();
+    const updatedSales = [newSale, ...sales];
+    if (typeof window !== "undefined") {
+      localStorage.setItem("unigates_bookstore_flash_sales", JSON.stringify(updatedSales));
+    }
+
+    // Auto-dispatch price drop alerts to wishlist readers
+    if (book) {
+      const alertId = `alert-sale-${Date.now()}`;
+      const alerts = this.getWishlistAlerts();
+      alerts.unshift({
+        id: alertId,
+        bookId: book.id,
+        bookTitle: book.title_ar,
+        type: "exclusive_discount",
+        oldPrice: originalPrice,
+        newPrice: discountedPrice,
+        discountPercent: discountPercentage,
+        date: "الآن",
+        isRead: false,
+        message_ar: `🔥 عرض فلاش سيل محدود! خصم ${discountPercentage}% على كتاب «${book.title_ar}» لمدة ${durationHours} ساعة فقط.`,
+        message_en: `🔥 Flash Sale Alert! ${discountPercentage}% OFF on "${book.title_en}" for ${durationHours} hours.`
+      });
+      localStorage.setItem("unigates_bookstore_wishlist_alerts", JSON.stringify(alerts));
+    }
+
+    return newSale;
+  }
+
+  // 2. Reading Heatmaps & In-Depth Chapter Analytics
+  static getReadingHeatmap(bookId?: string): BookReadingHeatmap {
+    return {
+      bookId: bookId || "bk-dar-001",
+      bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات التعليمية",
+      totalUniqueReaders: 428,
+      overallCompletionRate: 76.4,
+      totalHoursRead: 1840,
+      avgDailyMinutes: 38,
+      chaptersAnalytics: [
+        {
+          chapterId: "ch-1",
+          chapterTitleAr: "الفصل الأول: مدخل إلى حوكمة الجامعات والمؤسسات التعليمية",
+          chapterTitleEn: "Chapter 1: Intro to University Governance",
+          readersCount: 428,
+          averageMinutesSpent: 28,
+          completionRate: 94.2,
+          dropoffRate: 5.8,
+          highlightNotesCount: 312
+        },
+        {
+          chapterId: "ch-2",
+          chapterTitleAr: "الفصل الثاني: سلاسل التوقيع الرقمي الصارم ومتطلبات الأمان",
+          chapterTitleEn: "Chapter 2: Cryptographic Approval Chains",
+          readersCount: 395,
+          averageMinutesSpent: 42,
+          completionRate: 86.5,
+          dropoffRate: 13.5,
+          highlightNotesCount: 450
+        },
+        {
+          chapterId: "ch-3",
+          chapterTitleAr: "الفصل الثالث: استطلاعات الجودة المجهولة وأثرها على تقييم الأساتذة",
+          chapterTitleEn: "Chapter 3: Anonymous Quality Feedback",
+          readersCount: 327,
+          averageMinutesSpent: 22,
+          completionRate: 76.4,
+          dropoffRate: 23.6,
+          highlightNotesCount: 198
+        }
+      ]
+    };
+  }
+
+  // 3. Anti-Counterfeit Print Serial & QR Verification
+  static getAntiCounterfeitRecords(): AntiCounterfeitQRVerification[] {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = localStorage.getItem("unigates_bookstore_qr_records");
+      if (!stored) {
+        const initialRecords: AntiCounterfeitQRVerification[] = [
+          {
+            serialNumber: "OBEID-2026-98741",
+            bookId: "bk-dar-001",
+            bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات التعليمية",
+            edition: "الطبعة الأولى الفاخرة 2026",
+            printBatchNumber: "BATCH-EG-04",
+            printYear: 2026,
+            publisherName: "دار عبيد للنشر والتوزيع والطباعة",
+            isbn: "978-977-90-8812-4",
+            isVerifiedAuthentic: true,
+            verificationCount: 1,
+            generatedDate: "2026-03-20",
+            securityHash: "SHA256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+            distributionChannel: "المتجر الرسمي لمنصة UNIGATES — شحن مباشر"
+          },
+          {
+            serialNumber: "OBEID-2026-98742",
+            bookId: "bk-dar-002",
+            bookTitle: "أساسيات وتطبيقات الذكاء الاصطناعي التوليدي في الرعاية الصحية",
+            edition: "الطبعة الأكاديمية المعتمدة",
+            printBatchNumber: "BATCH-EG-08",
+            printYear: 2026,
+            publisherName: "دار عبيد للنشر والتوزيع والطباعة",
+            isbn: "978-977-90-9943-1",
+            isVerifiedAuthentic: true,
+            verificationCount: 2,
+            generatedDate: "2026-03-22",
+            securityHash: "SHA256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            distributionChannel: "المكتبات الجامعية المعتمدة — جناح معرض القاهرة للكتاب"
+          }
+        ];
+        localStorage.setItem("unigates_bookstore_qr_records", JSON.stringify(initialRecords));
+        return initialRecords;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  static generatePrintQRBatch(bookId: string, count: number, edition: string, batchNumber: string): AntiCounterfeitQRVerification[] {
+    const catalog = this.getCatalog();
+    const book = catalog.find((b) => b.id === bookId);
+    const existing = this.getAntiCounterfeitRecords();
+    const newRecords: AntiCounterfeitQRVerification[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const serialNum = `OBEID-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
+      newRecords.push({
+        serialNumber: serialNum,
+        bookId: book ? book.id : "bk-dar-001",
+        bookTitle: book ? book.title_ar : "مؤلفات دار عبيد",
+        edition: edition || "الطبعة الرسمية الأولى",
+        printBatchNumber: batchNumber || `BATCH-EG-${Math.floor(10 + Math.random() * 90)}`,
+        printYear: 2026,
+        publisherName: "دار عبيد للنشر والتوزيع والطباعة",
+        isbn: book ? book.isbn : "978-977-90-0000-0",
+        isVerifiedAuthentic: true,
+        verificationCount: 0,
+        generatedDate: new Date().toISOString().split("T")[0],
+        securityHash: `SHA256:${Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`,
+        distributionChannel: "مستودعات الطباعة المعتمدة — دار عبيد & UNIGATES"
+      });
+    }
+
+    const updated = [...newRecords, ...existing];
+    if (typeof window !== "undefined") {
+      localStorage.setItem("unigates_bookstore_qr_records", JSON.stringify(updated));
+    }
+    return newRecords;
   }
 }

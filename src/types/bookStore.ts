@@ -166,6 +166,57 @@ export interface WishlistAlert {
   message_en: string;
 }
 
+export interface FlashSalePromotion {
+  id: string;
+  bookId: string;
+  bookTitle: string;
+  discountPercentage: number;
+  originalPrice: number;
+  discountedPrice: number;
+  durationHours: number;
+  startDate: string;
+  endDate: string;
+  status: "active" | "scheduled" | "expired";
+  notifiedWishlistCount: number;
+}
+
+export interface ChapterReadingAnalytics {
+  chapterId: string;
+  chapterTitleAr: string;
+  chapterTitleEn: string;
+  readersCount: number;
+  averageMinutesSpent: number;
+  completionRate: number; // percentage e.g. 88%
+  dropoffRate: number; // e.g. 12%
+  highlightNotesCount: number;
+}
+
+export interface BookReadingHeatmap {
+  bookId: string;
+  bookTitle: string;
+  totalUniqueReaders: number;
+  overallCompletionRate: number;
+  totalHoursRead: number;
+  avgDailyMinutes: number;
+  chaptersAnalytics: ChapterReadingAnalytics[];
+}
+
+export interface AntiCounterfeitQRVerification {
+  serialNumber: string;
+  bookId: string;
+  bookTitle: string;
+  edition: string;
+  printBatchNumber: string;
+  printYear: number;
+  publisherName: string;
+  isbn: string;
+  isVerifiedAuthentic: boolean;
+  verificationCount: number;
+  generatedDate: string;
+  securityHash: string;
+  distributionChannel: string;
+}
+
 export interface ReadingChallengeData {
   targetBooks: number;
   completedBooks: number;

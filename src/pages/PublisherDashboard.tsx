@@ -27,7 +27,16 @@ import {
   ShieldCheck,
   Check,
   Package,
-  Store
+  Store,
+  Flame,
+  QrCode,
+  LineChart,
+  Activity,
+  Timer,
+  Zap,
+  Eye,
+  ScanLine,
+  FileSpreadsheet
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -323,6 +332,78 @@ export const PublisherDashboard: React.FC = () => {
                 {isRtl ? "تم تحويلها لحسابك" : "Disbursed to bank"}
               </p>
             </Card>
+          </div>
+
+          {/* Publisher Pro Features Hub (إمكانيات متقدمة لدور النشر - قريباً باقات مدفوعة) */}
+          <div className="pt-2">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-orange-500/10 via-purple-500/10 to-emerald-500/10 border border-orange-500/30 space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-orange-600 text-white flex items-center justify-center font-bold">
+                    <Crown className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-black text-foreground">
+                      {isRtl ? "إمكانيات متقدمة لدار النشر (Publisher Pro Suite • قريباً باقة مدفوعة)" : "Publisher Pro Suite (Coming Soon • Paid Tier)"}
+                    </h3>
+                    <p className="text-[11px] text-muted-foreground">
+                      {isRtl ? "أدوات متطورة لزيادة المبيعات، تحليل تفاعل القراء، وحماية المطبوعات الورقية من التزوير" : "Advanced growth tools, chapter heatmaps, and physical anti-counterfeit QR security"}
+                    </p>
+                  </div>
+                </div>
+                <Badge className="bg-orange-600 text-white text-[10px] font-black">
+                  {isRtl ? "قريباً جداً 🚀" : "Coming Soon 🚀"}
+                </Badge>
+              </div>
+
+              {/* 3 Advanced Features Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                <Link to="/book-store/publisher/promotions" className="group">
+                  <div className="p-3.5 rounded-xl bg-card/80 hover:bg-card border border-orange-500/20 hover:border-orange-500/60 transition-all flex items-center gap-3 h-full">
+                    <div className="w-9 h-9 rounded-lg bg-orange-500/15 text-orange-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Flame className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-black text-foreground truncate">{isRtl ? "أداة التسعير والفلاش سيل" : "Flash Sales & Pricing"}</p>
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 border-orange-500/40 text-orange-600">قريباً</Badge>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "تخفيضات محددة بوقت وتنبيه قائمة الرغبات" : "Timed discounts & wishlist alerts"}</p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link to="/book-store/publisher/analytics" className="group">
+                  <div className="p-3.5 rounded-xl bg-card/80 hover:bg-card border border-purple-500/20 hover:border-purple-500/60 transition-all flex items-center gap-3 h-full">
+                    <div className="w-9 h-9 rounded-lg bg-purple-500/15 text-purple-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <BarChart3 className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-black text-foreground truncate">{isRtl ? "تحليلات القراءة والخرائط الحرارية" : "Reading Heatmaps"}</p>
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 border-purple-500/40 text-purple-600">قريباً</Badge>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "الفصول الأكثر قراءة ومعدل الإكمال" : "Chapter telemetry & drop-off rate"}</p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link to="/book-store/publisher/anti-counterfeit" className="group">
+                  <div className="p-3.5 rounded-xl bg-card/80 hover:bg-card border border-emerald-500/20 hover:border-emerald-500/60 transition-all flex items-center gap-3 h-full">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <QrCode className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-black text-foreground truncate">{isRtl ? "مكافحة التزوير وكود التحقق QR" : "Anti-Counterfeit QR"}</p>
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 border-emerald-500/40 text-emerald-600">قريباً</Badge>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "رقم تسلسلي للتحقق من النسخ المطبوعة" : "Serialized validation for print books"}</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -27,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSmartBack } from "@/hooks/use-smart-back";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
 import { CartItem, ShippingAddress, BookOrder } from "@/types/bookStore";
 import SiteFooter from "@/components/SiteFooter";
@@ -38,7 +39,9 @@ export const BookStoreCartCheckout: React.FC = () => {
   const isRtl = dir === "rtl";
   const { toast } = useToast();
   const navigate = useNavigate();
+  const goBack = useSmartBack("/book-store");
 
+  const currentSession = BookStoreDataStore.getCurrentSession();
   const [cart, setCart] = useState<CartItem[]>(BookStoreDataStore.getCart());
   const [deliveryMethod, setDeliveryMethod] = useState<"standard" | "express" | "vip_doorstep">("express");
   const [paymentMethod, setPaymentMethod] = useState<"credit_card" | "instapay" | "fawry" | "vodafone_cash" | "cod">("credit_card");
@@ -177,18 +180,31 @@ export const BookStoreCartCheckout: React.FC = () => {
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       {/* Top Header */}
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/book-store" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-0.5 shadow-md flex items-center justify-center text-white">
-              <ShoppingBag className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xl font-black text-foreground">UNIGATES</span>
-              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                {isRtl ? "سلة الشراء وإتمام الدفع" : "Cart & Checkout"}
-              </p>
-            </div>
-          </Link>
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goBack}
+              className="font-bold gap-1.5 h-9 px-2.5 sm:px-3 border-border/80 text-foreground hover:bg-muted rounded-xl"
+              title={isRtl ? "رجوع لمتجر الكتب" : "Back to Store"}
+            >
+              {isRtl ? <ArrowRight className="w-4 h-4 text-amber-500" /> : <ArrowLeft className="w-4 h-4 text-amber-500" />}
+              <span>{isRtl ? "رجوع" : "Back"}</span>
+            </Button>
+
+            <Link to="/book-store" className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-0.5 shadow-md flex items-center justify-center text-white">
+                <ShoppingBag className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-xl font-black text-foreground">UNIGATES</span>
+                <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                  {isRtl ? "سلة الشراء وإتمام الدفع" : "Cart & Checkout"}
+                </p>
+              </div>
+            </Link>
+          </div>
           <div className="flex items-center gap-2">
             <LanguageSelectorDropdown className="h-9 px-3" />
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
@@ -198,7 +214,39 @@ export const BookStoreCartCheckout: React.FC = () => {
 
       {/* Main Cart & Checkout Container */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-8 py-8">
-        {cart.length === 0 ? (
+        {!currentSession ? (
+          <Card className="text-center p-10 sm:p-14 max-w-lg mx-auto border-amber-500/30 shadow-lg bg-card/90">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-500/30">
+              <Lock className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-black text-foreground mb-2">
+              {isRtl ? "سلة الشراء تتطلب تسجيل الدخول" : "Login Required"}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+              {isRtl
+                ? "لإتمام عمليات الشراء، حفظ الكتب المشفرة في مكتبتك الرقمية (DRM)، وتتبع الشحن، يرجى تسجيل الدخول بحساب القارئ أو إنشاء حساب جديد."
+                : "To place orders, access DRM-encrypted e-books, and track shipping, please sign in or create an account."}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link to="/book-store/login" className="w-full sm:w-auto">
+                <Button className="w-full font-bold bg-amber-600 hover:bg-amber-700 text-white gap-2 shadow-md">
+                  <span>{isRtl ? "تسجيل الدخول" : "Sign In"}</span>
+                </Button>
+              </Link>
+              <Link to="/book-store/signup" className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full font-bold border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10">
+                  <span>{isRtl ? "إنشاء حساب جديد" : "Create Account"}</span>
+                </Button>
+              </Link>
+            </div>
+            <div className="mt-6 pt-4 border-t border-border/40">
+              <Button variant="ghost" size="sm" onClick={goBack} className="text-xs font-bold text-muted-foreground gap-1">
+                {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+                <span>{isRtl ? "العودة لمتجر الكتب" : "Back to Store"}</span>
+              </Button>
+            </div>
+          </Card>
+        ) : cart.length === 0 ? (
           <Card className="text-center p-16 border-dashed">
             <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-xl font-black text-foreground mb-2">

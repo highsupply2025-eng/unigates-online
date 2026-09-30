@@ -52,12 +52,14 @@ import { ReaderEbookModal } from "@/components/bookstore/ReaderEbookModal";
 import SiteFooter from "@/components/SiteFooter";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useSmartBack } from "@/hooks/use-smart-back";
 
 export const ReaderDashboard: React.FC = () => {
   const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
   const { toast } = useToast();
   const navigate = useNavigate();
+  const goBack = useSmartBack("/book-store");
 
   const [purchasedBooks, setPurchasedBooks] = useState<PurchasedBook[]>(
     BookStoreDataStore.getPurchasedBooks()
@@ -127,7 +129,18 @@ export const ReaderDashboard: React.FC = () => {
       {/* Top Header */}
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/60 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goBack}
+              className="font-bold gap-1.5 h-9 px-2.5 sm:px-3 border-border/80 text-foreground hover:bg-muted rounded-xl"
+              title={isRtl ? "رجوع لمتجر الكتب" : "Back to Store"}
+            >
+              {isRtl ? <ArrowRight className="w-4 h-4 text-amber-500" /> : <ArrowLeft className="w-4 h-4 text-amber-500" />}
+              <span>{isRtl ? "رجوع" : "Back"}</span>
+            </Button>
+
             <Link to="/book-store" className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 p-0.5 shadow-md flex items-center justify-center text-white">
                 <BookOpen className="w-5 h-5" />

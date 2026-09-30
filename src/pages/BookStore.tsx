@@ -32,6 +32,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useSmartBack } from "@/hooks/use-smart-back";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
 import { BookStoreItem, BookFormat } from "@/types/bookStore";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
@@ -42,6 +43,7 @@ const BookStore = () => {
   const isRtl = dir === "rtl";
   const { toast } = useToast();
   const navigate = useNavigate();
+  const goBack = useSmartBack("/");
   const [searchParams] = useSearchParams();
 
   const [catalog, setCatalog] = useState<BookStoreItem[]>(BookStoreDataStore.getCatalog());
@@ -94,12 +96,32 @@ const BookStore = () => {
   };
 
   const handleOpenBuyDialog = (book: BookStoreItem, defaultFormat: "digital" | "print" = "digital") => {
+    if (!currentSession) {
+      toast({
+        title: isRtl ? "يرجى تسجيل الدخول أولاً" : "Please Login First",
+        description: isRtl
+          ? "يجب تسجيل الدخول كقارئ للتمكن من إضافة الكتب لسلة الشراء وإتمام الطلب."
+          : "Please log in to your reader account to add books to your cart and checkout.",
+      });
+      navigate("/book-store/login");
+      return;
+    }
     setSelectedBookForBuy(book);
     setSelectedFormat(defaultFormat);
   };
 
   const handleProceedToCartOrCheckout = () => {
     if (!selectedBookForBuy) return;
+    if (!currentSession) {
+      toast({
+        title: isRtl ? "يرجى تسجيل الدخول أولاً" : "Please Login First",
+        description: isRtl
+          ? "يجب تسجيل الدخول للوصول إلى سلة الشراء."
+          : "Please log in to access the cart.",
+      });
+      navigate("/book-store/login");
+      return;
+    }
     BookStoreDataStore.addToCart(selectedBookForBuy, selectedFormat, 1);
     setSelectedBookForBuy(null);
 
@@ -118,17 +140,30 @@ const BookStore = () => {
       {/* Top Header */}
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-md sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          <Link to="/book-store" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 p-0.5 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center text-white">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xl font-black text-foreground tracking-tight">UNIGATES</span>
-              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                {isRtl ? "متجر الكتب والمكتبة الرقمية • دار عبيد" : "Book Store & Dar Obeid Publishing"}
-              </p>
-            </div>
-          </Link>
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goBack}
+              className="font-bold gap-1.5 h-9 px-2.5 sm:px-3 border-border/80 text-foreground hover:bg-muted rounded-xl"
+              title={isRtl ? "الرجوع للبوابة الرئيسية" : "Back to Main Portal"}
+            >
+              {isRtl ? <ArrowRight className="w-4 h-4 text-amber-500" /> : <ArrowLeft className="w-4 h-4 text-amber-500" />}
+              <span>{isRtl ? "رجوع" : "Back"}</span>
+            </Button>
+
+            <Link to="/book-store" className="flex items-center gap-2.5 group">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 p-0.5 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center text-white">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-xl font-black text-foreground tracking-tight">UNIGATES</span>
+                <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                  {isRtl ? "متجر الكتب والمكتبة الرقمية • دار عبيد" : "Book Store & Dar Obeid Publishing"}
+                </p>
+              </div>
+            </Link>
+          </div>
 
           {/* Nav buttons based on Authentication State */}
           <div className="flex items-center gap-2 sm:gap-3">
@@ -149,6 +184,14 @@ const BookStore = () => {
                     </Button>
                   </Link>
                 )}
+
+                {/* Cart button only displayed when user is logged in */}
+                <Link to="/book-store/cart">
+                  <Button size="sm" className="font-bold gap-1.5 h-9 bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-500/20">
+                    <ShoppingCart className="w-4 h-4" />
+                    <span>{isRtl ? "السلة" : "Cart"}</span>
+                  </Button>
+                </Link>
 
                 <Button
                   size="sm"
@@ -177,13 +220,6 @@ const BookStore = () => {
                 </Link>
               </>
             )}
-
-            <Link to="/book-store/cart">
-              <Button size="sm" className="font-bold gap-1.5 h-9 bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-500/20">
-                <ShoppingCart className="w-4 h-4" />
-                <span>{isRtl ? "السلة" : "Cart"}</span>
-              </Button>
-            </Link>
 
             <LanguageSelectorDropdown className="h-9 px-3" />
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />

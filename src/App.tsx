@@ -67,6 +67,11 @@ const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
 const ReaderDashboard = lazy(() => import("./pages/ReaderDashboard"));
 const PublisherDashboard = lazy(() => import("./pages/PublisherDashboard"));
 const BookStoreCartCheckout = lazy(() => import("./pages/BookStoreCartCheckout"));
+const BookStoreAICompanionPage = lazy(() => import("./pages/BookStoreAICompanionPage"));
+const BookStoreReadingClubsPage = lazy(() => import("./pages/BookStoreReadingClubsPage"));
+const BookStoreAudiobooksPage = lazy(() => import("./pages/BookStoreAudiobooksPage"));
+const BookStoreBundlesPage = lazy(() => import("./pages/BookStoreBundlesPage"));
+const BookStoreGiftPage = lazy(() => import("./pages/BookStoreGiftPage"));
 const NasherPlatform = lazy(() => import("./pages/NasherPlatform"));
 const NasherDashboard = lazy(() => import("./pages/NasherDashboard"));
 const NasherLogin = lazy(() => import("./pages/NasherLogin"));
@@ -244,6 +249,12 @@ const App = () => (
               <Route path="/book-store/cart" element={<BookStoreCartCheckout />} />
               <Route path="/book-store/checkout" element={<BookStoreCartCheckout />} />
               <Route path="/book-store/payment" element={<BookStoreCartCheckout />} />
+              <Route path="/book-store/reader/dashboard" element={<ReaderDashboard />} />
+              <Route path="/book-store/ai-companion" element={<BookStoreAICompanionPage />} />
+              <Route path="/book-store/reading-clubs" element={<BookStoreReadingClubsPage />} />
+              <Route path="/book-store/audiobooks" element={<BookStoreAudiobooksPage />} />
+              <Route path="/book-store/bundles" element={<BookStoreBundlesPage />} />
+              <Route path="/book-store/gift" element={<BookStoreGiftPage />} />
               {/* Nashr Platform (منصة نشر) */}
               <Route path="/nashr" element={<NasherPlatform />} />
               <Route path="/nashr/dashboard" element={<NasherDashboard />} />

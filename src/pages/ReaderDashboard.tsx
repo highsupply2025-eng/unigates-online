@@ -278,6 +278,91 @@ export const ReaderDashboard: React.FC = () => {
                 <p className="text-xl font-black text-foreground">{alerts.length}</p>
               </div>
             </Card>
+          {/* Smart Reader Features Hub (المميزات الذكية - قريباً باقة مدفوعة) */}
+          <div className="pt-2">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-blue-500/10 border border-amber-500/30 space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-black text-foreground">
+                      {isRtl ? "المميزات الذكية للقارئ (قريباً • باقات بريميوم مدفوعة)" : "Smart Reader Ecosystem (Coming Soon • Premium Tiers)"}
+                    </h3>
+                    <p className="text-[11px] text-muted-foreground">
+                      {isRtl ? "استكشف الأدوات الذكية الإضافية المخصصة لتسهيل المطالعة والبحث الأكاديمي" : "Explore smart reader add-ons designed for academic excellence"}
+                    </p>
+                  </div>
+                </div>
+                <Badge className="bg-amber-600 text-white text-[10px] font-black">
+                  {isRtl ? "قريباً جداً 🚀" : "Coming Soon 🚀"}
+                </Badge>
+              </div>
+
+              {/* 5 Smart Features Pills */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1">
+                <Link to="/book-store/ai-companion" className="group">
+                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-amber-500/20 hover:border-amber-500/60 transition-all flex items-center gap-2.5 h-full">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Bot className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "المساعد الذكي AI" : "AI Companion"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "تلخيص واختبارات" : "Summaries & Quiz"}</p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link to="/book-store/reading-clubs" className="group">
+                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-indigo-500/20 hover:border-indigo-500/60 transition-all flex items-center gap-2.5 h-full">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/15 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "نوادي القراءة" : "Reading Clubs"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "هوامش الأساتذة" : "Faculty Margins"}</p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link to="/book-store/audiobooks" className="group">
+                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-emerald-500/20 hover:border-emerald-500/60 transition-all flex items-center gap-2.5 h-full">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Headphones className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "الكتب المسموعة" : "Audiobooks"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "تحويل صوتي فصحى" : "Arabic AI Voice"}</p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link to="/book-store/bundles" className="group">
+                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-blue-500/20 hover:border-blue-500/60 transition-all flex items-center gap-2.5 h-full">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Package className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "باقات المقررات" : "Curriculum Packs"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "وفر حتى 30%" : "Save up to 30%"}</p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link to="/book-store/gift" className="group">
+                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-rose-500/20 hover:border-rose-500/60 transition-all flex items-center gap-2.5 h-full">
+                    <div className="w-8 h-8 rounded-lg bg-rose-500/15 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Gift className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "إهداء كتاب" : "Gift a Book"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "بطاقة إهداء مخصصة" : "Custom Cards"}</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

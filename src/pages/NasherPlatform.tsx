@@ -44,7 +44,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
-import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
 
 const NasherPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -166,8 +165,7 @@ const NasherPlatform = () => {
   ];
 
   return (
-    <PlatformUnderDevelopmentOverlay platform="nasher">
-      <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
+    <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
         
         {/* Top Hero Section with Rich Gradient */}
         <div className="relative overflow-hidden border-b border-border/40">
@@ -540,7 +538,6 @@ const NasherPlatform = () => {
 
         <SiteFooter />
       </div>
-    </PlatformUnderDevelopmentOverlay>
   );
 };
 

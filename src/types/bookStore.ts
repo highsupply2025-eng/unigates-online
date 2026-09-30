@@ -35,6 +35,7 @@ export interface BookStoreItem {
   publish_year: number;
   is_bestseller?: boolean;
   is_featured?: boolean;
+  is_new?: boolean;
   stock_print?: number;
 }
 

@@ -1,4 +1,4 @@
-import { useState, useId } from "react";
+import { useState, useId, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   PenTool, 
@@ -18,7 +18,16 @@ import {
   Check, 
   ArrowRight,
   BookOpen,
-  Info
+  Info,
+  Camera,
+  Upload,
+  Image as ImageIcon,
+  Trash2,
+  FileCheck2,
+  Plus,
+  FileText,
+  Lock,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -72,6 +82,13 @@ const generateAuthorCode = () => {
   return `AUT-${rand}`;
 };
 
+interface UploadedDoc {
+  id: string;
+  name: string;
+  url: string;
+  size: string;
+}
+
 const NasherSignup = () => {
   const [academicTitle, setAcademicTitle] = useState<AcademicTitle>("prof");
   const [fullName, setFullName] = useState("");
@@ -82,6 +99,19 @@ const NasherSignup = () => {
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("+20");
   const [bio, setBio] = useState("");
+
+  // Uploaded Files State
+  const [avatarFile, setAvatarFile] = useState<UploadedDoc | null>(null);
+  const [nationalIdFile, setNationalIdFile] = useState<UploadedDoc | null>(null);
+  const [qualificationFiles, setQualificationFiles] = useState<UploadedDoc[]>([]);
+
+  // Terms Agreement
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // File Inputs Refs
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const nationalIdInputRef = useRef<HTMLInputElement>(null);
+  const qualificationInputRef = useRef<HTMLInputElement>(null);
   
   // Registration completion state
   const [loading, setLoading] = useState(false);
@@ -96,12 +126,80 @@ const NasherSignup = () => {
   const { dir } = useLanguage();
   const isRtl = dir === "rtl";
 
+  // File Handlers
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const sizeStr = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+    setAvatarFile({
+      id: `av-${Date.now()}`,
+      name: file.name,
+      url,
+      size: sizeStr,
+    });
+    toast({
+      title: isRtl ? "تم إرفاق الصورة الشخصية" : "Profile Photo Attached",
+      description: file.name,
+    });
+  };
+
+  const handleNationalIdSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const sizeStr = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+    setNationalIdFile({
+      id: `id-${Date.now()}`,
+      name: file.name,
+      url,
+      size: sizeStr,
+    });
+    toast({
+      title: isRtl ? "تم إرفاق صورة الهوية / الرقم القومي" : "National ID / Passport Attached",
+      description: file.name,
+    });
+  };
+
+  const handleQualificationSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const newDocs: UploadedDoc[] = Array.from(files).map((file, idx) => ({
+      id: `qual-${Date.now()}-${idx}`,
+      name: file.name,
+      url: URL.createObjectURL(file),
+      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+    }));
+
+    setQualificationFiles((prev) => [...prev, ...newDocs]);
+    toast({
+      title: isRtl ? `تم إرفاق ${newDocs.length} من مستندات المؤهل` : `Attached ${newDocs.length} Qualification Documents`,
+      description: isRtl ? "يمكنك إضافة المزيد من شهادات المؤهلات في أي وقت" : "You can add more qualification certificates",
+    });
+  };
+
+  const removeQualification = (id: string) => {
+    setQualificationFiles((prev) => prev.filter((q) => q.id !== id));
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim() || !email.trim() || !phone.trim()) {
       toast({
         title: isRtl ? "بيانات ناقصة" : "Missing Details",
         description: isRtl ? "يرجى استكمال الاسم، البريد الإلكتروني، ورقم الهاتف." : "Please fill out name, email, and phone number.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!agreedToTerms) {
+      toast({
+        title: isRtl ? "الموافقة على الشروط والأحكام مطلوبة" : "Terms & Conditions Required",
+        description: isRtl 
+          ? "يرجى قراءة الشروط والأحكام الخاصة بمنظومة نشر والموافقة عليها للمتابعة."
+          : "Please agree to the UNIGATES publishing terms & conditions to proceed.",
         variant: "destructive"
       });
       return;
@@ -126,6 +224,10 @@ const NasherSignup = () => {
         email: email.trim().toLowerCase(),
         phone: `${countryCode} ${phone.trim()}`,
         bio: bio.trim() || undefined,
+        avatarUrl: avatarFile?.url,
+        nationalIdUrl: nationalIdFile?.url,
+        qualificationUrls: qualificationFiles.map(q => q.url),
+        agreedToTerms: true,
         isTemporaryPassword: true,
         joinedDate: new Date().toISOString().split("T")[0]
       };
@@ -211,7 +313,7 @@ const NasherSignup = () => {
 
       {/* Main Container */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6 my-4">
-        <div className="w-full max-w-2xl space-y-6">
+        <div className="w-full max-w-3xl space-y-6">
           
           {/* Header Banner */}
           {!generatedAccount && (
@@ -225,8 +327,8 @@ const NasherSignup = () => {
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-medium max-w-lg mx-auto">
                 {isRtl 
-                  ? "سجّل بياناتك الأكاديمية والمهنية لرفع مؤلفاتك، متابعة الاعتماد والمبيعات، وتحصيل نسبة أرباحك 20% فورياً بإشراف دار عبيد للنشر."
-                  : "Register your academic profile to publish works, track bookstore sales, and receive 20% royalties with Dar Obeid."}
+                  ? "سجّل بياناتك الأكاديمية والمهنية وأرفق مستنداتك لرفع مؤلفاتك، متابعة الاعتماد والمبيعات، وتحصيل نسبة أرباحك 20% فورياً بإشراف دار عبيد للنشر."
+                  : "Register your academic credentials and documents to publish works, track bookstore sales, and receive 20% royalties with Dar Obeid."}
               </p>
             </div>
           )}
@@ -247,10 +349,24 @@ const NasherSignup = () => {
               <CardContent className="p-6 sm:p-8 space-y-6">
                 {/* Author Info summary */}
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border/80 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-muted-foreground">{isRtl ? "اسم المؤلف:" : "Author Name:"}</span>
-                    <span className="text-sm font-black text-foreground">{generatedAccount.profile.fullName}</span>
+                  <div className="flex items-center gap-3 pb-2 border-b border-border/60">
+                    {generatedAccount.profile.avatarUrl ? (
+                      <img 
+                        src={generatedAccount.profile.avatarUrl} 
+                        alt="Author Avatar" 
+                        className="w-12 h-12 rounded-full object-cover border-2 border-amber-500 shadow-sm"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold flex items-center justify-center text-lg">
+                        ✍️
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-sm font-black text-foreground block">{generatedAccount.profile.fullName}</span>
+                      <span className="text-xs text-muted-foreground">{generatedAccount.profile.specialization}</span>
+                    </div>
                   </div>
+
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-muted-foreground">{isRtl ? "كود المؤلف المعتمد:" : "Author Code:"}</span>
                     <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-black text-xs px-2.5 py-0.5">
@@ -262,8 +378,11 @@ const NasherSignup = () => {
                     <span className="text-xs font-bold text-foreground">{generatedAccount.profile.email}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-muted-foreground">{isRtl ? "التخصص:" : "Specialization:"}</span>
-                    <span className="text-xs font-semibold text-muted-foreground">{generatedAccount.profile.specialization}</span>
+                    <span className="text-xs font-bold text-muted-foreground">{isRtl ? "المستندات المرفقة:" : "Attached Documents:"}</span>
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" />
+                      {isRtl ? "الهوية والمؤهلات الأكاديمية موثقة" : "Identity & Academic Credentials Verified"}
+                    </span>
                   </div>
                 </div>
 
@@ -321,17 +440,17 @@ const NasherSignup = () => {
                   </div>
                   <div>
                     <CardTitle className="text-lg font-black text-foreground">
-                      {isRtl ? "بيانات المؤلف الأكاديمية والمهنية" : "Author Profile & Credentials"}
+                      {isRtl ? "بيانات المؤلف والمستندات الرسمية" : "Author Profile & Verification Documents"}
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      {isRtl ? "تظهر هذه البيانات على أغلفة ومقدمات مؤلفاتكم وكشوف المبيعات الرسمية" : "These details appear on book covers, publishing contracts & sales rosters"}
+                      {isRtl ? "تظهر هذه البيانات على أغلفة ومقدمات مؤلفاتكم وعقود النشر وكشوف المبيعات الرسمية" : "These details appear on book covers, publishing contracts & sales rosters"}
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
 
               <CardContent className="p-6 sm:p-8">
-                <form onSubmit={handleSignup} className="space-y-5">
+                <form onSubmit={handleSignup} className="space-y-6">
                   
                   {/* Row 1: Academic Title & Full Name */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -470,7 +589,231 @@ const NasherSignup = () => {
                     </div>
                   </div>
 
-                  {/* Row 4: Bio / Publications Summary */}
+                  {/* ------------------------------------------------------------- */}
+                  {/* SECTION: Document Uploads (Photo, National ID, Qualifications) */}
+                  {/* ------------------------------------------------------------- */}
+                  <div className="pt-3 border-t border-border/70 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs">
+                        📎
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-black text-foreground">
+                          {isRtl ? "المستندات والصور المرفقة للمؤلف" : "Author Attachments & ID Documents"}
+                        </h3>
+                        <p className="text-[11px] text-muted-foreground font-medium">
+                          {isRtl 
+                            ? "أرفق الصورة الشخصية، صورة الهوية، وصور الشهادات والمؤهلات الأكاديمية لتوثيق ملف المؤلف"
+                            : "Upload your personal avatar, national ID, and qualification degrees/certificates"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      
+                      {/* Upload 1: Personal Photo */}
+                      <div className="p-4 rounded-2xl bg-muted/20 border-2 border-dashed border-border/80 hover:border-amber-500/50 transition-all space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
+                            <Camera className="w-4 h-4 text-amber-500" />
+                            <span>{isRtl ? "1. الصورة الشخصية للمؤلف" : "1. Personal Profile Photo"}</span>
+                          </Label>
+                          {avatarFile && (
+                            <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
+                              {isRtl ? "تم الإرفاق" : "Attached"}
+                            </Badge>
+                          )}
+                        </div>
+
+                        <input 
+                          type="file" 
+                          ref={avatarInputRef}
+                          accept="image/*" 
+                          onChange={handleAvatarSelect}
+                          className="hidden" 
+                        />
+
+                        {avatarFile ? (
+                          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-card border border-border">
+                            <img 
+                              src={avatarFile.url} 
+                              alt="Avatar Preview" 
+                              className="w-14 h-14 rounded-xl object-cover border border-amber-500/40 shadow-xs shrink-0" 
+                            />
+                            <div className="flex-1 min-w-0">
+                              <span className="text-xs font-bold text-foreground block truncate">{avatarFile.name}</span>
+                              <span className="text-[10px] text-muted-foreground font-semibold">{avatarFile.size}</span>
+                            </div>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setAvatarFile(null)}
+                              className="w-8 h-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div 
+                            onClick={() => avatarInputRef.current?.click()}
+                            className="cursor-pointer py-4 px-3 rounded-xl bg-background/50 hover:bg-amber-500/5 flex flex-col items-center justify-center gap-1.5 text-center transition-all group"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-amber-500/10 group-hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center transition-transform group-hover:scale-110">
+                              <Upload className="w-4 h-4" />
+                            </div>
+                            <span className="text-xs font-bold text-foreground group-hover:text-amber-600 transition-colors">
+                              {isRtl ? "اختر صورة شخصية أو التقط صورة" : "Upload Personal Photo"}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">PNG, JPG, WebP (حتى 5MB)</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Upload 2: National ID / Passport */}
+                      <div className="p-4 rounded-2xl bg-muted/20 border-2 border-dashed border-border/80 hover:border-amber-500/50 transition-all space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
+                            <ShieldCheck className="w-4 h-4 text-rose-500" />
+                            <span>{isRtl ? "2. صورة الهوية / بطاقة الرقم القومي" : "2. National ID / Passport Photo"}</span>
+                          </Label>
+                          {nationalIdFile && (
+                            <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
+                              {isRtl ? "تم الإرفاق" : "Attached"}
+                            </Badge>
+                          )}
+                        </div>
+
+                        <input 
+                          type="file" 
+                          ref={nationalIdInputRef}
+                          accept="image/*,.pdf" 
+                          onChange={handleNationalIdSelect}
+                          className="hidden" 
+                        />
+
+                        {nationalIdFile ? (
+                          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-card border border-border">
+                            <img 
+                              src={nationalIdFile.url} 
+                              alt="National ID Preview" 
+                              className="w-14 h-14 rounded-xl object-cover border border-rose-500/40 shadow-xs shrink-0" 
+                            />
+                            <div className="flex-1 min-w-0">
+                              <span className="text-xs font-bold text-foreground block truncate">{nationalIdFile.name}</span>
+                              <span className="text-[10px] text-muted-foreground font-semibold">{nationalIdFile.size}</span>
+                            </div>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setNationalIdFile(null)}
+                              className="w-8 h-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div 
+                            onClick={() => nationalIdInputRef.current?.click()}
+                            className="cursor-pointer py-4 px-3 rounded-xl bg-background/50 hover:bg-rose-500/5 flex flex-col items-center justify-center gap-1.5 text-center transition-all group"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-rose-500/10 group-hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center transition-transform group-hover:scale-110">
+                              <Upload className="w-4 h-4" />
+                            </div>
+                            <span className="text-xs font-bold text-foreground group-hover:text-rose-600 transition-colors">
+                              {isRtl ? "رفع صورة بطاقة الهوية أو جواز السفر" : "Upload ID / Passport"}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">صورة واضحة للوجهين أو الجواز</span>
+                          </div>
+                        )}
+                      </div>
+
+                    </div>
+
+                    {/* Upload 3: Academic Qualifications (Supports Multiple Photos) */}
+                    <div className="p-4 sm:p-5 rounded-2xl bg-muted/20 border-2 border-dashed border-border/80 hover:border-amber-500/50 transition-all space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
+                          <GraduationCap className="w-4 h-4 text-purple-500" />
+                          <span>{isRtl ? "3. صورة المؤهل الأكاديمي والشهادات (صورة أو عدة صور)" : "3. Academic Qualification(s) & Degree Certificates"}</span>
+                        </Label>
+                        {qualificationFiles.length > 0 && (
+                          <Badge className="bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30 text-[10px] font-black">
+                            {isRtl ? `${qualificationFiles.length} مستندات مرفقة` : `${qualificationFiles.length} Files`}
+                          </Badge>
+                        )}
+                      </div>
+
+                      <input 
+                        type="file" 
+                        ref={qualificationInputRef}
+                        accept="image/*,.pdf" 
+                        multiple
+                        onChange={handleQualificationSelect}
+                        className="hidden" 
+                      />
+
+                      {/* Upload Button Box */}
+                      <div 
+                        onClick={() => qualificationInputRef.current?.click()}
+                        className="cursor-pointer py-3.5 px-4 rounded-xl bg-background/60 hover:bg-purple-500/5 border border-border flex items-center justify-between transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-purple-500/10 group-hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center transition-transform group-hover:scale-105">
+                            <Plus className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold text-foreground block group-hover:text-purple-600 transition-colors">
+                              {isRtl ? "إضافة صور شهادة البكالوريوس / الماجستير / الدكتوراه" : "Add Degree / Certificate Images"}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {isRtl ? "يمكنك اختيار صورة واحدة أو تحديد عدة صور معاً" : "Select one or multiple degree photos simultaneously"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <Button type="button" size="sm" variant="outline" className="h-8 text-xs font-bold gap-1 rounded-lg border-purple-500/30 text-purple-600 dark:text-purple-400">
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "إرفاق صور" : "Upload"}</span>
+                        </Button>
+                      </div>
+
+                      {/* Uploaded Qualifications Gallery */}
+                      {qualificationFiles.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-2">
+                          {qualificationFiles.map((qf, i) => (
+                            <div 
+                              key={qf.id} 
+                              className="flex items-center gap-2.5 p-2 rounded-xl bg-card border border-border/80 shadow-xs relative group"
+                            >
+                              <img 
+                                src={qf.url} 
+                                alt={qf.name} 
+                                className="w-11 h-11 rounded-lg object-cover border border-border shrink-0" 
+                              />
+                              <div className="flex-1 min-w-0">
+                                <span className="text-[11px] font-bold text-foreground block truncate">{qf.name}</span>
+                                <span className="text-[9px] text-muted-foreground">{qf.size}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeQualification(qf.id)}
+                                className="w-6 h-6 rounded-md bg-destructive/10 text-destructive hover:bg-destructive hover:text-white flex items-center justify-center transition-colors shrink-0"
+                                title="حذف"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                    </div>
+
+                  </div>
+
+                  {/* Bio / Publications Summary */}
                   <div className="space-y-1.5">
                     <Label className="text-xs font-extrabold flex items-center gap-1">
                       <span>{isRtl ? "نبذة تعريفية وسيرة ذاتية مختصرة للمؤلف" : "Author Bio & Research Interests"}</span>
@@ -482,13 +825,59 @@ const NasherSignup = () => {
                         : "Author and researcher with published works in..."}
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
-                      rows={3}
+                      rows={2}
                       className="rounded-xl text-xs border-border bg-muted/30 focus:bg-background focus:border-amber-500 transition-all"
                     />
                   </div>
 
+                  {/* ------------------------------------------------------------- */}
+                  {/* SECTION: Terms & Conditions Agreement */}
+                  {/* ------------------------------------------------------------- */}
+                  <div className="p-4 rounded-2xl bg-amber-500/5 border-2 border-amber-500/20 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <Checkbox 
+                        id="terms-nashr"
+                        checked={agreedToTerms}
+                        onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                        className="mt-1 data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 rounded-md"
+                      />
+                      <label 
+                        htmlFor="terms-nashr" 
+                        className="text-xs leading-relaxed text-foreground cursor-pointer select-none font-medium"
+                      >
+                        {isRtl ? (
+                          <>
+                            <span className="font-extrabold text-foreground">الموافقة على الشروط والأحكام: </span>
+                            أقر وأوافق على الالتزام بـ{" "}
+                            <Link to="/terms" target="_blank" className="font-bold text-amber-600 dark:text-amber-400 underline hover:text-amber-700">
+                              الشروط والأحكام
+                            </Link>{" "}
+                            و{" "}
+                            <Link to="/privacy" target="_blank" className="font-bold text-amber-600 dark:text-amber-400 underline hover:text-amber-700">
+                              سياسة الخصوصية
+                            </Link>{" "}
+                            الخاصة بمنظومة UNIGATES ومنصة نشر وإشراف دار عبيد للنشر والتوزيع، وأتعهد بصحة كافة البيانات والمستندات المرفقة.
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-extrabold text-foreground">Terms & Conditions Agreement: </span>
+                            I have read and agree to the{" "}
+                            <Link to="/terms" target="_blank" className="font-bold text-amber-600 dark:text-amber-400 underline hover:text-amber-700">
+                              Terms & Conditions
+                            </Link>{" "}
+                            and{" "}
+                            <Link to="/privacy" target="_blank" className="font-bold text-amber-600 dark:text-amber-400 underline hover:text-amber-700">
+                              Privacy Policy
+                            </Link>{" "}
+                            of UNIGATES & Nashr Publishing under Dar Obeid.
+                          </>
+                        )}
+                      </label>
+                    </div>
+                  </div>
+
                   {/* Notice Box about Temporary Password */}
-                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3">
+                  <div className="p-4 rounded-2xl bg-muted/40 border border-border/80 flex items-start gap-3">
                     <Key className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div className="text-xs text-muted-foreground leading-relaxed space-y-1">
                       <p className="font-bold text-foreground">
@@ -505,14 +894,14 @@ const NasherSignup = () => {
                   {/* Submit Button */}
                   <Button 
                     type="submit" 
-                    disabled={loading}
+                    disabled={loading || !agreedToTerms}
                     size="lg"
-                    className="w-full h-12 rounded-2xl font-black text-sm sm:text-base bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/25 gap-2 hover:scale-[1.01] transition-all"
+                    className="w-full h-12 rounded-2xl font-black text-sm sm:text-base bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/25 gap-2 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>{isRtl ? "جاري إنشاء حساب المؤلف..." : "Creating Author Profile..."}</span>
+                        <span>{isRtl ? "جاري إنشاء حساب المؤلف والمستندات..." : "Creating Author Profile..."}</span>
                       </>
                     ) : (
                       <>

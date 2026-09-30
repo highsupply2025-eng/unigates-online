@@ -21,6 +21,9 @@ export interface AuthorProfile {
   phone: string;
   bio?: string;
   avatarUrl?: string;
+  nationalIdUrl?: string;
+  qualificationUrls?: string[];
+  agreedToTerms?: boolean;
   isTemporaryPassword?: boolean;
   joinedDate: string;
   bankDetails?: {

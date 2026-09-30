@@ -707,6 +707,7 @@ export class BookStoreDataStore {
   }
 
   // 6. Reader Wishlist & Reading Goals
+  // 6. Reader Wishlist & Price Drop Alerts & Reading Goals
   static getWishlist(): string[] {
     if (typeof window === "undefined") return [];
     try {
@@ -734,21 +735,213 @@ export class BookStoreDataStore {
     return added;
   }
 
-  static getReadingGoal() {
-    if (typeof window === "undefined") return { targetBooks: 12, completedBooks: 4, minutesReadToday: 35 };
+  static getWishlistAlerts() {
+    if (typeof window === "undefined") return [];
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.READING_GOAL);
-      return stored ? JSON.parse(stored) : { targetBooks: 12, completedBooks: 4, minutesReadToday: 35 };
+      const stored = localStorage.getItem("unigates_bookstore_wishlist_alerts");
+      if (!stored) {
+        const initialAlerts = [
+          {
+            id: "alt-1",
+            bookId: "bk-dar-003",
+            bookTitle: "إدارة المشاريع الاحترافية PMP وفق الدليل السابع",
+            type: "price_drop",
+            oldPrice: 200,
+            newPrice: 160,
+            discountPercent: 20,
+            date: "2026-03-30",
+            isRead: false,
+            message_ar: "انخفاض في السعر! أصبح كتاب «إدارة المشاريع PMP» بسعر 160 EGP بدلاً من 200 EGP (خصم 20%).",
+            message_en: "Price drop! PMP Project Management is now 160 EGP (20% OFF)."
+          },
+          {
+            id: "alt-2",
+            bookId: "bk-dar-004",
+            bookTitle: "هندسة البرمجيات السحابية وبناء النظم الموزعة",
+            type: "new_edition",
+            date: "2026-03-29",
+            isRead: false,
+            message_ar: "طبعة جديدة منقحة! صدرت الطبعة الثانية 2026 لكتاب «هندسة البرمجيات السحابية» متضمنة فصولاً جديدة في Kubernetes.",
+            message_en: "New 2026 Edition released for Cloud Software Engineering with new Kubernetes chapters."
+          },
+          {
+            id: "alt-3",
+            bookId: "bk-dar-001",
+            bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
+            type: "in_stock",
+            date: "2026-03-28",
+            isRead: true,
+            message_ar: "توفرت طبعة ورقية فاخرة جديدة للشحن السريع لباب المنزل.",
+            message_en: "Deluxe print copies are back in stock for express doorstep shipping."
+          }
+        ];
+        localStorage.setItem("unigates_bookstore_wishlist_alerts", JSON.stringify(initialAlerts));
+        return initialAlerts;
+      }
+      return JSON.parse(stored);
     } catch {
-      return { targetBooks: 12, completedBooks: 4, minutesReadToday: 35 };
+      return [];
     }
   }
 
-  static updateReadingGoal(targetBooks: number) {
-    const current = this.getReadingGoal();
-    current.targetBooks = targetBooks;
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEYS.READING_GOAL, JSON.stringify(current));
+  static markAlertAsRead(alertId: string) {
+    const alerts = this.getWishlistAlerts();
+    const item = alerts.find((a: any) => a.id === alertId);
+    if (item) {
+      item.isRead = true;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("unigates_bookstore_wishlist_alerts", JSON.stringify(alerts));
+      }
     }
+  }
+
+  static getReadingChallenge() {
+    if (typeof window === "undefined") {
+      return {
+        targetBooks: 15,
+        completedBooks: 5,
+        totalMinutesRead: 480,
+        weeklyTargetMinutes: 120,
+        weeklyMinutesDone: 85,
+        currentStreakDays: 6,
+        longestStreakDays: 14,
+        favoriteGenre: "المراجع الأكاديمية والذكاء الاصطناعي",
+        achievements: [
+          {
+            id: "ach-1",
+            title_ar: "القارئ الرقمي الأول",
+            title_en: "First Digital E-Book",
+            desc_ar: "أتممت قراءة أول كتاب رقمي مشفر بنظام DRM كاملاً بنجاح.",
+            desc_en: "Finished reading your first DRM-protected e-book.",
+            icon: "BookOpen",
+            isUnlocked: true,
+            unlockedAt: "2026-02-14"
+          },
+          {
+            id: "ach-2",
+            title_ar: "شغف المعرفة (6 أيام متتالية)",
+            title_en: "Reading Habit (6-Day Streak)",
+            desc_ar: "قراءة يومية منتظمة لأكثر من 20 دقيقة لمدة 6 أيام متواصلة.",
+            desc_en: "Daily reading sessions for 6 consecutive days.",
+            icon: "Flame",
+            isUnlocked: true,
+            unlockedAt: "2026-03-28"
+          },
+          {
+            id: "ach-3",
+            title_ar: "المستكشف الأكاديمي (5 كتب)",
+            title_en: "Academic Explorer (5 Titles)",
+            desc_ar: "إنجاز قراءة 5 كتب متخصصة من منشورات دار عبيد.",
+            desc_en: "Completed reading 5 specialized Dar Obeid titles.",
+            icon: "Award",
+            isUnlocked: true,
+            unlockedAt: "2026-03-25"
+          },
+          {
+            id: "ach-4",
+            title_ar: "ختام التحدي السنوي (15 كتاباً)",
+            title_en: "Master of Challenge (15 Books)",
+            desc_ar: "إتمام قراءة 15 كتاباً خلال عام 2026 مع شهادة تقدير رقمية.",
+            desc_en: "Complete 15 books within 2026 and earn an accredited certificate.",
+            icon: "Trophy",
+            isUnlocked: false
+          }
+        ]
+      };
+    }
+    try {
+      const stored = localStorage.getItem("unigates_bookstore_reading_challenge");
+      if (!stored) {
+        const initialChallenge = {
+          targetBooks: 15,
+          completedBooks: 5,
+          totalMinutesRead: 480,
+          weeklyTargetMinutes: 120,
+          weeklyMinutesDone: 85,
+          currentStreakDays: 6,
+          longestStreakDays: 14,
+          favoriteGenre: "المراجع الأكاديمية والذكاء الاصطناعي",
+          achievements: [
+            {
+              id: "ach-1",
+              title_ar: "القارئ الرقمي الأول",
+              title_en: "First Digital E-Book",
+              desc_ar: "أتممت قراءة أول كتاب رقمي مشفر بنظام DRM كاملاً بنجاح.",
+              desc_en: "Finished reading your first DRM-protected e-book.",
+              icon: "BookOpen",
+              isUnlocked: true,
+              unlockedAt: "2026-02-14"
+            },
+            {
+              id: "ach-2",
+              title_ar: "شغف المعرفة (6 أيام متتالية)",
+              title_en: "Reading Habit (6-Day Streak)",
+              desc_ar: "قراءة يومية منتظمة لأكثر من 20 دقيقة لمدة 6 أيام متواصلة.",
+              desc_en: "Daily reading sessions for 6 consecutive days.",
+              icon: "Flame",
+              isUnlocked: true,
+              unlockedAt: "2026-03-28"
+            },
+            {
+              id: "ach-3",
+              title_ar: "المستكشف الأكاديمي (5 كتب)",
+              title_en: "Academic Explorer (5 Titles)",
+              desc_ar: "إنجاز قراءة 5 كتب متخصصة من منشورات دار عبيد.",
+              desc_en: "Completed reading 5 specialized Dar Obeid titles.",
+              icon: "Award",
+              isUnlocked: true,
+              unlockedAt: "2026-03-25"
+            },
+            {
+              id: "ach-4",
+              title_ar: "ختام التحدي السنوي (15 كتاباً)",
+              title_en: "Master of Challenge (15 Books)",
+              desc_ar: "إتمام قراءة 15 كتاباً خلال عام 2026 مع شهادة تقدير رقمية.",
+              desc_en: "Complete 15 books within 2026 and earn an accredited certificate.",
+              icon: "Trophy",
+              isUnlocked: false
+            }
+          ]
+        };
+        localStorage.setItem("unigates_bookstore_reading_challenge", JSON.stringify(initialChallenge));
+        return initialChallenge;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return {
+        targetBooks: 15,
+        completedBooks: 5,
+        totalMinutesRead: 480,
+        weeklyTargetMinutes: 120,
+        weeklyMinutesDone: 85,
+        currentStreakDays: 6,
+        longestStreakDays: 14,
+        favoriteGenre: "المراجع الأكاديمية والذكاء الاصطناعي",
+        achievements: []
+      };
+    }
+  }
+
+  static updateReadingChallengeTarget(targetBooks: number, weeklyTargetMinutes: number) {
+    const chal = this.getReadingChallenge();
+    chal.targetBooks = targetBooks;
+    chal.weeklyTargetMinutes = weeklyTargetMinutes;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("unigates_bookstore_reading_challenge", JSON.stringify(chal));
+    }
+  }
+
+  static logReadingSession(minutes: number) {
+    const chal = this.getReadingChallenge();
+    chal.totalMinutesRead += minutes;
+    chal.weeklyMinutesDone += minutes;
+    if (typeof window !== "undefined") {
+      localStorage.setItem("unigates_bookstore_reading_challenge", JSON.stringify(chal));
+    }
+  }
+
+  static getReadingGoal() {
+    const chal = this.getReadingChallenge();
+    return { targetBooks: chal.targetBooks, completedBooks: chal.completedBooks, minutesReadToday: 35 };
   }
 }

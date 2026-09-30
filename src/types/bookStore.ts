@@ -151,3 +151,38 @@ export interface PublisherPayoutRequest {
   processedAt?: string;
   notes?: string;
 }
+
+export interface WishlistAlert {
+  id: string;
+  bookId: string;
+  bookTitle: string;
+  type: "price_drop" | "new_edition" | "in_stock" | "exclusive_discount";
+  oldPrice?: number;
+  newPrice?: number;
+  discountPercent?: number;
+  date: string;
+  isRead: boolean;
+  message_ar: string;
+  message_en: string;
+}
+
+export interface ReadingChallengeData {
+  targetBooks: number;
+  completedBooks: number;
+  totalMinutesRead: number;
+  weeklyTargetMinutes: number;
+  weeklyMinutesDone: number;
+  currentStreakDays: number;
+  longestStreakDays: number;
+  favoriteGenre: string;
+  achievements: {
+    id: string;
+    title_ar: string;
+    title_en: string;
+    desc_ar: string;
+    desc_en: string;
+    icon: string;
+    unlockedAt?: string;
+    isUnlocked: boolean;
+  }[];
+}

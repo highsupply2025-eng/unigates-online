@@ -25,7 +25,16 @@ import {
   ChevronLeft,
   Store,
   CreditCard,
-  Target
+  Target,
+  Bell,
+  BellRing,
+  Flame,
+  Trophy,
+  Zap,
+  Tag,
+  Gift,
+  Check,
+  AlertCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,9 +42,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
-import { PurchasedBook, BookOrder } from "@/types/bookStore";
+import { PurchasedBook, BookOrder, WishlistAlert, ReadingChallengeData } from "@/types/bookStore";
 import { ReaderEbookModal } from "@/components/bookstore/ReaderEbookModal";
 import SiteFooter from "@/components/SiteFooter";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
@@ -44,6 +55,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 export const ReaderDashboard: React.FC = () => {
   const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const [purchasedBooks, setPurchasedBooks] = useState<PurchasedBook[]>(
@@ -56,9 +68,19 @@ export const ReaderDashboard: React.FC = () => {
   // Selected Book for DRM Reader
   const [readingBook, setReadingBook] = useState<PurchasedBook | null>(null);
 
-  // Reading Goal
-  const readingGoal = BookStoreDataStore.getReadingGoal();
-  const wishlistIds = BookStoreDataStore.getWishlist();
+  // Reading Challenge State
+  const [challenge, setChallenge] = useState<ReadingChallengeData>(
+    BookStoreDataStore.getReadingChallenge()
+  );
+  const [isEditGoalOpen, setIsEditGoalOpen] = useState(false);
+  const [newTargetBooks, setNewTargetBooks] = useState(challenge.targetBooks);
+  const [newWeeklyMinutes, setNewWeeklyMinutes] = useState(challenge.weeklyTargetMinutes);
+
+  // Wishlist & Price Alerts State
+  const [wishlistIds, setWishlistIds] = useState<string[]>(BookStoreDataStore.getWishlist());
+  const [alerts, setAlerts] = useState<WishlistAlert[]>(BookStoreDataStore.getWishlistAlerts());
+  const unreadAlertsCount = alerts.filter((a) => !a.isRead).length;
+
   const catalog = BookStoreDataStore.getCatalog();
   const wishlistBooks = catalog.filter((b) => wishlistIds.includes(b.id));
 
@@ -72,10 +94,35 @@ export const ReaderDashboard: React.FC = () => {
   });
 
   const totalDigitalBooks = purchasedBooks.filter((p) => p.format === "digital").length;
-  const completedBooks = purchasedBooks.filter((p) => (p.lastReadProgress || 0) >= 100).length;
+  const completedBooks = challenge.completedBooks;
+
+  const handleUpdateGoal = () => {
+    BookStoreDataStore.updateReadingChallengeTarget(Number(newTargetBooks) || 12, Number(newWeeklyMinutes) || 120);
+    setChallenge(BookStoreDataStore.getReadingChallenge());
+    setIsEditGoalOpen(false);
+    toast({
+      title: isRtl ? "تم تحديث هدف القراءة السنوي 🎯" : "Reading Goal Updated 🎯",
+      description: isRtl
+        ? `الهدف الجديد: ${newTargetBooks} كتاباً سنوياً و ${newWeeklyMinutes} دقيقة قراءة أسبوعياً.`
+        : `New goal: ${newTargetBooks} books and ${newWeeklyMinutes} mins/week.`,
+    });
+  };
+
+  const handleMarkAlertRead = (alertId: string) => {
+    BookStoreDataStore.markAlertAsRead(alertId);
+    setAlerts(BookStoreDataStore.getWishlistAlerts());
+  };
+
+  const handleRemoveFromWishlist = (bookId: string) => {
+    BookStoreDataStore.toggleWishlist(bookId);
+    setWishlistIds(BookStoreDataStore.getWishlist());
+    toast({
+      title: isRtl ? "تمت إزالة الكتاب من المفضلة" : "Removed from Wishlist",
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+    <div className="min-h-screen bg-background flex flex-col selection:bg-amber-600 selection:text-white" dir={dir}>
       {/* Top Header */}
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/60 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
@@ -89,7 +136,7 @@ export const ReaderDashboard: React.FC = () => {
                   UNIGATES
                 </span>
                 <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                  {isRtl ? "مكتبتي الرقمية ومشترياتي" : "My Reader Portal & Library"}
+                  {isRtl ? "مكتبتي الرقمية وتحدي القراءة" : "My Reader Portal & Library"}
                 </p>
               </div>
             </Link>
@@ -114,51 +161,84 @@ export const ReaderDashboard: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Reader Stats */}
+      {/* Hero Reader Stats with Reading Challenge Highlight */}
       <section className="bg-gradient-to-b from-amber-500/10 via-background to-background py-8 px-4 sm:px-8 border-b border-border/40">
         <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1.5">
                 <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30">
-                  {isRtl ? "حساب قارئ معتمد" : "Verified Reader Account"}
+                  {isRtl ? "حساب قارئ وباحث معتمد" : "Verified Reader Account"}
                 </Badge>
-                <Badge variant="outline" className="text-xs">
-                  DRM Protected
+                <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-500/30 font-bold gap-1">
+                  <Flame className="w-3.5 h-3.5 text-orange-500" />
+                  <span>{challenge.currentStreakDays} {isRtl ? "أيام قراءة متتالية 🔥" : "Days Streak 🔥"}</span>
                 </Badge>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-foreground">
-                {isRtl ? "أهلاً بك في مكتبتك الخاصة 📚" : "Welcome to Your Personal Library 📚"}
+              <h1 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight">
+                {isRtl ? "أهلاً بك في مكتبتك وتحدي القراءة 2026 📚" : "Welcome to Your Reading Hub 2026 📚"}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
                 {isRtl
-                  ? "جميع كتبك الرقمية متاحة للقراءة الفورية والأوفلاين مع حماية DRM المشفرة."
-                  : "All your digital purchases are ready for instant & offline DRM-encrypted reading."}
+                  ? "اقرأ مؤلفاتك الرقمية المشفرة بنظام DRM بأمان، تابع تحدي القراءة السنوي، واستقبل تنبيهات التخفيضات لكتبك المفضلة."
+                  : "Read DRM-encrypted e-books securely, track your annual reading goals, and receive instant price drop alerts."}
               </p>
             </div>
 
-            {/* Reading Challenge Goal Card */}
-            <Card className="bg-card/80 border-amber-500/30 shadow-md p-4 w-full md:w-80 shrink-0">
-              <div className="flex items-center justify-between mb-2">
+            {/* Reading Challenge Interactive Card */}
+            <Card className="bg-card/90 border-amber-500/30 shadow-xl p-5 w-full lg:w-96 shrink-0 relative overflow-hidden">
+              <div className="absolute top-0 end-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs font-bold text-foreground">
-                    {isRtl ? "تحدي القراءة السنوي" : "Annual Reading Goal"}
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-600 flex items-center justify-center">
+                    <Target className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-black text-foreground block">
+                      {isRtl ? "تحدي القراءة السنوي 2026" : "2026 Annual Reading Challenge"}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {isRtl ? "هدف الكتب السنوي" : "Annual Target"}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditGoalOpen(true)}
+                  className="h-7 text-[11px] font-bold text-amber-600 hover:text-amber-700 hover:bg-amber-500/10"
+                >
+                  {isRtl ? "تعديل الهدف" : "Edit Goal"}
+                </Button>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-muted-foreground">{isRtl ? "الكتب المنجزة:" : "Completed:"}</span>
+                  <span className="text-amber-600 dark:text-amber-400">
+                    {completedBooks} / {challenge.targetBooks} {isRtl ? "كتاب" : "books"} ({Math.round((completedBooks / (challenge.targetBooks || 1)) * 100)}%)
                   </span>
                 </div>
-                <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
-                  {completedBooks} / {readingGoal.targetBooks} {isRtl ? "كتب" : "books"}
-                </span>
+                <Progress value={(completedBooks / (challenge.targetBooks || 1)) * 100} className="h-2.5 bg-amber-500/20" />
               </div>
-              <Progress value={(completedBooks / (readingGoal.targetBooks || 1)) * 100} className="h-2 bg-amber-500/20" />
-              <p className="text-[11px] text-muted-foreground mt-2">
-                {isRtl ? "أنجزت 45 دقيقة قراءة هذا الأسبوع • استمر!" : "45 mins read this week • Keep it up!"}
-              </p>
+
+              {/* Weekly Time Tracker */}
+              <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-blue-500" />
+                  <span className="text-muted-foreground">{isRtl ? "هذا الأسبوع:" : "This Week:"}</span>
+                  <span className="font-bold text-foreground">{challenge.weeklyMinutesDone} / {challenge.weeklyTargetMinutes} {isRtl ? "دقيقة" : "mins"}</span>
+                </div>
+                <Badge variant="secondary" className="text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-300">
+                  {Math.round((challenge.weeklyMinutesDone / (challenge.weeklyTargetMinutes || 1)) * 100)}%
+                </Badge>
+              </div>
             </Card>
           </div>
 
           {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
             <Card className="bg-card/60 border-border/60 p-3.5 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
                 <BookOpen className="w-5 h-5" />
@@ -171,31 +251,31 @@ export const ReaderDashboard: React.FC = () => {
 
             <Card className="bg-card/60 border-border/60 p-3.5 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-5 h-5" />
+                <Flame className="w-5 h-5 text-orange-500" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground font-semibold">{isRtl ? "الكتب المكتملة" : "Completed"}</p>
-                <p className="text-xl font-black text-foreground">{completedBooks}</p>
+                <p className="text-xs text-muted-foreground font-semibold">{isRtl ? "أطول سلسلة قراءة" : "Longest Streak"}</p>
+                <p className="text-xl font-black text-foreground">{challenge.longestStreakDays} {isRtl ? "يوم" : "days"}</p>
               </div>
             </Card>
 
             <Card className="bg-card/60 border-border/60 p-3.5 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-600 flex items-center justify-center shrink-0">
-                <ShoppingBag className="w-5 h-5" />
+                <Clock className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground font-semibold">{isRtl ? "إجمالي الطلبات" : "Total Orders"}</p>
-                <p className="text-xl font-black text-foreground">{orders.length}</p>
+                <p className="text-xs text-muted-foreground font-semibold">{isRtl ? "إجمالي وقت القراءة" : "Total Time"}</p>
+                <p className="text-xl font-black text-foreground">{Math.round(challenge.totalMinutesRead / 60)} {isRtl ? "ساعة" : "hrs"}</p>
               </div>
             </Card>
 
             <Card className="bg-card/60 border-border/60 p-3.5 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-600 flex items-center justify-center shrink-0">
-                <Heart className="w-5 h-5" />
+                <BellRing className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground font-semibold">{isRtl ? "قائمة الرغبات" : "Wishlist"}</p>
-                <p className="text-xl font-black text-foreground">{wishlistBooks.length}</p>
+                <p className="text-xs text-muted-foreground font-semibold">{isRtl ? "تنبيهات الأسعار" : "Price Alerts"}</p>
+                <p className="text-xl font-black text-foreground">{alerts.length}</p>
               </div>
             </Card>
           </div>
@@ -206,7 +286,7 @@ export const ReaderDashboard: React.FC = () => {
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
-            <TabsList className="bg-muted/80 p-1 rounded-2xl h-11">
+            <TabsList className="bg-muted/80 p-1 rounded-2xl h-11 flex-wrap">
               <TabsTrigger value="library" className="font-bold text-xs sm:text-sm rounded-xl gap-2">
                 <Library className="w-4 h-4" />
                 <span>{isRtl ? "مكتبتي الرقمية (القراءة)" : "My E-Library"}</span>
@@ -214,19 +294,33 @@ export const ReaderDashboard: React.FC = () => {
                   {purchasedBooks.length}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="purchases" className="font-bold text-xs sm:text-sm rounded-xl gap-2">
-                <ShoppingBag className="w-4 h-4" />
-                <span>{isRtl ? "سجل المشتريات والفواتير" : "Purchases & Invoices"}</span>
-                <Badge variant="secondary" className="text-[10px] px-1.5 h-4">
-                  {orders.length}
-                </Badge>
+
+              <TabsTrigger value="challenge" className="font-bold text-xs sm:text-sm rounded-xl gap-2">
+                <Trophy className="w-4 h-4 text-amber-500" />
+                <span>{isRtl ? "تحدي القراءة والأوسمة" : "Challenge & Badges"}</span>
               </TabsTrigger>
+
+              <TabsTrigger value="alerts" className="font-bold text-xs sm:text-sm rounded-xl gap-2">
+                <Bell className="w-4 h-4 text-rose-500" />
+                <span>{isRtl ? "تنبيهات انخفاض الأسعار" : "Price Drop Alerts"}</span>
+                {unreadAlertsCount > 0 && (
+                  <Badge className="bg-rose-500 text-white text-[10px] px-1.5 h-4">
+                    {unreadAlertsCount}
+                  </Badge>
+                )}
+              </TabsTrigger>
+
               <TabsTrigger value="wishlist" className="font-bold text-xs sm:text-sm rounded-xl gap-2">
-                <Heart className="w-4 h-4" />
+                <Heart className="w-4 h-4 text-rose-400" />
                 <span>{isRtl ? "قائمة الرغبات" : "Wishlist"}</span>
                 <Badge variant="secondary" className="text-[10px] px-1.5 h-4">
                   {wishlistBooks.length}
                 </Badge>
+              </TabsTrigger>
+
+              <TabsTrigger value="purchases" className="font-bold text-xs sm:text-sm rounded-xl gap-2">
+                <ShoppingBag className="w-4 h-4" />
+                <span>{isRtl ? "سجل الفواتير" : "Invoices"}</span>
               </TabsTrigger>
             </TabsList>
 
@@ -352,7 +446,277 @@ export const ReaderDashboard: React.FC = () => {
             )}
           </TabsContent>
 
-          {/* TAB 2: Purchases and Invoices */}
+          {/* TAB 2: Reading Challenge & Achievements */}
+          <TabsContent value="challenge" className="space-y-6 mt-0">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Detailed Progress Card */}
+              <Card className="lg:col-span-1 p-6 space-y-4 border-amber-500/30">
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-amber-500" />
+                  <h3 className="text-base font-black text-foreground">
+                    {isRtl ? "إحصائيات التحدي السنوي" : "Challenge Insights"}
+                  </h3>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-muted/40">
+                    <span className="text-muted-foreground font-semibold">{isRtl ? "الهدف المحدد:" : "Yearly Goal:"}</span>
+                    <span className="font-black text-foreground">{challenge.targetBooks} {isRtl ? "كتب" : "books"}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-muted/40">
+                    <span className="text-muted-foreground font-semibold">{isRtl ? "الكتب المكتملة:" : "Finished:"}</span>
+                    <span className="font-black text-emerald-600">{challenge.completedBooks} {isRtl ? "كتب" : "books"}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-muted/40">
+                    <span className="text-muted-foreground font-semibold">{isRtl ? "السلسلة الحالية:" : "Current Streak:"}</span>
+                    <span className="font-black text-orange-500">{challenge.currentStreakDays} {isRtl ? "أيام متتالية 🔥" : "Days"}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-muted/40">
+                    <span className="text-muted-foreground font-semibold">{isRtl ? "المجال المفضل:" : "Top Genre:"}</span>
+                    <span className="font-bold text-foreground truncate max-w-[140px]">{challenge.favoriteGenre}</span>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => setIsEditGoalOpen(true)}
+                  className="w-full font-bold bg-amber-600 hover:bg-amber-700 text-white gap-2"
+                >
+                  <Target className="w-4 h-4" />
+                  <span>{isRtl ? "تعديل أهداف التحدي" : "Customize Target"}</span>
+                </Button>
+              </Card>
+
+              {/* Achievements & Badges List */}
+              <Card className="lg:col-span-2 p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-black text-foreground">
+                      {isRtl ? "أوسمة وشارات الإنجاز القرائي" : "Reading Badges & Milestones"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {isRtl
+                        ? "أوسمة تحفيزية تفتح تلقائياً عند إتمام فصول وكتب وساعات قراءة منتظمة."
+                        : "Unlocked automatically as you achieve reading milestones."}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="border-amber-500/30 text-amber-700 dark:text-amber-300 font-bold">
+                    {challenge.achievements.filter((a) => a.isUnlocked).length} / {challenge.achievements.length} {isRtl ? "مفتوح" : "Unlocked"}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  {challenge.achievements.map((ach) => (
+                    <div
+                      key={ach.id}
+                      className={`p-4 rounded-2xl border transition-all flex gap-3 items-start ${
+                        ach.isUnlocked
+                          ? "bg-amber-500/5 border-amber-500/30 shadow-xs"
+                          : "bg-muted/20 border-border/40 opacity-60"
+                      }`}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md ${
+                          ach.isUnlocked
+                            ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {ach.icon === "Flame" ? (
+                          <Flame className="w-5 h-5" />
+                        ) : ach.icon === "Trophy" ? (
+                          <Trophy className="w-5 h-5" />
+                        ) : ach.icon === "Award" ? (
+                          <Award className="w-5 h-5" />
+                        ) : (
+                          <BookOpen className="w-5 h-5" />
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <h4 className="text-xs font-black text-foreground truncate">
+                            {isRtl ? ach.title_ar : ach.title_en}
+                          </h4>
+                          {ach.isUnlocked && (
+                            <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[9px] px-1 h-4">
+                              {isRtl ? "مكتمل" : "Earned"}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2">
+                          {isRtl ? ach.desc_ar : ach.desc_en}
+                        </p>
+                        {ach.unlockedAt && (
+                          <p className="text-[10px] text-amber-600 dark:text-amber-400 font-mono mt-1">
+                            {isRtl ? "تم الفتح:" : "Unlocked:"} {ach.unlockedAt}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* TAB 3: Price Drop & Wishlist Alerts */}
+          <TabsContent value="alerts" className="space-y-4 mt-0">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-black text-foreground flex items-center gap-2">
+                    <BellRing className="w-5 h-5 text-rose-500" />
+                    <span>{isRtl ? "مركز تنبيهات انخفاض الأسعار والطبعات الجديدة" : "Wishlist & Price Drop Alerts Center"}</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {isRtl
+                      ? "إشعارات فورية ترصد تخفيضات الأسعار وصدور الطبعات المنقحة للكتب في قائمة رغباتك."
+                      : "Instant notifications regarding discounts and new editions for your favorited books."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {alerts.map((alert) => (
+                  <Card
+                    key={alert.id}
+                    className={`p-4 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                      !alert.isRead
+                        ? "bg-rose-500/5 border-rose-500/30 shadow-xs"
+                        : "bg-card/50 border-border/60 opacity-80"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                          alert.type === "price_drop"
+                            ? "bg-rose-500/15 text-rose-600"
+                            : alert.type === "new_edition"
+                            ? "bg-amber-500/15 text-amber-600"
+                            : "bg-blue-500/15 text-blue-600"
+                        }`}
+                      >
+                        {alert.type === "price_drop" ? (
+                          <Tag className="w-5 h-5" />
+                        ) : alert.type === "new_edition" ? (
+                          <Sparkles className="w-5 h-5" />
+                        ) : (
+                          <Truck className="w-5 h-5" />
+                        )}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-black text-foreground">{alert.bookTitle}</h4>
+                          <Badge
+                            className={
+                              alert.type === "price_drop"
+                                ? "bg-rose-500 text-white text-[10px]"
+                                : "bg-amber-500 text-slate-950 text-[10px]"
+                            }
+                          >
+                            {alert.type === "price_drop"
+                              ? isRtl
+                                ? "خصم حصري 🔥"
+                                : "Price Drop"
+                              : isRtl
+                              ? "طبعة جديدة ✨"
+                              : "New Edition"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {isRtl ? alert.message_ar : alert.message_en}
+                        </p>
+                        <span className="text-[10px] text-muted-foreground font-mono mt-1 block">
+                          {alert.date}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                      <Link to={`/book-store/catalog`}>
+                        <Button size="sm" className="h-8 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white gap-1">
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "اقتناء الآن" : "Buy Now"}</span>
+                        </Button>
+                      </Link>
+
+                      {!alert.isRead && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleMarkAlertRead(alert.id)}
+                          className="h-8 text-xs font-bold text-muted-foreground hover:text-foreground"
+                        >
+                          {isRtl ? "تعيين كمقروء" : "Mark as read"}
+                        </Button>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* TAB 4: Wishlist */}
+          <TabsContent value="wishlist" className="space-y-4 mt-0">
+            {wishlistBooks.length === 0 ? (
+              <Card className="text-center p-12 border-dashed">
+                <Heart className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <h3 className="text-base font-bold text-foreground mb-1">
+                  {isRtl ? "قائمة رغباتك فارغة" : "Wishlist is Empty"}
+                </h3>
+                <p className="text-xs text-muted-foreground mb-4">
+                  {isRtl ? "أضف كتباً إلى قائمة الرغبات لحفظها وتلقي تنبيهات الأسعار عليها." : "Save books to your wishlist for price drop tracking."}
+                </p>
+                <Link to="/book-store/browse">
+                  <Button size="sm" variant="outline" className="font-bold">
+                    {isRtl ? "تصفح الكتب" : "Browse Books"}
+                  </Button>
+                </Link>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {wishlistBooks.map((b) => (
+                  <Card key={b.id} className="p-4 flex gap-4 items-center relative group">
+                    <img src={b.cover_url} alt={b.title_ar} className="w-20 h-28 object-cover rounded-xl shadow-md shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <Badge variant="outline" className="text-[9px] mb-1">
+                        {isRtl ? b.category_ar : b.category_en}
+                      </Badge>
+                      <h4 className="text-sm font-black truncate">{isRtl ? b.title_ar : b.title_en}</h4>
+                      <p className="text-xs text-muted-foreground truncate">{isRtl ? b.author_ar : b.author_en}</p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-sm font-black text-amber-600">{b.price_digital} EGP</span>
+                        <span className="text-[10px] text-muted-foreground">({isRtl ? "رقمي" : "Digital"})</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-3">
+                        <Link to={`/book-store/catalog`} className="flex-1">
+                          <Button size="sm" className="w-full h-8 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white">
+                            {isRtl ? "شراء" : "Buy"}
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveFromWishlist(b.id)}
+                          className="h-8 text-xs text-muted-foreground hover:text-red-500"
+                        >
+                          {isRtl ? "إزالة" : "Remove"}
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* TAB 5: Purchases */}
           <TabsContent value="purchases" className="space-y-4 mt-0">
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -404,7 +768,6 @@ export const ReaderDashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Order items list */}
                     <div className="pt-3 space-y-2">
                       {order.items.map((it, idx) => (
                         <div key={idx} className="flex items-center justify-between text-xs">
@@ -424,46 +787,63 @@ export const ReaderDashboard: React.FC = () => {
               </div>
             </Card>
           </TabsContent>
-
-          {/* TAB 3: Wishlist */}
-          <TabsContent value="wishlist" className="space-y-4 mt-0">
-            {wishlistBooks.length === 0 ? (
-              <Card className="text-center p-12 border-dashed">
-                <Heart className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                <h3 className="text-base font-bold text-foreground mb-1">
-                  {isRtl ? "قائمة رغباتك فارغة" : "Wishlist is Empty"}
-                </h3>
-                <p className="text-xs text-muted-foreground mb-4">
-                  {isRtl ? "أضف كتباً إلى قائمة الرغبات لحفظها وشرائها لاحقاً." : "Save books to your wishlist to buy later."}
-                </p>
-                <Link to="/book-store/browse">
-                  <Button size="sm" variant="outline" className="font-bold">
-                    {isRtl ? "تصفح الكتب" : "Browse Books"}
-                  </Button>
-                </Link>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {wishlistBooks.map((b) => (
-                  <Card key={b.id} className="p-4 flex gap-4 items-center">
-                    <img src={b.cover_url} alt={b.title_ar} className="w-16 h-22 object-cover rounded-lg shadow-xs" />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-black truncate">{isRtl ? b.title_ar : b.title_en}</h4>
-                      <p className="text-xs text-muted-foreground truncate">{isRtl ? b.author_ar : b.author_en}</p>
-                      <p className="text-xs font-bold text-amber-600 mt-1">{b.price_digital} EGP</p>
-                      <Link to={`/book-store/catalog?id=${b.id}`}>
-                        <Button size="sm" variant="default" className="mt-2 h-7 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white">
-                          {isRtl ? "شراء الآن" : "Buy Now"}
-                        </Button>
-                      </Link>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
         </Tabs>
       </main>
+
+      {/* Edit Reading Goal Dialog */}
+      <Dialog open={isEditGoalOpen} onOpenChange={setIsEditGoalOpen}>
+        <DialogContent className="sm:max-w-md" dir={dir}>
+          <DialogHeader>
+            <DialogTitle className="font-black text-lg">
+              {isRtl ? "تخصيص تحدي القراءة السنوي" : "Customize Reading Challenge"}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              {isRtl
+                ? "حدد عدد الكتب المستهدفة لعام 2026 ووقت القراءة الأسبوعي لبناء عادة معرفية مستدامة."
+                : "Set your target book count and weekly reading minutes for 2026."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-foreground">
+                {isRtl ? "عدد الكتب المستهدفة سنوياً (كتاب)" : "Target Books / Year"}
+              </label>
+              <Input
+                type="number"
+                value={newTargetBooks}
+                onChange={(e) => setNewTargetBooks(Number(e.target.value))}
+                min={1}
+                max={100}
+                className="h-10 text-xs rounded-xl font-mono"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-foreground">
+                {isRtl ? "وقت القراءة المستهدف أسبوعياً (دقيقة)" : "Target Minutes / Week"}
+              </label>
+              <Input
+                type="number"
+                value={newWeeklyMinutes}
+                onChange={(e) => setNewWeeklyMinutes(Number(e.target.value))}
+                min={15}
+                max={1000}
+                className="h-10 text-xs rounded-xl font-mono"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setIsEditGoalOpen(false)}>
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button size="sm" onClick={handleUpdateGoal} className="font-bold bg-amber-600 hover:bg-amber-700 text-white">
+              {isRtl ? "حفظ وتثبيت التحدي" : "Save Challenge"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* DRM E-Reader Modal */}
       {readingBook && (

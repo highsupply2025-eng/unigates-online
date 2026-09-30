@@ -1,425 +1,430 @@
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { BookOpen, Search, ShoppingCart, Star, Filter, Tag, Heart, Eye, Loader2, CheckCircle, Home, LogIn, User, LogOut, ArrowLeft, ArrowRight } from "lucide-react";
+import { 
+  BookOpen, 
+  Search, 
+  ShoppingCart, 
+  Star, 
+  Filter, 
+  Tag, 
+  Heart, 
+  Eye, 
+  CheckCircle, 
+  Home, 
+  LogIn, 
+  User, 
+  LogOut, 
+  ArrowLeft, 
+  ArrowRight,
+  Library,
+  Truck,
+  Lock,
+  Building2,
+  Sparkles,
+  Bookmark,
+  Check
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useBooks } from "@/hooks/useBooks";
-import { supabase } from "@/integrations/supabase/client";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-
-import webdevBook from "@/assets/books/webdev-book.jpg";
-import aiBook from "@/assets/books/ai-book.jpg";
-import dataBook from "@/assets/books/data-book.jpg";
-import marketingBook from "@/assets/books/marketing-book.jpg";
-import designBook from "@/assets/books/design-book.jpg";
-import securityBook from "@/assets/books/security-book.jpg";
-
-const fallbackCovers: Record<string, string> = {
-  programming: webdevBook,
-  ai: aiBook,
-  data: dataBook,
-  marketing: marketingBook,
-  design: designBook,
-  security: securityBook,
-};
+import { BookStoreDataStore } from "@/services/bookStoreDataStore";
+import { BookStoreItem, BookFormat } from "@/types/bookStore";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const BookStore = () => {
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const isRtl = dir === "rtl";
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const [catalog, setCatalog] = useState<BookStoreItem[]>(BookStoreDataStore.getCatalog());
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [buyingBook, setBuyingBook] = useState<string | null>(null);
-  const [orderSuccess, setOrderSuccess] = useState(false);
-  const [purchasing, setPurchasing] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const { data: books, isLoading } = useBooks();
-
-  useEffect(() => {
-    let mounted = true;
-
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (mounted) setIsAuthenticated(!!user);
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session?.user);
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
+  const [selectedBookForBuy, setSelectedBookForBuy] = useState<BookStoreItem | null>(null);
+  const [selectedFormat, setSelectedFormat] = useState<"digital" | "print">("digital");
+  const [wishlist, setWishlist] = useState<string[]>(BookStoreDataStore.getWishlist());
 
   const categories = [
     { id: "all", label: isRtl ? "الكل" : "All" },
-    { id: "programming", label: isRtl ? "البرمجة" : "Programming" },
-    { id: "ai", label: isRtl ? "الذكاء الاصطناعي" : "AI" },
-    { id: "data", label: isRtl ? "علوم البيانات" : "Data Science" },
-    { id: "marketing", label: isRtl ? "التسويق" : "Marketing" },
-    { id: "design", label: isRtl ? "التصميم" : "Design" },
-    { id: "security", label: isRtl ? "الأمن السيبراني" : "Cybersecurity" },
+    { id: "academic", label: isRtl ? "مراجع ودراسات أكاديمية" : "Academic References" },
+    { id: "technology", label: isRtl ? "الذكاء الاصطناعي والتقنية" : "AI & Technology" },
+    { id: "business", label: isRtl ? "إدارة الأعمال والقيادة" : "Business & Leadership" },
+    { id: "programming", label: isRtl ? "البرمجة وهندسة النظم" : "Programming" },
+    { id: "humanities", label: isRtl ? "العلوم الإنسانية واللغات" : "Humanities" },
   ];
 
-  const filteredBooks = (books ?? []).filter((book) => {
+  const filteredBooks = catalog.filter((book) => {
     const matchesCategory = selectedCategory === "all" || book.category === selectedCategory;
     const title = isRtl ? book.title_ar : book.title_en;
     const author = isRtl ? book.author_ar : book.author_en;
+    const publisher = isRtl ? book.publisher_ar : book.publisher_en;
     const matchesSearch =
       title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      author.toLowerCase().includes(searchQuery.toLowerCase());
+      author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      publisher.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const selectedBook = books?.find((b) => b.id === buyingBook);
-
-  const handleBuy = async () => {
-    if (!selectedBook) return;
-    setPurchasing(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setBuyingBook(null);
-        setPurchasing(false);
-        navigate("/book-store/login");
-        return;
-      }
-      const { error } = await supabase.from("book_orders").insert({
-        user_id: user.id,
-        book_id: selectedBook.id,
-        amount: selectedBook.price,
-      });
-      if (error) throw error;
-      setOrderSuccess(true);
-    } catch (err: any) {
-      toast({
-        title: isRtl ? "حدث خطأ" : "Error",
-        description: err.message,
-        variant: "destructive",
-      });
-    } finally {
-      setPurchasing(false);
-    }
+  const handleToggleWishlist = (bookId: string) => {
+    const isAdded = BookStoreDataStore.toggleWishlist(bookId);
+    setWishlist(BookStoreDataStore.getWishlist());
+    toast({
+      title: isAdded
+        ? isRtl ? "تمت الإضافة للمفضلة ❤️" : "Added to Wishlist ❤️"
+        : isRtl ? "تم الحذف من المفضلة" : "Removed from Wishlist",
+    });
   };
 
-  const stats = [
-    { value: `${books?.length ?? 0}+`, label: isRtl ? "كتاب متاح" : "Books Available" },
-    { value: "50K+", label: isRtl ? "قارئ" : "Readers" },
-    { value: "4.8", label: isRtl ? "متوسط التقييم" : "Avg Rating" },
-    { value: "30%", label: isRtl ? "خصم حصري" : "Exclusive Discount" },
-  ];
+  const handleOpenBuyDialog = (book: BookStoreItem, defaultFormat: "digital" | "print" = "digital") => {
+    setSelectedBookForBuy(book);
+    setSelectedFormat(defaultFormat);
+  };
+
+  const handleProceedToCartOrCheckout = () => {
+    if (!selectedBookForBuy) return;
+    BookStoreDataStore.addToCart(selectedBookForBuy, selectedFormat, 1);
+    setSelectedBookForBuy(null);
+
+    toast({
+      title: isRtl ? "تمت الإضافة لسلة الشراء 🛒" : "Added to Cart 🛒",
+      description: isRtl
+        ? `تمت إضافة كتاب «${selectedBookForBuy.title_ar}» بصيغة (${selectedFormat === "digital" ? "رقمي" : "ورقي"}).`
+        : `Book added in ${selectedFormat} format.`,
+    });
+
+    navigate("/book-store/cart");
+  };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      {/* Hero */}
-      <div className="bg-primary/90 pb-8">
-        {/* Book Store Header with auth links */}
-        <div className="px-6 py-3 flex items-center justify-between max-w-6xl mx-auto pt-6">
-          <Link to="/book-store" className="flex items-center gap-2">
-            <BookOpen className="w-7 h-7 text-primary-foreground" />
-            <span className="text-xl font-black text-primary-foreground">{t.bookStore}</span>
+    <div className="min-h-screen bg-background flex flex-col selection:bg-amber-600 selection:text-white" dir={dir}>
+      {/* Top Header */}
+      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-md sticky top-0 z-40 shadow-xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <Link to="/book-store" className="flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 p-0.5 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center text-white">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xl font-black text-foreground tracking-tight">UNIGATES</span>
+              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                {isRtl ? "متجر الكتب والمكتبة الرقمية • دار عبيد" : "Book Store & Dar Obeid Publishing"}
+              </p>
+            </div>
           </Link>
-          <div className="flex items-center gap-2">
-            {isAuthenticated ? (
-              <>
-                <Link to="/book-store/profile">
-                  <Button variant="secondary" size="sm" className="font-semibold gap-1.5">
-                    <User className="w-4 h-4" />
-                    {isRtl ? "الملف الشخصي" : "Profile"}
-                  </Button>
-                </Link>
-                <Button variant="outline" size="sm" onClick={handleLogout} className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
-                  <LogOut className="w-4 h-4" />
-                  {isRtl ? "تسجيل الخروج" : "Logout"}
-                </Button>
-              </>
-            ) : (
-              <></>
-            )}
-            <Link to="/">
-              <Button variant="outline" size="sm" className="font-semibold border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-1.5">
-                <Home className="w-4 h-4" />
+
+          {/* Nav buttons */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/book-store/reader-dashboard">
+              <Button size="sm" variant="outline" className="font-bold gap-1.5 h-9 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10">
+                <Library className="w-4 h-4 text-amber-500" />
+                <span className="hidden sm:inline">{isRtl ? "مكتبتي الرقمية (قارئ)" : "My Reader Library"}</span>
               </Button>
             </Link>
+
+            <Link to="/book-store/publisher-dashboard">
+              <Button size="sm" variant="outline" className="font-bold gap-1.5 h-9 border-border/60">
+                <Building2 className="w-4 h-4 text-orange-500" />
+                <span className="hidden md:inline">{isRtl ? "بوابة الناشر" : "Publisher Studio"}</span>
+              </Button>
+            </Link>
+
+            <Link to="/book-store/cart">
+              <Button size="sm" className="font-bold gap-1.5 h-9 bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-500/20">
+                <ShoppingCart className="w-4 h-4" />
+                <span>{isRtl ? "السلة" : "Cart"}</span>
+              </Button>
+            </Link>
+
+            <LanguageSelectorDropdown className="h-9 px-3" />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
           </div>
         </div>
-        <div className="pt-8 pb-12 px-6 md:px-12 text-center max-w-5xl mx-auto">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
-              <BookOpen className="w-8 h-8 text-primary-foreground" />
-            </div>
-          </div>
-          <h1 className="text-3xl md:text-5xl font-black text-primary-foreground mb-3">
-            {t.bookStore}
+      </header>
+
+      {/* Hero Search Section */}
+      <section className="bg-gradient-to-b from-amber-500/15 via-background to-background py-10 px-4 sm:px-8 border-b border-border/40">
+        <div className="max-w-5xl mx-auto text-center space-y-4">
+          <Badge className="bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/30 text-xs px-3 py-1">
+            {isRtl ? "دار عبيد للطباعة والنشر والتوزيع • موثق ومعتمد" : "Dar Obeid Publishing & Distribution"}
+          </Badge>
+          <h1 className="text-3xl sm:text-5xl font-black text-foreground tracking-tight">
+            {isRtl ? "متجر ومكتبة الكتب الأكاديمية والعلمية" : "Academic Book Store & E-Library"}
           </h1>
-          <p className="text-primary-foreground/70 text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
             {isRtl
-              ? "اكتشف مكتبتنا الرقمية الشاملة — كتب تعليمية متخصصة في التقنية والبرمجة والتصميم"
-              : "Explore our comprehensive digital library — specialized educational books in tech, programming, and design"}
+              ? "اقتنِ نسختك الرقمية المشفرة بنظام DRM للقراءة الفورية وأوفلاين، أو اطلب النسخة الورقية الفاخرة مع الشحن السريع لباب منزلك."
+              : "Buy DRM-encrypted digital e-books for instant & offline reading, or order deluxe print copies with fast doorstep delivery."}
           </p>
-          <div className="max-w-xl mx-auto relative">
-            <Search className="absolute top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" style={{ [isRtl ? "right" : "left"]: "1rem" }} />
+
+          {/* Search bar */}
+          <div className="max-w-2xl mx-auto relative pt-2">
+            <Search className="absolute top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 pointer-events-none" style={{ [isRtl ? "right" : "left"]: "1.25rem" }} />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={isRtl ? "ابحث عن كتاب أو مؤلف..." : "Search for a book or author..."}
-              className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 h-12 rounded-xl"
-              style={{ [isRtl ? "paddingRight" : "paddingLeft"]: "3rem" }}
+              placeholder={isRtl ? "ابحث بعنوان الكتاب، اسم الباحث أو المؤلف، أو دار النشر..." : "Search by book title, author, or publisher..."}
+              className="h-13 rounded-2xl bg-card border-border/80 text-sm shadow-md"
+              style={{ [isRtl ? "paddingRight" : "paddingLeft"]: "3.25rem" }}
             />
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Stats */}
-      <div className="bg-card border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats.map((stat, i) => (
-            <div key={i} className="text-center">
-              <div className="text-2xl md:text-3xl font-black text-primary">{stat.value}</div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CTA Banner */}
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5 border border-primary/20 p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                <BookOpen className="w-5 h-5 text-primary" />
-              </div>
-              <p className="text-base md:text-lg font-bold text-foreground">
-                {isRtl ? "📖 انشر كتبك أو ابدأ البيع في متجرنا — انضم الآن!" : "📖 Publish your books or start selling — Join now!"}
-              </p>
-            </div>
-            <Link to="/book-store/signup">
-              <Button size="sm" className="font-bold shrink-0 gap-1.5">
-                {isRtl ? "انضم كناشر" : "Join as Publisher"}
-                {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Categories */}
-      <div className="max-w-6xl mx-auto px-6 pt-8 pb-4">
-        <div className="flex items-center gap-2 mb-2">
-          <Filter className="w-5 h-5 text-muted-foreground" />
-          <span className="text-sm font-semibold text-muted-foreground">
-            {isRtl ? "التصنيفات" : "Categories"}
-          </span>
-        </div>
-        <div className="flex flex-wrap gap-2">
+      {/* Categories Filter Bar */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-8 pt-8 pb-4">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
           {categories.map((cat) => (
             <Button
               key={cat.id}
               variant={selectedCategory === cat.id ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedCategory(cat.id)}
-              className="rounded-full"
+              className={`rounded-xl text-xs font-bold shrink-0 transition-all ${
+                selectedCategory === cat.id
+                  ? "bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-500/20"
+                  : "border-border/60"
+              }`}
             >
               {cat.label}
             </Button>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Books Grid */}
-      <div className="flex-1 max-w-6xl mx-auto px-6 py-6">
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Card key={i} className="overflow-hidden">
-                <Skeleton className="h-56 w-full" />
-                <CardContent className="p-4 space-y-3">
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-5 w-full" />
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-8 w-full" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredBooks.map((book) => {
-              const title = isRtl ? book.title_ar : book.title_en;
-              const author = isRtl ? book.author_ar : book.author_en;
-              const coverImg = book.cover_url || fallbackCovers[book.category] || webdevBook;
-              const discount = book.original_price && book.original_price > book.price
-                ? Math.round(((book.original_price - book.price) / book.original_price) * 100)
-                : 0;
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredBooks.map((book) => {
+            const title = isRtl ? book.title_ar : book.title_en;
+            const author = isRtl ? book.author_ar : book.author_en;
+            const publisher = isRtl ? book.publisher_ar : book.publisher_en;
+            const isWishlisted = wishlist.includes(book.id);
 
-              return (
-                <Card key={book.id} className="group overflow-hidden hover:shadow-lg transition-shadow border-border">
-                  <div className="relative overflow-hidden">
-                    <img src={coverImg} alt={title} className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <div className="absolute top-3 flex gap-1.5" style={{ [isRtl ? "right" : "left"]: "0.75rem" }}>
+            return (
+              <Card
+                key={book.id}
+                className="group overflow-hidden border-border/70 hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-500/10 transition-all flex flex-col bg-card"
+              >
+                {/* Book Cover Image */}
+                <div className="relative aspect-16/10 overflow-hidden bg-slate-950">
+                  <img
+                    src={book.cover_url}
+                    alt={title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                  {/* Top Badges */}
+                  <div className="absolute top-3 inset-x-3 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
                       {book.is_bestseller && (
-                        <Badge className="bg-amber-500 text-primary-foreground text-xs">
+                        <Badge className="bg-amber-500 text-slate-950 font-black text-[10px]">
                           {isRtl ? "الأكثر مبيعاً" : "Bestseller"}
                         </Badge>
                       )}
                       {book.is_new && (
-                        <Badge className="bg-emerald-500 text-primary-foreground text-xs">
+                        <Badge className="bg-emerald-500 text-white font-bold text-[10px]">
                           {isRtl ? "جديد" : "New"}
                         </Badge>
                       )}
                     </div>
-                    <button className="absolute top-3 bg-background/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" style={{ [isRtl ? "left" : "right"]: "0.75rem" }}>
-                      <Heart className="w-4 h-4 text-destructive" />
+
+                    <button
+                      onClick={() => handleToggleWishlist(book.id)}
+                      className={`p-2 rounded-xl backdrop-blur-md transition-all ${
+                        isWishlisted
+                          ? "bg-rose-500 text-white"
+                          : "bg-black/40 text-white/80 hover:text-white hover:bg-black/60"
+                      }`}
+                      title={isRtl ? "المفضلة" : "Wishlist"}
+                    >
+                      <Heart className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""}`} />
                     </button>
-                    {discount > 0 && (
-                      <div className="absolute bottom-3 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded" style={{ [isRtl ? "left" : "right"]: "0.75rem" }}>
-                        -{discount}%
-                      </div>
-                    )}
                   </div>
 
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <Tag className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {categories.find((c) => c.id === book.category)?.label}
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-foreground leading-tight mb-1 line-clamp-2 min-h-[2.5rem]">{title}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{author}</p>
-                    <div className="flex items-center gap-1 mb-3">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      <span className="text-sm font-semibold text-foreground">{book.rating}</span>
-                      <span className="text-xs text-muted-foreground">({book.reviews_count})</span>
-                      <span className="mx-1 text-border">•</span>
-                      <span className="text-xs text-muted-foreground">{book.pages} {isRtl ? "صفحة" : "pages"}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 mb-3">
-                      <Eye className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">{book.format}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl font-black text-primary">${book.price}</span>
-                        {discount > 0 && (
-                          <span className="text-sm text-muted-foreground line-through">${book.original_price}</span>
-                        )}
-                      </div>
-                      <Button size="sm" className="rounded-full gap-1.5" onClick={() => { setBuyingBook(book.id); setOrderSuccess(false); }}>
-                        <ShoppingCart className="w-4 h-4" />
-                        {isRtl ? "شراء" : "Buy"}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
-        {!isLoading && filteredBooks.length === 0 && (
-          <div className="text-center py-20">
-            <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
-            <p className="text-lg font-semibold text-muted-foreground">
-              {isRtl ? "لا توجد كتب مطابقة للبحث" : "No books match your search"}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Purchase Dialog */}
-      <Dialog open={!!buyingBook} onOpenChange={(open) => { if (!open) { setBuyingBook(null); setOrderSuccess(false); } }}>
-        <DialogContent className="sm:max-w-md" dir={dir}>
-          {orderSuccess ? (
-            <div className="text-center py-6 space-y-4">
-              <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto" />
-              <DialogTitle className="text-xl font-bold">
-                {isRtl ? "تم الشراء بنجاح!" : "Purchase Successful!"}
-              </DialogTitle>
-              <DialogDescription>
-                {isRtl ? "شكراً لك! تم تسجيل طلبك بنجاح وسيتم إرسال الكتاب إليك قريباً." : "Thank you! Your order has been recorded and the book will be sent to you soon."}
-              </DialogDescription>
-              <Button onClick={() => { setBuyingBook(null); setOrderSuccess(false); }} className="rounded-full">
-                {isRtl ? "متابعة التصفح" : "Continue Browsing"}
-              </Button>
-            </div>
-          ) : selectedBook ? (
-            <>
-              <DialogHeader>
-                <DialogTitle>{isRtl ? "تأكيد الشراء" : "Confirm Purchase"}</DialogTitle>
-                <DialogDescription>
-                  {isRtl ? "راجع تفاصيل الكتاب قبل إتمام الشراء" : "Review book details before completing purchase"}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="flex gap-4">
-                  <img
-                    src={selectedBook.cover_url || fallbackCovers[selectedBook.category] || webdevBook}
-                    alt={isRtl ? selectedBook.title_ar : selectedBook.title_en}
-                    className="w-20 h-28 object-cover rounded-lg"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-bold text-foreground">{isRtl ? selectedBook.title_ar : selectedBook.title_en}</h3>
-                    <p className="text-sm text-muted-foreground">{isRtl ? selectedBook.author_ar : selectedBook.author_en}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{selectedBook.format} • {selectedBook.pages} {isRtl ? "صفحة" : "pages"}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xl font-black text-primary">${selectedBook.price}</span>
-                      {selectedBook.original_price && selectedBook.original_price > selectedBook.price && (
-                        <span className="text-sm text-muted-foreground line-through">${selectedBook.original_price}</span>
-                      )}
-                    </div>
+                  {/* Bottom Cover Info */}
+                  <div className="absolute bottom-3 inset-x-3">
+                    <p className="text-white text-xs font-bold opacity-90 truncate">{publisher}</p>
+                    <p className="text-[10px] text-amber-300 font-mono">ISBN: {book.isbn}</p>
                   </div>
                 </div>
-                {(isRtl ? selectedBook.description_ar : selectedBook.description_en) && (
-                  <p className="text-sm text-muted-foreground border-t border-border pt-3">
-                    {isRtl ? selectedBook.description_ar : selectedBook.description_en}
-                  </p>
-                )}
-                <Button onClick={handleBuy} disabled={purchasing} className="w-full rounded-full gap-2">
-                  {purchasing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShoppingCart className="w-4 h-4" />}
-                  {purchasing
-                    ? (isRtl ? "جارٍ المعالجة..." : "Processing...")
-                    : (isRtl ? `شراء الآن - $${selectedBook.price}` : `Buy Now - $${selectedBook.price}`)}
-                </Button>
+
+                {/* Book Details */}
+                <CardContent className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div>
+                    <Badge variant="outline" className="text-[10px] font-bold mb-1.5 border-amber-500/30 text-amber-700 dark:text-amber-300">
+                      {isRtl ? book.category_ar : book.category_en}
+                    </Badge>
+                    <h3 className="text-base font-black text-foreground line-clamp-2">
+                      {title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-semibold mt-1">
+                      {author}
+                    </p>
+
+                    <div className="flex items-center gap-2 mt-2.5 text-xs text-muted-foreground">
+                      <div className="flex items-center text-amber-500">
+                        <Star className="w-3.5 h-3.5 fill-current" />
+                        <span className="font-bold ms-1 text-foreground">{book.rating}</span>
+                      </div>
+                      <span>•</span>
+                      <span>({book.reviews_count} {isRtl ? "تقييم" : "reviews"})</span>
+                      <span>•</span>
+                      <span>{book.pages} {isRtl ? "صفحة" : "pages"}</span>
+                    </div>
+                  </div>
+
+                  {/* Pricing Matrix */}
+                  <div className="pt-3 border-t border-border/40 space-y-2">
+                    <div className="grid grid-cols-2 gap-2 bg-muted/40 p-2.5 rounded-xl text-xs">
+                      {/* Digital Price */}
+                      <div className="text-center p-1.5 rounded-lg border border-amber-500/20 bg-amber-500/5">
+                        <p className="text-[10px] text-muted-foreground font-semibold">
+                          {isRtl ? "📱 نسخة رقمية DRM" : "📱 Digital E-Book"}
+                        </p>
+                        <p className="text-sm font-black text-amber-600 dark:text-amber-400">
+                          {book.price_digital} EGP
+                        </p>
+                      </div>
+
+                      {/* Print Price */}
+                      <div className="text-center p-1.5 rounded-lg border border-blue-500/20 bg-blue-500/5">
+                        <p className="text-[10px] text-muted-foreground font-semibold">
+                          {isRtl ? "📦 نسخة ورقية فاخرة" : "📦 Deluxe Print"}
+                        </p>
+                        <p className="text-sm font-black text-foreground">
+                          {book.price_print} EGP
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Action Purchase Buttons */}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <Button
+                        size="sm"
+                        onClick={() => handleOpenBuyDialog(book, "digital")}
+                        className="font-bold text-xs h-9 bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-xs gap-1"
+                      >
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>{isRtl ? "شراء رقمي" : "Buy Digital"}</span>
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleOpenBuyDialog(book, "print")}
+                        className="font-bold text-xs h-9 border-border/80 hover:bg-muted rounded-xl gap-1"
+                      >
+                        <Truck className="w-3.5 h-3.5 text-blue-500" />
+                        <span>{isRtl ? "طلب ورقي" : "Order Print"}</span>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </main>
+
+      {/* Buy Format Confirmation Dialog */}
+      <Dialog open={!!selectedBookForBuy} onOpenChange={(open) => !open && setSelectedBookForBuy(null)}>
+        <DialogContent className="sm:max-w-md" dir={dir}>
+          {selectedBookForBuy && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-lg font-black">
+                  {isRtl ? "تحديد صيغة واقتناء الكتاب" : "Select Format & Purchase"}
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  {isRtl ? selectedBookForBuy.title_ar : selectedBookForBuy.title_en}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-2">
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Digital Choice */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFormat("digital")}
+                    className={`p-3.5 rounded-2xl border text-start transition-all flex flex-col justify-between ${
+                      selectedFormat === "digital"
+                        ? "border-amber-500 bg-amber-500/10 shadow-sm"
+                        : "border-border/60 hover:border-border"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <Lock className="w-4 h-4 text-amber-500" />
+                        {selectedFormat === "digital" && <Check className="w-4 h-4 text-amber-600" />}
+                      </div>
+                      <p className="text-xs font-black">{isRtl ? "نسخة رقمية DRM" : "Digital DRM E-Book"}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {isRtl ? "قراءة فورية وأوفلاين بمكتبتك" : "Instant & offline reader"}
+                      </p>
+                    </div>
+                    <p className="text-base font-black text-amber-600 mt-3">
+                      {selectedBookForBuy.price_digital} EGP
+                    </p>
+                  </button>
+
+                  {/* Print Choice */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFormat("print")}
+                    className={`p-3.5 rounded-2xl border text-start transition-all flex flex-col justify-between ${
+                      selectedFormat === "print"
+                        ? "border-amber-500 bg-amber-500/10 shadow-sm"
+                        : "border-border/60 hover:border-border"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <Truck className="w-4 h-4 text-blue-500" />
+                        {selectedFormat === "print" && <Check className="w-4 h-4 text-amber-600" />}
+                      </div>
+                      <p className="text-xs font-black">{isRtl ? "نسخة ورقية مطبوعة" : "Physical Deluxe Print"}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {isRtl ? "طباعة فاخرة وشحن إكسبريس" : "Express door shipping"}
+                      </p>
+                    </div>
+                    <p className="text-base font-black text-foreground mt-3">
+                      {selectedBookForBuy.price_print} EGP
+                    </p>
+                  </button>
+                </div>
+
+                <div className="p-3 bg-muted/40 rounded-xl text-xs space-y-1 text-muted-foreground">
+                  <p>• {isRtl ? "الناشر المعتمد: " : "Accredited Publisher: "}<span className="font-bold text-foreground">{selectedBookForBuy.publisher_ar}</span></p>
+                  <p>• {isRtl ? "نسبة الناشر: 80% • عمولة المنصة: 20%" : "Publisher Share: 80% • Platform Fee: 20%"}</p>
+                </div>
               </div>
+
+              <DialogFooter className="gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSelectedBookForBuy(null)}>
+                  {isRtl ? "إلغاء" : "Cancel"}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleProceedToCartOrCheckout}
+                  className="font-bold bg-amber-600 hover:bg-amber-700 text-white"
+                >
+                  <ShoppingCart className="w-4 h-4 me-1.5" />
+                  <span>{isRtl ? "المتابعة لإتمام الدفع" : "Proceed to Checkout"}</span>
+                </Button>
+              </DialogFooter>
             </>
-          ) : null}
+          )}
         </DialogContent>
       </Dialog>
-
-      {/* CTA */}
-      <div className="bg-primary/5 border-t border-border">
-        <div className="max-w-4xl mx-auto px-6 py-12 text-center">
-          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
-            {isRtl ? "هل أنت مؤلف؟ انشر كتابك معنا" : "Are you an author? Publish with us"}
-          </h2>
-          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-            {isRtl
-              ? "انضم إلى مجتمع المؤلفين لدينا وشارك معرفتك مع آلاف القراء"
-              : "Join our author community and share your knowledge with thousands of readers"}
-          </p>
-          <Button size="lg" className="rounded-full px-8">
-            {isRtl ? "تواصل معنا" : "Contact Us"}
-          </Button>
-        </div>
-      </div>
 
       <SiteFooter />
     </div>

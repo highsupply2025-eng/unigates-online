@@ -64,6 +64,9 @@ const BookStorePlatform = lazy(() => import("./pages/BookStorePlatform"));
 const BookStore = lazy(() => import("./pages/BookStore"));
 const BookStoreLogin = lazy(() => import("./pages/BookStoreLogin"));
 const BookStoreSignup = lazy(() => import("./pages/BookStoreSignup"));
+const ReaderDashboard = lazy(() => import("./pages/ReaderDashboard"));
+const PublisherDashboard = lazy(() => import("./pages/PublisherDashboard"));
+const BookStoreCartCheckout = lazy(() => import("./pages/BookStoreCartCheckout"));
 const NasherPlatform = lazy(() => import("./pages/NasherPlatform"));
 const NasherDashboard = lazy(() => import("./pages/NasherDashboard"));
 const NasherLogin = lazy(() => import("./pages/NasherLogin"));
@@ -230,13 +233,17 @@ const App = () => (
               <Route path="/admin/payment-settings" element={<AdminPaymentSettings />} />
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
-              {/* Book Store + dedicated auth */}
+              {/* Book Store + dedicated auth + reader & publisher portals */}
               <Route path="/book-store" element={<BookStorePlatform />} />
               <Route path="/book-store/catalog" element={<BookStore />} />
               <Route path="/book-store/browse" element={<BookStore />} />
               <Route path="/book-store/login" element={<BookStoreLogin />} />
               <Route path="/book-store/signup" element={<BookStoreSignup />} />
-              <Route path="/book-store/payment" element={<Payment />} />
+              <Route path="/book-store/reader-dashboard" element={<ReaderDashboard />} />
+              <Route path="/book-store/publisher-dashboard" element={<PublisherDashboard />} />
+              <Route path="/book-store/cart" element={<BookStoreCartCheckout />} />
+              <Route path="/book-store/checkout" element={<BookStoreCartCheckout />} />
+              <Route path="/book-store/payment" element={<BookStoreCartCheckout />} />
               {/* Nashr Platform (منصة نشر) */}
               <Route path="/nashr" element={<NasherPlatform />} />
               <Route path="/nashr/dashboard" element={<NasherDashboard />} />

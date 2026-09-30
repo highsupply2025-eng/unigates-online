@@ -52,8 +52,8 @@ export function isPlatformUnderDevelopment(
   platform: PlatformKey,
   customHostname?: string
 ): boolean {
-  // Courses Academy and Nashr Platform are always active & live across all domains
-  if (platform === "courses" || platform === "nasher" || platform === "nashr") {
+  // Courses Academy, Book Store, and Nashr Platform are always active & live across all domains
+  if (platform === "courses" || platform === "nasher" || platform === "nashr" || platform === "bookstore") {
     return false;
   }
 

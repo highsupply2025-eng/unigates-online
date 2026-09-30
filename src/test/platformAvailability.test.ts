@@ -2,12 +2,17 @@ import { describe, it, expect } from "vitest";
 import { isPlatformUnderDevelopment, getPlatformMeta } from "@/lib/platformAvailability";
 
 describe("UniGates Platform Availability & Environment Controller", () => {
-  describe("1. Courses & Nashr Platforms (Active & Live Everywhere)", () => {
-    it("remains 100% active and live across all domains including production for Courses and Nashr", () => {
+  describe("1. Courses, Book Store & Nashr Platforms (Active & Live Everywhere)", () => {
+    it("remains 100% active and live across all domains including production for Courses, Book Store and Nashr", () => {
       expect(isPlatformUnderDevelopment("courses", "unigates.online")).toBe(false);
       expect(isPlatformUnderDevelopment("courses", "www.unigates.online")).toBe(false);
       expect(isPlatformUnderDevelopment("courses", "localhost")).toBe(false);
       expect(isPlatformUnderDevelopment("courses", "preview.lovable.app")).toBe(false);
+
+      expect(isPlatformUnderDevelopment("bookstore", "unigates.online")).toBe(false);
+      expect(isPlatformUnderDevelopment("bookstore", "www.unigates.online")).toBe(false);
+      expect(isPlatformUnderDevelopment("bookstore", "localhost")).toBe(false);
+      expect(isPlatformUnderDevelopment("bookstore", "preview.lovable.app")).toBe(false);
 
       expect(isPlatformUnderDevelopment("nasher", "unigates.online")).toBe(false);
       expect(isPlatformUnderDevelopment("nasher", "www.unigates.online")).toBe(false);
@@ -22,15 +27,12 @@ describe("UniGates Platform Availability & Environment Controller", () => {
   });
 
   describe("2. Production Domain (unigates.online) - Under Development Mode", () => {
-    it("marks University, School, Book Store, and Career Platforms as under development on unigates.online", () => {
+    it("marks University, School, and Career Platforms as under development on unigates.online", () => {
       expect(isPlatformUnderDevelopment("university", "unigates.online")).toBe(true);
       expect(isPlatformUnderDevelopment("university", "www.unigates.online")).toBe(true);
 
       expect(isPlatformUnderDevelopment("school", "unigates.online")).toBe(true);
       expect(isPlatformUnderDevelopment("school", "www.unigates.online")).toBe(true);
-
-      expect(isPlatformUnderDevelopment("bookstore", "unigates.online")).toBe(true);
-      expect(isPlatformUnderDevelopment("bookstore", "www.unigates.online")).toBe(true);
 
       expect(isPlatformUnderDevelopment("career", "unigates.online")).toBe(true);
       expect(isPlatformUnderDevelopment("career", "www.unigates.online")).toBe(true);

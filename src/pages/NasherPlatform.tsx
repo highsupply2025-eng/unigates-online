@@ -201,12 +201,12 @@ const NasherPlatform = () => {
                   <span>{isRtl ? "الرئيسية" : "Home"}</span>
                 </Button>
               </Link>
-              <Link to="/nasher/login">
+              <Link to="/nashr/login">
                 <Button size="sm" className="font-bold px-4 h-10 text-xs bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md">
                   {isRtl ? "دخول المؤلفين" : "Author Sign In"}
                 </Button>
               </Link>
-              <Link to="/nasher/signup">
+              <Link to="/nashr/signup">
                 <Button size="sm" className="font-bold px-5 h-10 text-xs bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-lg shadow-amber-500/25">
                   {isRtl ? "تسجيل مؤلف جديد" : "Register as Author"}
                 </Button>
@@ -239,17 +239,17 @@ const NasherPlatform = () => {
                   <span>{isRtl ? "العودة للرئيسية" : "Return to Home"}</span>
                 </Button>
               </Link>
-              <Link to="/nasher/signup" onClick={() => setMobileMenuOpen(false)} className="block">
+              <Link to="/nashr/signup" onClick={() => setMobileMenuOpen(false)} className="block">
                 <Button className="w-full bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white font-bold h-11">
                   {isRtl ? "تسجيل مؤلف جديد" : "Register as Author"}
                 </Button>
               </Link>
-              <Link to="/nasher/login" onClick={() => setMobileMenuOpen(false)} className="block">
+              <Link to="/nashr/login" onClick={() => setMobileMenuOpen(false)} className="block">
                 <Button variant="outline" className="w-full border-white/20 text-white bg-white/5 font-bold h-11">
                   {isRtl ? "دخول المؤلفين" : "Author Sign In"}
                 </Button>
               </Link>
-              <Link to="/nasher/dashboard" onClick={() => setMobileMenuOpen(false)} className="block pt-2">
+              <Link to="/nashr/dashboard" onClick={() => setMobileMenuOpen(false)} className="block pt-2">
                 <Button variant="ghost" className="w-full text-amber-300 font-bold h-11">
                   {isRtl ? "استوديو لوحة التحكم" : "Author Dashboard"}
                 </Button>
@@ -290,21 +290,21 @@ const NasherPlatform = () => {
 
             {/* Quick Action CTA Buttons */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              <Link to="/nasher/signup">
+              <Link to="/nashr/signup">
                 <Button size="lg" className="h-12 px-7 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
                   <PenTool className="w-5 h-5" />
                   {isRtl ? "✍️ تسجيل مؤلف جديد" : "Register Author"}
                 </Button>
               </Link>
 
-              <Link to="/nasher/login">
+              <Link to="/nashr/login">
                 <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
                   <Lock className="w-5 h-5" />
                   {isRtl ? "🔐 دخول المؤلفين" : "Author Sign In"}
                 </Button>
               </Link>
 
-              <Link to="/nasher/dashboard">
+              <Link to="/nashr/dashboard">
                 <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/5 hover:bg-white/15 text-amber-300 border-amber-400/30 shadow-lg backdrop-blur-md gap-2">
                   <BookOpen className="w-5 h-5" />
                   {isRtl ? "استوديو لوحة التحكم" : "Open Studio"}
@@ -534,13 +534,13 @@ const NasherPlatform = () => {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              <Link to="/nasher/signup">
+              <Link to="/nashr/signup">
                 <Button size="lg" className="h-12 px-8 font-black text-sm sm:text-base rounded-2xl bg-white hover:bg-slate-100 text-amber-700 shadow-xl gap-2 hover:scale-105 transition-all">
                   <PenTool className="w-5 h-5 text-amber-600" />
                   {isRtl ? "تسجيل مؤلف جديد الآن ➔" : "Register as Author ➔"}
                 </Button>
               </Link>
-              <Link to="/nasher/login">
+              <Link to="/nashr/login">
                 <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-black/20 hover:bg-black/30 text-white border-white/40 backdrop-blur-md">
                   {isRtl ? "تسجيل الدخول" : "Sign In"}
                 </Button>

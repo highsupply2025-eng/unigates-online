@@ -33,7 +33,7 @@ const faqCategories = {
       items: [
         {
           q: "ما هي منظومة UNIGATES الرقمية؟",
-          a: "UNIGATES هي منظومة تعليمية وبحثية ومهنية رقمية متكاملة تابعة لدار عبيد للنشر والتوزيع والطباعة. تضم المنظومة 6 بوابات رئيسية: المنصة الجامعية، المنصة المدرسية، منصة الدورات والمهارات، متجر الكتب الرقمي، منصة ناشر للمؤلفين والعقود، وبوابة UNIGATES Career للتوظيف والفرص المهنية.",
+          a: "UNIGATES هي منظومة تعليمية وبحثية ومهنية رقمية متكاملة تابعة لدار عبيد للنشر والتوزيع والطباعة. تضم المنظومة 6 بوابات رئيسية: المنصة الجامعية، المنصة المدرسية، منصة الدورات والمهارات، متجر الكتب الرقمي، منصة نشر للمؤلفين والمؤلفات، وبوابة UNIGATES Career للتوظيف والفرص المهنية.",
         },
         {
           q: "ما هي اللغات المدعومة في المنصة؟",
@@ -104,12 +104,12 @@ const faqCategories = {
       ],
     },
     {
-      title: "منصة ناشر (Publisher) ومتجر الكتب",
+      title: "منصة نشر ومتجر الكتب",
       icon: BookCopy,
       items: [
         {
-          q: "ما هي منصة ناشر للمؤلفين ودور النشر؟",
-          a: "منصة ناشر هي بيئة رقمية احترافية لتوقيع عقود النشر الرقمية إلكترونياً، إدارة المخطوطات والكتب، ومتابعة نسب المبيعات وتوزيع الأرباح السنوي والشهري بشفافية تامة.",
+          q: "ما هي منصة نشر للمؤلفين والباحثين؟",
+          a: "منصة نشر هي بيئة رقمية احترافية تابعة لدار عبيد تتيح للمؤلفين رفع مخطوطاتهم (رقمياً وورقياً)، التدقيق والتحكيم الأكاديمي، ومتابعة نسب المبيعات وأرباح الـ 20% وسحب الأرباح بشفافية تامة.",
         },
         {
           q: "ما هي صيغ الكتب المتاحة في المتجر الرقمي؟",
@@ -157,7 +157,7 @@ const faqCategories = {
       items: [
         {
           q: "What is the UNIGATES digital ecosystem?",
-          a: "UNIGATES is a unified digital educational and professional platform by Obaid Publishing. It encompasses 6 major portals: University Platform, School Platform (K-12), Courses & Skills Academy, Digital Book Store, Nasher Publisher Platform, and the UNIGATES Career job portal.",
+          a: "UNIGATES is a unified digital educational and professional platform by Obaid Publishing. It encompasses 6 major portals: University Platform, School Platform (K-12), Courses & Skills Academy, Digital Book Store, Nashr Publishing Platform, and the UNIGATES Career job portal.",
         },
         {
           q: "Which languages are supported?",
@@ -228,12 +228,12 @@ const faqCategories = {
       ],
     },
     {
-      title: "Nasher Publishing & Book Store",
+      title: "Nashr Publishing & Book Store",
       icon: BookCopy,
       items: [
         {
-          q: "What is the Nasher platform for authors and publishers?",
-          a: "Nasher is a dedicated publishing suite for digitally executing publishing contracts, managing book manuscripts, and tracking monthly and annual royalty payouts transparently.",
+          q: "What is the Nashr platform for authors and publishers?",
+          a: "Nashr is a dedicated publishing suite for authors and researchers to submit manuscripts (digital & print), track bookstore sales, and receive 20% author royalties transparently.",
         },
         {
           q: "What book formats are available in the Digital Book Store?",

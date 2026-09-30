@@ -168,10 +168,10 @@ export default function ManuscriptAuctionsInfo() {
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link to="/nasher">
+              <Link to="/nashr">
                 <Button size="lg" className="font-bold gap-2 shadow-xl shadow-primary/20">
                   <Sparkles className="w-5 h-5" />
-                  {isAr ? "الدخول لمنصة ناشر والمزادات" : "Enter Nasher Platform"}
+                  {isAr ? "الدخول لمنصة نشر والمؤلفات" : "Enter Nashr Platform"}
                   <ArrowIcon className="w-4 h-4" />
                 </Button>
               </Link>
@@ -298,13 +298,13 @@ export default function ManuscriptAuctionsInfo() {
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base mb-6">
               {isAr
-                ? "ابدأ بطرح كتابك في منصة ناشر اليوم واستقبل عروض النشر والمزايدات من أعرق دور النشر."
-                : "List your manuscript on Nasher today and receive competitive publishing bids from accredited presses."}
+                ? "ابدأ بطرح كتابك في منصة نشر اليوم واستقبل عروض النشر والمزايدات من أعرق دور النشر."
+                : "List your manuscript on Nashr today and receive competitive publishing bids from accredited presses."}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/nasher">
+              <Link to="/nashr">
                 <Button size="lg" className="font-bold gap-2">
-                  {isAr ? "بدء المزاد عبر منصة ناشر" : "Launch Auction on Nasher"}
+                  {isAr ? "بدء المزاد عبر منصة نشر" : "Launch Auction on Nashr"}
                   <ArrowIcon className="w-4 h-4" />
                 </Button>
               </Link>

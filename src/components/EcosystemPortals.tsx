@@ -601,7 +601,7 @@ const EcosystemPortals = () => {
     },
     {
       id: "nasher",
-      to: "/nasher",
+      to: "/nashr",
       badge: isNasherDev
         ? translate("قريباً • قيد التطوير", "Coming Soon • In Dev")
         : translate("نشر ومؤلفات", "Publishing & Works"),

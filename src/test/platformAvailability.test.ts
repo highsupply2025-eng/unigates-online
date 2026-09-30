@@ -18,6 +18,11 @@ describe("UniGates Platform Availability & Environment Controller", () => {
       expect(isPlatformUnderDevelopment("nasher", "www.unigates.online")).toBe(false);
       expect(isPlatformUnderDevelopment("nasher", "localhost")).toBe(false);
       expect(isPlatformUnderDevelopment("nasher", "preview.lovable.app")).toBe(false);
+
+      expect(isPlatformUnderDevelopment("nashr", "unigates.online")).toBe(false);
+      expect(isPlatformUnderDevelopment("nashr", "www.unigates.online")).toBe(false);
+      expect(isPlatformUnderDevelopment("nashr", "localhost")).toBe(false);
+      expect(isPlatformUnderDevelopment("nashr", "preview.lovable.app")).toBe(false);
     });
   });
 

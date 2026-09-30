@@ -61,7 +61,7 @@ const NasherLogin = () => {
           : `Welcome ${author.fullName} to your publishing studio.`
       });
 
-      navigate("/nasher/dashboard");
+      navigate("/nashr/dashboard");
     } catch (err: any) {
       toast({
         title: isRtl ? "خطأ في تسجيل الدخول" : "Login Error",
@@ -79,14 +79,14 @@ const NasherLogin = () => {
       title: isRtl ? "تم تفعيل حساب المؤلف التجريبي" : "Demo Author Loaded",
       description: isRtl ? `مرحباً بك: ${DEFAULT_DEMO_AUTHOR.fullName}` : `Welcome: ${DEFAULT_DEMO_AUTHOR.fullName}`
     });
-    navigate("/nasher/dashboard");
+    navigate("/nashr/dashboard");
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       {/* Header */}
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/60 backdrop-blur-md flex items-center justify-between sticky top-0 z-50">
-        <Link to="/nasher" className="flex items-center gap-2.5">
+        <Link to="/nashr" className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md flex items-center justify-center text-white">
             <PenTool className="w-5 h-5" />
           </div>
@@ -106,12 +106,12 @@ const NasherLogin = () => {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <LanguageSelectorDropdown />
-          <Link to="/nasher/signup">
+          <Link to="/nashr/signup">
             <Button size="sm" variant="outline" className="font-bold border-border bg-background/50 hover:bg-muted text-xs h-9 px-3 rounded-xl">
               {isRtl ? "تسجيل مؤلف جديد" : "Author Sign Up"}
             </Button>
           </Link>
-          <Link to="/nasher">
+          <Link to="/nashr">
             <Button size="sm" variant="outline" className="font-bold border-border bg-background/50 hover:bg-muted text-xs h-9 px-3 rounded-xl gap-1">
               {isRtl ? <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground" />}
               <span>{isRtl ? "الرئيسية" : "Home"}</span>
@@ -214,7 +214,7 @@ const NasherLogin = () => {
                 <div className="text-center pt-2">
                   <p className="text-xs text-muted-foreground font-medium">
                     {isRtl ? "ليس لديك حساب مؤلف حتى الآن؟" : "Don't have an author account yet?"}{" "}
-                    <Link to="/nasher/signup" className="font-bold text-amber-600 dark:text-amber-400 hover:underline">
+                    <Link to="/nashr/signup" className="font-bold text-amber-600 dark:text-amber-400 hover:underline">
                       {isRtl ? "تسجيل مؤلف جديد" : "Sign Up"}
                     </Link>
                   </p>

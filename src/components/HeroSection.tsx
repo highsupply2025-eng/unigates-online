@@ -15,7 +15,7 @@ const HeroSection = () => {
   const isRtl = dir === "rtl";
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchCategory, setSearchCategory] = useState<"all" | "university" | "school" | "courses" | "books" | "nasher" | "career">("all");
+  const [searchCategory, setSearchCategory] = useState<"all" | "university" | "school" | "courses" | "books" | "nashr" | "nasher" | "career">("all");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,8 +30,8 @@ const HeroSection = () => {
       navigate(`/courses?search=${encodeURIComponent(query)}`);
     } else if (searchCategory === "books") {
       navigate(`/book-store?search=${encodeURIComponent(query)}`);
-    } else if (searchCategory === "nasher") {
-      navigate(`/nasher?q=${encodeURIComponent(query)}`);
+    } else if (searchCategory === "nashr" || searchCategory === "nasher") {
+      navigate(`/nashr?q=${encodeURIComponent(query)}`);
     } else if (searchCategory === "career") {
       navigate(`/career?q=${encodeURIComponent(query)}`);
     } else {
@@ -77,9 +77,9 @@ const HeroSection = () => {
       badgeStyle: "bg-amber-500/20 text-amber-200 border-amber-400/30",
     },
     {
-      to: "/nasher",
-      label: t.nasherPlatform || translate("منصة ناشر", "Publisher Platform"),
-      badge: t.header?.nasherBadge || translate("عقود ونشر", "Publisher"),
+      to: "/nashr",
+      label: t.nasherPlatform || translate("منصة نشر", "Nashr Platform"),
+      badge: t.header?.nasherBadge || translate("نشر ومؤلفات", "Nashr & Authors"),
       icon: BookCopy,
       color: "from-rose-600 to-pink-700",
       glow: "shadow-rose-500/25",

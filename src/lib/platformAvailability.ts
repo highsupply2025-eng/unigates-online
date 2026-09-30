@@ -11,7 +11,7 @@
  *   All platforms remain 100% OPEN & FUNCTIONAL for development, testing, and building inside Lovable.
  */
 
-export type PlatformKey = "university" | "school" | "courses" | "bookstore" | "nasher" | "career";
+export type PlatformKey = "university" | "school" | "courses" | "bookstore" | "nasher" | "nashr" | "career";
 
 /**
  * Checks if the current host or provided hostname is a development or Lovable environment.
@@ -53,7 +53,7 @@ export function isPlatformUnderDevelopment(
   customHostname?: string
 ): boolean {
   // University Platform, Courses Academy, and Nashr Platform are always active & live across all domains
-  if (platform === "university" || platform === "courses" || platform === "nasher") {
+  if (platform === "university" || platform === "courses" || platform === "nasher" || platform === "nashr") {
     return false;
   }
 
@@ -116,15 +116,16 @@ export function getPlatformMeta(platform: PlatformKey, isRtl: boolean) {
           : ["Thousands of Academic References", "Advanced Digital Reader", "Print Book Shipping", "Publisher & Author Portal"],
       };
     case "nasher":
+    case "nashr":
       return {
-        name: isRtl ? "منصة ناشر (سوق المزايدات والعقود)" : "Publisher Platform (Nasher)",
-        badge: isRtl ? "سوق النشر والمزايدات" : "Publisher & Publishing",
+        name: isRtl ? "منصة نشر (بوابة المؤلفين والنشر)" : "Nashr Platform (Authors & Publishing)",
+        badge: isRtl ? "منصة نشر والمؤلفات" : "Nashr & Publishing",
         desc: isRtl
-          ? "سوق ذكي لطرح الكتب للمزايدة بين دور النشر المعتمدة، وتوقيع عقود إلكترونية رسمية بإشراف دار عبيد للنشر والتوزيع"
-          : "A smart marketplace to auction books among accredited publishing houses and sign legally binding digital contracts under Dar Obeid.",
+          ? "بوابة المؤلفين لنشر الأعمال والكتب رقمياً وورقياً ومتابعة المبيعات والأرباح ونسب الـ 20% والفواتير بإشراف دار عبيد"
+          : "Author portal for publishing digital and print works, tracking 20% sales royalties, invoices, and direct author support under Dar Obaid.",
         expectedFeatures: isRtl
-          ? ["طرح الكتب للمزايدة العلنية", "عقود رقمية ملزمة وموثقة قانونياً", "حماية الملكية الفكرية والدفع المشروط", "حصرية التوزيع بمتجر UNIGATES"]
-          : ["Public Book Auctions", "Legally Binding Digital Contracts", "IP Protection & Escrow", "Exclusive UNIGATES Distribution"],
+          ? ["رفع المؤلفات والمخطوطات (رقمي / ورقي / كلاهما)", "متابعة المبيعات ونسبة 20% للمؤلف", "سداد الفواتير ورفع الإيصالات", "شات تواصل داخلي مباشر مع الإدارة"]
+          : ["Manuscript Submissions (Digital / Print / Both)", "20% Author Royalty Tracking", "Invoice Payments & Receipts", "Direct Management Chat"],
       };
     case "career":
       return {

@@ -237,11 +237,16 @@ const App = () => (
               <Route path="/book-store/login" element={<BookStoreLogin />} />
               <Route path="/book-store/signup" element={<BookStoreSignup />} />
               <Route path="/book-store/payment" element={<Payment />} />
-              {/* Nasher Platform (Bidding, Legal Contracts & Exclusive Deals) */}
-              <Route path="/nasher" element={<NasherPlatform />} />
-              <Route path="/nasher/dashboard" element={<NasherDashboard />} />
-              <Route path="/nasher/login" element={<NasherLogin />} />
-              <Route path="/nasher/signup" element={<NasherSignup />} />
+              {/* Nashr Platform (منصة نشر) */}
+              <Route path="/nashr" element={<NasherPlatform />} />
+              <Route path="/nashr/dashboard" element={<NasherDashboard />} />
+              <Route path="/nashr/login" element={<NasherLogin />} />
+              <Route path="/nashr/signup" element={<NasherSignup />} />
+              {/* Backwards-compatible redirects from /nasher to /nashr */}
+              <Route path="/nasher" element={<Navigate to="/nashr" replace />} />
+              <Route path="/nasher/dashboard" element={<Navigate to="/nashr/dashboard" replace />} />
+              <Route path="/nasher/login" element={<Navigate to="/nashr/login" replace />} />
+              <Route path="/nasher/signup" element={<Navigate to="/nashr/signup" replace />} />
               {/* School Platform */}
               <Route path="/school-platform" element={<SchoolPlatform />} />
               <Route path="/school-platform/register" element={<SchoolRegistration />} />

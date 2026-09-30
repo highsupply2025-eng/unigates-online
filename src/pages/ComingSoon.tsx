@@ -144,8 +144,8 @@ const INITIAL_JOBS: JobPosting[] = [
     experienceEn: "2+ Years in Editing & Publishing",
     featured: true,
     urgent: false,
-    descriptionAr: "مراجعة وتحقيق المخطوطات والكتب الأكاديمية المقدمة عبر منصة ناشر ومتجر الكتب، وتدقيق الصياغة اللغوية والتنسيق الطباعي.",
-    descriptionEn: "Reviewing, proofreading, and structuring academic manuscripts and literary publications submitted via Nasher.",
+    descriptionAr: "مراجعة وتحقيق المخطوطات والكتب الأكاديمية المقدمة عبر منصة نشر ومتجر الكتب، وتدقيق الصياغة اللغوية والتنسيق الطباعي.",
+    descriptionEn: "Reviewing, proofreading, and structuring academic manuscripts and literary publications submitted via Nashr.",
     requirementsAr: [
       "مؤهل عالي في اللغة العربية أو اللغويات التطبيقية أو الترجمة",
       "إتقان قواعد الصرف والنحو والتدقيق اللغوي الاحترافي",

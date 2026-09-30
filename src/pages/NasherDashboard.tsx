@@ -309,7 +309,7 @@ const NasherDashboard = () => {
       
       {/* Top Header Navbar */}
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between">
-        <Link to="/nasher" className="flex items-center gap-2.5">
+        <Link to="/nashr" className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md flex items-center justify-center text-white">
             <PenTool className="w-5 h-5" />
           </div>
@@ -344,7 +344,7 @@ const NasherDashboard = () => {
           <Button 
             size="sm" 
             variant="ghost" 
-            onClick={() => navigate("/nasher")}
+            onClick={() => navigate("/nashr")}
             className="text-xs font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-9 px-2.5 rounded-xl gap-1"
           >
             <LogOut className="w-4 h-4" />

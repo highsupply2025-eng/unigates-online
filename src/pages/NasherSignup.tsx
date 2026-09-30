@@ -168,14 +168,14 @@ const NasherSignup = () => {
   };
 
   const proceedToDashboard = () => {
-    navigate("/nasher/dashboard");
+    navigate("/nashr/dashboard");
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       {/* Header */}
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/60 backdrop-blur-md flex items-center justify-between sticky top-0 z-50">
-        <Link to="/nasher" className="flex items-center gap-2.5">
+        <Link to="/nashr" className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md flex items-center justify-center text-white">
             <PenTool className="w-5 h-5" />
           </div>
@@ -195,12 +195,12 @@ const NasherSignup = () => {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <LanguageSelectorDropdown />
-          <Link to="/nasher/login">
+          <Link to="/nashr/login">
             <Button size="sm" variant="outline" className="font-bold border-border bg-background/50 hover:bg-muted text-xs h-9 px-3 rounded-xl">
               {isRtl ? "دخول المؤلفين" : "Author Sign In"}
             </Button>
           </Link>
-          <Link to="/nasher">
+          <Link to="/nashr">
             <Button size="sm" variant="outline" className="font-bold border-border bg-background/50 hover:bg-muted text-xs h-9 px-3 rounded-xl gap-1">
               {isRtl ? <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground" />}
               <span>{isRtl ? "الرئيسية" : "Home"}</span>
@@ -525,7 +525,7 @@ const NasherSignup = () => {
                   <div className="text-center pt-1">
                     <p className="text-xs text-muted-foreground font-medium">
                       {isRtl ? "لديك حساب مؤلف بالفعل؟" : "Already have an author account?"}{" "}
-                      <Link to="/nasher/login" className="font-bold text-amber-600 dark:text-amber-400 hover:underline">
+                      <Link to="/nashr/login" className="font-bold text-amber-600 dark:text-amber-400 hover:underline">
                         {isRtl ? "تسجيل دخول المؤلفين" : "Author Login"}
                       </Link>
                     </p>

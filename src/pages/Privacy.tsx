@@ -23,7 +23,7 @@ const Privacy = () => {
             "التعليم المدرسي (K-12): بيانات المدارس، الفصول، المعلمين، الطلاب، وتقارير أولياء الأمور.",
             "أكاديمية الدورات والمهارات: سجلات التعلم، مدة مشاهدة المحتوى المرئي بنظام DRM، واختبارات قياس الكفاءة.",
             "المكتبة الرقمية: سجلات الإعارة، القراءات، وعمليات شراء الكتب الرقمية والمطبوعة.",
-            "بوابة دار ناشر: عقود النشر، الحقوق الفكرية، تقارير المبيعات، ومستحقات المؤلفين والناشرين.",
+            "منصة نشر والمؤلفات: المخطوطات المودعة، حقوق الملكية الفكرية، تقارير المبيعات، ومستحقات المؤلفين (20%).",
             "بوابة التوظيف (Career Portal): السير الذاتية (CVs)، الخبرات، طلبات التوظيف، ونتائج التقييمات المهنية."
           ]
         },
@@ -96,7 +96,7 @@ const Privacy = () => {
             "K-12 School Management: School rosters, class structures, teachers, students, and parent reports.",
             "Courses & Skills Academy: Learning histories, DRM-protected video watch times, and skill assessments.",
             "Digital Book Store: Borrowing records, reading telemetry, and print/e-book order histories.",
-            "Nasher Publisher Platform: Publishing contracts, intellectual property records, sales reports, and royalty statements.",
+            "Nashr Publishing Platform: Manuscript submissions, intellectual property records, sales reports, and royalty statements (20%).",
             "Career Job Portal: Resumes (CVs), professional work experience, job applications, and screening assessments."
           ]
         },

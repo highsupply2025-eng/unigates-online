@@ -35,8 +35,8 @@ const Terms = () => {
           text: "الشهادات الصادرة عن دورات المنصة والأكاديميات التدريبية تصدر بتشفير رقمي يتضمن رمز QR فريد للتحقق الدولي. يُحظر تزوير أو التلاعب ببيانات الشهادات، وتُعرض أي محاولة للتلاعب للمساءلة القانونية وإلغاء الحساب نهائياً.",
         },
         {
-          title: "6. حقوق النشر وعقود منصة ناشر (Publisher)",
-          text: "تخضع العلاقات التعاقدية بين المؤلفين ودور النشر للشروط المنصوص عليها في العقود الرقمية الموقعة عبر المنصة، مع التزام المنظومة بتوفير كشوف مبيعات دقيقة وتوزيع نسب الأرباح المتفق عليها وفق الجداول الدورية.",
+          title: "6. حقوق النشر ومؤلفات منصة نشر",
+          text: "تخضع العلاقات والعمليات بين المؤلفين وإدارة النشر للشروط والضوابط المنصوص عليها عبر منصة نشر، مع التزام المنظومة بتوفير كشوف مبيعات دقيقة ونسبة أرباح 20% للمؤلف مع إمكانية سحب الأرباح فورياً.",
         },
         {
           title: "7. سياسات التوظيف والتقديم في UNIGATES Career",
@@ -59,7 +59,7 @@ const Terms = () => {
       sections: [
         {
           title: "1. Introduction & Ecosystem Scope",
-          text: "Welcome to the UNIGATES digital ecosystem by Dar Obaid Publishing, Distribution & Printing LLC. These Terms & Conditions govern all six unified portals: (1) Higher Education University Platform for colleges & institutes, (2) K-12 School Platform, (3) Courses & Skills Academy, (4) Digital Book Store, (5) Nasher Publishing & Royalty Platform, and (6) UNIGATES Career job portal.",
+          text: "Welcome to the UNIGATES digital ecosystem by Dar Obaid Publishing, Distribution & Printing LLC. These Terms & Conditions govern all six unified portals: (1) Higher Education University Platform for colleges & institutes, (2) K-12 School Platform, (3) Courses & Skills Academy, (4) Digital Book Store, (5) Nashr Publishing & Authors Platform, and (6) UNIGATES Career job portal.",
         },
         {
           title: "2. User Roles & Account Security",
@@ -78,8 +78,8 @@ const Terms = () => {
           text: "Certificates earned through courses and accredited training centers are issued with unique verifiable QR security codes. Any forgery or unauthorized reproduction of credentials will result in immediate termination of access and potential legal proceedings.",
         },
         {
-          title: "6. Nasher Publishing & Contract Protocols",
-          text: "Publishing rights, manuscript management, and royalty allocations are regulated according to the digital agreements executed through the Nasher platform, ensuring transparent real-time sales reporting and timely payouts.",
+          title: "6. Nashr Publishing & Author Protocols",
+          text: "Publishing rights, manuscript management, and royalty allocations are regulated through the Nashr platform, ensuring transparent real-time sales reporting and 20% royalty payouts.",
         },
         {
           title: "7. UNIGATES Career & Recruitment Standards",

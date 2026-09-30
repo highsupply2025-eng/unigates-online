@@ -71,10 +71,10 @@ const SiteHeader = () => {
       dotColor: "bg-amber-400",
     },
     {
-      to: "/nasher",
-      label: t.nasherPlatform || translate("منصة ناشر", "Publisher Platform"),
+      to: "/nashr",
+      label: t.nasherPlatform || translate("منصة نشر", "Nashr Platform"),
       icon: BookCopy,
-      badge: t.header?.nasherBadge || translate("عقود ونشر", "Publisher"),
+      badge: t.header?.nasherBadge || translate("نشر ومؤلفات", "Nashr & Authors"),
       activeColor: "from-rose-600 to-pink-600",
       glowColor: "hover:border-rose-400/50 hover:bg-rose-500/15 text-rose-100",
       dotColor: "bg-rose-400",

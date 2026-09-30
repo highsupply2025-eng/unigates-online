@@ -9,7 +9,11 @@ import {
   ShippingAddress,
   FlashSalePromotion,
   BookReadingHeatmap,
-  AntiCounterfeitQRVerification
+  AntiCounterfeitQRVerification,
+  PublishingContract,
+  BookPassSubscription,
+  LiveCourierTrackingOrder,
+  ReaderRewardsAccount
 } from "@/types/bookStore";
 
 const STORAGE_KEYS = {
@@ -1163,5 +1167,262 @@ export class BookStoreDataStore {
       localStorage.setItem("unigates_bookstore_qr_records", JSON.stringify(updated));
     }
     return newRecords;
+  }
+
+  // ==================== CONTRACTS & DIGITAL LICENSING ====================
+  static getContracts(): PublishingContract[] {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = localStorage.getItem("unigates_bookstore_contracts");
+      if (!stored) {
+        const initialContracts: PublishingContract[] = [
+          {
+            id: "cnt-001",
+            contractNumber: "UNIGATES-DAR-2026-001",
+            bookId: "bk-dar-001",
+            bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات التعليمية",
+            authorName: "أ.د. عبد الرحمن المنشاوي",
+            authorEmail: "author.manshawi@unigates.edu",
+            authorNationalId: "28809151203491",
+            publisherName: "دار عبيد للنشر والتوزيع والطباعة",
+            adminRepresentative: "أ. محمد عبيد (رئيس مجلس الإدارة)",
+            contractType: "comprehensive_both",
+            royaltyPercentage: 80,
+            advancePayment: 15000,
+            startDate: "2026-01-15",
+            endDate: "2029-01-14",
+            status: "fully_executed",
+            authorSignatureDate: "2026-01-18 14:30:00",
+            adminSignatureDate: "2026-01-19 10:15:00",
+            ipCertificateNumber: "EGY-IP-2026-8841",
+            contractDocumentUrl: "/contracts/UNIGATES-DAR-2026-001.pdf",
+            terms_ar: [
+              "يمنح المؤلف دار عبيد للنشر حق النشر والتوزيع الحصري للنسخ الرقمية والورقية لمدة 3 سنوات.",
+              "يحصل المؤلف والدار على نسبة 80% من صافي المبيعات وتستقطع منصة UNIGATES عمولة 20%.",
+              "تلتزم المنصة بتطبيق معايير حماية الملكية الفكرية والـ DRM ومنع تصوير الشاشة.",
+              "يتم صرف المستحقات المالية شهرياً عبر التحويل البنكي أو المنظومة الإلكترونية."
+            ]
+          },
+          {
+            id: "cnt-002",
+            contractNumber: "UNIGATES-DAR-2026-002",
+            bookId: "bk-dar-002",
+            bookTitle: "أساسيات وتطبيقات الذكاء الاصطناعي التوليدي في الرعاية الصحية",
+            authorName: "د. هدى عبد العزيز السعيد",
+            authorEmail: "hoda.saeed@med.unigates.edu",
+            authorNationalId: "29204051401284",
+            publisherName: "دار عبيد للنشر والتوزيع والطباعة",
+            adminRepresentative: "أ. محمد عبيد (رئيس مجلس الإدارة)",
+            contractType: "comprehensive_both",
+            royaltyPercentage: 80,
+            advancePayment: 20000,
+            startDate: "2026-02-01",
+            endDate: "2029-01-31",
+            status: "signed_by_author",
+            authorSignatureDate: "2026-02-05 11:20:00",
+            ipCertificateNumber: "EGY-IP-2026-9042",
+            contractDocumentUrl: "/contracts/UNIGATES-DAR-2026-002.pdf",
+            terms_ar: [
+              "منح دار عبيد حقوق التوزيع الأكاديمي الشامل للجامعات والمستشفيات التعليمية.",
+              "تطبيق منظومة الباركود والـ QR لمكافحة تزوير الطبعة الورقية الأولى.",
+              "توفير فصول المعاينة الرقمية المشفرة لطلاب كليات الطب."
+            ]
+          }
+        ];
+        localStorage.setItem("unigates_bookstore_contracts", JSON.stringify(initialContracts));
+        return initialContracts;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  }
+
+  static signContractAsAdmin(contractId: string) {
+    const contracts = this.getContracts();
+    const updated = contracts.map((c) => {
+      if (c.id === contractId) {
+        return {
+          ...c,
+          status: "fully_executed" as const,
+          adminSignatureDate: new Date().toISOString().replace("T", " ").substring(0, 19)
+        };
+      }
+      return c;
+    });
+    if (typeof window !== "undefined") {
+      localStorage.setItem("unigates_bookstore_contracts", JSON.stringify(updated));
+    }
+  }
+
+  static createDraftContract(contractData: Partial<PublishingContract>): PublishingContract {
+    const contracts = this.getContracts();
+    const newContract: PublishingContract = {
+      id: `cnt-${Date.now()}`,
+      contractNumber: `UNIGATES-DAR-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+      bookId: contractData.bookId || "bk-dar-001",
+      bookTitle: contractData.bookTitle || "مرجع دار عبيد",
+      authorName: contractData.authorName || "المؤلف",
+      authorEmail: contractData.authorEmail || "author@example.com",
+      authorNationalId: contractData.authorNationalId || "29000000000000",
+      publisherName: "دار عبيد للنشر والتوزيع والطباعة",
+      adminRepresentative: "إدارة دار عبيد & UNIGATES",
+      contractType: contractData.contractType || "comprehensive_both",
+      royaltyPercentage: 80,
+      advancePayment: contractData.advancePayment || 10000,
+      startDate: new Date().toISOString().split("T")[0],
+      endDate: new Date(Date.now() + 3 * 365 * 24 * 3600 * 1000).toISOString().split("T")[0],
+      status: "sent_to_author",
+      ipCertificateNumber: `EGY-IP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      contractDocumentUrl: `/contracts/draft-${Date.now()}.pdf`,
+      terms_ar: [
+        "عقد ترخيص نشر رقمي وورقي رسمي معتمد بموجب قوانين حماية الملكية الفكرية.",
+        "توزيع الإيرادات بنسبة 80% للمؤلف والدار و20% لمنصة UNIGATES.",
+        "تلتزم المنصة بحماية الملفات الرقمية بنظام الـ DRM ومنع النسخ وتصوير الشاشة."
+      ]
+    };
+    const updated = [newContract, ...contracts];
+    if (typeof window !== "undefined") {
+      localStorage.setItem("unigates_bookstore_contracts", JSON.stringify(updated));
+    }
+    return newContract;
+  }
+
+  // ==================== LIVE COURIER TRACKING (FREE) ====================
+  static getLiveCourierTracking(orderNumber?: string): LiveCourierTrackingOrder {
+    return {
+      orderNumber: orderNumber || "UG-ORD-2026-9812",
+      trackingNumber: "EXP-EGY-894102-CAI",
+      buyerName: "د. طارق المنشاوي",
+      phone: "+20 100 234 5678",
+      destinationCity: "القاهرة الجديدة — التجمع الخامس",
+      destinationAddress: "شارع التسعين الشمالي، بجوار مجمع الجامعات",
+      courierName: "كابتن أحمد سامي (مندوب إكسبريس)",
+      courierPhone: "01124890123",
+      courierVehicle: "دراجة نارية مجهزة — شحنات فاخرة (رقم 8412 س ج)",
+      estimatedDeliveryTime: "اليوم خلال 45 دقيقة (بين 04:30 م و 05:15 م)",
+      currentLat: 30.0131,
+      currentLng: 31.4398,
+      destinationLat: 30.0245,
+      destinationLng: 31.4589,
+      status: "out_for_delivery",
+      booksList: [
+        {
+          title: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات التعليمية",
+          count: 1,
+          cover: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80"
+        },
+        {
+          title: "أساسيات وتطبيقات الذكاء الاصطناعي التوليدي في الرعاية الصحية",
+          count: 1,
+          cover: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=80"
+        }
+      ],
+      checkpoints: [
+        {
+          id: "cp-1",
+          titleAr: "تم تأكيد الطلب وتجهيز الطرد الورقي",
+          titleEn: "Order Packed & DRM Sealed",
+          locationName: "مستودع دار عبيد — المنطقة الصناعية",
+          timestamp: "اليوم 09:30 ص",
+          status: "completed",
+          descriptionAr: "تم فحص النسخ وتغليفها بطبقة حماية ضد الرطوبة وتثبيت كود الـ QR الأصلي."
+        },
+        {
+          id: "cp-2",
+          titleAr: "استلام مندوب الشحن السريع للطرد",
+          titleEn: "Picked Up by Courier",
+          locationName: "مركز الفرز واللوجستيات الرئيسي",
+          timestamp: "اليوم 12:45 م",
+          status: "completed",
+          descriptionAr: "تم تسليم الشحنة للكابتن أحمد سامي وبدء خط سير التوصيل المباشر."
+        },
+        {
+          id: "cp-3",
+          titleAr: "الشحنة في طريقها إلى عنوانك (قريب من موقعك)",
+          titleEn: "Out for Delivery (Nearby)",
+          locationName: "محور محمد بن زايد — التجمع الخامس",
+          timestamp: "اليوم 03:15 م",
+          status: "current",
+          descriptionAr: "المندوب على بعد 3.2 كم من وجهة التوصيل، يرجى الاستعداد للاستلام."
+        },
+        {
+          id: "cp-4",
+          titleAr: "التسليم للباب وتوقيع العميل",
+          titleEn: "Delivered to Doorstep",
+          locationName: "عنوانك المسجل",
+          timestamp: "متوقع 04:45 م",
+          status: "pending",
+          descriptionAr: "سيتم تسليم الطرد وتأكيد الاستلام عبر رمز سري SMS."
+        }
+      ]
+    };
+  }
+
+  // ==================== READER REWARDS & POINTS (COMING SOON) ====================
+  static getReaderRewards(): ReaderRewardsAccount {
+    if (typeof window === "undefined") {
+      return {
+        userId: "user-reader-001",
+        pointsBalance: 840,
+        tier: "Gold",
+        totalPointsEarned: 1450,
+        pointsFromReadingMinutes: 620,
+        pointsFromPurchases: 830,
+        pointEquivalentEGP: 84, // 840 points = 84 EGP
+        transactions: []
+      };
+    }
+    try {
+      const stored = localStorage.getItem("unigates_bookstore_reader_rewards");
+      if (!stored) {
+        const initialRewards: ReaderRewardsAccount = {
+          userId: "user-reader-001",
+          pointsBalance: 840,
+          tier: "Gold",
+          totalPointsEarned: 1450,
+          pointsFromReadingMinutes: 620,
+          pointsFromPurchases: 830,
+          pointEquivalentEGP: 84,
+          transactions: [
+            {
+              id: "tx-1",
+              descriptionAr: "إكمال 60 دقيقة قراءة في مرجع الحوكمة الرقمية",
+              points: 60,
+              type: "earned",
+              date: "اليوم"
+            },
+            {
+              id: "tx-2",
+              descriptionAr: "شراء كتاب الذكاء الاصطناعي في الطب",
+              points: 200,
+              type: "earned",
+              date: "أمس"
+            },
+            {
+              id: "tx-3",
+              descriptionAr: "استبدال نقاط بخصم 50 ج.م على سلة الشراء",
+              points: -500,
+              type: "redeemed",
+              date: "منذ 3 أيام"
+            }
+          ]
+        };
+        localStorage.setItem("unigates_bookstore_reader_rewards", JSON.stringify(initialRewards));
+        return initialRewards;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return {
+        userId: "user-reader-001",
+        pointsBalance: 840,
+        tier: "Gold",
+        totalPointsEarned: 1450,
+        pointsFromReadingMinutes: 620,
+        pointsFromPurchases: 830,
+        pointEquivalentEGP: 84,
+        transactions: []
+      };
+    }
   }
 }

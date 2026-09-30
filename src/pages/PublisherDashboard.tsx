@@ -356,8 +356,23 @@ export const PublisherDashboard: React.FC = () => {
                 </Badge>
               </div>
 
-              {/* 3 Advanced Features Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+              {/* 4 Advanced Features Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+                <Link to="/book-store/publisher/contracts" className="group">
+                  <div className="p-3.5 rounded-xl bg-card/80 hover:bg-card border border-indigo-500/30 hover:border-indigo-500/70 transition-all flex items-center gap-3 h-full shadow-sm">
+                    <div className="w-9 h-9 rounded-lg bg-indigo-500/15 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <FileCheck className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-black text-foreground truncate">{isRtl ? "إدارة العقود والأذونات" : "Contracts & IP"}</p>
+                        <Badge className="bg-indigo-600 text-white text-[9px] px-1 py-0">{isRtl ? "متاح" : "Active"}</Badge>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "تبادل العقود مع المؤلفين والختم الرقمي" : "Author agreements & IP exchange"}</p>
+                    </div>
+                  </div>
+                </Link>
+
                 <Link to="/book-store/publisher/promotions" className="group">
                   <div className="p-3.5 rounded-xl bg-card/80 hover:bg-card border border-orange-500/20 hover:border-orange-500/60 transition-all flex items-center gap-3 h-full">
                     <div className="w-9 h-9 rounded-lg bg-orange-500/15 text-orange-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -366,9 +381,9 @@ export const PublisherDashboard: React.FC = () => {
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <p className="text-xs font-black text-foreground truncate">{isRtl ? "أداة التسعير والفلاش سيل" : "Flash Sales & Pricing"}</p>
-                        <Badge variant="outline" className="text-[9px] px-1 py-0 border-orange-500/40 text-orange-600">قريباً</Badge>
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 border-orange-500/40 text-orange-600">{isRtl ? "قريباً" : "Soon"}</Badge>
                       </div>
-                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "تخفيضات محددة بوقت وتنبيه قائمة الرغبات" : "Timed discounts & wishlist alerts"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "تخفيضات محددة وتنبيه قائمة الرغبات" : "Timed discounts & wishlist alerts"}</p>
                     </div>
                   </div>
                 </Link>
@@ -380,10 +395,10 @@ export const PublisherDashboard: React.FC = () => {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-black text-foreground truncate">{isRtl ? "تحليلات القراءة والخرائط الحرارية" : "Reading Heatmaps"}</p>
-                        <Badge variant="outline" className="text-[9px] px-1 py-0 border-purple-500/40 text-purple-600">قريباً</Badge>
+                        <p className="text-xs font-black text-foreground truncate">{isRtl ? "تحليلات القراءة والخرائط" : "Reading Heatmaps"}</p>
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 border-purple-500/40 text-purple-600">{isRtl ? "قريباً" : "Soon"}</Badge>
                       </div>
-                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "الفصول الأكثر قراءة ومعدل الإكمال" : "Chapter telemetry & drop-off rate"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "الفصول الأكثر قراءة ومعدل الإكمال" : "Chapter telemetry & drop-off"}</p>
                     </div>
                   </div>
                 </Link>
@@ -395,10 +410,10 @@ export const PublisherDashboard: React.FC = () => {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-black text-foreground truncate">{isRtl ? "مكافحة التزوير وكود التحقق QR" : "Anti-Counterfeit QR"}</p>
-                        <Badge variant="outline" className="text-[9px] px-1 py-0 border-emerald-500/40 text-emerald-600">قريباً</Badge>
+                        <p className="text-xs font-black text-foreground truncate">{isRtl ? "مكافحة التزوير والـ QR" : "Anti-Counterfeit QR"}</p>
+                        <Badge variant="outline" className="text-[9px] px-1 py-0 border-emerald-500/40 text-emerald-600">{isRtl ? "قريباً" : "Soon"}</Badge>
                       </div>
-                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "رقم تسلسلي للتحقق من النسخ المطبوعة" : "Serialized validation for print books"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "رقم تسلسلي للتحقق من النسخ" : "Serialized print security"}</p>
                     </div>
                   </div>
                 </Link>

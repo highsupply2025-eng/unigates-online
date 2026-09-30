@@ -217,6 +217,90 @@ export interface AntiCounterfeitQRVerification {
   distributionChannel: string;
 }
 
+export interface PublishingContract {
+  id: string;
+  contractNumber: string;
+  bookId: string;
+  bookTitle: string;
+  authorName: string;
+  authorEmail: string;
+  authorNationalId: string;
+  publisherName: string; // دار عبيد للنشر والتوزيع
+  adminRepresentative: string;
+  contractType: "digital_exclusive" | "print_exclusive" | "comprehensive_both";
+  royaltyPercentage: number; // e.g. 80% to author/publisher
+  advancePayment: number;
+  startDate: string;
+  endDate: string;
+  status: "draft" | "sent_to_author" | "signed_by_author" | "fully_executed" | "rejected";
+  authorSignatureDate?: string;
+  adminSignatureDate?: string;
+  ipCertificateNumber: string;
+  contractDocumentUrl: string;
+  terms_ar: string[];
+}
+
+export interface BookPassSubscription {
+  planId: "monthly_pass" | "annual_vip_pass";
+  titleAr: string;
+  titleEn: string;
+  price: number;
+  billingPeriod: "monthly" | "annual";
+  includedTitlesCount: number;
+  isUnlimitedReading: boolean;
+  isOfflineDownloadAllowed: boolean;
+  badgeText: string;
+  featuresAr: string[];
+  featuresEn: string[];
+}
+
+export interface LiveCourierCheckpoint {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  locationName: string;
+  timestamp: string;
+  status: "completed" | "current" | "pending";
+  descriptionAr: string;
+}
+
+export interface LiveCourierTrackingOrder {
+  orderNumber: string;
+  trackingNumber: string;
+  buyerName: string;
+  phone: string;
+  destinationCity: string;
+  destinationAddress: string;
+  courierName: string;
+  courierPhone: string;
+  courierVehicle: string;
+  estimatedDeliveryTime: string;
+  currentLat: number;
+  currentLng: number;
+  destinationLat: number;
+  destinationLng: number;
+  status: "processing" | "out_for_delivery" | "nearby" | "delivered";
+  checkpoints: LiveCourierCheckpoint[];
+  booksList: { title: string; count: number; cover: string }[];
+}
+
+export interface ReaderRewardsAccount {
+  userId: string;
+  pointsBalance: number;
+  tier: "Silver" | "Gold" | "Platinum";
+  totalPointsEarned: number;
+  pointsFromReadingMinutes: number;
+  pointsFromPurchases: number;
+  pointEquivalentEGP: number; // e.g. 100 points = 10 EGP
+  transactions: {
+    id: string;
+    descriptionAr: string;
+    points: number;
+    type: "earned" | "redeemed";
+    date: string;
+  }[];
+}
+
 export interface ReadingChallengeData {
   targetBooks: number;
   completedBooks: number;

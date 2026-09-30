@@ -300,64 +300,100 @@ export const ReaderDashboard: React.FC = () => {
                 </Badge>
               </div>
 
-              {/* 5 Smart Features Pills */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1">
+              {/* Smart Features Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 pt-1">
+                <Link to="/book-store/book-pass" className="group">
+                  <div className="p-2.5 rounded-xl bg-card/80 hover:bg-card border border-amber-500/30 hover:border-amber-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-sm">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Crown className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "Book Pass" : "Book Pass"}</p>
+                      <Badge className="bg-amber-600 text-white text-[8px] py-0 px-1">{isRtl ? "قريباً • مدفوع" : "Soon"}</Badge>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link to="/book-store/tracking" className="group">
+                  <div className="p-2.5 rounded-xl bg-card/80 hover:bg-card border border-blue-500/30 hover:border-blue-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-sm">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Truck className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "تتبع الشحن" : "Live Track"}</p>
+                      <Badge className="bg-emerald-600 text-white text-[8px] py-0 px-1">{isRtl ? "مجاني 📍" : "Free"}</Badge>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link to="/book-store/rewards" className="group">
+                  <div className="p-2.5 rounded-xl bg-card/80 hover:bg-card border border-yellow-500/30 hover:border-yellow-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-sm">
+                    <div className="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                      <Coins className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "نقاط الولاء" : "Rewards"}</p>
+                      <Badge className="bg-yellow-600 text-white text-[8px] py-0 px-1">{isRtl ? "قريباً" : "Soon"}</Badge>
+                    </div>
+                  </div>
+                </Link>
+
                 <Link to="/book-store/ai-companion" className="group">
-                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-amber-500/20 hover:border-amber-500/60 transition-all flex items-center gap-2.5 h-full">
+                  <div className="p-2.5 rounded-xl bg-card/80 hover:bg-card border border-amber-500/20 hover:border-amber-500/60 transition-all flex flex-col items-center text-center gap-1.5 h-full">
                     <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Bot className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "المساعد الذكي AI" : "AI Companion"}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "تلخيص واختبارات" : "Summaries & Quiz"}</p>
+                      <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "المساعد الذكي" : "AI Helper"}</p>
+                      <Badge variant="outline" className="text-[8px] py-0 px-1 text-amber-600 border-amber-500/40">{isRtl ? "مدفوع" : "Pro"}</Badge>
                     </div>
                   </div>
                 </Link>
 
                 <Link to="/book-store/reading-clubs" className="group">
-                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-indigo-500/20 hover:border-indigo-500/60 transition-all flex items-center gap-2.5 h-full">
+                  <div className="p-2.5 rounded-xl bg-card/80 hover:bg-card border border-indigo-500/20 hover:border-indigo-500/60 transition-all flex flex-col items-center text-center gap-1.5 h-full">
                     <div className="w-8 h-8 rounded-lg bg-indigo-500/15 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Users className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "نوادي القراءة" : "Reading Clubs"}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "هوامش الأساتذة" : "Faculty Margins"}</p>
+                      <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "نوادي القراءة" : "Clubs"}</p>
+                      <Badge variant="outline" className="text-[8px] py-0 px-1 text-indigo-600 border-indigo-500/40">{isRtl ? "مدفوع" : "Pro"}</Badge>
                     </div>
                   </div>
                 </Link>
 
                 <Link to="/book-store/audiobooks" className="group">
-                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-emerald-500/20 hover:border-emerald-500/60 transition-all flex items-center gap-2.5 h-full">
+                  <div className="p-2.5 rounded-xl bg-card/80 hover:bg-card border border-emerald-500/20 hover:border-emerald-500/60 transition-all flex flex-col items-center text-center gap-1.5 h-full">
                     <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Headphones className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "الكتب المسموعة" : "Audiobooks"}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "تحويل صوتي فصحى" : "Arabic AI Voice"}</p>
+                      <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "صوتيات" : "Audio"}</p>
+                      <Badge variant="outline" className="text-[8px] py-0 px-1 text-emerald-600 border-emerald-500/40">{isRtl ? "مدفوع" : "Pro"}</Badge>
                     </div>
                   </div>
                 </Link>
 
                 <Link to="/book-store/bundles" className="group">
-                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-blue-500/20 hover:border-blue-500/60 transition-all flex items-center gap-2.5 h-full">
+                  <div className="p-2.5 rounded-xl bg-card/80 hover:bg-card border border-blue-500/20 hover:border-blue-500/60 transition-all flex flex-col items-center text-center gap-1.5 h-full">
                     <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Package className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "باقات المقررات" : "Curriculum Packs"}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "وفر حتى 30%" : "Save up to 30%"}</p>
+                      <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "باقات الفرق" : "Bundles"}</p>
+                      <Badge variant="outline" className="text-[8px] py-0 px-1 text-blue-600 border-blue-500/40">-30%</Badge>
                     </div>
                   </div>
                 </Link>
 
                 <Link to="/book-store/gift" className="group">
-                  <div className="p-3 rounded-xl bg-card/80 hover:bg-card border border-rose-500/20 hover:border-rose-500/60 transition-all flex items-center gap-2.5 h-full">
+                  <div className="p-2.5 rounded-xl bg-card/80 hover:bg-card border border-rose-500/20 hover:border-rose-500/60 transition-all flex flex-col items-center text-center gap-1.5 h-full">
                     <div className="w-8 h-8 rounded-lg bg-rose-500/15 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Gift className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-black text-foreground truncate">{isRtl ? "إهداء كتاب" : "Gift a Book"}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{isRtl ? "بطاقة إهداء مخصصة" : "Custom Cards"}</p>
+                      <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "إهداء كتاب" : "Gift"}</p>
+                      <Badge variant="outline" className="text-[8px] py-0 px-1 text-rose-600 border-rose-500/40">{isRtl ? "جديد" : "New"}</Badge>
                     </div>
                   </div>
                 </Link>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark, Ticket, Eye, EyeOff, Menu, LogIn, School, BookOpen, Sparkles, CheckCircle2, ArrowUpRight, ShieldCheck } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark, Ticket, Eye, EyeOff, Menu, LogIn, School, BookOpen, Sparkles, CheckCircle2, ArrowUpRight, ShieldCheck, Home } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -342,6 +342,18 @@ const Signup = () => {
 
           {/* Action Hub */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <Button
+              type="button"
+              onClick={goBack}
+              variant="outline"
+              size="sm"
+              className="h-9 px-3.5 rounded-xl font-bold text-xs bg-background/80 hover:bg-muted border-border text-foreground shadow-xs gap-1.5 transition-all"
+              title={t.home}
+            >
+              <Home className="w-3.5 h-3.5 text-primary" />
+              <span>{t.home}</span>
+            </Button>
+
             <Link to="/login">
               <Button
                 variant="outline"

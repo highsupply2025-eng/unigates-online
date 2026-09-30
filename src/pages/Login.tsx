@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Loader2, ArrowRight, ArrowLeft,
   Eye, EyeOff, UserPlus, Mail, Lock,
-  Landmark
+  Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -326,15 +326,15 @@ const Login = () => {
               </Button>
             </Link>
 
-            <Link to="/university-platform" className="hidden md:block">
+            <Link to="/" className="hidden md:block">
               <Button
                 type="button"
                 size="sm"
                 variant="ghost"
                 className="font-bold gap-1.5 h-9 px-3.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10"
               >
-                <Landmark className="w-4 h-4 text-blue-400" />
-                <span>{t.universityPlatform}</span>
+                <Home className="w-4 h-4 text-teal-300" />
+                <span>{t.home}</span>
               </Button>
             </Link>
 

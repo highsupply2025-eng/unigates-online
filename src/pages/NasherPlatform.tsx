@@ -36,7 +36,8 @@ import {
   CreditCard,
   MessageSquare,
   Wallet,
-  Check
+  Check,
+  Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -194,6 +195,12 @@ const NasherPlatform = () => {
 
             {/* Desktop Navigation Links */}
             <div className="hidden md:flex items-center gap-2.5">
+              <Link to="/">
+                <Button size="sm" variant="ghost" className="font-bold px-3.5 h-10 text-xs bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md gap-1.5 hover:scale-105 transition-all">
+                  <Home className="w-4 h-4 text-amber-300" />
+                  <span>{isRtl ? "الرئيسية" : "Home"}</span>
+                </Button>
+              </Link>
               <Link to="/nasher/login">
                 <Button size="sm" className="font-bold px-4 h-10 text-xs bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md">
                   {isRtl ? "دخول المؤلفين" : "Author Sign In"}
@@ -226,6 +233,12 @@ const NasherPlatform = () => {
           {/* Mobile Drawer */}
           {mobileMenuOpen && (
             <div className="relative z-40 md:hidden bg-slate-950/95 backdrop-blur-2xl border-b border-white/10 px-6 py-6 space-y-4 animate-fade-in text-white">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button variant="outline" className="w-full border-white/20 text-white bg-white/5 font-bold h-11 gap-2">
+                  <Home className="w-4 h-4 text-amber-300" />
+                  <span>{isRtl ? "العودة للرئيسية" : "Return to Home"}</span>
+                </Button>
+              </Link>
               <Link to="/nasher/signup" onClick={() => setMobileMenuOpen(false)} className="block">
                 <Button className="w-full bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white font-bold h-11">
                   {isRtl ? "تسجيل مؤلف جديد" : "Register as Author"}

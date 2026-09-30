@@ -26,6 +26,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
+import SiteFooter from "@/components/SiteFooter";
+import { BookStoreDataStore } from "@/services/bookStoreDataStore";
 
 const BookStoreLogin = () => {
   const [email, setEmail] = useState("");

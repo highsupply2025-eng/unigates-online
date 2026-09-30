@@ -34,7 +34,8 @@ import {
   Tag,
   Gift,
   Check,
-  AlertCircle
+  AlertCircle,
+  Crown, Coins, Bot, Users, Headphones, Package,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -278,6 +279,7 @@ export const ReaderDashboard: React.FC = () => {
                 <p className="text-xl font-black text-foreground">{alerts.length}</p>
               </div>
             </Card>
+          </div>
           {/* Smart Reader Features Hub (المميزات الذكية - قريباً باقة مدفوعة) */}
           <div className="pt-2">
             <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-blue-500/10 border border-amber-500/30 space-y-3">

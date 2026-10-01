@@ -22,7 +22,14 @@ import {
   Building2,
   Sparkles,
   Bookmark,
-  Check
+  Check,
+  Crown,
+  Bot,
+  Headphones,
+  Package,
+  Gift,
+  Users,
+  Coins
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -256,8 +263,157 @@ const BookStore = () => {
         </div>
       </section>
 
+      {/* Smart Platform Services & Innovations Bar (قريباً باقات بريميوم مدفوعة + خدمات مجانية) */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-8 pt-6 pb-2">
+        <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-purple-500/10 border border-amber-500/30 space-y-3 shadow-xs">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold shadow-sm">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-black text-foreground">
+                  {isRtl ? "الخدمات والحلول الذكية لمتجر الكتب (قريباً • باقات بريميوم)" : "Book Store Innovations & Smart Features"}
+                </h3>
+                <p className="text-[11px] text-muted-foreground">
+                  {isRtl
+                    ? "استكشف أحدث ميزات القراءة والذكاء الاصطناعي وتتبع الشحن الحي للكتب الورقية"
+                    : "Explore next-gen reading AI, digital bundles, and live courier tracking"}
+                </p>
+              </div>
+            </div>
+            <Badge className="bg-amber-600 text-white text-[10px] font-black px-2.5 py-0.5 shadow-xs">
+              {isRtl ? "ميزات متقدمة 🚀" : "Upcoming Pro Suite 🚀"}
+            </Badge>
+          </div>
+
+          {/* Quick Features Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 pt-1">
+            {/* 1. Book Pass */}
+            <Link to="/book-store/book-pass" className="group">
+              <div className="p-2.5 rounded-2xl bg-card/80 hover:bg-card border border-amber-500/30 hover:border-amber-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-xs hover:shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Crown className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "اشتراك Book Pass" : "Book Pass"}</p>
+                  <span className="inline-block text-[9px] font-bold text-amber-700 dark:text-amber-300 bg-amber-500/15 px-1.5 py-0.5 rounded-full mt-0.5">
+                    {isRtl ? "قريباً • مدفوع" : "Soon • Pro"}
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* 2. AI Companion */}
+            <Link to="/book-store/ai-companion" className="group">
+              <div className="p-2.5 rounded-2xl bg-card/80 hover:bg-card border border-purple-500/30 hover:border-purple-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-xs hover:shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Bot className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "مساعد القراءة AI" : "AI Companion"}</p>
+                  <span className="inline-block text-[9px] font-bold text-purple-700 dark:text-purple-300 bg-purple-500/15 px-1.5 py-0.5 rounded-full mt-0.5">
+                    {isRtl ? "قريباً • مدفوع" : "Soon • Pro"}
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* 3. Audiobooks */}
+            <Link to="/book-store/audiobooks" className="group">
+              <div className="p-2.5 rounded-2xl bg-card/80 hover:bg-card border border-emerald-500/30 hover:border-emerald-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-xs hover:shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Headphones className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "كتاب صوتي AI" : "Audiobook"}</p>
+                  <span className="inline-block text-[9px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 px-1.5 py-0.5 rounded-full mt-0.5">
+                    {isRtl ? "قريباً • مدفوع" : "Soon • Pro"}
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* 4. Curriculum Bundles */}
+            <Link to="/book-store/bundles" className="group">
+              <div className="p-2.5 rounded-2xl bg-card/80 hover:bg-card border border-blue-500/30 hover:border-blue-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-xs hover:shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Package className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "باقات الفرق الدراسية" : "Book Bundles"}</p>
+                  <span className="inline-block text-[9px] font-bold text-blue-700 dark:text-blue-300 bg-blue-500/15 px-1.5 py-0.5 rounded-full mt-0.5">
+                    {isRtl ? "قريباً • خصم 30%" : "Soon • 30% Off"}
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* 5. Live Courier Tracking */}
+            <Link to="/book-store/tracking" className="group">
+              <div className="p-2.5 rounded-2xl bg-card/80 hover:bg-card border border-cyan-500/30 hover:border-cyan-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-xs hover:shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Truck className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "تتبع الشحن الحي" : "Live Courier"}</p>
+                  <span className="inline-block text-[9px] font-bold text-cyan-700 dark:text-cyan-300 bg-cyan-500/15 px-1.5 py-0.5 rounded-full mt-0.5">
+                    {isRtl ? "مجاني 📍" : "Free 📍"}
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* 6. Gift a Book */}
+            <Link to="/book-store/gift" className="group">
+              <div className="p-2.5 rounded-2xl bg-card/80 hover:bg-card border border-rose-500/30 hover:border-rose-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-xs hover:shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Gift className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "إهداء كتاب" : "Gift a Book"}</p>
+                  <span className="inline-block text-[9px] font-bold text-rose-700 dark:text-rose-300 bg-rose-500/15 px-1.5 py-0.5 rounded-full mt-0.5">
+                    {isRtl ? "قريباً • إهداء" : "Soon • Gift"}
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* 7. Reading Circles */}
+            <Link to="/book-store/reading-clubs" className="group">
+              <div className="p-2.5 rounded-2xl bg-card/80 hover:bg-card border border-indigo-500/30 hover:border-indigo-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-xs hover:shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "نوادي القراءة" : "Book Clubs"}</p>
+                  <span className="inline-block text-[9px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-500/15 px-1.5 py-0.5 rounded-full mt-0.5">
+                    {isRtl ? "قريباً • نقاشات" : "Soon"}
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* 8. Reader Rewards */}
+            <Link to="/book-store/rewards" className="group">
+              <div className="p-2.5 rounded-2xl bg-card/80 hover:bg-card border border-yellow-500/30 hover:border-yellow-500/70 transition-all flex flex-col items-center text-center gap-1.5 h-full shadow-xs hover:shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Coins className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-foreground truncate">{isRtl ? "نقاط المكافآت" : "Rewards"}</p>
+                  <span className="inline-block text-[9px] font-bold text-yellow-700 dark:text-yellow-300 bg-yellow-500/15 px-1.5 py-0.5 rounded-full mt-0.5">
+                    {isRtl ? "قريباً • خصومات" : "Soon"}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Categories Filter Bar */}
-      <section className="max-w-7xl mx-auto w-full px-4 sm:px-8 pt-8 pb-4">
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-8 pt-6 pb-4">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
           {categories.map((cat) => (

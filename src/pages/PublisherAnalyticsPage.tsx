@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
+import { useSmartBack } from "@/hooks/use-smart-back";
 import SiteFooter from "@/components/SiteFooter";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -35,6 +36,7 @@ export const PublisherAnalyticsPage: React.FC = () => {
   const { dir } = useLanguage();
   const isRtl = dir === "rtl";
   const { toast } = useToast();
+  const goBack = useSmartBack("/book-store/publisher-dashboard");
 
   const catalog = BookStoreDataStore.getCatalog();
   const [selectedBookId, setSelectedBookId] = useState(catalog[0]?.id || "bk-dar-001");
@@ -60,7 +62,18 @@ export const PublisherAnalyticsPage: React.FC = () => {
       {/* Top Header */}
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/60 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goBack}
+              className="font-bold gap-1.5 h-9 px-2.5 sm:px-3 border-border/80 text-foreground hover:bg-muted rounded-xl"
+              title={isRtl ? "رجوع لاستوديو الناشر" : "Back to Publisher Studio"}
+            >
+              {isRtl ? <ArrowRight className="w-4 h-4 text-purple-500" /> : <ArrowLeft className="w-4 h-4 text-purple-500" />}
+              <span>{isRtl ? "رجوع" : "Back"}</span>
+            </Button>
+
             <Link to="/book-store/publisher-dashboard" className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 via-indigo-600 to-blue-600 p-0.5 shadow-md flex items-center justify-center text-white">
                 <BarChart3 className="w-5 h-5" />

@@ -13,6 +13,7 @@ import {
   Home,
   CheckCircle2,
   Lock,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SEO from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
 import { PlatformKey, getPlatformMeta } from "@/lib/platformAvailability";
 
 interface Props {
@@ -29,8 +31,20 @@ interface Props {
 export const PlatformUnderDevelopment: React.FC<Props> = ({ platform }) => {
   const { dir } = useLanguage();
   const isRtl = dir === "rtl";
+  const { toast } = useToast();
+  const [notified, setNotified] = React.useState(false);
   const meta = getPlatformMeta(platform, isRtl);
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
+
+  const handleNotifyMe = () => {
+    setNotified(true);
+    toast({
+      title: isRtl ? "تم تسجيل اهتمامك بنجاح ✓" : "Interest Registered ✓",
+      description: isRtl
+        ? `سنقوم بإشعارك فور اكتمال وتدشين ${meta.name} رسميًا.`
+        : `We will notify you immediately once ${meta.name} is officially launched.`,
+    });
+  };
 
   const getPlatformIcon = () => {
     switch (platform) {
@@ -134,29 +148,63 @@ export const PlatformUnderDevelopment: React.FC<Props> = ({ platform }) => {
             </CardContent>
           </Card>
 
-          {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Button
-              asChild
-              className="w-full sm:w-auto h-12 px-8 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-black text-sm shadow-xl shadow-teal-500/25 gap-2 transition-all hover:scale-105"
-            >
-              <Link to="/university-platform">
-                <Landmark className="w-4 h-4" />
-                <span>{isRtl ? "دخول المنصة الجامعية (المتاحة حالياً)" : "Explore University Platform"}</span>
-                <ArrowIcon className="w-4 h-4" />
-              </Link>
-            </Button>
+          {/* Action CTAs & Active Platforms */}
+          <div className="space-y-4 pt-3">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              {isRtl ? "المنصات والخدمات المتاحة حالياً على البوابة:" : "Platforms & services currently available:"}
+            </p>
 
-            <Button
-              asChild
-              variant="outline"
-              className="w-full sm:w-auto h-12 px-6 rounded-2xl border-border bg-card hover:bg-muted text-foreground font-bold text-sm"
-            >
-              <Link to="/">
-                <Home className="w-4 h-4 me-2" />
-                <span>{isRtl ? "العودة للرئيسية" : "Back to Home"}</span>
-              </Link>
-            </Button>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Button
+                asChild
+                className="h-12 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-sm shadow-xl shadow-orange-500/20 gap-2 transition-all hover:scale-105"
+              >
+                <Link to="/book-store">
+                  <Store className="w-4 h-4" />
+                  <span>{isRtl ? "متجر ومكتبة الكتب الأكاديمية" : "Academic Bookstore"}</span>
+                  <ArrowIcon className="w-4 h-4" />
+                </Link>
+              </Button>
+
+              <Button
+                asChild
+                className="h-12 px-6 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-black text-sm shadow-xl shadow-indigo-500/20 gap-2 transition-all hover:scale-105"
+              >
+                <Link to="/courses">
+                  <BookOpen className="w-4 h-4" />
+                  <span>{isRtl ? "أكاديمية الدورات والشهادات" : "Courses Academy"}</span>
+                  <ArrowIcon className="w-4 h-4" />
+                </Link>
+              </Button>
+
+              <Button
+                asChild
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-border bg-card hover:bg-muted text-foreground font-bold text-sm"
+              >
+                <Link to="/">
+                  <Home className="w-4 h-4 me-2 text-primary" />
+                  <span>{isRtl ? "العودة للرئيسية" : "Back to Home"}</span>
+                </Link>
+              </Button>
+            </div>
+
+            {/* Notify Me on Launch */}
+            <div className="pt-2 flex items-center justify-center">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleNotifyMe}
+                className="h-10 px-4 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/60 gap-2 border border-dashed border-border/70"
+              >
+                <Bell className="w-3.5 h-3.5 text-amber-500" />
+                <span>
+                  {notified
+                    ? (isRtl ? "تم تسجيل طلب الإشعار بنجاح ✓" : "Notification registered ✓")
+                    : (isRtl ? "أبلغني عبر إشعار فور التدشين الرسمي" : "Notify me upon official launch")}
+                </span>
+              </Button>
+            </div>
           </div>
         </div>
       </main>

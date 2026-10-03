@@ -119,30 +119,17 @@ const BookStoreLogin = () => {
       {/* Top Header Navigation */}
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goBack}
-              className="font-bold gap-1.5 h-9 px-2.5 sm:px-3 border-border/80 text-foreground hover:bg-muted rounded-xl"
-              title={isRtl ? "الرجوع لمتجر الكتب" : "Back to Store"}
-            >
-              {isRtl ? <ArrowRight className="w-4 h-4 text-amber-500" /> : <ArrowLeft className="w-4 h-4 text-amber-500" />}
-              <span>{isRtl ? "رجوع للمتجر" : "Back to Store"}</span>
-            </Button>
-
-            <Link to="/book-store" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 p-0.5 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center text-white">
-                <BookOpen className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-xl font-black text-foreground tracking-tight">UNIGATES</span>
-                <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                  {isRtl ? "متجر الكتب والمكتبة الرقمية • دار عبيد" : "Book Store & Dar Obeid Publishing"}
-                </p>
-              </div>
-            </Link>
-          </div>
+          <Link to="/book-store" className="flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 p-0.5 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center text-white">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xl font-black text-foreground tracking-tight">UNIGATES</span>
+              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                {isRtl ? "متجر الكتب والمكتبة الرقمية • دار عبيد" : "Book Store & Dar Obeid Publishing"}
+              </p>
+            </div>
+          </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
             <Link to="/book-store/browse" className="hidden md:inline-flex">
@@ -157,6 +144,17 @@ const BookStoreLogin = () => {
                 <span>{isRtl ? "إنشاء حساب جديد" : "Sign Up"}</span>
               </Button>
             </Link>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goBack}
+              className="font-bold gap-1.5 h-9 px-2.5 sm:px-3 border-border/80 text-foreground hover:bg-muted rounded-xl"
+              title={isRtl ? "الرجوع لمتجر الكتب" : "Back to Store"}
+            >
+              {isRtl ? <ArrowRight className="w-4 h-4 text-amber-500" /> : <ArrowLeft className="w-4 h-4 text-amber-500" />}
+              <span>{isRtl ? "رجوع للمتجر" : "Back to Store"}</span>
+            </Button>
 
             <LanguageSelectorDropdown className="h-9 px-3" />
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />

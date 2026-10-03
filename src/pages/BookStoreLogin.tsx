@@ -69,13 +69,14 @@ const BookStoreLogin = () => {
     setLoading(true);
     try {
       if (!customRole && password) {
-        await supabase.auth.signInWithPassword({ email: emailToUse, password });
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email: emailToUse, password });
+        if (signInError) throw signInError;
       }
 
       // Record authenticated session in DataStore
       BookStoreDataStore.setCurrentSession({
         role: roleToUse,
-        name: emailToUse.split("@")[0] || (roleToUse === "publisher" ? "دار عبيد للنشر والتوزيع" : "أحمد مصطفى"),
+        name: emailToUse.split("@")[0] || (roleToUse === "publisher" ? "دار عبيد للنشر والتوزيع" : "قارئ"),
         email: emailToUse
       });
 
@@ -92,18 +93,11 @@ const BookStoreLogin = () => {
         navigate("/book-store/reader-dashboard");
       }
     } catch (error: any) {
-      // Fallback local session for demo & preview reliability
-      BookStoreDataStore.setCurrentSession({
-        role: roleToUse,
-        name: emailToUse.split("@")[0] || (roleToUse === "publisher" ? "دار عبيد للنشر والتوزيع" : "أحمد مصطفى"),
-        email: emailToUse
+      toast({
+        title: isRtl ? "فشل تسجيل الدخول" : "Login Failed",
+        description: error.message || (isRtl ? "يرجى التحقق من صحة البريد الإلكتروني وكلمة المرور." : "Please check your email and password."),
+        variant: "destructive"
       });
-
-      if (roleToUse === "publisher") {
-        navigate("/book-store/publisher-dashboard");
-      } else {
-        navigate("/book-store/reader-dashboard");
-      }
     } finally {
       setLoading(false);
     }

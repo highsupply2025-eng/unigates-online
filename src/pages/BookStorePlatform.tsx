@@ -18,13 +18,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useBooks } from "@/hooks/useBooks";
-import { useSmartBack } from "@/hooks/use-smart-back";
 import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
 
 const BookStorePlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const goBack = useSmartBack("/");
   const { t, dir, toggleLanguage, language } = useLanguage();
   const { data: books } = useBooks();
   const totalBooks = books?.length ?? 24;
@@ -226,17 +224,6 @@ const BookStorePlatform = () => {
         {/* Header Bar */}
         <header className="relative z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-4 border-b border-white/10 backdrop-blur-md">
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goBack}
-              className="font-bold gap-1.5 h-10 px-3 bg-white/10 hover:bg-white/20 text-white border-white/20 rounded-xl"
-              title={isRtl ? "الرجوع للبوابة الرئيسية" : "Back to Main Portal"}
-            >
-              {isRtl ? <ArrowRight className="w-4 h-4 text-amber-300" /> : <ArrowLeft className="w-4 h-4 text-amber-300" />}
-              <span>{isRtl ? "رجوع" : "Back"}</span>
-            </Button>
-
             <Link to="/" className="flex items-center gap-3 group min-w-0">
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 p-0.5 shadow-xl shadow-amber-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
                 <BookOpen className="w-7 h-7" />

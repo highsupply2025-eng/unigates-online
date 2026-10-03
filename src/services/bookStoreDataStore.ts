@@ -1432,7 +1432,20 @@ export class BookStoreDataStore {
     if (typeof window === "undefined") return null;
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-      return stored ? JSON.parse(stored) : null;
+      if (!stored) return null;
+      const parsed = JSON.parse(stored);
+      // Auto-purge any demo account so visitor sees proper Login / Sign Up options
+      if (
+        parsed?.name === "أحمد مصطفى" ||
+        parsed?.name?.includes("أحمد مصطفى") ||
+        parsed?.email?.includes("demo") ||
+        parsed?.email?.includes("reader.demo") ||
+        parsed?.isDemo
+      ) {
+        localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+        return null;
+      }
+      return parsed;
     } catch {
       return null;
     }

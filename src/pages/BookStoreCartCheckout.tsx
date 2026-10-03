@@ -47,11 +47,11 @@ export const BookStoreCartCheckout: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<"credit_card" | "instapay" | "fawry" | "vodafone_cash" | "cod">("credit_card");
 
   // Shipping form fields
-  const [fullName, setFullName] = useState("أحمد مصطفى كامل");
-  const [phone, setPhone] = useState("+20 100 123 4567");
+  const [fullName, setFullName] = useState(currentSession?.name && currentSession.name !== "قارئ" ? currentSession.name : "");
+  const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("جمهورية مصر العربية");
-  const [city, setCity] = useState("القاهرة");
-  const [streetAddress, setStreetAddress] = useState("شارع التحرير - الدقي");
+  const [city, setCity] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const hasPhysicalBooks = cart.some((item) => item.format === "print");

@@ -32,7 +32,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useSmartBack } from "@/hooks/use-smart-back";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
 import { BookStoreItem, BookFormat } from "@/types/bookStore";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
@@ -43,7 +42,6 @@ const BookStore = () => {
   const isRtl = dir === "rtl";
   const { toast } = useToast();
   const navigate = useNavigate();
-  const goBack = useSmartBack("/");
   const [searchParams] = useSearchParams();
 
   const [catalog, setCatalog] = useState<BookStoreItem[]>(BookStoreDataStore.getCatalog());
@@ -141,17 +139,6 @@ const BookStore = () => {
       <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-md sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goBack}
-              className="font-bold gap-1.5 h-9 px-2.5 sm:px-3 border-border/80 text-foreground hover:bg-muted rounded-xl"
-              title={isRtl ? "الرجوع للبوابة الرئيسية" : "Back to Main Portal"}
-            >
-              {isRtl ? <ArrowRight className="w-4 h-4 text-amber-500" /> : <ArrowLeft className="w-4 h-4 text-amber-500" />}
-              <span>{isRtl ? "رجوع" : "Back"}</span>
-            </Button>
-
             <Link to="/book-store" className="flex items-center gap-2.5 group">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 p-0.5 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center text-white">
                 <BookOpen className="w-5 h-5" />

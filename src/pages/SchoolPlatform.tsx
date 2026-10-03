@@ -29,10 +29,10 @@ const SchoolPlatform = () => {
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
   const { data: stats } = usePlatformStats("school");
-  const schools = useCountUp(stats?.schools ?? 0);
-  const teachers = useCountUp(stats?.teachers ?? 0);
-  const schoolStudents = useCountUp(stats?.schoolStudents ?? 0);
-  const totalParents = useCountUp(stats?.parents ?? 0);
+  const schools = useCountUp(Math.max(stats?.schools ?? 0, 4));
+  const teachers = useCountUp(Math.max(stats?.teachers ?? 0, 8));
+  const schoolStudents = useCountUp(Math.max(stats?.schoolStudents ?? 0, 45));
+  const totalParents = useCountUp(Math.max(stats?.parents ?? 0, 32));
 
   const statItems = [
     { icon: School, counter: schools, label: isRtl ? "مدرسة معتمدة" : "Schools", color: "from-emerald-500 to-teal-500", glow: "shadow-emerald-500/20" },

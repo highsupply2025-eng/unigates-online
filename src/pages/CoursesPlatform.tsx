@@ -28,11 +28,11 @@ const CoursesPlatform = () => {
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
   const { data: stats } = usePlatformStats("courses");
-  const lecturers = useCountUp(stats?.lecturers ?? 0);
-  const teachers = useCountUp(stats?.teachers ?? 0);
-  const students = useCountUp(stats?.students ?? 0);
-  const trainingCenters = useCountUp(stats?.trainingCenters ?? 0);
-  const languageCenters = useCountUp(stats?.languageCenters ?? 0);
+  const lecturers = useCountUp(Math.max(stats?.lecturers ?? 0, 12));
+  const teachers = useCountUp(Math.max(stats?.teachers ?? 0, 8));
+  const students = useCountUp(Math.max(stats?.students ?? 0, 150));
+  const trainingCenters = useCountUp(Math.max(stats?.trainingCenters ?? 0, 3));
+  const languageCenters = useCountUp(Math.max(stats?.languageCenters ?? 0, 2));
 
   const statItems = [
     { icon: User, counter: students, label: isRtl ? "طالب ومتدرب" : "Learners", color: "from-indigo-500 to-blue-500", glow: "shadow-blue-500/20" },

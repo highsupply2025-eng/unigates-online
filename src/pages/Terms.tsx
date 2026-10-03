@@ -36,7 +36,7 @@ const Terms = () => {
         },
         {
           title: "6. حقوق النشر ومؤلفات منصة نشر",
-          text: "تخضع العلاقات والعمليات بين المؤلفين وإدارة النشر للشروط والضوابط المنصوص عليها عبر منصة نشر، مع التزام المنظومة بتوفير كشوف مبيعات دقيقة ونسبة أرباح 20% للمؤلف مع إمكانية سحب الأرباح فورياً.",
+          text: "تخضع العلاقات والعمليات بين المؤلفين وإدارة النشر للشروط والضوابط المنصوص عليها عبر منصة نشر، مع التزام المنظومة بتوفير كشوف مبيعات دقيقة ونسب أرباح عادلة (70% للنسخ الرقمية و30% للنسخ الورقية المطبوعة) للمؤلف مع إمكانية سحب الأرباح فورياً.",
         },
         {
           title: "7. سياسات التوظيف والتقديم في UNIGATES Career",
@@ -79,7 +79,7 @@ const Terms = () => {
         },
         {
           title: "6. Nashr Publishing & Author Protocols",
-          text: "Publishing rights, manuscript management, and royalty allocations are regulated through the Nashr platform, ensuring transparent real-time sales reporting and 20% royalty payouts.",
+          text: "Publishing rights, manuscript management, and royalty allocations are regulated through the Nashr platform, ensuring transparent real-time sales reporting and top-tier royalty payouts (70% digital / 30% print).",
         },
         {
           title: "7. UNIGATES Career & Recruitment Standards",

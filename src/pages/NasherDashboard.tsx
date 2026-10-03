@@ -420,7 +420,7 @@ const NasherDashboard = () => {
                 </div>
                 <div className="p-3 rounded-xl bg-emerald-500/10 text-start">
                   <span className="text-[10px] font-extrabold text-muted-foreground block">{isRtl ? "نسبة المؤلف (أرباحك)" : "Author Royalty"}</span>
-                  <span className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400">20% لكل نسخة</span>
+                  <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400">{isRtl ? "70% رقمي • 30% ورقي" : "70% Digital • 30% Print"}</span>
                 </div>
                 <Button 
                   onClick={() => setPayoutModalOpen(true)}
@@ -490,7 +490,7 @@ const NasherDashboard = () => {
                   className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
                 >
                   <TrendingUp className="w-4 h-4" />
-                  <span>{isRtl ? "📈 مبيعات الكتب (نسبة 20%)" : "Sales & Royalties"}</span>
+                  <span>{isRtl ? "📈 مبيعات الكتب والأرباح" : "Sales & Royalties"}</span>
                 </TabsTrigger>
 
                 {/* 6. إدارة الحساب والأمان */}
@@ -782,7 +782,7 @@ const NasherDashboard = () => {
                     <div className="flex items-start gap-2.5">
                       <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xs shrink-0">4</div>
                       <div>
-                        <span className="font-black text-foreground block">{isRtl ? "مبيعات وأرباح 20% فورية" : "20% Royalties & Payout"}</span>
+                        <span className="font-black text-foreground block">{isRtl ? "مبيعات وأرباح فورية (70% رقمي / 30% ورقي)" : "Instant Royalties (70% Digital / 30% Print)"}</span>
                         <p className="text-muted-foreground text-[11px] leading-relaxed">{isRtl ? "تحصيل نسبة المؤلف مباشرة مع إمكانية سحب الأموال لحسابكم في أي وقت." : "Direct author royalty crediting and instant withdrawals."}</p>
                       </div>
                     </div>
@@ -924,7 +924,9 @@ const NasherDashboard = () => {
                         {/* Royalty Info */}
                         <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between text-xs">
                           <span className="font-bold text-emerald-800 dark:text-emerald-300">{isRtl ? "نسبة ربح المؤلف:" : "Royalty Rate:"}</span>
-                          <span className="font-black text-emerald-600 dark:text-emerald-400 font-mono">20% ({((work.priceEstimate || 100) * 0.2).toFixed(0)} ج.م / نسخة)</span>
+                          <span className="font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                            {work.format === "digital" ? "70%" : "30%"} ({((work.priceEstimate || 100) * (work.format === "digital" ? 0.7 : 0.3)).toFixed(0)} ج.م / نسخة)
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -1208,12 +1210,12 @@ const NasherDashboard = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
-                  {isRtl ? "مبيعات الكتب ونسبة أرباح المؤلف (20%)" : "Book Sales & 20% Author Royalty"}
+                  {isRtl ? "مبيعات الكتب ونسبة أرباح المؤلف (70% رقمي / 30% ورقي)" : "Book Sales & Author Royalties (70% Digital / 30% Print)"}
                 </h2>
                 <p className="text-xs text-muted-foreground">
                   {isRtl 
-                    ? "تتبع مبيعات كتبكم رقمياً وورقياً مع احتساب فوري لنسبة الـ 20% وإمكانية سحب الأرباح"
-                    : "Track digital and print sales with real-time 20% royalty calculation and payouts"}
+                    ? "تتبع مبيعات كتبكم رقمياً (70%) وورقياً (30%) مع احتساب فوري وإمكانية سحب الأرباح لحسابكم"
+                    : "Track digital (70%) and print (30%) sales with real-time royalty calculation and payouts"}
                 </p>
               </div>
 
@@ -1243,13 +1245,13 @@ const NasherDashboard = () => {
 
               <Card className="p-4 sm:p-5 rounded-3xl border-2 border-border/80 bg-card shadow-sm space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-muted-foreground">{isRtl ? "إجمالي أرباح المؤلف (20%)" : "Total Royalties (20%)"}</span>
+                  <span className="text-xs font-bold text-muted-foreground">{isRtl ? "إجمالي أرباح المؤلف" : "Total Royalties"}</span>
                   <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">📈</div>
                 </div>
                 <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
                   {financials.totalAuthorRoyalties} <span className="text-xs font-normal">ج.م</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">{isRtl ? "من إجمالي مبيعات الكتب" : "Calculated from all sales"}</p>
+                <p className="text-[10px] text-muted-foreground">{isRtl ? "70% للرقمي • 30% للورقي" : "70% Digital • 30% Print"}</p>
               </Card>
 
               <Card className="p-4 sm:p-5 rounded-3xl border-2 border-border/80 bg-card shadow-sm space-y-2">
@@ -1283,7 +1285,7 @@ const NasherDashboard = () => {
               <CardHeader className="bg-muted/20 border-b border-border/60 pb-3">
                 <CardTitle className="text-sm font-black flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-emerald-500" />
-                  <span>{isRtl ? "سجل مبيعات الكتب المباشرة وعائدات الـ 20%" : "Live Book Sales Roster"}</span>
+                  <span>{isRtl ? "سجل مبيعات الكتب المباشرة وتوزيع العوائد" : "Live Book Sales Roster"}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0 overflow-x-auto">
@@ -1293,7 +1295,7 @@ const NasherDashboard = () => {
                       <th className="p-3.5 text-start">{isRtl ? "الكتاب / الكود" : "Book / Code"}</th>
                       <th className="p-3.5 text-start">{isRtl ? "صيغة البيع" : "Format"}</th>
                       <th className="p-3.5 text-start">{isRtl ? "سعر البيع" : "Sale Price"}</th>
-                      <th className="p-3.5 text-start">{isRtl ? "نسبة المؤلف (20%)" : "Royalty (20%)"}</th>
+                      <th className="p-3.5 text-start">{isRtl ? "نسبة وربح المؤلف" : "Author Royalty"}</th>
                       <th className="p-3.5 text-start">{isRtl ? "المشتري / رقم الطلب" : "Buyer / Order"}</th>
                       <th className="p-3.5 text-start">{isRtl ? "التاريخ" : "Date"}</th>
                     </tr>
@@ -1314,7 +1316,7 @@ const NasherDashboard = () => {
                           {s.salePrice} ج.م
                         </td>
                         <td className="p-3.5 font-mono font-black text-emerald-600 dark:text-emerald-400">
-                          +{s.authorEarnings} ج.م (20%)
+                          +{s.authorEarnings} ج.م ({s.authorRoyaltyPercentage}%)
                         </td>
                         <td className="p-3.5">
                           <span className="text-foreground font-semibold block truncate max-w-[150px]">{s.buyerName}</span>

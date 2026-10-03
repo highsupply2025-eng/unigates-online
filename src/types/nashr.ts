@@ -98,7 +98,7 @@ export interface BookSaleRecord {
   bookTitle: string;
   format: "digital" | "print" | "both";
   salePrice: number;
-  authorRoyaltyPercentage: 20; // Fixed 20%
+  authorRoyaltyPercentage: number; // 70% for digital, 30% for print
   authorEarnings: number;
   buyerName: string;
   orderNumber: string;

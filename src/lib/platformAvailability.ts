@@ -121,11 +121,11 @@ export function getPlatformMeta(platform: PlatformKey, isRtl: boolean) {
         name: isRtl ? "منصة نشر (بوابة المؤلفين والنشر)" : "Nashr Platform (Authors & Publishing)",
         badge: isRtl ? "منصة نشر والمؤلفات" : "Nashr & Publishing",
         desc: isRtl
-          ? "بوابة المؤلفين لنشر الأعمال والكتب رقمياً وورقياً ومتابعة المبيعات والأرباح ونسب الـ 20% والفواتير بإشراف دار عبيد"
-          : "Author portal for publishing digital and print works, tracking 20% sales royalties, invoices, and direct author support under Dar Obaid.",
+          ? "بوابة المؤلفين لنشر الأعمال والكتب رقمياً وورقياً ومتابعة المبيعات والأرباح (70% للرقمي و30% للورقي) والفواتير بإشراف دار عبيد"
+          : "Author portal for publishing digital and print works, tracking 70% digital and 30% print royalties, invoices, and direct author support under Dar Obaid.",
         expectedFeatures: isRtl
-          ? ["رفع المؤلفات والمخطوطات (رقمي / ورقي / كلاهما)", "متابعة المبيعات ونسبة 20% للمؤلف", "سداد الفواتير ورفع الإيصالات", "شات تواصل داخلي مباشر مع الإدارة"]
-          : ["Manuscript Submissions (Digital / Print / Both)", "20% Author Royalty Tracking", "Invoice Payments & Receipts", "Direct Management Chat"],
+          ? ["رفع المؤلفات والمخطوطات (رقمي / ورقي / كلاهما)", "متابعة المبيعات ونسب الأرباح (70% رقمي / 30% ورقي)", "سداد الفواتير ورفع الإيصالات", "شات تواصل داخلي مباشر مع الإدارة"]
+          : ["Manuscript Submissions (Digital / Print / Both)", "70% Digital & 30% Print Royalty Tracking", "Invoice Payments & Receipts", "Direct Management Chat"],
       };
     case "career":
       return {

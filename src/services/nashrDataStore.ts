@@ -161,13 +161,13 @@ const INITIAL_MESSAGES: NashrMessage[] = [
     sender: "admin",
     senderName: "إدارة دار عبيد للنشر والتوزيع",
     senderTitle: "شئون المبيعات والمؤلفين",
-    text: "نحيطكم علماً بأن مبيعات كتبكم في متجر الكتب تسير بشكل ممتاز ويتم قيد نسبة الـ 20% في محفظتكم لحظياً فور اكتمال كل طلب.",
+    text: "نحيطكم علماً بأن مبيعات كتبكم في متجر الكتب تسير بشكل ممتاز ويتم قيد نسب الأرباح في محفظتكم لحظياً فور اكتمال كل طلب (70% للنسخ الرقمية و30% للنسخ المطبوعة).",
     timestamp: "2026-09-25 04:10 م",
     read: true
   }
 ];
 
-// Default Sales (with 20% Author Royalty)
+// Default Sales (70% Author Royalty for Digital, 30% for Print)
 const INITIAL_SALES: BookSaleRecord[] = [
   {
     id: "sale-901",
@@ -175,8 +175,8 @@ const INITIAL_SALES: BookSaleRecord[] = [
     bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
     format: "print",
     salePrice: 140,
-    authorRoyaltyPercentage: 20,
-    authorEarnings: 28, // 140 * 0.20 = 28
+    authorRoyaltyPercentage: 30,
+    authorEarnings: 42, // 140 * 0.30 = 42
     buyerName: "مكتبة كلية الاقتصاد - جامعة القاهرة",
     orderNumber: "ORD-99210",
     date: "2026-09-28"
@@ -187,8 +187,8 @@ const INITIAL_SALES: BookSaleRecord[] = [
     bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
     format: "print",
     salePrice: 140,
-    authorRoyaltyPercentage: 20,
-    authorEarnings: 28,
+    authorRoyaltyPercentage: 30,
+    authorEarnings: 42,
     buyerName: "د. خالد السعيد - الرياض",
     orderNumber: "ORD-99215",
     date: "2026-09-27"
@@ -199,8 +199,8 @@ const INITIAL_SALES: BookSaleRecord[] = [
     bookTitle: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
     format: "digital",
     salePrice: 85,
-    authorRoyaltyPercentage: 20,
-    authorEarnings: 17, // 85 * 0.20 = 17
+    authorRoyaltyPercentage: 70,
+    authorEarnings: 59.5, // 85 * 0.70 = 59.5
     buyerName: "أحمد ممدوح (باحث ماجستير)",
     orderNumber: "ORD-99180",
     date: "2026-09-27"
@@ -211,8 +211,8 @@ const INITIAL_SALES: BookSaleRecord[] = [
     bookTitle: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
     format: "digital",
     salePrice: 85,
-    authorRoyaltyPercentage: 20,
-    authorEarnings: 17,
+    authorRoyaltyPercentage: 70,
+    authorEarnings: 59.5,
     buyerName: "سارة عبد العزيز (جامعة الملك سعود)",
     orderNumber: "ORD-99162",
     date: "2026-09-26"
@@ -223,8 +223,8 @@ const INITIAL_SALES: BookSaleRecord[] = [
     bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
     format: "both",
     salePrice: 140,
-    authorRoyaltyPercentage: 20,
-    authorEarnings: 28,
+    authorRoyaltyPercentage: 30,
+    authorEarnings: 42,
     buyerName: "معهد الدلتا العالي للهندسة والتكنولوجيا",
     orderNumber: "ORD-99050",
     date: "2026-09-24"
@@ -235,8 +235,8 @@ const INITIAL_SALES: BookSaleRecord[] = [
     bookTitle: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
     format: "digital",
     salePrice: 85,
-    authorRoyaltyPercentage: 20,
-    authorEarnings: 17,
+    authorRoyaltyPercentage: 70,
+    authorEarnings: 59.5,
     buyerName: "م. إبراهيم يوسف",
     orderNumber: "ORD-98920",
     date: "2026-09-22"
@@ -247,8 +247,8 @@ const INITIAL_SALES: BookSaleRecord[] = [
     bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
     format: "print",
     salePrice: 140,
-    authorRoyaltyPercentage: 20,
-    authorEarnings: 28,
+    authorRoyaltyPercentage: 30,
+    authorEarnings: 42,
     buyerName: "مركز بحوث الشرق الأوسط",
     orderNumber: "ORD-98841",
     date: "2026-09-20"
@@ -419,7 +419,9 @@ export class NashrDataStore {
       totalCopiesSold: sales.length,
       digitalCopiesSold,
       printCopiesSold,
-      royaltyPercentage: 20
+      digitalRoyaltyPercentage: 70,
+      printRoyaltyPercentage: 30,
+      royaltyPercentage: 70
     };
   }
 

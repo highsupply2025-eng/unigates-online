@@ -327,8 +327,8 @@ const NasherSignup = () => {
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground font-medium max-w-lg mx-auto">
                 {isRtl 
-                  ? "سجّل بياناتك الأكاديمية والمهنية وأرفق مستنداتك لرفع مؤلفاتك، متابعة الاعتماد والمبيعات، وتحصيل نسبة أرباحك 20% فورياً بإشراف دار عبيد للنشر."
-                  : "Register your academic credentials and documents to publish works, track bookstore sales, and receive 20% royalties with Dar Obeid."}
+                  ? "سجّل بياناتك الأكاديمية والمهنية وأرفق مستنداتك لرفع مؤلفاتك، متابعة الاعتماد والمبيعات، وتحصيل أعلى عوائد أرباح (70% للنسخ الرقمية و30% للمطبوعة) فورياً بإشراف دار عبيد للنشر."
+                  : "Register your academic credentials and documents to publish works, track bookstore sales, and receive top royalties (70% digital / 30% print) with Dar Obeid."}
               </p>
             </div>
           )}

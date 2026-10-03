@@ -257,12 +257,12 @@ const BookStoreLogin = () => {
             {/* Quick Metrics Bar */}
             <div className="pt-2 flex items-center gap-6 border-t border-border/40">
               <div>
-                <p className="text-xl font-black text-foreground">500+</p>
+                <p className="text-xl font-black text-foreground">+89</p>
                 <p className="text-[10px] text-muted-foreground font-semibold">{isRtl ? "مرجع أكاديمي معتمد" : "Accredited Books"}</p>
               </div>
               <div className="h-7 w-px bg-border/60" />
               <div>
-                <p className="text-xl font-black text-foreground">50,000+</p>
+                <p className="text-xl font-black text-foreground">+253</p>
                 <p className="text-[10px] text-muted-foreground font-semibold">{isRtl ? "قارئ وطالب مسجل" : "Active Readers"}</p>
               </div>
               <div className="h-7 w-px bg-border/60" />

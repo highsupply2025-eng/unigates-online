@@ -208,6 +208,14 @@ const BookStore = () => {
               </>
             )}
 
+            {/* Dedicated Publishing Cross-Link to Nashr Platform */}
+            <Link to="/nashr" title={isRtl ? "طلب نشر كتاب عبر منصة نشر" : "Publish on Nashr Platform"}>
+              <Button size="sm" className="font-bold gap-1.5 h-9 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xs text-xs">
+                <PenTool className="w-3.5 h-3.5" />
+                <span>{isRtl ? "طلب نشر" : "Publish"}</span>
+              </Button>
+            </Link>
+
             <LanguageSelectorDropdown className="h-9 px-3" />
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
           </div>

@@ -225,9 +225,9 @@ const NasherPlatform = () => {
                 <span>{isRtl ? "الرئيسية" : "Home"}</span>
               </Button>
             </Link>
-            <Link to="/book-store">
-              <Button size="sm" variant="ghost" className="font-bold px-3.5 h-10 text-xs bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md gap-1.5">
-                <BookOpen className="w-4 h-4 text-rose-300" />
+            <Link to="/book-store" title={isRtl ? "الانتقال إلى متجر الكتب الإلكتروني" : "Go to Book Store"}>
+              <Button size="sm" variant="outline" className="font-black px-4 h-10 text-xs bg-blue-600/20 hover:bg-blue-600/35 text-white border border-blue-400/30 shadow-md backdrop-blur-md gap-1.5 hover:scale-105 transition-all">
+                <BookOpen className="w-4 h-4 text-cyan-300" />
                 <span>{isRtl ? "متجر الكتب" : "Bookstore"}</span>
               </Button>
             </Link>

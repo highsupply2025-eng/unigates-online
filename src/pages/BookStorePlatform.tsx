@@ -1,585 +1,988 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
-import HomeBooksSection from "@/components/HomeBooksSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  BookOpen, Users, GraduationCap, Globe, Home,
-  Video, FileText, Award, ShieldCheck, MessageSquare, Layers,
-  Sparkles, Trophy, Zap, Check, ArrowLeft, ArrowRight, Menu, X,
-  ShoppingBag, Truck, Bookmark, Library, PenTool, Printer,
-  Store, Building2, User, Star, HelpCircle, Lock, PackageCheck,
-  CheckCircle2, Compass, Cpu, Palette, BookCheck, Flame
+  BookOpen, Search, ShoppingCart, Star, Filter, Sparkles, Truck,
+  Lock, ShieldCheck, CheckCircle2, ArrowLeft, ArrowRight, Building2,
+  PackageCheck, Bookmark, Store, Menu, X, GraduationCap, Cpu,
+  Trophy, BookCheck, Palette, ShoppingBag, Zap, Flame, PenTool,
+  Home, Heart, Eye, Check, Clock, HelpCircle, Layers, ChevronRight,
+  SlidersHorizontal, Library
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
-import { useBooks } from "@/hooks/useBooks";
+import { useToast } from "@/hooks/use-toast";
+import { BookStoreDataStore } from "@/services/bookStoreDataStore";
+import { BookStoreItem } from "@/types/bookStore";
 import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
 
 const BookStorePlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { t, dir, toggleLanguage, language } = useLanguage();
-  const { data: books } = useBooks();
-  const totalBooks = books?.length ?? 24;
+  const { t, dir, language } = useLanguage();
   const isRtl = dir === "rtl";
+  const { toast } = useToast();
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
-  const statItems = [
-    { icon: BookOpen, count: `${totalBooks}+`, label: isRtl ? "عنوان ومؤلف منشور" : "Titles Published", color: "from-amber-500 to-orange-500", glow: "shadow-amber-500/20" },
-    { icon: PackageCheck, count: "100%", label: isRtl ? "كتب ورقية وتوصيل منزلي" : "Physical Print & Delivery", color: "from-emerald-500 to-teal-500", glow: "shadow-emerald-500/20" },
-    { icon: Lock, count: "DRM", label: isRtl ? "كتب رقمية محمية" : "Protected E-Books", color: "from-blue-500 to-indigo-500", glow: "shadow-blue-500/20" },
-    { icon: PenTool, count: "50+", label: isRtl ? "مؤلف وباحث معتمد" : "Registered Authors", color: "from-purple-500 to-fuchsia-500", glow: "shadow-purple-500/20" },
-    { icon: Building2, count: "دار عبيد", label: isRtl ? "للنشر والتوزيع والطباعة" : "Dar Obeid Publishing", color: "from-rose-500 to-pink-500", glow: "shadow-rose-500/20" },
-  ];
+  // Real store catalog from BookStoreDataStore
+  const catalog = useMemo(() => BookStoreDataStore.getCatalog(), []);
+  const [selectedCategoryTab, setSelectedCategoryTab] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchCategory, setSearchCategory] = useState("all");
 
-  const bookCategories = [
+  // Buy / Add to cart modal state
+  const [quickBuyBook, setQuickBuyBook] = useState<BookStoreItem | null>(null);
+  const [selectedFormat, setSelectedFormat] = useState<"digital" | "print">("digital");
+
+  // Cart count from BookStoreDataStore
+  const [cartCount, setCartCount] = useState<number>(() => {
+    try {
+      const items = BookStoreDataStore.getCart();
+      return items.reduce((acc, item) => acc + (item.quantity || 1), 0);
+    } catch {
+      return 0;
+    }
+  });
+
+  const refreshCartCount = () => {
+    try {
+      const items = BookStoreDataStore.getCart();
+      setCartCount(items.reduce((acc, item) => acc + (item.quantity || 1), 0));
+    } catch {
+      setCartCount(0);
+    }
+  };
+
+  useEffect(() => {
+    refreshCartCount();
+    window.addEventListener("storage", refreshCartCount);
+    return () => window.removeEventListener("storage", refreshCartCount);
+  }, []);
+
+  const handleHeroSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+    const cat = searchCategory !== "all" ? `&category=${encodeURIComponent(searchCategory)}` : "";
+    navigate(`/book-store/browse?search=${encodeURIComponent(query)}${cat}`);
+  };
+
+  const handleAddToCart = (book: BookStoreItem, format: "digital" | "print" = "digital") => {
+    BookStoreDataStore.addToCart(book, format, 1);
+    refreshCartCount();
+    toast({
+      title: isRtl ? "تمت الإضافة إلى سلة الشراء 🛒" : "Added to Cart 🛒",
+      description: isRtl
+        ? `أضيف كتاب «${book.title_ar}» (${format === "digital" ? "نسخة رقمية" : "نسخة مطبوعة"}) بنجاح.`
+        : `Book added in ${format} format.`,
+    });
+    setQuickBuyBook(null);
+  };
+
+  // Categories list for store
+  const storeCategories = [
     {
+      id: "academic",
       titleAr: "المراجع الأكاديمية والجامعية",
-      titleEn: "Academic & University References",
-      descAr: "مؤلفات كليات الطب، الهندسة، القانون، العلوم الإدارية والمالية، واللغات.",
-      descEn: "Medical, Engineering, Law, Business Administration, and Linguistics reference books.",
+      titleEn: "Academic References",
+      descAr: "مؤلفات الطب، الهندسة، القانون، والعلوم الإدارية والتربوية.",
+      descEn: "Medical, Engineering, Law, and Management textbooks.",
       icon: GraduationCap,
-      color: "from-blue-500 to-indigo-600",
-      countAr: "مراجع معتمدة",
-      countEn: "Accredited Textbooks",
+      color: "from-blue-600 to-indigo-700",
+      badge: isRtl ? "مراجع معتمدة" : "Accredited",
     },
     {
-      titleAr: "التقنية والبرمجة والذكاء الاصطناعي",
-      titleEn: "Technology, Coding & AI",
-      descAr: "أحدث الكتب في هندسة البرمجيات، الذكاء الاصطناعي، الأمن السيبراني، والحوسبة السحابية.",
-      descEn: "Software Engineering, Artificial Intelligence, Cybersecurity, and Cloud Computing.",
+      id: "programming",
+      titleAr: "البرمجة والذكاء الاصطناعي",
+      titleEn: "Coding & Artificial Intelligence",
+      descAr: "هندسة النظم السحابية، التعلم العميق، والأمن السيبراني.",
+      descEn: "Cloud Systems, Deep Learning & Cybersecurity.",
       icon: Cpu,
-      color: "from-purple-500 to-indigo-700",
-      countAr: "إصدارات حديثة",
-      countEn: "Latest Editions",
+      color: "from-purple-600 to-indigo-800",
+      badge: isRtl ? "أحدث التقنيات" : "Cutting Edge",
     },
     {
-      titleAr: "إدارة الأعمال والاقتصاد والقيادة",
-      titleEn: "Business, Economics & Leadership",
-      descAr: "كتب إدارة المشاريع، ريادة الأعمال، التسويق، وتطوير المهارات القيادية.",
-      descEn: "Project Management, Entrepreneurship, Marketing Strategies, and Leadership.",
+      id: "business",
+      titleAr: "إدارة الأعمال والقيادة (PMP)",
+      titleEn: "Business & Management",
+      descAr: "إدارة المشاريع الاحترافية، ريادة الأعمال، والتحول المؤسسي.",
+      descEn: "PMP Project Management & Business Leadership.",
       icon: Trophy,
       color: "from-amber-500 to-orange-600",
-      countAr: "الأكثر طلباً",
-      countEn: "Bestsellers",
+      badge: isRtl ? "الأكثر طلباً" : "Top Ranked",
     },
     {
-      titleAr: "الأدب والروايات والفكر الإنساني",
-      titleEn: "Literature, Novels & Humanities",
-      descAr: "روائع الأدب العربي والعالمي، الروايات المترجمة، الدراسات النقدية، والفلسفة.",
-      descEn: "Arabic & World Literature masterpieces, Translated Novels, and Philosophy.",
+      id: "humanities",
+      titleAr: "العلوم الإنسانية وتطوير الذات",
+      titleEn: "Humanities & Self Development",
+      descAr: "التفكير الإبداعي، علم النفس المعرفي، والمهارات الشخصية.",
+      descEn: "Creative Thinking, Cognitive Psychology & Soft Skills.",
       icon: Bookmark,
       color: "from-rose-500 to-pink-600",
-      countAr: "طبعات فاخرة",
-      countEn: "Deluxe Editions",
+      badge: isRtl ? "تطوير المهارات" : "Life Skills",
     },
     {
-      titleAr: "المناهج والكتب المدرسية (K-12)",
-      titleEn: "K-12 School Textbooks",
-      descAr: "سلسلة الكتب الدراسية والمذكرات المعتمدة للمراحل الابتدائية والإعدادية والثانوية.",
-      descEn: "Curriculum textbooks, study guides, and workbooks for K-12 education.",
+      id: "school",
+      titleAr: "المناهج والكتب المدرسية",
+      titleEn: "K-12 Curricula & Guides",
+      descAr: "مذكرات وبنوك أسئلة وشروح للمراحل الابتدائية والإعدادية والثانوية.",
+      descEn: "Comprehensive study guides and exercise workbooks.",
       icon: BookCheck,
-      color: "from-emerald-500 to-teal-600",
-      countAr: "مناهج شاملة",
-      countEn: "Full Curriculum",
+      color: "from-emerald-600 to-teal-700",
+      badge: isRtl ? "شامل الاختبارات" : "Exams Ready",
     },
     {
-      titleAr: "كتب الأطفال والناشئة وتنمية المهارات",
-      titleEn: "Children & Young Adult Books",
-      descAr: "قصص تعليمية مصورة، كتب العلوم المبسطة، وتنمية مهارات التفكير واللغات.",
-      descEn: "Illustrated educational storybooks, early science, and cognitive skill builders.",
+      id: "literature",
+      titleAr: "الروايات والأدب العالمي",
+      titleEn: "Novels & World Literature",
+      descAr: "روائع السرد العربي، الروايات المترجمة، والدراسات النقدية الفاخرة.",
+      descEn: "Classic and contemporary world literature masterpieces.",
       icon: Palette,
-      color: "from-cyan-500 to-teal-600",
-      countAr: "رسومات ملونة",
-      countEn: "Illustrated",
+      color: "from-cyan-600 to-blue-700",
+      badge: isRtl ? "طبعات فاخرة" : "Deluxe Editions",
     },
   ];
 
-  const publishingServices = [
-    {
-      titleAr: "الترقيم الدولي والإيداع القانوني (ISBN)",
-      titleEn: "ISBN & Legal Deposit",
-      descAr: "استخراج الترقيم الدولي المعتمد والإيداع الرسمي لحفظ حقوق الملكية الفكرية للمؤلفين والناشرين.",
-      descEn: "Accredited ISBN registration and official legal deposit to protect authors' and publishers' intellectual property.",
-      icon: ShieldCheck,
-    },
-    {
-      titleAr: "التدقيق اللغوي والتحكيم العلمي",
-      titleEn: "Editing & Academic Peer-Review",
-      descAr: "مراجعة أكاديمية ولغوية من قِبل نخبة من الأساتذة والمدققين لضمان سلامة وجودة المحتوى.",
-      descEn: "Academic and linguistic review by experienced scholars and editors to ensure content quality.",
-      icon: PenTool,
-    },
-    {
-      titleAr: "التصميم الفني وتصميم الأغلفة الفاخرة",
-      titleEn: "Cover Design & Typesetting",
-      descAr: "إخراج فني متطور، تنسيق داخلي احترافي، وتصميم أغلفة جذابة تليق بقيمة الكتاب.",
-      descEn: "Professional typesetting, interior layout, and distinctive cover design tailored to each publication.",
-      icon: Palette,
-    },
-    {
-      titleAr: "الطباعة الفاخرة والطباعة حسب الطلب (POD)",
-      titleEn: "High-Quality Printing & POD",
-      descAr: "طباعة ورقية فاخرة بأحدث ماكينات الطباعة الرقمية والأوفست مع خيار الطباعة حسب الطلب.",
-      descEn: "Premium digital and offset printing with flexible print-on-demand options.",
-      icon: Printer,
-    },
-    {
-      titleAr: "التسويق والتوزيع في المعارض الدولية",
-      titleEn: "International Book Fair Distribution",
-      descAr: "توزيع وعرض المؤلفات في معارض الكتاب الدولية الكبرى (القاهرة، الرياض، الشارقة، أبوظبي).",
-      descEn: "Distribution and showcase opportunities at leading international book fairs.",
-      icon: Globe,
-    },
-    {
-      titleAr: "النشر والتحويل الرقمي المحمي بنظام DRM",
-      titleEn: "Digital Publishing & DRM E-Books",
-      descAr: "تحويل الكتب إلى صيغ رقمية محمية ومشفرة ضد النسخ والقرصنة مع قارئ إلكتروني ذكي.",
-      descEn: "Secure digital conversion with DRM protection and an integrated smart e-reader.",
-      icon: Lock,
-    },
-  ];
+  // Filter catalog items
+  const filteredCatalog = useMemo(() => {
+    if (selectedCategoryTab === "all") return catalog;
+    return catalog.filter((b) => b.category === selectedCategoryTab);
+  }, [catalog, selectedCategoryTab]);
 
-  const roleHubs = [
+  // Frequently Asked Questions strictly for store shoppers
+  const storeFaqs = [
     {
-      roleAr: "المؤلفون والباحثون وأعضاء هيئة التدريس",
-      roleEn: "Authors & Researchers",
-      descAr: "قدّم مخطوطتك للنشر بدار عبيد، احصل على الترقيم الدولي وعقد النشر، وتابع أرباح مبيعات كتابك لحظياً.",
-      descEn: "Submit your manuscript, obtain an ISBN and publishing agreement, and track book revenue.",
-      icon: PenTool,
-      color: "from-amber-600 to-orange-700",
-      ctaAr: "طلب نشر كتاب / انضم كمؤلف",
-      ctaEn: "Submit Manuscript",
-      link: "/courses/signup?role=lecturer",
+      qAr: "كيف يمكنني شراء كتاب ورقي وتوصيله إلى عنواني؟",
+      qEn: "How can I purchase a print book and get home delivery?",
+      aAr: "اختر أي كتاب في المتجر، وحدد خيار «نسخة ورقية»، ثم أضفه للسلة وأتمم الدفع مع إدخال عنوانك بالتفصيل. يتم شحن وتغليف الكتب في كراتين مقواة فاخرة عبر شركائنا اللوجستيين المعتمدين لجميع محافظات مصر والدول العربية في غضون 48 إلى 72 ساعة.",
+      aEn: "Select any book, choose 'Print Copy', add to cart, and checkout with your shipping address. Books are safely packaged and shipped across Egypt and internationally within 48-72 hours.",
     },
     {
-      roleAr: "دور النشر والمكتبات والموزعون",
-      roleEn: "Publishing Houses & Distributors",
-      descAr: "اعرض كتالوج مطبوعاتك، استفد من منظومة الشحن والتوزيع السحابي، ووصّل كتبك لآلاف الجامعات والمدارس.",
-      descEn: "List your catalog and use integrated distribution and shipping to reach universities and schools.",
-      icon: Building2,
-      color: "from-purple-600 to-indigo-700",
-      ctaAr: "تسجيل دار نشر / موزع",
-      ctaEn: "Register Publisher",
-      link: "/courses/signup?role=training_center",
+      qAr: "كيف أقرأ الكتب الرقمية (E-Book) بعد شرائها؟",
+      qEn: "How do I access and read purchased digital e-books?",
+      aAr: "بمجرد إتمام الدفع، يتاح الكتاب فوراً في حسابك بتبويب «مكتبتي الرقمية». يمكنك القراءة الفورية عبر قارئ الكتب السحابي المتطور على الهاتف، التابلت، أو الكمبيوتر بدون الحاجة لتحميل أي برامج خارجية، مع تشفير DRM متقدم لحماية المحتوى.",
+      aEn: "Upon checkout, e-books unlock instantly under 'My Library'. You can read seamlessly via our cloud reader on mobile, tablet, or desktop with no additional software required.",
     },
     {
-      roleAr: "القراء والطلاب والباحثون",
-      roleEn: "Readers & Students",
-      descAr: "اطلب الكتب الورقية مع التوصيل السريع لباب منزلك، أو اقرأ الكتب الرقمية فوراً عبر القارئ السحابي الذكي.",
-      descEn: "Order printed books for delivery or instantly read protected digital editions online.",
-      icon: BookOpen,
-      color: "from-blue-600 to-cyan-600",
-      ctaAr: "إنشاء حساب قارئ",
-      ctaEn: "Signup as Reader",
-      link: "/courses/signup?role=personal",
-    },
-  ];
-
-  const faqs = [
-    {
-      qAr: "كيف يمكنني شراء كتاب ورقي وتوصيله إلى منزلي؟",
-      qEn: "How can I purchase a physical printed book and get home delivery?",
-      aAr: "يمكنك تصفح أي كتاب في المتجر، واختيار خيار «نسخة ورقية»، ثم إتمام عملية الدفع وإدخال عنوان الشحن، وسيتم تجهيز وتغليف الكتاب الفاخر وشحنه مباشرة عبر شركائنا اللوجستيين المعتمدين.",
-      aEn: "Select the 'Physical Copy' option on any book page, complete checkout with your delivery address, and your order will be packed and shipped to your doorstep.",
-    },
-    {
-      qAr: "كيف أقرأ الكتب الرقمية وما هي آليات حمايتها من القرصنة؟",
-      qEn: "How do digital e-books work and how are they protected?",
-      aAr: "بمجرد شراء النسخة الرقمية، تصبح متاحة فوراً في مكتبتك السحابية للقراءة عبر القارئ الإلكتروني المدمج، ويتم تشفير المحتوى بنظام DRM المتقدم لمنع النسخ أو التسجيل غير المصرح به لحفظ حقوق المؤلفين.",
-      aEn: "Upon purchase, e-books unlock in your cloud library. Files are protected with advanced DRM encryption preventing unauthorized copying or downloading.",
-    },
-    {
-      qAr: "كيف أقدم كتابي للنشر لدى دار عبيد للنشر والتوزيع والطباعة؟",
-      qEn: "How can I submit my manuscript for publishing with Dar Obeid?",
-      aAr: "يمكنك التسجيل كـ «مؤلف / باحث» وتقديم طلب النشر مع ملخص المخطوطة، وسيقوم فريق التحرير والتدقيق الأكاديمي بدار عبيد بمراجعة العمل والتواصل معك لإبرام عقد النشر واستخراج الترقيم الدولي ISBN والطباعة والتوزيع.",
-      aEn: "Register as an Author, submit your manuscript synopsis, and our editorial committee at Dar Obeid will review your work and contact you for ISBN issuance, printing, and distribution.",
-    },
-    {
-      qAr: "ما هي طرق الدفع المتاحة في متجر الكتب؟",
+      qAr: "ما هي وسائل الدفع المعتمدة في متجر دار عبيد؟",
       qEn: "What payment methods are supported in the Book Store?",
-      aAr: "نوفر وسائل دفع آمنة ومشفرة تشمل البطاقات الائتمانية والبنكية (Visa, Mastercard, Mada)، المحافظ الرقمية، وخدمة الدفع عند الاستلام للطلبات الورقية المؤهلة.",
-      aEn: "We support major credit/debit cards (Visa, Mastercard, Mada), digital wallets, and cash on delivery for eligible physical book orders.",
+      aAr: "نوفر وسائل دفع إلكترونية آمنة ومشفرة 100%: البطاقات الائتمانية والبنكية (Visa, MasterCard, Meeza)، شبكة التحويل اللحظي إنستاباي (InstaPay)، المحافظ الإلكترونية للهواتف (فودافون كاش، اتصالات، أورنج، وي باي)، بالإضافة لخيار الدفع عند الاستلام للطلبات الورقية.",
+      aEn: "We support Visa, MasterCard, Meeza, InstaPay, mobile cash wallets, and cash on delivery for eligible print orders.",
+    },
+    {
+      qAr: "هل يمكن للمؤسسات والجامعات والمدارس شراء كميات مجمعة؟",
+      qEn: "Can educational institutions place bulk orders?",
+      aAr: "نعم، تتيح دار عبيد للمكتبات الجامعية والمدارس ومراكز التدريب طلب كميات مجمعة بأسعار وخصومات خاصة، مع توفير فواتير ضريبية رسمية وتوصيل للمقرات الأكاديمية مباشرة.",
+      aEn: "Yes, institutions can order bulk quantities with tailored educational discounts and official tax invoices.",
     },
   ];
 
   return (
     <PlatformUnderDevelopmentOverlay platform="bookstore">
-      <div className="min-h-screen bg-background flex flex-col selection:bg-amber-600 selection:text-white" dir={dir}>
-        {/* Top Hero Section */}
-        <div className="relative overflow-hidden border-b border-border/40">
-        {/* Atmospheric gradients */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-amber-950/80 to-stone-950/95" />
-        <div className="absolute inset-0">
-          <div className="absolute top-0 start-1/4 w-96 h-96 bg-amber-500/20 rounded-full blur-[140px]" />
-          <div className="absolute bottom-0 end-10 w-[500px] h-[500px] bg-orange-600/20 rounded-full blur-[160px]" />
-          <div className="absolute top-1/3 end-1/3 w-80 h-80 bg-rose-500/15 rounded-full blur-[120px]" />
-        </div>
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white" dir={dir}>
+        
+        {/* ========================================================================= */}
+        {/* 1. E-COMMERCE TOP HEADER BAR (CLEAN, WORLD-CLASS BOOKSTORE LOOK)           */}
+        {/* ========================================================================= */}
+        <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-18 flex items-center justify-between gap-4">
+            
+            {/* Store Brand Logo */}
+            <div className="flex items-center gap-3">
+              <Link to="/book-store" className="flex items-center gap-3 group">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 p-0.5 shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
+                  <BookOpen className="w-6 h-6 sm:w-7 sm:h-7" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl sm:text-2xl font-black text-white tracking-tight">UNIGATES</span>
+                    <Badge className="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[10px] font-bold px-2 py-0.5">
+                      {isRtl ? "متجر الكتب" : "Bookstore"}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] font-bold text-slate-400 tracking-wide">
+                    {isRtl ? "دار عبيد للنشر والتوزيع والطباعة" : "Dar Obeid Publishing & Distribution"}
+                  </p>
+                </div>
+              </Link>
+            </div>
 
-        {/* Header Bar */}
-        <header className="relative z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-4 border-b border-white/10 backdrop-blur-md">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <Link to="/" className="flex items-center gap-3 group min-w-0">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 p-0.5 shadow-xl shadow-amber-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
-                <BookOpen className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
-                  UNIGATES
-                </span>
-                <p className="text-[10px] font-bold text-amber-300 tracking-wide">
-                  {isRtl ? "متجر الكتب ودار عبيد للنشر والتوزيع" : "Book Store & Dar Obeid Publishing"}
-                </p>
-              </div>
-            </Link>
+            {/* Desktop Navigation Links */}
+            <nav className="hidden lg:flex items-center gap-1.5 text-sm font-bold text-slate-300">
+              <Link to="/">
+                <Button variant="ghost" size="sm" className="hover:bg-slate-800 text-slate-300 hover:text-white gap-1.5 h-10 px-3.5">
+                  <Home className="w-4 h-4 text-blue-400" />
+                  <span>{isRtl ? "الرئيسية" : "Home"}</span>
+                </Button>
+              </Link>
+              <Link to="/book-store/browse">
+                <Button variant="ghost" size="sm" className="hover:bg-slate-800 text-slate-300 hover:text-white gap-1.5 h-10 px-3.5">
+                  <Store className="w-4 h-4 text-emerald-400" />
+                  <span>{isRtl ? "تصفح الكتالوج" : "Browse Catalog"}</span>
+                </Button>
+              </Link>
+              <Link to="/book-store/reader-dashboard">
+                <Button variant="ghost" size="sm" className="hover:bg-slate-800 text-slate-300 hover:text-white gap-1.5 h-10 px-3.5">
+                  <Library className="w-4 h-4 text-amber-400" />
+                  <span>{isRtl ? "مكتبتي الرقمية" : "My Library"}</span>
+                </Button>
+              </Link>
+            </nav>
+
+            {/* Action Buttons: Cart, Publish Bridge, Login, Utils */}
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              
+              {/* CROSS-LINK: طلب نشر -> opens /nashr */}
+              <Link to="/nashr" title={isRtl ? "هل تريد نشر كتابك؟ انتقل إلى منصة نشر الرسمية" : "Publish with us on Nashr Platform"}>
+                <Button
+                  size="sm"
+                  className="font-black text-xs sm:text-sm h-10 px-3.5 sm:px-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md shadow-amber-500/20 gap-1.5 hover:scale-105 transition-all"
+                >
+                  <PenTool className="w-3.5 h-3.5" />
+                  <span>{isRtl ? "طلب نشر كتاب" : "Publish a Book"}</span>
+                  <span className="hidden sm:inline-block px-1.5 py-0.2 rounded-md bg-white/20 text-[10px]">
+                    {isRtl ? "منصة نشر" : "Nashr"}
+                  </span>
+                </Button>
+              </Link>
+
+              {/* Shopping Cart Button with Dynamic Badge */}
+              <Link to="/book-store/cart">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="relative h-10 px-3.5 rounded-xl border-slate-700 bg-slate-900/90 text-white hover:bg-slate-800 gap-2 shadow-xs"
+                >
+                  <ShoppingCart className="w-4 h-4 text-cyan-400" />
+                  <span className="hidden sm:inline text-xs font-bold">{isRtl ? "السلة" : "Cart"}</span>
+                  {cartCount > 0 && (
+                    <span className="w-5 h-5 rounded-full bg-cyan-500 text-slate-950 font-black text-xs flex items-center justify-center animate-pulse">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+
+              {/* Sign In / Account Link */}
+              <Link to="/book-store/login">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="hidden sm:flex h-10 px-4 rounded-xl border-slate-700 bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold gap-1.5"
+                >
+                  <ShoppingBag className="w-4 h-4 text-blue-400" />
+                  <span>{isRtl ? "تسجيل الدخول" : "Sign In"}</span>
+                </Button>
+              </Link>
+
+              <LanguageSelectorDropdown className="h-10 px-2.5 rounded-xl border-slate-800 bg-slate-900 text-white" />
+              <ThemeToggle className="h-10 w-10 p-0 rounded-xl border-slate-800 bg-slate-900 text-white" />
+
+              {/* Mobile Menu Trigger */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden text-white hover:bg-slate-800 p-2 h-10 w-10"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </Button>
+            </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-2.5">
-            <Link to="/book-store/browse">
-              <Button size="sm" variant="outline" className="font-bold px-4 h-10 text-sm bg-white/5 hover:bg-white/15 text-white border-white/20">
-                <Store className="w-4 h-4 me-1.5" />
-                {isRtl ? "تصفح الكتب" : "Browse Books"}
-              </Button>
-            </Link>
-            <Link to="/book-store/login">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md">
-                {t.login}
-              </Button>
-            </Link>
-            <Link to="/book-store/signup">
-              <Button size="sm" className="font-bold px-5 h-10 text-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/25">
-                {isRtl ? "طلب نشر كتاب / تسجيل" : "Signup / Publish"}
-              </Button>
-            </Link>
-            <Link to="/">
-              <Button size="sm" variant="ghost" className="font-bold gap-1.5 px-4 h-10 text-sm text-white/90 hover:text-white hover:bg-white/10">
-                <Home className="w-4 h-4" />
-                {isRtl ? "الرئيسية" : "Home"}
-              </Button>
-            </Link>
-            <LanguageSelectorDropdown className="h-10 px-3.5" />
-            <ThemeToggle className="h-10 w-10 p-0 rounded-2xl" />
-          </div>
-
-          {/* Mobile Hamburger */}
-          <div className="flex md:hidden items-center gap-2">
-            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
-            <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2" />
-            <Button
-              size="sm"
-              className="md:hidden bg-white/10 text-white border border-white/20 hover:bg-white/20 h-10 w-10 p-0 rounded-xl"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-          </div>
+          {/* Mobile Drawer Menu */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden bg-slate-950/98 border-b border-slate-800 px-6 py-5 space-y-3 animate-fade-in text-white">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold">
+                  <Home className="w-4 h-4 text-blue-400" />
+                  <span>{isRtl ? "العودة للرئيسية" : "Home"}</span>
+                </Button>
+              </Link>
+              <Link to="/book-store/browse" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold">
+                  <Store className="w-4 h-4 text-emerald-400" />
+                  <span>{isRtl ? "تصفح كتالوج الكتب" : "Browse Books"}</span>
+                </Button>
+              </Link>
+              <Link to="/book-store/reader-dashboard" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold">
+                  <Library className="w-4 h-4 text-amber-400" />
+                  <span>{isRtl ? "مكتبتي الرقمية" : "My Library"}</span>
+                </Button>
+              </Link>
+              <Link to="/book-store/cart" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white h-11 gap-2 font-bold">
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>{isRtl ? `سلة المشتريات (${cartCount})` : `Cart (${cartCount})`}</span>
+                </Button>
+              </Link>
+              <Link to="/nashr" onClick={() => setMobileMenuOpen(false)} className="block pt-1">
+                <Button className="w-full justify-start bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white h-11 gap-2 font-bold">
+                  <PenTool className="w-4 h-4" />
+                  <span>{isRtl ? "طلب نشر كتاب ➔ منصة نشر" : "Publish Book on Nashr"}</span>
+                </Button>
+              </Link>
+              <Link to="/book-store/login" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white h-11 font-bold">
+                  <span>{isRtl ? "تسجيل دخول القراء" : "Reader Login"}</span>
+                </Button>
+              </Link>
+            </div>
+          )}
         </header>
 
-        {/* Mobile Dropdown */}
-        {mobileMenuOpen && (
-          <div className="relative z-40 md:hidden px-4 py-3 bg-slate-950/90 backdrop-blur-xl border-b border-white/10 animate-fade-in flex flex-col gap-2">
-            <Link to="/book-store/browse" onClick={() => setMobileMenuOpen(false)}>
-              <Button size="sm" variant="outline" className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-white/5 text-white border-white/15">
-                <Store className="w-4 h-4" />
-                {isRtl ? "تصفح الكتالوج" : "Browse Books"}
-              </Button>
-            </Link>
-            <Link to="/book-store/login" onClick={() => setMobileMenuOpen(false)}>
-              <Button size="sm" className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-white/10 text-white border border-white/15">
-                <Users className="w-4 h-4" />
-                {t.login}
-              </Button>
-            </Link>
-            <Link to="/book-store/signup" onClick={() => setMobileMenuOpen(false)}>
-              <Button size="sm" className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-amber-600 text-white">
-                <PenTool className="w-4 h-4" />
-                {isRtl ? "طلب نشر كتاب / انضم كمؤلف" : "Publish a Book"}
-              </Button>
-            </Link>
-            <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-              <Button size="sm" variant="ghost" className="w-full justify-start gap-2.5 font-bold h-11 text-sm text-white hover:bg-white/10">
-                <Home className="w-4 h-4" />
-                {isRtl ? "الرئيسية" : "Home"}
-              </Button>
-            </Link>
-            <Button
-              size="sm"
-              onClick={() => { toggleLanguage(); setMobileMenuOpen(false); }}
-              variant="outline"
-              className="w-full justify-start gap-2.5 font-bold h-11 text-sm bg-white/5 text-white border-white/20"
+        {/* ========================================================================= */}
+        {/* 2. WORLD-CLASS STORE HERO (SEARCH, FILTERS & VALUE PROPOSITIONS)          */}
+        {/* ========================================================================= */}
+        <section className="relative overflow-hidden pt-12 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 md:px-12 border-b border-slate-800">
+          {/* Subtle Ambient Lighting Gradients */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(59,130,246,0.22),rgba(255,255,255,0))]" />
+          <div className="absolute top-1/4 start-1/6 w-80 h-80 bg-cyan-500/10 rounded-full blur-[130px]" />
+          <div className="absolute bottom-10 end-1/6 w-96 h-96 bg-indigo-600/15 rounded-full blur-[150px]" />
+
+          <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 sm:space-y-8">
+            
+            {/* Store Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-300 text-xs sm:text-sm font-bold shadow-sm">
+              <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+              <span>{isRtl ? "المتجر الإلكتروني المعتمد لدار عبيد للنشر والتوزيع" : "Dar Obeid Global E-Bookstore & Distribution"}</span>
+            </div>
+
+            {/* Main Headline */}
+            <div className="space-y-4">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-tight">
+                {isRtl ? (
+                  <>
+                    عالم الكتب والمراجع الأكاديمية <br />
+                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-300 bg-clip-text text-transparent">
+                      بين يديك ورقياً ورقمياً
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Discover Global Textbooks & Books <br />
+                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-300 bg-clip-text text-transparent">
+                      In Digital & Print Editions
+                    </span>
+                  </>
+                )}
+              </h1>
+
+              <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
+                {isRtl
+                  ? "آلاف المراجع الأكاديمية والكتب العلمية والروايات المعتمدة، مع خيارات القراءة السحابية الفورية المشفرة بنظام DRM أو طلب النسخ الورقية الفاخرة مع شحن سريع وتغليف آمن لباب منزلك."
+                  : "Thousands of verified academic references, textbooks, and literature with DRM instant cloud reading or express doorstep print delivery."}
+              </p>
+            </div>
+
+            {/* Global Bookstore Live Search Bar */}
+            <form
+              onSubmit={handleHeroSearch}
+              className="max-w-3xl mx-auto p-2 rounded-2xl sm:rounded-3xl bg-slate-900/90 border-2 border-slate-700/80 shadow-2xl backdrop-blur-2xl flex flex-col sm:flex-row items-center gap-2"
             >
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
+              {/* Category selector */}
+              <div className="w-full sm:w-auto shrink-0 px-2 border-b sm:border-b-0 sm:border-e border-slate-800">
+                <select
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                  className="bg-transparent text-slate-300 text-xs sm:text-sm font-bold py-2 px-1 focus:outline-none cursor-pointer w-full sm:w-auto"
+                >
+                  <option value="all" className="bg-slate-900 text-white">{isRtl ? "🌟 كل الأقسام" : "All Genres"}</option>
+                  <option value="academic" className="bg-slate-900 text-white">{isRtl ? "🎓 مراجع أكاديمية" : "Academic"}</option>
+                  <option value="programming" className="bg-slate-900 text-white">{isRtl ? "💻 برمجة وذكاء اصطناعي" : "Tech & AI"}</option>
+                  <option value="business" className="bg-slate-900 text-white">{isRtl ? "📈 إدارة أعمال و PMP" : "Business"}</option>
+                  <option value="humanities" className="bg-slate-900 text-white">{isRtl ? "📚 علوم إنسانية وتطوير" : "Humanities"}</option>
+                </select>
+              </div>
+
+              {/* Keyword input */}
+              <div className="relative flex-1 w-full flex items-center">
+                <Search className="w-5 h-5 absolute start-3 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={isRtl ? "ابحث بعنوان الكتاب، اسم المؤلف، أو الترقيم الدولي (ISBN)..." : "Search title, author, or ISBN..."}
+                  className="w-full h-12 ps-10 pe-4 bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none font-semibold"
+                />
+              </div>
+
+              {/* Submit Search Button */}
+              <Button
+                type="submit"
+                className="w-full sm:w-auto h-12 px-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-black text-sm shadow-lg gap-2"
+              >
+                <span>{isRtl ? "بحث في المتجر" : "Search Store"}</span>
+                <ArrowIcon className="w-4 h-4" />
+              </Button>
+            </form>
+
+            {/* Quick Filter Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs">
+              <span className="text-slate-400 font-bold me-1">{isRtl ? "الأقسام الرائجة:" : "Trending:"}</span>
+              {storeCategories.slice(0, 5).map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => navigate(`/book-store/browse?category=${cat.id}`)}
+                  className="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-medium transition-colors"
+                >
+                  {isRtl ? cat.titleAr : cat.titleEn}
+                </button>
+              ))}
+            </div>
+
+            {/* Trust and Value Proposition Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-6 max-w-4xl mx-auto text-start">
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-white">{isRtl ? "قراءة سحابية فورية" : "Instant E-Reading"}</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{isRtl ? "مكتبة مشفرة بدون برامج" : "DRM protected e-books"}</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center shrink-0">
+                  <Truck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-white">{isRtl ? "شحن وتوصيل سريع" : "Express Delivery"}</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{isRtl ? "لكافة المحافظات والدول" : "Safe packaging to home"}</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-white">{isRtl ? "كتب أصلية 100%" : "100% Authentic"}</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{isRtl ? "ترقيم دولي ISBN معتمد" : "Official Dar Obeid ISBN"}</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-white">{isRtl ? "دفع آمن ومتعدد" : "Safe Payments"}</h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{isRtl ? "فيزا • كاش • عند الاستلام" : "Cards • Wallets • COD"}</p>
+                </div>
+              </div>
+            </div>
+
           </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 3. INTERACTIVE BOOK CATALOG SHOWCASE (REAL BOOKS FROM DATASTORE)          */}
+        {/* ========================================================================= */}
+        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-slate-950">
+          <div className="max-w-7xl mx-auto space-y-10">
+            
+            {/* Header with Title and Filter Tabs */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
+              <div>
+                <div className="inline-flex items-center gap-2 text-cyan-400 text-xs font-bold mb-1">
+                  <Flame className="w-4 h-4 text-cyan-400" />
+                  <span>{isRtl ? "الكتالوج الرسمي المتاح للشراء الفوري" : "Official Catalog Ready to Order"}</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  {isRtl ? "📚 أحدث الإصدارات والمراجع الأكاديمية" : "Latest Releases & Textbooks"}
+                </h2>
+              </div>
+
+              {/* Genre Filter Tabs */}
+              <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-900 rounded-2xl border border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryTab("all")}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    selectedCategoryTab === "all" ? "bg-blue-600 text-white shadow-md" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {isRtl ? "جميع الكتب" : "All Books"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryTab("academic")}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    selectedCategoryTab === "academic" ? "bg-blue-600 text-white shadow-md" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {isRtl ? "مراجع أكاديمية" : "Academic"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryTab("programming")}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    selectedCategoryTab === "programming" ? "bg-blue-600 text-white shadow-md" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {isRtl ? "برمجة وذكاء اصطناعي" : "Tech & Coding"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryTab("business")}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    selectedCategoryTab === "business" ? "bg-blue-600 text-white shadow-md" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {isRtl ? "إدارة أعمال و PMP" : "Business"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryTab("humanities")}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    selectedCategoryTab === "humanities" ? "bg-blue-600 text-white shadow-md" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {isRtl ? "علوم إنسانية" : "Humanities"}
+                </button>
+              </div>
+            </div>
+
+            {/* Books Cards Grid (Global Bookstore Standard) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {filteredCatalog.map((book) => (
+                <Card
+                  key={book.id}
+                  className="bg-slate-900/90 border-2 border-slate-800 hover:border-blue-500/50 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+                >
+                  {/* Book Cover with Badges */}
+                  <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-950">
+                    <img
+                      src={book.cover_url}
+                      alt={book.title_ar}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+
+                    {/* Format Badge */}
+                    <div className="absolute top-3 start-3">
+                      <Badge className="bg-slate-950/80 backdrop-blur-md text-white border border-slate-700 text-[10px] font-bold">
+                        {book.format === "both"
+                          ? isRtl ? "ورقي + رقمي" : "Print & E-Book"
+                          : book.format === "digital"
+                          ? isRtl ? "رقمي فقط" : "E-Book Only"
+                          : isRtl ? "ورقي فقط" : "Print Only"}
+                      </Badge>
+                    </div>
+
+                    {/* Bestseller Pill */}
+                    {book.is_bestseller && (
+                      <div className="absolute top-3 end-3">
+                        <Badge className="bg-amber-500/95 text-slate-950 font-black text-[10px] shadow-md">
+                          {isRtl ? "الأكثر طلباً ⭐" : "Bestseller"}
+                        </Badge>
+                      </div>
+                    )}
+
+                    {/* ISBN Pill */}
+                    <div className="absolute bottom-2.5 start-2.5 text-[10px] text-slate-400 bg-slate-950/80 px-2 py-0.5 rounded-md font-mono border border-slate-800">
+                      {book.isbn}
+                    </div>
+                  </div>
+
+                  {/* Book Metadata Body */}
+                  <CardContent className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs text-slate-400">
+                        <span className="truncate max-w-[150px]">{isRtl ? book.publisher_ar : book.publisher_en}</span>
+                        <span className="flex items-center gap-1 text-amber-400 font-bold">
+                          <Star className="w-3.5 h-3.5 fill-amber-400" />
+                          <span>{book.rating}</span>
+                          <span className="text-[10px] text-slate-500">({book.reviews_count})</span>
+                        </span>
+                      </div>
+
+                      <h3 className="font-black text-sm sm:text-base text-white line-clamp-2 leading-snug group-hover:text-blue-400 transition-colors">
+                        {isRtl ? book.title_ar : book.title_en}
+                      </h3>
+
+                      <p className="text-xs font-semibold text-slate-400 line-clamp-1">
+                        {isRtl ? book.author_ar : book.author_en}
+                      </p>
+                    </div>
+
+                    {/* Dual Pricing Boxes */}
+                    <div className="pt-2 border-t border-slate-800/80 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1 text-cyan-400 font-bold">
+                          <Zap className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "نسخة رقمية:" : "E-Book:"}</span>
+                        </div>
+                        <span className="font-black text-white text-sm">
+                          {book.price_digital} {isRtl ? "ج.م" : book.currency}
+                        </span>
+                      </div>
+
+                      {book.price_print > 0 && (
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1 text-amber-400 font-bold">
+                            <Truck className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "نسخة ورقية:" : "Print:"}</span>
+                          </div>
+                          <span className="font-black text-white text-sm">
+                            {book.price_print} {isRtl ? "ج.م" : book.currency}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Buy & Cart Buttons */}
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <Button
+                          size="sm"
+                          onClick={() => setQuickBuyBook(book)}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 rounded-xl gap-1 shadow-sm"
+                        >
+                          <ShoppingCart className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "شراء / سلة" : "Buy / Cart"}</span>
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate(`/book-store/browse?code=${book.code}`)}
+                          className="w-full border-slate-700 bg-slate-800/70 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl gap-1"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>{isRtl ? "معاينة" : "Preview"}</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* View Full Catalog Link */}
+            <div className="text-center pt-4">
+              <Link to="/book-store/browse">
+                <Button size="lg" className="h-12 px-8 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white border-2 border-slate-700 font-black text-sm gap-2">
+                  <span>{isRtl ? "استكشاف كامل كتالوج الكتب والمراجع (المتجر الكامل)" : "Explore Full Book Catalog"}</span>
+                  <ArrowIcon className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 4. FEATURED BOOK SPOTLIGHT BANNER                                         */}
+        {/* ========================================================================= */}
+        {catalog[0] && (
+          <section className="py-12 sm:py-16 px-4 sm:px-6 md:px-12 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-y border-slate-800">
+            <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-12">
+              {/* Cover 3D Mockup */}
+              <div className="w-56 sm:w-64 shrink-0 aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/20 border-2 border-blue-500/30 group">
+                <img
+                  src={catalog[0].cover_url}
+                  alt={catalog[0].title_ar}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+
+              {/* Book Details & Fast Buy */}
+              <div className="flex-1 space-y-4 text-center md:text-start">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30">
+                  <Star className="w-3.5 h-3.5 fill-cyan-400" />
+                  <span>{isRtl ? "كتاب الشهر الأكثر تميزاً واستشهاداً أكاديمياً" : "Book of the Month Spotlight"}</span>
+                </div>
+
+                <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                  {isRtl ? catalog[0].title_ar : catalog[0].title_en}
+                </h3>
+
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl font-medium">
+                  {isRtl ? catalog[0].description_ar : catalog[0].description_en}
+                </p>
+
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-bold text-slate-300 pt-1">
+                  <span>✍️ {catalog[0].author_ar}</span>
+                  <span>🏛️ {catalog[0].publisher_ar}</span>
+                  <span>📄 {catalog[0].pages} صفحة</span>
+                  <span>🔒 حماية DRM</span>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
+                  <Button
+                    size="lg"
+                    onClick={() => handleAddToCart(catalog[0], "digital")}
+                    className="h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-black text-xs gap-2 shadow-lg"
+                  >
+                    <Zap className="w-4 h-4" />
+                    <span>{isRtl ? `شراء النسخة الرقمية (${catalog[0].price_digital} ج.م)` : "Buy Digital Edition"}</span>
+                  </Button>
+
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => handleAddToCart(catalog[0], "print")}
+                    className="h-11 px-6 rounded-xl border-slate-700 bg-slate-900/90 text-white hover:bg-slate-800 font-black text-xs gap-2"
+                  >
+                    <Truck className="w-4 h-4 text-amber-400" />
+                    <span>{isRtl ? `طلب النسخة المطبوعة (${catalog[0].price_print} ج.م)` : "Order Print Copy"}</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </section>
         )}
 
-        {/* Hero Content */}
-        <div className="relative z-10 pt-10 sm:pt-14 pb-14 sm:pb-20 px-4 sm:px-6 md:px-12 text-center max-w-5xl mx-auto space-y-8">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm font-bold shadow-lg shadow-black/10">
-            <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-            <span>{isRtl ? "متجر الكتب العالمي ودار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م" : "Global Book Store & Dar Obeid Publishing LLC"}</span>
-          </div>
-
-          {/* Main Headline */}
-          <div className="space-y-4">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-tight sm:leading-none drop-shadow-lg tracking-tight">
-              {isRtl ? "متجر الكتب الرقمية والورقية والنشر الأكاديمي" : "E-Books, Print Books & Academic Publishing"}
-            </h1>
-            <p className="text-sm sm:text-lg md:text-xl text-slate-200/90 font-medium max-w-3xl mx-auto leading-relaxed">
-              {isRtl
-                ? "آلاف المراجع الأكاديمية والكتب المدرسية والروايات الورقية والرقمية، مع خدمات متكاملة للمؤلفين والباحثين تشمل الترقيم الدولي (ISBN)، الإيداع القانوني، والطباعة الفاخرة والتوزيع الدولي."
-                : "Thousands of academic textbooks, K-12 schoolbooks, and literary works with full publishing, ISBN registration, and global print delivery by Dar Obeid."}
-            </p>
-          </div>
-
-          {/* Quick Action Launchpad */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link to="/book-store/browse">
-              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
-                <Store className="w-5 h-5" />
-                {isRtl ? "📚 تصفح متجر الكتب" : "Browse Store"}
-              </Button>
-            </Link>
-
-            <Link to="/book-store/signup">
-              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-xl shadow-purple-500/30 gap-2 hover:scale-105 transition-all">
-                <PenTool className="w-5 h-5" />
-                {isRtl ? "✍️ طلب نشر كتاب (للمؤلفين)" : "Publish Manuscript"}
-              </Button>
-            </Link>
-
-            <Link to="/book-store/signup">
-              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
-                <ShoppingBag className="w-5 h-5" />
-                {isRtl ? "📖 حساب قارئ / باحث" : "Reader Signup"}
-              </Button>
-            </Link>
-
-            <Link to="/book-store/login">
-              <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
-                <Users className="w-5 h-5" />
-                {isRtl ? "تسجيل الدخول" : "Portal Login"}
-              </Button>
-            </Link>
-          </div>
-
-          {/* Live Platform Stats Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-6">
-            {statItems.map((item, i) => (
-              <div
-                key={i}
-                className={`p-4 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 backdrop-blur-xl border border-white/20 transition-all duration-300 shadow-xl ${item.glow} flex flex-col items-center gap-2 group hover:-translate-y-1`}
-              >
-                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
-                  <item.icon className="w-5 h-5" />
-                </div>
-                <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
-                  {item.count}
-                </span>
-                <span className="text-[11px] sm:text-xs font-bold text-slate-200/90 leading-tight text-center">
-                  {item.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Dar Obeid Publishing & Printing Services Section */}
-      <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-card/40 border-b border-border/60">
-        <div className="max-w-7xl mx-auto space-y-10">
-          <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-4 py-1 rounded-full text-xs font-bold">
-              <Building2 className="w-4 h-4" />
-              {isRtl ? "دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م" : "Dar Obeid Publishing House LLC"}
+        {/* ========================================================================= */}
+        {/* 5. STORE GENRES / CATEGORIES SECTION                                     */}
+        {/* ========================================================================= */}
+        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-slate-950 border-b border-slate-800">
+          <div className="max-w-7xl mx-auto space-y-10">
+            <div className="text-center space-y-2">
+              <Badge className="bg-slate-900 text-blue-400 border border-slate-800 text-xs px-3 py-1">
+                {isRtl ? "التصنيفات العلمية والمكتبية" : "Book Categories"}
+              </Badge>
+              <h2 className="text-2xl sm:text-4xl font-black text-white">
+                {isRtl ? "استكشف الكتالوج حسب التخصص الأكاديمي" : "Browse by Academic Field"}
+              </h2>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight">
-              {isRtl ? "خدمات النشر الأكاديمي والطباعة الاحترافية للمؤلفين" : "Academic Publishing & Commercial Print Services"}
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-              {isRtl
-                ? "نقدم للمؤلفين والجامعات والباحثين خدمات نشر وطباعة متكاملة وفق أرقى المعايير الدولية."
-                : "Comprehensive publishing, peer-review, and international distribution for authors and universities."}
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {publishingServices.map((service, idx) => (
-              <Card key={idx} className="border-2 border-border/70 hover:border-amber-500/40 hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden group hover:-translate-y-1">
-                <CardContent className="p-6 space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
-                    <service.icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-black text-foreground mb-2">
-                      {isRtl ? service.titleAr : service.titleEn}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                      {isRtl ? service.descAr : service.descEn}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Book Categories Section */}
-      <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/30 border-b border-border/60">
-        <div className="max-w-7xl mx-auto space-y-10">
-          <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 px-4 py-1 rounded-full text-xs font-bold">
-              <BookOpen className="w-4 h-4" />
-              {isRtl ? "أقسام وتصنيفات المكتبة" : "Book Genres & Catalogs"}
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-black text-foreground">
-              {isRtl ? "استكشف مكتبة شاملة لكافة التخصصات والمراحل" : "Explore Our Comprehensive Digital & Print Library"}
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {bookCategories.map((cat, idx) => (
-              <Card key={idx} className="border-2 border-border/70 hover:border-purple-500/40 hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden group hover:-translate-y-1">
-                <CardContent className="p-6 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {storeCategories.map((cat, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => navigate(`/book-store/browse?category=${cat.id}`)}
+                  className="p-6 rounded-3xl bg-slate-900/80 border-2 border-slate-800/80 hover:border-blue-500/50 hover:bg-slate-900 transition-all duration-300 cursor-pointer group shadow-lg flex flex-col justify-between space-y-4"
+                >
                   <div className="flex items-center justify-between">
                     <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
                       <cat.icon className="w-6 h-6" />
                     </div>
-                    <Badge variant="outline" className="text-xs font-bold px-3 py-1 rounded-xl bg-muted">
-                      {isRtl ? cat.countAr : cat.countEn}
+                    <Badge variant="outline" className="text-xs font-bold border-slate-700 bg-slate-800 text-slate-300">
+                      {cat.badge}
                     </Badge>
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-foreground mb-2">
+                    <h3 className="text-lg font-black text-white group-hover:text-blue-400 transition-colors mb-1.5">
                       {isRtl ? cat.titleAr : cat.titleEn}
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-xs text-slate-400 leading-relaxed">
                       {isRtl ? cat.descAr : cat.descEn}
                     </p>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Books Live Showcase */}
-      <HomeBooksSection />
-
-      {/* Role Hubs for Authors, Publishers & Readers */}
-      <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-background border-b border-border/60">
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold">
-              <Users className="w-4 h-4" />
-              {isRtl ? "بوابات المؤلفين ودور النشر والقراء" : "Publishing Community Hubs"}
+                </div>
+              ))}
             </div>
-            <h2 className="text-2xl sm:text-4xl font-black text-foreground">
-              {isRtl ? "منظومة متكاملة لربط الكاتب بالناشر والقارئ" : "Uniting Authors, Publishers & Readers"}
-            </h2>
           </div>
+        </section>
 
-          <div className="grid sm:grid-cols-3 gap-6">
-            {roleHubs.map((hub, i) => (
-              <Card key={i} className="group hover:shadow-2xl transition-all duration-300 border-2 border-border/80 rounded-3xl overflow-hidden hover:-translate-y-1.5 flex flex-col">
-                <CardContent className="p-6 sm:p-7 space-y-4 flex-1 flex flex-col">
-                  <div className={`w-13 h-13 rounded-2xl bg-gradient-to-br ${hub.color} flex items-center justify-center text-white shadow-xl shadow-amber-500/20 group-hover:scale-110 transition-transform duration-300`}>
-                    <hub.icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-black text-foreground text-lg">
-                    {isRtl ? hub.roleAr : hub.roleEn}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed flex-1">
-                    {isRtl ? hub.descAr : hub.descEn}
-                  </p>
-                  <Link to={hub.link} className="pt-2">
-                    <Button variant="outline" className="w-full font-bold text-xs rounded-xl group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                      {isRtl ? hub.ctaAr : hub.ctaEn}
-                      <ArrowIcon className="w-3.5 h-3.5 ms-1" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Book Store FAQs Accordion */}
-      <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/20 border-b border-border/60">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-4 py-1 rounded-full text-xs font-bold">
-              <HelpCircle className="w-4 h-4" />
-              {isRtl ? "الأسئلة الشائعة لمتجر الكتب والنشر" : "Book Store & Publishing FAQs"}
+        {/* ========================================================================= */}
+        {/* 6. HOW SHOPPING & READING WORKS FOR BUYERS (3 SIMPLE STEPS)               */}
+        {/* ========================================================================= */}
+        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-slate-900/40 border-b border-slate-800">
+          <div className="max-w-6xl mx-auto space-y-12">
+            <div className="text-center space-y-2">
+              <Badge className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs px-3 py-1">
+                {isRtl ? "تجربة القراءة والشراء" : "Shopping Experience"}
+              </Badge>
+              <h2 className="text-2xl sm:text-4xl font-black text-white">
+                {isRtl ? "كيف تطلب وتقرأ كتبك في 3 خطوات بسيطة؟" : "How to Buy & Read in 3 Steps"}
+              </h2>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">
-              {isRtl ? "إجابات على أهم استفسارات النشر والشراء" : "Frequently Asked Questions"}
-            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3 shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 font-black text-lg mx-auto flex items-center justify-center">
+                  1
+                </div>
+                <h4 className="text-base font-black text-white">{isRtl ? "تصفح واختر كتابك" : "Browse & Choose"}</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  {isRtl
+                    ? "ابحث في الكتالوج الشامل، واقرأ العينات وفهارس الفصول المجانية لاختيار الكتاب المناسب."
+                    : "Search thousands of books and preview free chapter samples."}
+                </p>
+              </div>
+
+              <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3 shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 font-black text-lg mx-auto flex items-center justify-center">
+                  2
+                </div>
+                <h4 className="text-base font-black text-white">{isRtl ? "حدد الصيغة المفضلة" : "Select Format"}</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  {isRtl
+                    ? "اختر النسخة الرقمية للقراءة الفورية بأسعار مخفضة، أو النسخة الورقية المطبوعة للشحن الفاخر."
+                    : "Choose instant DRM e-book or high-grade printed physical edition."}
+                </p>
+              </div>
+
+              <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3 shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 font-black text-lg mx-auto flex items-center justify-center">
+                  3
+                </div>
+                <h4 className="text-base font-black text-white">{isRtl ? "دفع آمن واستلام مباشر" : "Secure Pay & Receive"}</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  {isRtl
+                    ? "ادفع بأمان عبر البطاقات أو إنستاباي أو المحافظ، واستمتع بالقراءة فوراً أو استلم طلبك في 48 ساعة."
+                    : "Instant cloud reading unlocked immediately, or tracked doorstep courier delivery."}
+                </p>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <Accordion type="single" collapsible className="space-y-3">
-            {faqs.map((faq, idx) => (
-              <AccordionItem key={idx} value={`faq-${idx}`} className="bg-card border-2 border-border/80 rounded-2xl px-5 shadow-xs">
-                <AccordionTrigger className="font-black text-sm sm:text-base text-foreground hover:no-underline py-4 text-start">
-                  {isRtl ? faq.qAr : faq.qEn}
-                </AccordionTrigger>
-                <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pt-1 pb-4 text-start">
-                  {isRtl ? faq.aAr : faq.aEn}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
+        {/* ========================================================================= */}
+        {/* 7. STRICTLY SEPARATED INDEPENDENT PUBLISHING BRIDGE BANNER               */}
+        {/* ========================================================================= */}
+        <section className="py-14 sm:py-18 px-4 sm:px-6 md:px-12 bg-slate-950 border-b border-slate-800">
+          <div className="max-w-5xl mx-auto rounded-3xl bg-gradient-to-br from-amber-950/60 via-slate-900 to-orange-950/60 border-2 border-amber-500/30 p-8 sm:p-10 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 end-0 w-80 h-80 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
+            
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-start">
+              <div className="space-y-3 max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-black">
+                  <PenTool className="w-3.5 h-3.5" />
+                  <span>{isRtl ? "بوابة المؤلفين والباحثين المستقلة (منصة نشر)" : "Authors & Scholars Portal (Nashr)"}</span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                  {isRtl ? "هل أنت كاتب أو باحث أو أستاذ جامعي؟" : "Are you an Author or Academic Researcher?"}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
+                  {isRtl
+                    ? "انشر كتابك القادم ورقياً ورقمياً مع دار عبيد عبر منصة نشر المستقلة، واستفد من الترقيم الدولي المعتمد (ISBN)، التحكيم الأكاديمي، الطباعة الفاخرة، والتوزيع في المعارض الدولية مع عوائد أرباح فورية تصل إلى 70%."
+                    : "Publish your manuscript with Dar Obeid via our dedicated Nashr Platform with official ISBN, peer-review, and fair royalties."}
+                </p>
+              </div>
 
-      {/* Inspiring Call to Action Banner */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-12 relative overflow-hidden bg-gradient-to-br from-slate-950 via-amber-950 to-stone-950 text-white text-center">
-        <div className="absolute inset-0">
-          <div className="absolute top-0 end-0 w-80 h-80 bg-amber-500/20 rounded-full blur-[140px]" />
-          <div className="absolute bottom-0 start-0 w-80 h-80 bg-orange-600/20 rounded-full blur-[140px]" />
-        </div>
-        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-          <Badge className="bg-white/15 text-white border-white/20 text-xs px-3 py-1">
-            📚 {isRtl ? "دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م" : "Dar Obeid Publishing & Distribution LLC"}
-          </Badge>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-            {isRtl ? "انشر مؤلفك أو اختر كتابك المفضل اليوم" : "Publish Your Book or Discover Your Next Read"}
-          </h2>
-          <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-            {isRtl
-              ? "سواء كنت كاتباً يبحث عن خدمات النشر والطباعة والترقيم الدولي، أو قارئاً يبحث عن أحدث المراجع والروايات، دار عبيد وجهتك الأولى."
-              : "Whether you are an author seeking international publishing & ISBN, or a reader looking for your next book, Dar Obeid is your home."}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link to="/courses/signup?role=lecturer">
-              <Button size="lg" className="h-13 px-8 font-black text-sm sm:text-base rounded-2xl bg-amber-600 hover:bg-amber-700 text-white shadow-xl shadow-amber-600/30">
-                {isRtl ? "طلب نشر كتاب / انضم كمؤلف" : "Publish a Book"}
-              </Button>
-            </Link>
-            <Link to="/courses/signup?role=personal">
-              <Button size="lg" className="h-13 px-8 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md">
-                {isRtl ? "إنشاء حساب قارئ" : "Signup as Reader"}
-              </Button>
-            </Link>
+              {/* The Single Connection: Navigates directly to /nashr */}
+              <div className="shrink-0">
+                <Link to="/nashr">
+                  <Button
+                    size="lg"
+                    className="h-13 px-7 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-sm shadow-xl shadow-amber-500/25 gap-2 hover:scale-105 transition-all"
+                  >
+                    <span>{isRtl ? "الانتقال إلى منصة نشر لطلب نشر كتاب" : "Open Nashr Publishing Platform"}</span>
+                    <ArrowIcon className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Global Site Footer */}
-      <SiteFooter />
-    </div>
-  </PlatformUnderDevelopmentOverlay>
+        {/* ========================================================================= */}
+        {/* 8. READER & SHOPPING FAQS                                                 */}
+        {/* ========================================================================= */}
+        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-slate-950 border-b border-slate-800">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <div className="text-center space-y-2">
+              <Badge className="bg-slate-900 text-slate-300 border border-slate-800 text-xs px-3 py-1">
+                <HelpCircle className="w-3.5 h-3.5 me-1 text-cyan-400 inline" />
+                {isRtl ? "مركز المساعدة واستفسارات الشراء" : "Shopping & Help Center"}
+              </Badge>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">
+                {isRtl ? "الأسئلة الشائعة حول متجر الكتب والتوصيل" : "Frequently Asked Questions"}
+              </h2>
+            </div>
+
+            <Accordion type="single" collapsible className="space-y-3">
+              {storeFaqs.map((faq, idx) => (
+                <AccordionItem key={idx} value={`faq-${idx}`} className="bg-slate-900 border border-slate-800 rounded-2xl px-5 shadow-xs">
+                  <AccordionTrigger className="font-black text-sm sm:text-base text-white hover:no-underline py-4 text-start">
+                    {isRtl ? faq.qAr : faq.qEn}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-xs sm:text-sm text-slate-400 leading-relaxed pt-1 pb-4 text-start">
+                    {isRtl ? faq.aAr : faq.aEn}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 9. FAST PURCHASE / ADD TO CART MODAL                                      */}
+        {/* ========================================================================= */}
+        {quickBuyBook && (
+          <Dialog open={!!quickBuyBook} onOpenChange={(open) => !open && setQuickBuyBook(null)}>
+            <DialogContent className="max-w-md bg-slate-900 border-2 border-slate-700 text-white rounded-3xl p-6">
+              <DialogHeader>
+                <DialogTitle className="text-lg font-black text-white">
+                  {isRtl ? "إضافة الكتاب لسلة الشراء" : "Add Book to Cart"}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-slate-400">
+                  {isRtl ? quickBuyBook.title_ar : quickBuyBook.title_en}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-2">
+                <div className="text-xs font-bold text-slate-300">{isRtl ? "اختر صيغة الكتاب المطلوبة:" : "Select format:"}</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFormat("digital")}
+                    className={`p-3.5 rounded-2xl border-2 text-start transition-all ${
+                      selectedFormat === "digital"
+                        ? "border-cyan-400 bg-cyan-500/15 text-white"
+                        : "border-slate-800 bg-slate-950 text-slate-400 hover:border-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 font-black text-sm mb-1 text-cyan-300">
+                      <Zap className="w-4 h-4" />
+                      <span>{isRtl ? "نسخة رقمية" : "Digital E-Book"}</span>
+                    </div>
+                    <div className="text-xs font-bold text-white">
+                      {quickBuyBook.price_digital} {isRtl ? "ج.م" : quickBuyBook.currency}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1">{isRtl ? "قراءة سحابية فورية" : "Instant Cloud Read"}</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFormat("print")}
+                    className={`p-3.5 rounded-2xl border-2 text-start transition-all ${
+                      selectedFormat === "print"
+                        ? "border-amber-400 bg-amber-500/15 text-white"
+                        : "border-slate-800 bg-slate-950 text-slate-400 hover:border-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 font-black text-sm mb-1 text-amber-300">
+                      <Truck className="w-4 h-4" />
+                      <span>{isRtl ? "نسخة ورقية" : "Printed Book"}</span>
+                    </div>
+                    <div className="text-xs font-bold text-white">
+                      {quickBuyBook.price_print} {isRtl ? "ج.م" : quickBuyBook.currency}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1">{isRtl ? "شحن وتوصيل منزلي" : "Doorstep Delivery"}</div>
+                  </button>
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2 sm:gap-0 pt-2">
+                <Button
+                  onClick={() => handleAddToCart(quickBuyBook, selectedFormat)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-black text-sm h-11 rounded-xl shadow-lg"
+                >
+                  <ShoppingCart className="w-4 h-4 me-1.5" />
+                  <span>{isRtl ? "تأكيد الإضافة للسلة" : "Confirm Add to Cart"}</span>
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Global Footer */}
+        <SiteFooter />
+      </div>
+    </PlatformUnderDevelopmentOverlay>
   );
 };
 

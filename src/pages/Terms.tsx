@@ -49,7 +49,7 @@ const Terms = () => {
 
         {
           title: "9. القانون الواجب التطبيق والاختصاص القضائي",
-          text: "تخضع هذه الشروط والسياسات للأنظمة والقوانين المعمول بها في المملكة العربية السعودية، ويتم فض أي نزاع ودياً أولاً أو اللجوء للجهات القضائية المختصة.",
+          text: "تخضع هذه الشروط والأحكام والسياسات وتُفسر وفقاً للقوانين والتشريعات السارية في جمهورية مصر العربية (بما في ذلك قوانين حماية الملكية الفكرية، وحماية البيانات الشخصية، والتجارة الإلكترونية). ويتم تسوية أي نزاع ينشأ عن أو يرتبط بهذه الشروط بالطرق الودية أولاً، وفي حال تعذر ذلك، ينعقد الاختصاص القضائي الحصري للمحاكم والجهات القضائية المختصة في جمهورية مصر العربية.",
         },
       ],
     },
@@ -92,7 +92,7 @@ const Terms = () => {
 
         {
           title: "9. Governing Law & Jurisdiction",
-          text: "These terms are governed by the applicable laws and regulations of the Kingdom of Saudi Arabia. Any disputes shall be resolved amicably or submitted to the competent judicial authorities.",
+          text: "These terms and policies are governed by and construed in accordance with the applicable laws and regulations of the Arab Republic of Egypt (including intellectual property, personal data protection, and electronic commerce regulations). Any disputes arising out of or relating to these terms shall first be settled amicably; failing which, they shall be submitted to the exclusive jurisdiction of the competent judicial authorities in the Arab Republic of Egypt.",
         },
       ],
     },

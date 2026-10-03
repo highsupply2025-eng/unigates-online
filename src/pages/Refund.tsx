@@ -38,6 +38,10 @@ const Refund = () => {
           title: "6. الاستثناءات",
           text: "لا تُشمل بالاسترداد الكتب المطبوعة التي تم شحنها وتسليمها فعليًا، والخدمات المخصصة المنفَّذة بناءً على طلب خاص بعد إنجازها وتسليمها.",
         },
+        {
+          title: "7. القانون الواجب التطبيق",
+          text: "تخضع سياسة الاسترداد والإلغاء وتُفسر وفقاً لأحكام وتشريعات جمهورية مصر العربية المعمول بها بما يتوافق مع حقوق المستهلك والمعايير الدولية.",
+        },
       ],
     },
     en: {
@@ -68,6 +72,10 @@ const Refund = () => {
         {
           title: "6. Exceptions",
           text: "Printed books that have already been shipped and delivered, and bespoke services completed and delivered on specific request, are not eligible for refund.",
+        },
+        {
+          title: "7. Governing Law",
+          text: "This Refund and Cancellation Policy is governed by and construed in accordance with the applicable laws and consumer protection regulations of the Arab Republic of Egypt.",
         },
       ],
     },

@@ -13,7 +13,7 @@ const Privacy = () => {
       title: "سياسة الخصوصية وأمان البيانات",
       subtitle: "منظومة UNIGATES — شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م.",
       lastUpdate: "آخر تحديث: أبريل 2026 (الإصدار 3.4)",
-      intro: "تلتزم منظومة UNIGATES الموحدة بأعلى معايير حماية البيانات والأمان الرقمي بما يتوافق مع المعايير الدولية (ISO 27001 و GDPR) وأنظمة حماية البيانات في المملكة العربية السعودية والشرق الأوسط. توضح هذه السياسة كيف نجمع ونعالج ونحمي بياناتك عبر منصاتنا الست المتكاملة.",
+      intro: "تلتزم منظومة UNIGATES الموحدة بأعلى معايير حماية البيانات والأمان الرقمي بما يتوافق مع المعايير الدولية (ISO 27001 و GDPR) وقانون حماية البيانات الشخصية رقم 151 لسنة 2020 في جمهورية مصر العربية والأنظمة والتشريعات السارية. توضح هذه السياسة كيف نجمع ونعالج ونحمي بياناتك عبر منصاتنا الست المتكاملة.",
       sections: [
         {
           title: "1. نطاق المنظومة والبيانات المجمعة",
@@ -74,8 +74,8 @@ const Privacy = () => {
           text: "نستخدم ملفات تعريف الارتباط التقنية الضرورية فقط لتأمين جلسات الدخول وحفظ تفضيلات اللغة والمظهر الداكن/الفاتح، بالإضافة لأدوات تحليلية مجهولة الهوية لتحسين أداء المنصة وسرعة الاستجابة."
         },
         {
-          title: "7. المسؤولية والتواصل الرسمي",
-          text: "لأية استفسارات تتعلق بسياسة الخصوصية، طلبات حذف البيانات، أو الإبلاغ عن أي مسألة أمنية، يرجى التواصل مباشرة مع فريق حماية البيانات في شركة دار عبيد:",
+          title: "7. الامتثال القانوني، المسؤولية والتواصل الرسمي",
+          text: "تخضع هذه السياسة وإجراءات معالجة البيانات للقوانين والأنظمة والتشريعات المعمول بها في جمهورية مصر العربية (خاصة قانون حماية البيانات الشخصية رقم 151 لسنة 2020). لأية استفسارات تتعلق بسياسة الخصوصية، طلبات حذف البيانات، أو الإبلاغ عن أي مسألة أمنية، يرجى التواصل مباشرة مع فريق حماية البيانات في شركة دار عبيد:",
           emailNote: "البريد الإلكتروني المعتمد:",
           whatsappNote: "واتساب الدعم السريع:"
         }
@@ -86,7 +86,7 @@ const Privacy = () => {
       title: "Privacy & Data Protection Policy",
       subtitle: "UNIGATES Ecosystem — Dar Obaid Publishing, Distribution & Printing LLC",
       lastUpdate: "Last updated: April 2026 (v3.4)",
-      intro: "The unified UNIGATES ecosystem is committed to the highest standards of data protection and digital security in full compliance with international frameworks (ISO 27001, GDPR) and regional data protection regulations. This policy outlines how we collect, process, and safeguard your data across our 6 integrated platforms.",
+      intro: "The unified UNIGATES ecosystem is committed to the highest standards of data protection and digital security in full compliance with international frameworks (ISO 27001, GDPR), the Egyptian Personal Data Protection Law No. 151 of 2020, and all applicable laws and regulations of the Arab Republic of Egypt. This policy outlines how we collect, process, and safeguard your data across our 6 integrated platforms.",
       sections: [
         {
           title: "1. Scope & Collected Data",
@@ -147,8 +147,8 @@ const Privacy = () => {
           text: "We use essential cookies strictly required for authentication sessions, dark/light theme persistence, and language preference retention, alongside anonymized telemetry to optimize server load and global response times."
         },
         {
-          title: "7. Governance & Official Inquiries",
-          text: "For questions regarding this Privacy Policy, data subject requests, or security disclosures, contact the Data Protection Office at Dar Obaid Publishing LLC:",
+          title: "7. Legal Compliance, Governance & Official Inquiries",
+          text: "This Privacy Policy and all personal data processing activities are governed by the applicable laws and regulations of the Arab Republic of Egypt (including Personal Data Protection Law No. 151 of 2020). For questions regarding this Privacy Policy, data subject requests, or security disclosures, contact the Data Protection Office at Dar Obaid Publishing LLC:",
           emailNote: "Official Privacy Email:",
           whatsappNote: "Fast Support WhatsApp:"
         }

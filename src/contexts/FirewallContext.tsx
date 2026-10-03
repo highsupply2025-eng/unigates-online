@@ -111,10 +111,21 @@ export const FirewallProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     const fullSearch = location.search;
     if (fullSearch) {
-      const report = inspectPayload(decodeURIComponent(fullSearch), location.pathname);
-      if (!report.isSafe) {
-        for (const t of report.threats) {
-          reportMaliciousActivity(t);
+      try {
+        const decoded = decodeURIComponent(fullSearch);
+        const report = inspectPayload(decoded, location.pathname);
+        if (!report.isSafe) {
+          for (const t of report.threats) {
+            reportMaliciousActivity(t);
+          }
+        }
+      } catch {
+        // Fallback for malformed query string without crashing React
+        const report = inspectPayload(fullSearch, location.pathname);
+        if (!report.isSafe) {
+          for (const t of report.threats) {
+            reportMaliciousActivity(t);
+          }
         }
       }
     }

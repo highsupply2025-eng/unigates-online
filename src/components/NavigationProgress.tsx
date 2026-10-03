@@ -34,16 +34,21 @@ const NavigationProgress = () => {
       const href = anchor.getAttribute("href") ?? "";
       if (href.startsWith("#")) return;
 
-      const destination = new URL(anchor.href, window.location.href);
-      const current = new URL(window.location.href);
-      if (
-        destination.origin !== current.origin ||
-        (destination.pathname === current.pathname && destination.search === current.search)
-      ) return;
+      try {
+        const destination = new URL(anchor.href, window.location.href);
+        const current = new URL(window.location.href);
+        if (
+          destination.origin !== current.origin ||
+          (destination.pathname === current.pathname && destination.search === current.search)
+        ) return;
 
-      clear();
-      showTimer.current = window.setTimeout(() => setShow(true), SHOW_DELAY_MS);
-      safetyTimer.current = window.setTimeout(clear, SAFETY_TIMEOUT_MS);
+        clear();
+        showTimer.current = window.setTimeout(() => setShow(true), SHOW_DELAY_MS);
+        safetyTimer.current = window.setTimeout(clear, SAFETY_TIMEOUT_MS);
+      } catch {
+        // Ignore invalid URLs
+        return;
+      }
     };
 
     document.addEventListener("click", onClick, true);

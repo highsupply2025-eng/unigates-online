@@ -21,7 +21,6 @@ import {
   Users,
   Compass,
   Star,
-  Zap,
   Bookmark
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -107,19 +106,6 @@ const BookStoreLogin = () => {
       }
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleFastDemoLogin = (role: "reader" | "publisher") => {
-    setSelectedPortal(role);
-    if (role === "reader") {
-      setEmail("reader@unigates.online");
-      setPassword("ReaderPass2026!");
-      handleLogin(undefined, "reader", "reader@unigates.online");
-    } else {
-      setEmail("dar.obeid@unigates.online");
-      setPassword("PublisherPass2026!");
-      handleLogin(undefined, "publisher", "dar.obeid@unigates.online");
     }
   };
 
@@ -342,41 +328,6 @@ const BookStoreLogin = () => {
                     {isRtl ? "الأرباح 80% والعقود" : "Sales, Payouts & IP"}
                   </span>
                 </button>
-              </div>
-
-              {/* Quick 1-Click Demo Logins */}
-              <div className="mb-5 p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-                <div className="flex items-center justify-between mb-1.5 px-1">
-                  <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1">
-                    <Zap className="w-3.5 h-3.5 text-amber-500" />
-                    {isRtl ? "تجربة فورية بنقرة واحدة (Demo)" : "Instant 1-Click Demo"}
-                  </span>
-                  <Badge variant="outline" className="text-[9px] border-amber-500/40 text-amber-700 dark:text-amber-300 py-0 px-1.5">
-                    {isRtl ? "بيانات جاهزة" : "Preloaded"}
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleFastDemoLogin("reader")}
-                    className="h-8 text-[11px] font-bold border-amber-500/30 hover:bg-amber-500/20 text-foreground justify-center gap-1"
-                  >
-                    <Library className="w-3 h-3 text-amber-500" />
-                    <span>{isRtl ? "دخول كقارئ تجريبي" : "Demo Reader"}</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleFastDemoLogin("publisher")}
-                    className="h-8 text-[11px] font-bold border-orange-500/30 hover:bg-orange-500/20 text-foreground justify-center gap-1"
-                  >
-                    <Building2 className="w-3 h-3 text-orange-500" />
-                    <span>{isRtl ? "دخول كناشر تجريبي" : "Demo Publisher"}</span>
-                  </Button>
-                </div>
               </div>
 
               {/* Login Form */}

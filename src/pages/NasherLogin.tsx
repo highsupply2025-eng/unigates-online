@@ -24,7 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
-import { NashrDataStore, DEFAULT_DEMO_AUTHOR } from "@/services/nashrDataStore";
+import { NashrDataStore } from "@/services/nashrDataStore";
 
 const NasherLogin = () => {
   const [identifier, setIdentifier] = useState("");
@@ -71,15 +71,6 @@ const NasherLogin = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickDemoLogin = () => {
-    NashrDataStore.saveAuthorProfile(DEFAULT_DEMO_AUTHOR);
-    toast({
-      title: isRtl ? "تم تفعيل حساب المؤلف التجريبي" : "Demo Author Loaded",
-      description: isRtl ? `مرحباً بك: ${DEFAULT_DEMO_AUTHOR.fullName}` : `Welcome: ${DEFAULT_DEMO_AUTHOR.fullName}`
-    });
-    navigate("/nashr/dashboard");
   };
 
   return (
@@ -198,18 +189,6 @@ const NasherLogin = () => {
                     </>
                   )}
                 </Button>
-
-                {/* Quick Demo Access */}
-                <div className="pt-2 border-t border-border/60">
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    onClick={handleQuickDemoLogin}
-                    className="w-full h-11 rounded-xl font-bold text-xs border-dashed border-amber-500/40 bg-amber-500/5 hover:bg-amber-500/15 text-amber-700 dark:text-amber-400 gap-2"
-                  >
-                    <span>⚡ {isRtl ? "دخول تجريبي سريع بحساب: أ.د. عبد الرحمن المنشاوي" : "Quick Demo: Prof. Dr. Abdulrahman"}</span>
-                  </Button>
-                </div>
 
                 <div className="text-center pt-2">
                   <p className="text-xs text-muted-foreground font-medium">

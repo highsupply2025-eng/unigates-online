@@ -8,7 +8,7 @@ import {
   PackageCheck, Bookmark, Store, Menu, X, GraduationCap, Cpu,
   Trophy, BookCheck, Palette, ShoppingBag, Zap, Flame, PenTool,
   Home, Heart, Eye, Check, Clock, HelpCircle, Layers, ChevronRight,
-  SlidersHorizontal, Library, User, LogOut
+  SlidersHorizontal, Library, User, LogOut, Award, TrendingUp, Tag
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,10 @@ const BookStorePlatform = () => {
 
   // Real store catalog from BookStoreDataStore
   const catalog = useMemo(() => BookStoreDataStore.getCatalog(), []);
+  const bestsellers = useMemo(() => {
+    const list = catalog.filter((b) => b.is_bestseller);
+    return list.length > 0 ? list.slice(0, 4) : catalog.slice(0, 4);
+  }, [catalog]);
   const [selectedCategoryTab, setSelectedCategoryTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
@@ -533,9 +537,213 @@ const BookStorePlatform = () => {
         </section>
 
         {/* ========================================================================= */}
+        {/* 2.5. JARIR-STYLE VISUAL CATEGORIES SHOWCASE                               */}
+        {/* ========================================================================= */}
+        <section className="py-8 px-4 sm:px-6 md:px-12 bg-slate-900/60 border-b border-slate-800">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm sm:text-base font-black text-white">
+                  {isRtl ? "تصفح حسب القسم الأكاديمي" : "Browse by Department"}
+                </h3>
+              </div>
+              <span className="text-xs text-slate-400 font-bold hidden sm:inline">
+                {isRtl ? "اختر القسم لتصفية الكتب فوراً" : "Click to filter instant catalog"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {storeCategories.map((cat) => {
+                const IconComponent = cat.icon;
+                const isSelected = selectedCategoryTab === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategoryTab(cat.id);
+                      const el = document.getElementById("catalog-section");
+                      if (el) el.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className={`p-3.5 rounded-2xl border text-center transition-all flex flex-col items-center gap-2 group ${
+                      isSelected
+                        ? "bg-blue-600/20 border-blue-500 shadow-md shadow-blue-500/10"
+                        : "bg-slate-900 border-slate-800 hover:border-slate-700 hover:bg-slate-800/80"
+                    }`}
+                  >
+                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${cat.color} p-2 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+                      <IconComponent className="w-5 h-5" />
+                    </div>
+                    <div className="text-center w-full">
+                      <p className="text-xs font-black text-white line-clamp-1">
+                        {isRtl ? cat.titleAr : cat.titleEn}
+                      </p>
+                      <span className="text-[10px] text-cyan-400 font-bold block mt-0.5">
+                        {cat.badge}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 2.6. JARIR-STYLE TOP BESTSELLERS SHOWCASE (الأكثر طلباً ورواجاً)            */}
+        {/* ========================================================================= */}
+        {bestsellers.length > 0 && (
+          <section className="py-10 sm:py-14 px-4 sm:px-6 md:px-12 bg-slate-950 border-b border-slate-800/80">
+            <div className="max-w-7xl mx-auto space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-2 text-amber-400 text-xs font-black">
+                    <Trophy className="w-4 h-4 text-amber-400" />
+                    <span>{isRtl ? "إصدارات دار عبيد الأكثر رواجاً" : "Top Bestselling Books"}</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                    {isRtl ? "🏆 قائمة الكتب الأكثر طلباً هذا الأسبوع" : "Top Trending Bestsellers This Week"}
+                  </h2>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                  <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{isRtl ? "توصيل إكسبريس خلال 48 ساعة" : "48h Express Shipping"}</span>
+                </div>
+              </div>
+
+              {/* Bestsellers Grid with Rank Medals */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {bestsellers.map((book, idx) => (
+                  <Card
+                    key={`bestseller-${book.id}`}
+                    className="relative bg-gradient-to-b from-slate-900 to-slate-900/90 border-2 border-slate-800 hover:border-amber-500/50 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+                  >
+                    {/* Rank Badge (#1, #2, #3, #4) */}
+                    <div className="absolute top-3 start-3 z-20">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 text-slate-950 font-black text-xs flex items-center justify-center shadow-lg border border-amber-300">
+                        #{idx + 1}
+                      </div>
+                    </div>
+
+                    {/* Book Cover */}
+                    <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-950">
+                      <img
+                        src={book.cover_url}
+                        alt={book.title_ar}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                      <div className="absolute top-3 end-3 z-10">
+                        <Badge className="bg-emerald-600/90 text-white font-bold text-[10px]">
+                          {isRtl ? "جاهز للشحن" : "In Stock"}
+                        </Badge>
+                      </div>
+                      <div className="absolute bottom-2.5 start-2.5 text-[10px] text-slate-400 bg-slate-950/80 px-2 py-0.5 rounded-md font-mono border border-slate-800">
+                        {book.isbn}
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <CardContent className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs text-slate-400">
+                          <span className="truncate max-w-[140px]">{isRtl ? book.publisher_ar : book.publisher_en}</span>
+                          <span className="flex items-center gap-1 text-amber-400 font-bold">
+                            <Star className="w-3.5 h-3.5 fill-amber-400" />
+                            <span>{book.rating}</span>
+                          </span>
+                        </div>
+                        <h3 className="font-black text-sm sm:text-base text-white line-clamp-2 leading-snug group-hover:text-amber-400 transition-colors">
+                          {isRtl ? book.title_ar : book.title_en}
+                        </h3>
+                        <p className="text-xs font-semibold text-slate-400 line-clamp-1">
+                          {isRtl ? book.author_ar : book.author_en}
+                        </p>
+                      </div>
+
+                      {/* Pricing & Fast Buy */}
+                      <div className="pt-2 border-t border-slate-800 space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[11px] text-slate-400 font-semibold">{isRtl ? "سعر النسخة:" : "Price:"}</span>
+                          <div className="text-end">
+                            <span className="text-sm font-black text-white">
+                              {book.price_digital} {isRtl ? "ج.م" : book.currency}
+                            </span>
+                            {book.price_print > 0 && (
+                              <span className="text-[10px] text-slate-400 block">
+                                {isRtl ? `ورقي: ${book.price_print} ج.م` : `Print: ${book.price_print}`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-1">
+                          <Button
+                            size="sm"
+                            onClick={() => setQuickBuyBook(book)}
+                            className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs h-9 rounded-xl gap-1 shadow-sm"
+                          >
+                            <ShoppingCart className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "شراء سريع" : "Quick Buy"}</span>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/book-store/browse?code=${book.code}`)}
+                            className="w-full border-slate-700 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl gap-1"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-cyan-400" />
+                            <span>{isRtl ? "تفاصيل" : "Details"}</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================================= */}
+        {/* 2.7. JARIR-STYLE STORE PROMO DEALS BANNER                                 */}
+        {/* ========================================================================= */}
+        <section className="py-6 px-4 sm:px-6 md:px-12 bg-gradient-to-r from-blue-950/60 via-indigo-950/70 to-slate-950 border-b border-slate-800">
+          <div className="max-w-7xl mx-auto rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-blue-600/15 via-indigo-600/15 to-cyan-500/15 border border-blue-500/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+            <div className="space-y-2 text-center md:text-start">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-400/30">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{isRtl ? "خدمات متميزة للجامعات والمؤسسات والطلاب" : "Institutional & Student Priority Services"}</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-white">
+                {isRtl ? "شحن فوري لباب المنزل • توريد كميات مجمعة • حماية DRM متطورة" : "Fast Door Delivery • Bulk Institutional Orders • Advanced DRM"}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
+                {isRtl
+                  ? "توفر دار عبيد للمؤسسات والجامعات والباحثين إمكانية طلب النسخ المطبوعة الفاخرة بأسعار خاصة وفواتير ضريبية، أو ترخيص مكاتب رقمية كاملة للطلاب مع دعم فني مستمر."
+                  : "Dar Obeid provides academic institutions with official tax invoices, bulk student licenses, and secure doorstep express book packaging."}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <Link to="/contact">
+                <Button variant="outline" className="h-11 px-5 rounded-2xl border-slate-700 bg-slate-900 text-white font-bold text-xs hover:bg-slate-800">
+                  {isRtl ? "طلب توريد مؤسسي" : "Institutional Inquiry"}
+                </Button>
+              </Link>
+              <Link to="/nashr">
+                <Button className="h-11 px-5 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold text-xs hover:from-blue-700 hover:to-cyan-700 shadow-md">
+                  {isRtl ? "نشر مؤلف جديد" : "Publish With Us"}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
         {/* 3. INTERACTIVE BOOK CATALOG SHOWCASE (REAL BOOKS FROM DATASTORE)          */}
         {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-slate-950">
+        <section id="catalog-section" className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-slate-950">
           <div className="max-w-7xl mx-auto space-y-10">
             
             {/* Header with Title and Filter Tabs */}
@@ -661,6 +869,19 @@ const BookStorePlatform = () => {
                       <p className="text-xs font-semibold text-slate-400 line-clamp-1">
                         {isRtl ? book.author_ar : book.author_en}
                       </p>
+                    </div>
+
+                    {/* In-Stock status & Savings */}
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
+                      <span className="flex items-center gap-1 text-emerald-400">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>{isRtl ? "متوفر بالمستودع • شحن 48 س" : "In Stock • Ships 48h"}</span>
+                      </span>
+                      {book.price_print > book.price_digital && (
+                        <span className="text-[10px] text-cyan-300 font-bold bg-cyan-950/80 border border-cyan-800/60 px-2 py-0.5 rounded-full">
+                          {isRtl ? `وفر ${book.price_print - book.price_digital} ج.م` : `Save ${book.price_print - book.price_digital}`}
+                        </span>
+                      )}
                     </div>
 
                     {/* Dual Pricing Boxes */}

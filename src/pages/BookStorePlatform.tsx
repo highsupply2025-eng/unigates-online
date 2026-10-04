@@ -121,7 +121,7 @@ const BookStorePlatform = () => {
       descAr: "مؤلفات الطب، الهندسة، القانون، والعلوم الإدارية والتربوية.",
       descEn: "Medical, Engineering, Law, and Management textbooks.",
       icon: GraduationCap,
-      color: "from-blue-600 to-indigo-700",
+      color: "from-blue-600 to-indigo-600",
       badge: isRtl ? "مراجع معتمدة" : "Accredited",
     },
     {
@@ -131,7 +131,7 @@ const BookStorePlatform = () => {
       descAr: "هندسة النظم السحابية، التعلم العميق، والأمن السيبراني.",
       descEn: "Cloud Systems, Deep Learning & Cybersecurity.",
       icon: Cpu,
-      color: "from-purple-600 to-indigo-800",
+      color: "from-indigo-600 to-cyan-600",
       badge: isRtl ? "أحدث التقنيات" : "Cutting Edge",
     },
     {
@@ -141,7 +141,7 @@ const BookStorePlatform = () => {
       descAr: "إدارة المشاريع الاحترافية، ريادة الأعمال، والتحول المؤسسي.",
       descEn: "PMP Project Management & Business Leadership.",
       icon: Trophy,
-      color: "from-amber-500 to-orange-600",
+      color: "from-blue-700 to-indigo-800",
       badge: isRtl ? "الأكثر طلباً" : "Top Ranked",
     },
     {
@@ -151,7 +151,7 @@ const BookStorePlatform = () => {
       descAr: "التفكير الإبداعي، علم النفس المعرفي، والمهارات الشخصية.",
       descEn: "Creative Thinking, Cognitive Psychology & Soft Skills.",
       icon: Bookmark,
-      color: "from-rose-500 to-pink-600",
+      color: "from-cyan-600 to-blue-600",
       badge: isRtl ? "تطوير المهارات" : "Life Skills",
     },
     {
@@ -161,7 +161,7 @@ const BookStorePlatform = () => {
       descAr: "مذكرات وبنوك أسئلة وشروح للمراحل الابتدائية والإعدادية والثانوية.",
       descEn: "Comprehensive study guides and exercise workbooks.",
       icon: BookCheck,
-      color: "from-emerald-600 to-teal-700",
+      color: "from-teal-600 to-emerald-600",
       badge: isRtl ? "شامل الاختبارات" : "Exams Ready",
     },
     {
@@ -171,7 +171,7 @@ const BookStorePlatform = () => {
       descAr: "روائع السرد العربي، الروايات المترجمة، والدراسات النقدية الفاخرة.",
       descEn: "Classic and contemporary world literature masterpieces.",
       icon: Palette,
-      color: "from-cyan-600 to-blue-700",
+      color: "from-blue-500 to-indigo-600",
       badge: isRtl ? "طبعات فاخرة" : "Deluxe Editions",
     },
   ];
@@ -617,11 +617,11 @@ const BookStorePlatform = () => {
                 {bestsellers.map((book, idx) => (
                   <Card
                     key={`bestseller-${book.id}`}
-                    className="relative bg-gradient-to-b from-slate-900 to-slate-900/90 border-2 border-slate-800 hover:border-amber-500/50 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+                    className="relative bg-slate-900/90 border-2 border-slate-800 hover:border-blue-500/50 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
                   >
                     {/* Rank Badge (#1, #2, #3, #4) */}
                     <div className="absolute top-3 start-3 z-20">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 text-slate-950 font-black text-xs flex items-center justify-center shadow-lg border border-amber-300">
+                      <div className="w-8 h-8 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow-lg border border-amber-300">
                         #{idx + 1}
                       </div>
                     </div>
@@ -654,7 +654,7 @@ const BookStorePlatform = () => {
                             <span>{book.rating}</span>
                           </span>
                         </div>
-                        <h3 className="font-black text-sm sm:text-base text-white line-clamp-2 leading-snug group-hover:text-amber-400 transition-colors">
+                        <h3 className="font-black text-sm sm:text-base text-white line-clamp-2 leading-snug group-hover:text-blue-400 transition-colors">
                           {isRtl ? book.title_ar : book.title_en}
                         </h3>
                         <p className="text-xs font-semibold text-slate-400 line-clamp-1">
@@ -682,7 +682,7 @@ const BookStorePlatform = () => {
                           <Button
                             size="sm"
                             onClick={() => setQuickBuyBook(book)}
-                            className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs h-9 rounded-xl gap-1 shadow-sm"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 rounded-xl gap-1 shadow-sm"
                           >
                             <ShoppingCart className="w-3.5 h-3.5" />
                             <span>{isRtl ? "شراء سريع" : "Quick Buy"}</span>
@@ -691,7 +691,7 @@ const BookStorePlatform = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => navigate(`/book-store/browse?code=${book.code}`)}
-                            className="w-full border-slate-700 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl gap-1"
+                            className="w-full border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl gap-1"
                           >
                             <Eye className="w-3.5 h-3.5 text-cyan-400" />
                             <span>{isRtl ? "تفاصيل" : "Details"}</span>
@@ -1011,50 +1011,7 @@ const BookStorePlatform = () => {
         )}
 
         {/* ========================================================================= */}
-        {/* 5. STORE GENRES / CATEGORIES SECTION                                     */}
-        {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-slate-950 border-b border-slate-800">
-          <div className="max-w-7xl mx-auto space-y-10">
-            <div className="text-center space-y-2">
-              <Badge className="bg-slate-900 text-blue-400 border border-slate-800 text-xs px-3 py-1">
-                {isRtl ? "التصنيفات العلمية والمكتبية" : "Book Categories"}
-              </Badge>
-              <h2 className="text-2xl sm:text-4xl font-black text-white">
-                {isRtl ? "استكشف الكتالوج حسب التخصص الأكاديمي" : "Browse by Academic Field"}
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {storeCategories.map((cat, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => navigate(`/book-store/browse?category=${cat.id}`)}
-                  className="p-6 rounded-3xl bg-slate-900/80 border-2 border-slate-800/80 hover:border-blue-500/50 hover:bg-slate-900 transition-all duration-300 cursor-pointer group shadow-lg flex flex-col justify-between space-y-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
-                      <cat.icon className="w-6 h-6" />
-                    </div>
-                    <Badge variant="outline" className="text-xs font-bold border-slate-700 bg-slate-800 text-slate-300">
-                      {cat.badge}
-                    </Badge>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-black text-white group-hover:text-blue-400 transition-colors mb-1.5">
-                      {isRtl ? cat.titleAr : cat.titleEn}
-                    </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {isRtl ? cat.descAr : cat.descEn}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* 6. HOW SHOPPING & READING WORKS FOR BUYERS (3 SIMPLE STEPS)               */}
+        {/* 5. HOW SHOPPING & READING WORKS FOR BUYERS (3 SIMPLE STEPS)               */}
         {/* ========================================================================= */}
         <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-slate-900/40 border-b border-slate-800">
           <div className="max-w-6xl mx-auto space-y-12">

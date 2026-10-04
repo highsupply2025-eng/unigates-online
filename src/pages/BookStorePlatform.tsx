@@ -8,7 +8,7 @@ import {
   PackageCheck, Bookmark, Store, Menu, X, GraduationCap, Cpu,
   Trophy, BookCheck, Palette, ShoppingBag, Zap, Flame, PenTool,
   Home, Heart, Eye, Check, Clock, HelpCircle, Layers, ChevronRight,
-  SlidersHorizontal, Library
+  SlidersHorizontal, Library, User, LogOut
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,6 +66,19 @@ const BookStorePlatform = () => {
     return () => window.removeEventListener("storage", refreshCartCount);
   }, []);
 
+  // Current authenticated user session (Reader or Publisher)
+  const [currentSession, setCurrentSession] = useState<{ role: "reader" | "publisher"; name: string; email: string } | null>(
+    () => BookStoreDataStore.getCurrentSession()
+  );
+
+  const handleLogout = () => {
+    BookStoreDataStore.logout();
+    setCurrentSession(null);
+    toast({
+      title: isRtl ? "تم تسجيل الخروج بنجاح" : "Logged out successfully",
+    });
+  };
+
   const handleHeroSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const query = searchQuery.trim();
@@ -74,6 +87,16 @@ const BookStorePlatform = () => {
   };
 
   const handleAddToCart = (book: BookStoreItem, format: "digital" | "print" = "digital") => {
+    if (!currentSession) {
+      toast({
+        title: isRtl ? "يرجى تسجيل الدخول أولاً" : "Please Login First",
+        description: isRtl
+          ? "يجب تسجيل الدخول كقارئ للتمكن من إضافة الكتب لسلة الشراء والوصول لحسابك."
+          : "Please log in to your reader account to add books to cart.",
+      });
+      navigate("/book-store/login");
+      return;
+    }
     BookStoreDataStore.addToCart(book, format, 1);
     refreshCartCount();
     toast({
@@ -246,34 +269,60 @@ const BookStorePlatform = () => {
                 </Button>
               </Link>
 
-              {/* Shopping Cart Button with Dynamic Badge */}
-              <Link to="/book-store/cart">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="relative h-10 px-3.5 rounded-xl border-slate-700 bg-slate-900/90 text-white hover:bg-slate-800 gap-2 shadow-xs"
-                >
-                  <ShoppingCart className="w-4 h-4 text-cyan-400" />
-                  <span className="hidden sm:inline text-xs font-bold">{isRtl ? "السلة" : "Cart"}</span>
-                  {cartCount > 0 && (
-                    <span className="w-5 h-5 rounded-full bg-cyan-500 text-slate-950 font-black text-xs flex items-center justify-center animate-pulse">
-                      {cartCount}
-                    </span>
-                  )}
-                </Button>
-              </Link>
+              {/* Shopping Cart Button - ONLY visible inside user accounts / when logged in */}
+              {currentSession && (
+                <Link to="/book-store/cart">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative h-10 px-3.5 rounded-xl border-slate-700 bg-slate-900/90 text-white hover:bg-slate-800 gap-2 shadow-xs"
+                  >
+                    <ShoppingCart className="w-4 h-4 text-cyan-400" />
+                    <span className="hidden sm:inline text-xs font-bold">{isRtl ? "السلة" : "Cart"}</span>
+                    {cartCount > 0 && (
+                      <span className="w-5 h-5 rounded-full bg-cyan-500 text-slate-950 font-black text-xs flex items-center justify-center animate-pulse">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+              )}
 
               {/* Sign In / Account Link */}
-              <Link to="/book-store/login">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="hidden sm:flex h-10 px-4 rounded-xl border-slate-700 bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold gap-1.5"
-                >
-                  <ShoppingBag className="w-4 h-4 text-blue-400" />
-                  <span>{isRtl ? "تسجيل الدخول" : "Sign In"}</span>
-                </Button>
-              </Link>
+              {currentSession ? (
+                <div className="flex items-center gap-1.5">
+                  <Link to={currentSession.role === "reader" ? "/book-store/reader-dashboard" : "/book-store/publisher-dashboard"}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="hidden sm:flex h-10 px-3.5 rounded-xl border-slate-700 bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold gap-1.5"
+                    >
+                      <User className="w-4 h-4 text-emerald-400" />
+                      <span>{currentSession.name || (currentSession.role === "reader" ? (isRtl ? "حسابي" : "My Account") : (isRtl ? "الناشر" : "Publisher"))}</span>
+                    </Button>
+                  </Link>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className="text-xs font-bold text-slate-400 hover:text-rose-400 h-10 px-2.5 gap-1"
+                    title={isRtl ? "تسجيل الخروج" : "Logout"}
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <Link to="/book-store/login">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="hidden sm:flex h-10 px-4 rounded-xl border-slate-700 bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold gap-1.5"
+                  >
+                    <ShoppingBag className="w-4 h-4 text-blue-400" />
+                    <span>{isRtl ? "تسجيل الدخول" : "Sign In"}</span>
+                  </Button>
+                </Link>
+              )}
 
               <LanguageSelectorDropdown className="h-10 px-2.5 rounded-xl border-slate-800 bg-slate-900 text-white" />
               <ThemeToggle className="h-10 w-10 p-0 rounded-xl border-slate-800 bg-slate-900 text-white" />
@@ -305,21 +354,43 @@ const BookStorePlatform = () => {
                   <span>{isRtl ? "تصفح كتالوج الكتب" : "Browse Books"}</span>
                 </Button>
               </Link>
-              <Link to="/book-store/cart" onClick={() => setMobileMenuOpen(false)} className="block">
-                <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white h-11 gap-2 font-bold">
-                  <ShoppingCart className="w-4 h-4" />
-                  <span>{isRtl ? `سلة المشتريات (${cartCount})` : `Cart (${cartCount})`}</span>
-                </Button>
-              </Link>
+              {currentSession ? (
+                <>
+                  <Link to="/book-store/cart" onClick={() => setMobileMenuOpen(false)} className="block">
+                    <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white h-11 gap-2 font-bold">
+                      <ShoppingCart className="w-4 h-4" />
+                      <span>{isRtl ? `سلة المشتريات (${cartCount})` : `Cart (${cartCount})`}</span>
+                    </Button>
+                  </Link>
+                  <Link to={currentSession.role === "reader" ? "/book-store/reader-dashboard" : "/book-store/publisher-dashboard"} onClick={() => setMobileMenuOpen(false)} className="block">
+                    <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold">
+                      <User className="w-4 h-4 text-emerald-400" />
+                      <span>{isRtl ? "لوحة حسابي" : "My Account"}</span>
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full justify-start text-rose-400 hover:bg-rose-500/10 h-11 font-bold gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>{isRtl ? "تسجيل الخروج" : "Logout"}</span>
+                  </Button>
+                </>
+              ) : (
+                <Link to="/book-store/login" onClick={() => setMobileMenuOpen(false)} className="block">
+                  <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white h-11 font-bold">
+                    <span>{isRtl ? "تسجيل دخول القراء" : "Reader Login"}</span>
+                  </Button>
+                </Link>
+              )}
               <Link to="/nashr" onClick={() => setMobileMenuOpen(false)} className="block pt-1">
                 <Button className="w-full justify-start bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white h-11 gap-2 font-bold">
                   <PenTool className="w-4 h-4" />
                   <span>{isRtl ? "طلب نشر كتاب ➔ منصة نشر" : "Publish Book on Nashr"}</span>
-                </Button>
-              </Link>
-              <Link to="/book-store/login" onClick={() => setMobileMenuOpen(false)} className="block">
-                <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white h-11 font-bold">
-                  <span>{isRtl ? "تسجيل دخول القراء" : "Reader Login"}</span>
                 </Button>
               </Link>
             </div>

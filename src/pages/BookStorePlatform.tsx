@@ -244,12 +244,6 @@ const BookStorePlatform = () => {
                   <span>{isRtl ? "الرئيسية" : "Home"}</span>
                 </Button>
               </Link>
-              <Link to="/book-store/browse">
-                <Button variant="ghost" size="sm" className="hover:bg-slate-800 text-slate-300 hover:text-white gap-1.5 h-10 px-3.5">
-                  <Store className="w-4 h-4 text-emerald-400" />
-                  <span>{isRtl ? "تصفح الكتالوج" : "Browse Catalog"}</span>
-                </Button>
-              </Link>
             </nav>
 
             {/* Action Buttons: Cart, Publish Bridge, Login, Utils */}
@@ -346,12 +340,6 @@ const BookStorePlatform = () => {
                 <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold">
                   <Home className="w-4 h-4 text-blue-400" />
                   <span>{isRtl ? "العودة للرئيسية" : "Home"}</span>
-                </Button>
-              </Link>
-              <Link to="/book-store/browse" onClick={() => setMobileMenuOpen(false)} className="block">
-                <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold">
-                  <Store className="w-4 h-4 text-emerald-400" />
-                  <span>{isRtl ? "تصفح كتالوج الكتب" : "Browse Books"}</span>
                 </Button>
               </Link>
               {currentSession ? (

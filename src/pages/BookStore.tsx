@@ -23,6 +23,7 @@ import {
   Sparkles,
   Bookmark,
   Check,
+  PenTool,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -71,15 +72,34 @@ const BookStore = () => {
     { id: "humanities", label: isRtl ? "العلوم الإنسانية واللغات" : "Humanities" },
   ];
 
-  const filteredBooks = catalog.filter((book) => {
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    const searchParam = searchParams.get("search");
+    const codeParam = searchParams.get("code");
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    } else if (codeParam) {
+      setSearchQuery(codeParam);
+    }
+  }, [searchParams]);
+
+  const filteredBooks = (catalog || []).filter((book) => {
+    if (!book) return false;
     const matchesCategory = selectedCategory === "all" || book.category === selectedCategory;
-    const title = isRtl ? book.title_ar : book.title_en;
-    const author = isRtl ? book.author_ar : book.author_en;
-    const publisher = isRtl ? book.publisher_ar : book.publisher_en;
+    const title = (isRtl ? book.title_ar : book.title_en) || book.title_ar || book.title_en || "";
+    const author = (isRtl ? book.author_ar : book.author_en) || book.author_ar || book.author_en || "";
+    const publisher = (isRtl ? book.publisher_ar : book.publisher_en) || book.publisher_ar || book.publisher_en || "";
+    const query = (searchQuery || "").trim().toLowerCase();
     const matchesSearch =
-      title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      publisher.toLowerCase().includes(searchQuery.toLowerCase());
+      !query ||
+      title.toLowerCase().includes(query) ||
+      author.toLowerCase().includes(query) ||
+      publisher.toLowerCase().includes(query) ||
+      (book.isbn ? book.isbn.toLowerCase().includes(query) : false) ||
+      (book.code ? book.code.toLowerCase().includes(query) : false);
     return matchesCategory && matchesSearch;
   });
 

@@ -80,6 +80,10 @@ export interface NashrInvoice {
   description: string;
   status: "unpaid" | "under_review" | "paid";
   receiptImageUrl?: string;
+  receiptReference?: string;
+  receiptNotes?: string;
+  receiptUploadedAt?: string;
+  rejectionReason?: string;
   paymentMethod?: string;
   paymentDate?: string;
   createdAt: string;

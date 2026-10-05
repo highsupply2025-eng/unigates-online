@@ -419,7 +419,13 @@ export class NashrDataStore {
     return all.filter(inv => inv.authorId === targetId);
   }
 
-  static uploadPaymentReceipt(invoiceId: string, receiptImageUrl: string, paymentMethod: string): void {
+  static uploadPaymentReceipt(
+    invoiceId: string, 
+    receiptImageUrl: string, 
+    paymentMethod: string,
+    receiptReference?: string,
+    receiptNotes?: string
+  ): NashrInvoice | null {
     const list = this.getAllInvoices();
     const index = list.findIndex(inv => inv.id === invoiceId);
     if (index !== -1) {
@@ -427,8 +433,65 @@ export class NashrDataStore {
       list[index].paymentMethod = paymentMethod;
       list[index].status = "under_review";
       list[index].paymentDate = new Date().toISOString().split("T")[0];
+      list[index].receiptUploadedAt = new Date().toLocaleString("ar-EG");
+      if (receiptReference) list[index].receiptReference = receiptReference;
+      if (receiptNotes) list[index].receiptNotes = receiptNotes;
+      delete list[index].rejectionReason;
       localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(list));
+
+      // Dispatch automated notice to admin
+      this.sendMessage(
+        `💳 تم رفع إيصال سداد جديد للفاتورة (${list[index].invoiceNumber}) بمبلغ ${list[index].amount} ${list[index].currency} بواسطة (${paymentMethod}). بانتظار المراجعة والاعتماد المالي.`,
+        "إيصال_سداد.png",
+        receiptImageUrl
+      );
+
+      return list[index];
     }
+    return null;
+  }
+
+  static submitDirectReceipt(
+    authorId: string,
+    authorName: string,
+    amount: number,
+    paymentMethod: string,
+    receiptImageUrl: string,
+    manuscriptTitle?: string,
+    receiptReference?: string,
+    receiptNotes?: string
+  ): NashrInvoice {
+    const list = this.getAllInvoices();
+    const newInv: NashrInvoice = {
+      id: `inv-${Date.now()}`,
+      invoiceNumber: `INV-NASHR-${Math.floor(1000 + Math.random() * 9000)}`,
+      authorId,
+      authorName,
+      manuscriptTitle: manuscriptTitle || "دفعة سداد وتكاليف نشر مباشرة",
+      amount,
+      currency: "EGP",
+      publishType: "both",
+      description: receiptNotes || "سداد مباشر / تحويل إيصال بنكي أو إنستاباي من قبل المؤلف",
+      status: "under_review",
+      receiptImageUrl,
+      receiptReference,
+      receiptNotes,
+      receiptUploadedAt: new Date().toLocaleString("ar-EG"),
+      paymentMethod,
+      paymentDate: new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString().split("T")[0]
+    };
+    list.unshift(newInv);
+    localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(list));
+
+    // Send chat message
+    this.sendMessage(
+      `💳 تم رفع إيصال تحويل مباشر جديد بمبلغ ${amount} ج.م عبر (${paymentMethod}) لمؤلف: ${manuscriptTitle || "دفعة نشر"}. برجاء المطابقة والاعتماد.`,
+      "إيصال_تحويل_مباشر.png",
+      receiptImageUrl
+    );
+
+    return newInv;
   }
 
   static updateSubmissionStatus(
@@ -460,13 +523,24 @@ export class NashrDataStore {
     return newInv;
   }
 
-  static verifyInvoiceReceipt(invoiceId: string, approved: boolean): NashrInvoice | null {
+  static verifyInvoiceReceipt(invoiceId: string, approved: boolean, rejectionReason?: string): NashrInvoice | null {
     const all = this.getAllInvoices();
     const inv = all.find(i => i.id === invoiceId);
     if (!inv) return null;
     inv.status = approved ? "paid" : "unpaid";
     if (approved) {
       inv.paymentDate = new Date().toISOString().split("T")[0];
+      delete inv.rejectionReason;
+      this.sendAdminMessageToAuthor(
+        inv.authorId,
+        `✅ إشعار مالي رسمي: تم التحقق بنجاح من إيصال السداد للفاتورة (${inv.invoiceNumber}) بمبلغ ${inv.amount} ${inv.currency} الخاصة بمؤلفكم "${inv.manuscriptTitle}". تم اعتماد العملية مالياً وإحالتها لمرحلة الإنتاج والطباعة.`
+      );
+    } else {
+      inv.rejectionReason = rejectionReason || "إيصال التحويل غير مكتمل أو بيانات المعاملة غير واضحة. يرجى إعادة رفع صورة واضحة.";
+      this.sendAdminMessageToAuthor(
+        inv.authorId,
+        `⚠️ إشعار تدقيق مالي: تم فحص إيصال السداد للفاتورة (${inv.invoiceNumber}) ولم تتم مطابقته بالكامل. السبب: ${inv.rejectionReason}. يرجى التكرم بإعادة رفع إشعار التحويل البنكي الصحيح.`
+      );
     }
     localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all));
     return inv;

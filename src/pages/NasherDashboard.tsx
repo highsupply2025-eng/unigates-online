@@ -43,7 +43,8 @@ import {
   PlusCircle,
   HelpCircle,
   Banknote,
-  QrCode
+  QrCode,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -117,11 +118,22 @@ const NasherDashboard = () => {
   const [chatInput, setChatInput] = useState("");
   const [chatAttachmentName, setChatAttachmentName] = useState("");
 
-  // Form states for Payment Receipt Upload Modal
+  // Form states for Payment Receipt Upload Modal & Dedicated Section
   const [selectedInvoice, setSelectedInvoice] = useState<NashrInvoice | null>(null);
   const [paymentMethodSelect, setPaymentMethodSelect] = useState("bank_transfer");
   const [receiptImagePlaceholder, setReceiptImagePlaceholder] = useState("");
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
+
+  // Dedicated Transfer Receipt Upload section states
+  const [transferInvoiceTarget, setTransferInvoiceTarget] = useState<string>("auto");
+  const [transferAmountInput, setTransferAmountInput] = useState<string>("");
+  const [transferMethodInput, setTransferMethodInput] = useState<string>("instapay");
+  const [transferRefInput, setTransferRefInput] = useState<string>("");
+  const [transferNotesInput, setTransferNotesInput] = useState<string>("");
+  const [transferReceiptPreview, setTransferReceiptPreview] = useState<string>("");
+  const [transferReceiptFileName, setTransferReceiptFileName] = useState<string>("");
+  const [submittingDirectReceipt, setSubmittingDirectReceipt] = useState<boolean>(false);
+  const [viewReceiptModalInvoice, setViewReceiptModalInvoice] = useState<NashrInvoice | null>(null);
 
   // Form states for Payout Request Modal
   const [payoutModalOpen, setPayoutModalOpen] = useState(false);
@@ -242,7 +254,7 @@ const NasherDashboard = () => {
     refreshData();
   };
 
-  // Handle Payment Receipt Upload
+  // Handle Payment Receipt Upload (Modal)
   const handleConfirmPaymentReceipt = () => {
     if (!selectedInvoice) return;
     setUploadingReceipt(true);
@@ -259,6 +271,85 @@ const NasherDashboard = () => {
       toast({
         title: isRtl ? "تم رفع إيصال الدفع بنجاح" : "Receipt Uploaded",
         description: isRtl ? "تم إرسال إيصال السداد للإدارة المالية للمطابقة والاعتماد." : "Payment proof sent for financial verification."
+      });
+    }, 600);
+  };
+
+  // Handle file selection and read as base64 data URL
+  const handleReceiptFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setTransferReceiptFileName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTransferReceiptPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Submit Dedicated Transfer Receipt Form
+  const handleSubmitTransferReceipt = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transferReceiptPreview && !transferReceiptFileName) {
+      toast({
+        title: isRtl ? "يرجى إرفاق صورة إيصال التحويل" : "Receipt Image Required",
+        description: isRtl ? "من فضلك قم برفع لقطة شاشة أو صورة إشعار التحويل البنكي أو إنستاباي." : "Please upload a transfer screenshot.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const unpaidInvoices = invoices.filter(i => i.status === "unpaid");
+    let targetInv = unpaidInvoices.find(i => i.id === transferInvoiceTarget);
+    if (!targetInv && unpaidInvoices.length > 0 && transferInvoiceTarget === "auto") {
+      targetInv = unpaidInvoices[0];
+    }
+
+    const paymentMethodLabel = 
+      transferMethodInput === "instapay" ? "إنستاباي (InstaPay)" :
+      transferMethodInput === "bank_transfer" ? "تحويل بنكي - البنك الأهلي" :
+      transferMethodInput === "vodafone_cash" ? "محفظة إلكترونية (فودافون كاش)" : "بطاقة ائتمانية / سداد دولي";
+
+    const receiptUrlToSave = transferReceiptPreview || "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600";
+
+    setSubmittingDirectReceipt(true);
+    setTimeout(() => {
+      if (targetInv) {
+        NashrDataStore.uploadPaymentReceipt(
+          targetInv.id,
+          receiptUrlToSave,
+          paymentMethodLabel,
+          transferRefInput.trim() || undefined,
+          transferNotesInput.trim() || undefined
+        );
+      } else {
+        const amountNum = Number(transferAmountInput) || 1200;
+        NashrDataStore.submitDirectReceipt(
+          authorProfile.id,
+          authorProfile.fullName,
+          amountNum,
+          paymentMethodLabel,
+          receiptUrlToSave,
+          submissions[0]?.title || "رسوم نشر وتحكيم أكاديمي",
+          transferRefInput.trim() || undefined,
+          transferNotesInput.trim() || undefined
+        );
+      }
+
+      refreshData();
+      setSubmittingDirectReceipt(false);
+      setTransferReceiptPreview("");
+      setTransferReceiptFileName("");
+      setTransferRefInput("");
+      setTransferNotesInput("");
+      setTransferAmountInput("");
+
+      toast({
+        title: isRtl ? "🎉 تم إرسال إيصال التحويل بنجاح!" : "Receipt Uploaded Successfully!",
+        description: isRtl 
+          ? "تم إرسال إشعار السداد وصورة الإيصال للإدارة المالية لدار عبيد للمراجعة والمطابقة والاعتماد."
+          : "Payment receipt sent to finance department for verification."
       });
     }, 600);
   };
@@ -1180,7 +1271,209 @@ const NasherDashboard = () => {
               </div>
             </div>
 
-            {/* Invoices List */}
+            {/* 📤 قسم رفع صورة إيصال التحويل والسداد البنكي المباشر */}
+            <Card className="border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-amber-500/10 shadow-xl rounded-3xl overflow-hidden">
+              <CardHeader className="bg-amber-500/15 border-b border-amber-500/30 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black text-lg shadow-md shrink-0">
+                    📤
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-black flex items-center gap-2">
+                      <span>{isRtl ? "رفع إيصال / صورة التحويل المالي أو السداد البنكي" : "Upload Transfer Receipt & Proof"}</span>
+                      <Badge className="bg-emerald-500 text-white font-bold text-[10px]">
+                        {isRtl ? "خدمة المطابقة والاعتماد السريع ⚡" : "Fast Verification"}
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {isRtl 
+                        ? "بعد تحويل المبلغ عبر إنستاباي أو الحساب البنكي أو المحفظة الإلكترونية، قم برفع صورة الإيصال أو لقطة الشاشة ليتم تدقيقها واعتمادها فوراً من قبل الإدارة المالية لدار عبيد."
+                        : "Upload payment screenshot or bank receipt for instant editorial verification."}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-4 sm:p-6">
+                <form onSubmit={handleSubmitTransferReceipt} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    
+                    {/* Invoice Target Selection */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground">
+                        {isRtl ? "الفاتورة / سبب التحويل *" : "Target Invoice / Purpose *"}
+                      </Label>
+                      <Select 
+                        value={transferInvoiceTarget} 
+                        onValueChange={(val) => {
+                          setTransferInvoiceTarget(val);
+                          const inv = invoices.find(i => i.id === val);
+                          if (inv) setTransferAmountInput(inv.amount.toString());
+                        }}
+                      >
+                        <SelectTrigger className="h-10 rounded-xl text-xs font-bold bg-background">
+                          <SelectValue placeholder={isRtl ? "اختر الفاتورة..." : "Select Invoice"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {invoices.filter(i => i.status === "unpaid").map(i => (
+                            <SelectItem key={i.id} value={i.id}>
+                              {i.invoiceNumber} - {i.amount} {i.currency} ({i.manuscriptTitle.slice(0, 24)}...)
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="auto">
+                            {isRtl ? "سداد مباشر / دفعة حجز ونشر جديدة" : "Direct Publishing Deposit"}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Amount Input */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground">
+                        {isRtl ? "المبلغ المحول (ج.م) *" : "Transferred Amount (EGP) *"}
+                      </Label>
+                      <Input 
+                        type="number" 
+                        placeholder={isRtl ? "مثال: 1200" : "e.g. 1200"}
+                        value={transferAmountInput}
+                        onChange={(e) => setTransferAmountInput(e.target.value)}
+                        className="h-10 rounded-xl text-xs font-mono font-bold bg-background"
+                      />
+                    </div>
+
+                    {/* Payment Method Used */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground">
+                        {isRtl ? "طريقة التحويل المستخدمة *" : "Payment Method Used *"}
+                      </Label>
+                      <Select value={transferMethodInput} onValueChange={setTransferMethodInput}>
+                        <SelectTrigger className="h-10 rounded-xl text-xs font-bold bg-background">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="instapay">⚡ {isRtl ? "إنستاباي (InstaPay)" : "InstaPay"}</SelectItem>
+                          <SelectItem value="bank_transfer">🏛️ {isRtl ? "تحويل بنكي - البنك الأهلي المصري" : "NBE Bank Transfer"}</SelectItem>
+                          <SelectItem value="vodafone_cash">📱 {isRtl ? "محفظة إلكترونية (فودافون كاش / اتصالات)" : "Vodafone Cash"}</SelectItem>
+                          <SelectItem value="credit_card">🌐 {isRtl ? "بطاقة بنكية / فيزا أو ماستركارد" : "Credit Card"}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Transaction Reference Number */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground">
+                        {isRtl ? "رقم العملية / المرجع أو اسم المحول (اختياري):" : "Transaction Ref / Sender Name (Optional):"}
+                      </Label>
+                      <Input 
+                        placeholder={isRtl ? "مثال: TRX-88912 أو اسم المحول بحسابه" : "e.g. Ref # or Sender Name"}
+                        value={transferRefInput}
+                        onChange={(e) => setTransferRefInput(e.target.value)}
+                        className="h-10 rounded-xl text-xs bg-background"
+                      />
+                    </div>
+
+                    {/* Transfer Notes */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground">
+                        {isRtl ? "ملاحظات إضافية للإدارة المالية (اختياري):" : "Notes for Finance (Optional):"}
+                      </Label>
+                      <Input 
+                        placeholder={isRtl ? "مثال: تم التحويل لتكاليف الغلاف والطباعة الورقية" : "Additional payment notes"}
+                        value={transferNotesInput}
+                        onChange={(e) => setTransferNotesInput(e.target.value)}
+                        className="h-10 rounded-xl text-xs bg-background"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Upload Box with Drag & Drop styling and Live Preview */}
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold text-foreground flex items-center justify-between">
+                      <span>{isRtl ? "صورة إيصال التحويل / لقطة الشاشة *" : "Receipt Screenshot / Transfer Slip *"}</span>
+                      <span className="text-[10px] text-muted-foreground">{isRtl ? "يقبل JPG, PNG, WebP أو PDF" : "PNG, JPG, PDF supported"}</span>
+                    </Label>
+
+                    <div className="border-2 border-dashed border-amber-500/50 hover:border-amber-500 rounded-2xl p-4 sm:p-6 bg-card/60 transition-all text-center space-y-3">
+                      {transferReceiptPreview ? (
+                        <div className="space-y-3">
+                          <div className="relative inline-block max-h-52 rounded-xl overflow-hidden border-2 border-amber-500 shadow-md bg-slate-950 p-1">
+                            <img 
+                              src={transferReceiptPreview} 
+                              alt="Receipt Preview" 
+                              className="max-h-52 w-auto object-contain mx-auto rounded-lg"
+                            />
+                            <Button 
+                              type="button"
+                              size="sm" 
+                              variant="destructive" 
+                              onClick={() => {
+                                setTransferReceiptPreview("");
+                                setTransferReceiptFileName("");
+                              }}
+                              className="absolute top-2 end-2 h-7 px-2.5 rounded-lg text-xs font-bold shadow-md"
+                            >
+                              {isRtl ? "حذف وتغيير" : "Remove"}
+                            </Button>
+                          </div>
+                          <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                            ✓ {isRtl ? `تم تجهيز الإيصال: ${transferReceiptFileName || "صورة التحويل"}` : "Receipt ready"}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <UploadCloud className="w-10 h-10 text-amber-500 mx-auto" />
+                          <div className="space-y-1">
+                            <p className="text-xs font-bold text-foreground">
+                              {isRtl ? "اسحب وأفلت صورة الإيصال هنا أو اضغط للاختيار من جهازك" : "Drag and drop receipt image or browse"}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {isRtl ? "لقطة شاشة من تطبيق إنستاباي أو إشعار التحويل البنكي أو رسالة المحفظة" : "Screenshot from banking app or InstaPay"}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center justify-center gap-2 pt-2">
+                            <label className="cursor-pointer">
+                              <span className="h-9 px-4 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-white inline-flex items-center gap-1.5 shadow-sm transition-all">
+                                <UploadCloud className="w-3.5 h-3.5" />
+                                <span>{isRtl ? "اختيار صورة الإيصال من الجهاز" : "Browse File"}</span>
+                              </span>
+                              <input 
+                                type="file" 
+                                accept="image/*,application/pdf" 
+                                onChange={handleReceiptFileSelect} 
+                                className="hidden" 
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="flex justify-end pt-2">
+                    <Button 
+                      type="submit" 
+                      disabled={submittingDirectReceipt}
+                      className="h-11 px-6 rounded-xl font-black text-xs bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/20 gap-2"
+                    >
+                      {submittingDirectReceipt ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                      <span>{isRtl ? "إرسال إيصال السداد للإدارة المالية للتدقيق والاعتماد 📤" : "Submit Receipt for Audit"}</span>
+                    </Button>
+                  </div>
+
+                </form>
+              </CardContent>
+            </Card>
+
+            {/* Invoices List & Payment Methods Guide */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               <div className="lg:col-span-2 space-y-4">
@@ -1188,7 +1481,7 @@ const NasherDashboard = () => {
                   <CardHeader className="bg-muted/20 border-b border-border/60 pb-3">
                     <CardTitle className="text-sm font-black flex items-center gap-2">
                       <CreditCard className="w-4 h-4 text-amber-500" />
-                      <span>{isRtl ? "فواتير النشر الصادرة" : "Issued Invoices"}</span>
+                      <span>{isRtl ? "فواتير النشر الصادرة وسجل الإيصالات" : "Issued Invoices & Receipts"}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 space-y-4">
@@ -1214,7 +1507,7 @@ const NasherDashboard = () => {
                             inv.status === "paid" 
                               ? "border-emerald-500/30 bg-emerald-500/5" 
                               : inv.status === "under_review"
-                              ? "border-blue-500/30 bg-blue-500/5"
+                              ? "border-blue-500/40 bg-blue-500/5 shadow-sm"
                               : "border-amber-500/40 bg-amber-500/5 shadow-md"
                           }`}
                         >
@@ -1224,14 +1517,14 @@ const NasherDashboard = () => {
                               <Badge className={
                                 inv.status === "paid" 
                                   ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]"
-                                  : inv.status === "under_review"
-                                  ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[10px]"
+                                  : inv.status === "under_review" 
+                                  ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[10px]" 
                                   : "bg-destructive/15 text-destructive border-destructive/30 text-[10px]"
                               }>
                                 {inv.status === "paid" 
                                   ? (isRtl ? "تم السداد بنجاح ✅" : "Paid") 
                                   : inv.status === "under_review" 
-                                  ? (isRtl ? "الإيصال قيد المراجعة ⏳" : "Under Review") 
+                                  ? (isRtl ? "الإيصال قيد المراجعة والتدقيق ⏳" : "Receipt Under Review") 
                                   : (isRtl ? "بانتظار السداد ⚠️" : "Unpaid")}
                               </Badge>
                             </div>
@@ -1245,22 +1538,57 @@ const NasherDashboard = () => {
                             <p className="text-muted-foreground text-[11px] leading-relaxed">{inv.description}</p>
                           </div>
 
+                          {/* Rejection notice if present */}
+                          {inv.rejectionReason && (
+                            <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs space-y-1">
+                              <strong>{isRtl ? "⚠️ ملاحظة تدقيق الإدارة المالية (تم رفض الإيصال السابق):" : "Finance Rejection Note:"}</strong>
+                              <p className="text-[11px] leading-relaxed">{inv.rejectionReason}</p>
+                            </div>
+                          )}
+
+                          {/* Footer with receipt preview & actions */}
                           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50 text-[11px] text-muted-foreground">
-                            <span>{isRtl ? "تاريخ الإصدار:" : "Date:"} {inv.createdAt}</span>
-                            {inv.paymentMethod && (
-                              <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                                {inv.paymentMethod}
-                              </span>
-                            )}
-                            {inv.status === "unpaid" && (
-                              <Button 
-                                onClick={() => setSelectedInvoice(inv)}
-                                size="sm" 
-                                className="h-8 px-3.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
-                              >
-                                {isRtl ? "اختيار طريقة الدفع ورفع الإيصال ➔" : "Pay & Upload Receipt"}
-                              </Button>
-                            )}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span>{isRtl ? "تاريخ الإصدار:" : "Date:"} {inv.createdAt}</span>
+                              {inv.paymentMethod && (
+                                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                                  • {inv.paymentMethod}
+                                </span>
+                              )}
+                              {inv.receiptReference && (
+                                <Badge variant="outline" className="text-[10px] font-mono bg-background">
+                                  {isRtl ? "مرجع:" : "Ref:"} {inv.receiptReference}
+                                </Badge>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {inv.receiptImageUrl && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => setViewReceiptModalInvoice(inv)}
+                                  className="h-8 px-3 rounded-xl font-bold text-xs gap-1.5 border-border hover:bg-muted"
+                                >
+                                  <Eye className="w-3.5 h-3.5 text-blue-500" />
+                                  <span>{isRtl ? "معاينة صورة الإيصال" : "View Receipt"}</span>
+                                </Button>
+                              )}
+
+                              {inv.status === "unpaid" && (
+                                <Button 
+                                  onClick={() => {
+                                    setTransferInvoiceTarget(inv.id);
+                                    setTransferAmountInput(inv.amount.toString());
+                                    window.scrollTo({ top: 380, behavior: "smooth" });
+                                  }}
+                                  size="sm" 
+                                  className="h-8 px-3.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+                                >
+                                  {isRtl ? "رفع إيصال هذه الفاتورة ➔" : "Pay & Upload Receipt"}
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))
@@ -1916,6 +2244,92 @@ const NasherDashboard = () => {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ------------------------------------------------------------- */}
+      {/* MODAL: View Uploaded Payment Receipt Lightbox */}
+      {/* ------------------------------------------------------------- */}
+      <Dialog open={!!viewReceiptModalInvoice} onOpenChange={(open) => !open && setViewReceiptModalInvoice(null)}>
+        <DialogContent className="max-w-lg rounded-3xl p-6 space-y-4">
+          {viewReceiptModalInvoice && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-base font-black flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-amber-500" />
+                  <span>{isRtl ? "معاينة صورة إيصال التحويل المالي" : "Payment Receipt Preview"}</span>
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  {viewReceiptModalInvoice.invoiceNumber} • {viewReceiptModalInvoice.amount} {viewReceiptModalInvoice.currency}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-3">
+                <div className="rounded-2xl border-2 border-border/80 overflow-hidden bg-slate-950 p-2 text-center">
+                  <img 
+                    src={viewReceiptModalInvoice.receiptImageUrl?.startsWith("data:") || viewReceiptModalInvoice.receiptImageUrl?.startsWith("http") 
+                      ? viewReceiptModalInvoice.receiptImageUrl 
+                      : "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800"} 
+                    alt="Receipt" 
+                    className="max-h-[380px] w-auto mx-auto object-contain rounded-xl shadow-lg"
+                  />
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{isRtl ? "حالة الإيصال:" : "Status:"}</span>
+                    <Badge className={
+                      viewReceiptModalInvoice.status === "paid" 
+                        ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" 
+                        : viewReceiptModalInvoice.status === "under_review" 
+                        ? "bg-blue-500/15 text-blue-600 border-blue-500/30" 
+                        : "bg-destructive/15 text-destructive border-destructive/30"
+                    }>
+                      {viewReceiptModalInvoice.status === "paid" 
+                        ? (isRtl ? "معتمد ومطابق بنجاح ✅" : "Verified") 
+                        : viewReceiptModalInvoice.status === "under_review" 
+                        ? (isRtl ? "قيد التدقيق من الإدارة المالية ⏳" : "Under Review") 
+                        : (isRtl ? "مرفوض - يرجى إعادة الرفع ❌" : "Rejected")}
+                    </Badge>
+                  </div>
+                  {viewReceiptModalInvoice.paymentMethod && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{isRtl ? "طريقة التحويل:" : "Method:"}</span>
+                      <span className="font-bold text-foreground">{viewReceiptModalInvoice.paymentMethod}</span>
+                    </div>
+                  )}
+                  {viewReceiptModalInvoice.receiptReference && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{isRtl ? "رقم المرجع / العملية:" : "Reference:"}</span>
+                      <span className="font-mono font-bold text-foreground">{viewReceiptModalInvoice.receiptReference}</span>
+                    </div>
+                  )}
+                  {viewReceiptModalInvoice.receiptUploadedAt && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{isRtl ? "تاريخ الرفع:" : "Uploaded At:"}</span>
+                      <span className="text-muted-foreground">{viewReceiptModalInvoice.receiptUploadedAt}</span>
+                    </div>
+                  )}
+                  {viewReceiptModalInvoice.rejectionReason && (
+                    <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-[11px] leading-relaxed">
+                      <strong>{isRtl ? "ملاحظة الإدارة المالية حول سبب الرفض:" : "Finance Rejection Note:"}</strong>
+                      <p className="mt-0.5">{viewReceiptModalInvoice.rejectionReason}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setViewReceiptModalInvoice(null)} 
+                  className="rounded-xl text-xs font-bold w-full"
+                >
+                  {isRtl ? "إغلاق المعاينة" : "Close"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

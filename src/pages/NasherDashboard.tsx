@@ -103,6 +103,7 @@ const NasherDashboard = () => {
   // Form states for New Submission
   const [newTitle, setNewTitle] = useState("");
   const [newCategory, setNewCategory] = useState("دراسات وأبحاث أكاديمية");
+  const [customCategory, setCustomCategory] = useState("");
   const [newPublishType, setNewPublishType] = useState<PublishType>("both");
   const [newSynopsis, setNewSynopsis] = useState("");
   const [newPageCount, setNewPageCount] = useState<number | string>(200);
@@ -180,6 +181,17 @@ const NasherDashboard = () => {
       return;
     }
 
+    if (newCategory === "آخر" && !customCategory.trim()) {
+      toast({
+        title: isRtl ? "المجال العلمي مطلوب" : "Field required",
+        description: isRtl ? "يرجى كتابة اسم وطبيعة مجالك العلمي في الخانة المخصصة." : "Please specify your field of expertise.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const finalCategory = newCategory === "آخر" ? customCategory.trim() : newCategory;
+
     setSubmittingWork(true);
     setTimeout(() => {
       NashrDataStore.addSubmission({
@@ -187,7 +199,7 @@ const NasherDashboard = () => {
         authorName: authorProfile.fullName,
         authorCode: authorProfile.authorCode,
         title: newTitle.trim(),
-        category: newCategory,
+        category: finalCategory,
         publishType: newPublishType,
         synopsis: newSynopsis.trim(),
         pageCount: Number(newPageCount) || 150,
@@ -203,6 +215,8 @@ const NasherDashboard = () => {
       
       // Reset form
       setNewTitle("");
+      setNewCategory("دراسات وأبحاث أكاديمية");
+      setCustomCategory("");
       setNewSynopsis("");
       setCoverFileName("");
       setManuscriptFileName("");
@@ -665,7 +679,15 @@ const NasherDashboard = () => {
                           <Label className="text-xs font-extrabold flex items-center gap-1">
                             <span>{isRtl ? "المجال / التصنيف العلمي *" : "Category *"}</span>
                           </Label>
-                          <Select value={newCategory} onValueChange={setNewCategory}>
+                          <Select 
+                            value={newCategory} 
+                            onValueChange={(val) => {
+                              setNewCategory(val);
+                              if (val !== "آخر") {
+                                setCustomCategory("");
+                              }
+                            }}
+                          >
                             <SelectTrigger className="h-11 rounded-xl font-bold text-xs border-border bg-muted/20">
                               <SelectValue />
                             </SelectTrigger>
@@ -678,8 +700,27 @@ const NasherDashboard = () => {
                               <SelectItem value="إدارة أعمال واقتصاد">إدارة أعمال واقتصاد</SelectItem>
                               <SelectItem value="أدب وروايات وفكر عام">أدب وروايات وفكر عام</SelectItem>
                               <SelectItem value="تربية ومناهج تعليمية">تربية ومناهج تعليمية</SelectItem>
+                              <SelectItem value="آخر" className="font-bold text-amber-600 dark:text-amber-400 border-t border-border/60 mt-1">
+                                {isRtl ? "آخر (تحديد مجال غير موجود بالقائمة)" : "Other (specify)"}
+                              </SelectItem>
                             </SelectContent>
                           </Select>
+
+                          {newCategory === "آخر" && (
+                            <div className="mt-2 space-y-1.5 animate-fade-in p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+                              <Label className="text-xs font-black text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                                <span>✍️ {isRtl ? "اكتب طبيعة أو اسم مجالك العلمي / التخصص: *" : "Specify academic field / discipline: *"}</span>
+                              </Label>
+                              <Input 
+                                placeholder={isRtl ? "مثال: علوم الفضاء، الذكاء الاصطناعي الحيوي، علم الاجتماع الرقمي..." : "e.g. Space Sciences, Bioinformatics, Digital Sociology..."}
+                                value={customCategory}
+                                onChange={(e) => setCustomCategory(e.target.value)}
+                                required
+                                autoFocus
+                                className="h-10 rounded-xl text-xs font-bold border-amber-500/40 bg-card focus:border-amber-500"
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
 

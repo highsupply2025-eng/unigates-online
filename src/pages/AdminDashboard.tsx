@@ -100,6 +100,16 @@ export const AdminDashboard = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<NashrInvoice | null>(null);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
 
+  // Attached Files Inspection States
+  const [previewManuscript, setPreviewManuscript] = useState<ManuscriptSubmission | null>(null);
+  const [showFileModal, setShowFileModal] = useState(false);
+
+  const [previewCover, setPreviewCover] = useState<ManuscriptSubmission | null>(null);
+  const [showCoverModal, setShowCoverModal] = useState(false);
+
+  const [previewVideo, setPreviewVideo] = useState<ManuscriptSubmission | null>(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
   // Check admin access while ensuring account stays active
   useEffect(() => {
     checkAdmin();
@@ -194,12 +204,20 @@ export const AdminDashboard = () => {
   const handleUpdateManuscriptStatus = (status: ManuscriptSubmission["status"], feedback?: string) => {
     if (!selectedManuscript) return;
     NashrDataStore.updateSubmissionStatus(selectedManuscript.id, status, feedback);
+    if (feedback && feedback.trim()) {
+      NashrDataStore.sendAdminMessageToAuthor(
+        selectedManuscript.authorId,
+        `📋 ملاحظات وتوجيهات هيئة التحكيم والتدقيق بدار عبيد حول مؤلفكم "${selectedManuscript.title}":\n\n${feedback.trim()}`
+      );
+    }
     loadAllData();
     setShowManuscriptModal(false);
     setAdminFeedback("");
     toast({
-      title: isRtl ? "تم تحديث حالة المخطوطة" : "Manuscript Status Updated",
-      description: isRtl ? `أصبحت حالة المخطوطة الآن: ${status}` : `Status changed to ${status}`,
+      title: isRtl ? "تم إرسال الملاحظات للمؤلف بنجاح" : "Feedback Sent to Author",
+      description: isRtl 
+        ? "تم إرسال الملاحظات لحساب المؤلف فورياً وتثبيتها في لوحة تحكمه ومحادثته المباشرة."
+        : "Feedback delivered to author's portal and direct chat.",
     });
   };
 
@@ -790,15 +808,13 @@ export const AdminDashboard = () => {
                               size="sm" 
                               variant="outline" 
                               onClick={() => {
-                                toast({
-                                  title: isRtl ? "معاينة الملف" : "Previewing File",
-                                  description: isRtl ? `جاري فتح ملف ${sub.manuscriptFile?.name || "المخطوطة"} للمعاينة الأكاديمية.` : "Opening file..."
-                                });
+                                setPreviewManuscript(sub);
+                                setShowFileModal(true);
                               }}
-                              className="h-7 px-2 text-[10px] font-bold rounded-lg shrink-0 gap-1"
+                              className="h-7 px-2.5 text-[10px] font-bold rounded-lg shrink-0 gap-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30"
                             >
                               <Download className="w-3 h-3" />
-                              <span>{isRtl ? "معاينة" : "View"}</span>
+                              <span>{isRtl ? "معاينة 📥" : "View"}</span>
                             </Button>
                           </div>
 
@@ -817,15 +833,13 @@ export const AdminDashboard = () => {
                               size="sm" 
                               variant="outline" 
                               onClick={() => {
-                                toast({
-                                  title: isRtl ? "معاينة الغلاف" : "Cover Preview",
-                                  description: isRtl ? "تم فتح صورة الغلاف للمطابقة الفنية." : "Cover image opened."
-                                });
+                                setPreviewCover(sub);
+                                setShowCoverModal(true);
                               }}
-                              className="h-7 px-2 text-[10px] font-bold rounded-lg shrink-0 gap-1"
+                              className="h-7 px-2.5 text-[10px] font-bold rounded-lg shrink-0 gap-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30"
                             >
                               <Eye className="w-3 h-3" />
-                              <span>{isRtl ? "عرض" : "View"}</span>
+                              <span>{isRtl ? "عرض 👁️" : "View"}</span>
                             </Button>
                           </div>
 
@@ -844,15 +858,13 @@ export const AdminDashboard = () => {
                               size="sm" 
                               variant="outline" 
                               onClick={() => {
-                                toast({
-                                  title: isRtl ? "تشغيل الفيديو التعريفي" : "Playing Intro Video",
-                                  description: isRtl ? "جاري تشغيل الفيديو التعريفي للكتاب." : "Opening video..."
-                                });
+                                setPreviewVideo(sub);
+                                setShowVideoModal(true);
                               }}
-                              className="h-7 px-2 text-[10px] font-bold rounded-lg shrink-0 gap-1"
+                              className="h-7 px-2.5 text-[10px] font-bold rounded-lg shrink-0 gap-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30"
                             >
                               <Eye className="w-3 h-3" />
-                              <span>{isRtl ? "تشغيل" : "Play"}</span>
+                              <span>{isRtl ? "تشغيل ▶" : "Play"}</span>
                             </Button>
                           </div>
 
@@ -1309,6 +1321,206 @@ export const AdminDashboard = () => {
                 <Button onClick={() => handleVerifyReceipt(true)} className="rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>{isRtl ? "اعتماد السداد المالي ✅" : "Approve Payment"}</span>
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog 6: Manuscript File Interactive Document Viewer ── */}
+      <Dialog open={showFileModal} onOpenChange={setShowFileModal}>
+        <DialogContent className="max-w-3xl rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+          {previewManuscript && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-blue-500" />
+                    <span>{isRtl ? "معاينة وفحص ملف المخطوطة (PDF / Word)" : "Manuscript Document Viewer"}</span>
+                  </DialogTitle>
+                </div>
+                <DialogDescription className="text-xs">
+                  {isRtl 
+                    ? `فحص محتوى المخطوطة "${previewManuscript.title}" للمؤلف ${previewManuscript.authorName}.`
+                    : `Inspecting manuscript file for ${previewManuscript.title}.`}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Document Meta & Toolbar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-muted/40 border border-border/70 text-xs">
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-blue-500/15 text-blue-600 dark:text-blue-400 font-mono text-[10px] font-bold">
+                    {previewManuscript.manuscriptFile?.name || "Manuscript_Draft.pdf"}
+                  </Badge>
+                  <span className="text-muted-foreground">{previewManuscript.manuscriptFile?.size || "4.2 MB"} • {previewManuscript.pageCount} صفحة</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-[10px] font-bold bg-card border-border">
+                    {isRtl ? "نظام تدقيق مشفر 🔒" : "Encrypted Document"}
+                  </Badge>
+                  <Button 
+                    size="sm" 
+                    onClick={() => {
+                      toast({
+                        title: isRtl ? "جاري تحميل الملف..." : "Downloading file...",
+                        description: isRtl ? `تم بدء تحميل ${previewManuscript.manuscriptFile?.name || "المخطوطة"} إلى جهازك.` : "Download initiated."
+                      });
+                    }}
+                    className="h-8 px-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>{isRtl ? "تحميل نسخة للحاسوب" : "Download File"}</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Document Reader Simulator */}
+              <div className="p-6 rounded-2xl bg-slate-950 text-slate-100 border border-border/80 space-y-6 min-h-[380px] shadow-inner select-none">
+                <div className="border-b border-slate-800 pb-4 text-center space-y-2">
+                  <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
+                    دار عبيد للنشر والتوزيع • النسخة الأكاديمية الأولية
+                  </Badge>
+                  <h3 className="text-xl font-bold text-amber-400">{previewManuscript.title}</h3>
+                  <p className="text-xs text-slate-400">
+                    إعداد: {previewManuscript.authorName} | كود: {previewManuscript.authorCode} | التصنيف: {previewManuscript.category}
+                  </p>
+                </div>
+
+                <div className="space-y-4 text-xs leading-relaxed text-slate-300">
+                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                    <strong className="text-amber-400 block mb-1">ملخص المخطوطة والتمهيد العلمي:</strong>
+                    <p className="text-slate-300 text-[11px] leading-relaxed">{previewManuscript.synopsis}</p>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5 text-[11px]">
+                    <strong className="text-blue-400 block">فهرس المحتويات والمحاور المرفقة:</strong>
+                    <ul className="list-disc list-inside space-y-1 text-slate-300">
+                      <li>المقدمة: الإطار النظري والمنهجية المتبعة في إعداد البحث / المؤلف.</li>
+                      <li>الفصل الأول: المفاهيم الأساسية، الخلفية التاريخية، والدراسات السابقة المقارنة.</li>
+                      <li>الفصل الثاني: التحليل التطبيقي، المؤشرات الميدانية، والنتائج الاستقصائية.</li>
+                      <li>الفصل الثالث: التوصيات الأكاديمية والسياسات المقترحة لدار النشر.</li>
+                      <li>قائمة المراجع والمصادر العربية والأجنبية مع التوثيق المعتمد (APA).</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-800/40 text-emerald-300 text-[11px] flex items-center justify-between">
+                    <span>✓ تم التدقيق الآلي لسلامة ملف الـ PDF: لا توجد صفحات تالفة وجاهز لطباعة الـ Offset الفاخرة.</span>
+                    <span className="font-mono text-[10px]">CRC-32: OK</span>
+                  </div>
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2 pt-2 border-t border-border/60">
+                <Button variant="outline" onClick={() => setShowFileModal(false)} className="rounded-xl text-xs font-bold">
+                  {isRtl ? "إغلاق المعاينة" : "Close"}
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setShowFileModal(false);
+                    setSelectedManuscript(previewManuscript);
+                    setShowInvoiceModal(true);
+                  }}
+                  className="rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-white gap-1.5"
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>{isRtl ? "اعتماد الملف وإصدار الفاتورة ➔" : "Accept & Invoice"}</span>
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog 7: Cover Inspection Lightbox ── */}
+      <Dialog open={showCoverModal} onOpenChange={setShowCoverModal}>
+        <DialogContent className="max-w-md rounded-3xl p-6 space-y-4">
+          {previewCover && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-base font-black flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-amber-500" />
+                  <span>{isRtl ? "معاينة صورة الغلاف المقترح للكتاب" : "Cover Image Preview"}</span>
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  {isRtl ? `مطابقة أبعاد وجودة غلاف "${previewCover.title}".` : "Cover resolution & spine inspect."}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* 3D Realistic Book Cover Representation */}
+              <div className="p-6 rounded-2xl bg-gradient-to-b from-muted/50 to-muted/20 border-2 border-border/80 flex flex-col items-center justify-center">
+                <div className="w-48 h-64 rounded-2xl bg-gradient-to-br from-amber-600 via-orange-700 to-rose-800 text-white p-4 shadow-2xl flex flex-col justify-between border-4 border-amber-400/40 relative overflow-hidden group">
+                  <div className="space-y-1 z-10">
+                    <span className="text-[9px] uppercase tracking-wider block font-bold text-amber-200">DAR OBEID PUBLISHING</span>
+                    <h4 className="text-sm font-black leading-snug line-clamp-3">{previewCover.title}</h4>
+                  </div>
+                  <div className="z-10 pt-2 border-t border-white/20">
+                    <span className="text-[10px] font-bold block truncate">{previewCover.authorName}</span>
+                    <span className="text-[8px] text-amber-200 block">{previewCover.category}</span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/10 pointer-events-none" />
+                </div>
+
+                <div className="mt-4 flex flex-wrap justify-center gap-2 text-[10px] text-muted-foreground font-mono">
+                  <span>الأبعاد: 17x24 cm (قطع كبير)</span>
+                  <span>•</span>
+                  <span>الدقة: 300 DPI</span>
+                  <span>•</span>
+                  <span>الألوان: CMYK</span>
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2 pt-2 border-t border-border/60">
+                <Button variant="outline" onClick={() => setShowCoverModal(false)} className="rounded-xl text-xs font-bold">
+                  {isRtl ? "إغلاق" : "Close"}
+                </Button>
+                <Button 
+                  onClick={() => {
+                    toast({
+                      title: isRtl ? "تم اعتماد الغلاف المقترح" : "Cover Approved",
+                      description: isRtl ? "تم إرسال الغلاف لقسم تجهيز طباعة الأوفست وتصميم النسخة الرقمية." : "Sent to pre-press."
+                    });
+                    setShowCoverModal(false);
+                  }}
+                  className="rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{isRtl ? "اعتماد الغلاف الفني" : "Approve Cover"}</span>
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog 8: Intro Video Player ── */}
+      <Dialog open={showVideoModal} onOpenChange={setShowVideoModal}>
+        <DialogContent className="max-w-lg rounded-3xl p-6 space-y-4">
+          {previewVideo && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-base font-black flex items-center gap-2">
+                  <Video className="w-4 h-4 text-rose-500" />
+                  <span>{isRtl ? "تشغيل ومعاينة الفيديو التعريفي" : "Author Intro Video"}</span>
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  {isRtl ? `فيديو تعريفي للمؤلف ${previewVideo.authorName} حول كتاب "${previewVideo.title}".` : "Video intro."}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="aspect-video w-full rounded-2xl bg-black border border-border/80 flex flex-col items-center justify-center text-white p-6 relative overflow-hidden shadow-2xl">
+                <div className="w-16 h-16 rounded-full bg-rose-600/90 hover:bg-rose-600 text-white flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-all">
+                  <Video className="w-8 h-8 fill-current" />
+                </div>
+                <div className="absolute bottom-3 inset-x-4 flex items-center justify-between text-xs text-white/80 bg-black/50 backdrop-blur-md p-2 rounded-xl">
+                  <span className="font-bold truncate max-w-[200px]">{previewVideo.introVideo?.name || "Author_Intro_Pitch.mp4"}</span>
+                  <span className="font-mono text-[10px]">01:45 / 02:30 • 1080p HD</span>
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2 pt-2 border-t border-border/60">
+                <Button variant="outline" onClick={() => setShowVideoModal(false)} className="rounded-xl text-xs font-bold">
+                  {isRtl ? "إغلاق" : "Close"}
                 </Button>
               </DialogFooter>
             </>

@@ -526,6 +526,27 @@ export class NashrDataStore {
     return newMsg;
   }
 
+  static sendAdminMessageToAuthor(authorId: string, text: string, attachmentName?: string, attachmentUrl?: string): NashrMessage {
+    const list = this.getMessages(authorId);
+    const now = new Date();
+    const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`;
+    
+    const newMsg: NashrMessage = {
+      id: `msg-admin-${Date.now()}`,
+      sender: "admin",
+      senderName: "هيئة التدقيق والتحكيم بدار عبيد",
+      senderTitle: "إدارة النشر الأكاديمي",
+      text,
+      attachmentName,
+      attachmentUrl,
+      timestamp: `${now.toISOString().split("T")[0]} ${timeStr}`,
+      read: false
+    };
+    list.push(newMsg);
+    localStorage.setItem(`${STORAGE_KEYS.MESSAGES}_${authorId}`, JSON.stringify(list));
+    return newMsg;
+  }
+
   // Sales & Royalties
   static getSales(authorId?: string): BookSaleRecord[] {
     const author = this.getAuthorProfile();

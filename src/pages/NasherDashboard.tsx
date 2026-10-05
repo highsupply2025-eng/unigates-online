@@ -582,13 +582,18 @@ const NasherDashboard = () => {
                   )}
                 </TabsTrigger>
 
-                {/* 4. التواصل الداخلي */}
+                {/* 4. التواصل الداخلي وملاحظات التدقيق */}
                 <TabsTrigger 
                   value="chat" 
                   className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span>{isRtl ? "💬 التواصل مع الإدارة" : "Direct Messages"}</span>
+                  <span>{isRtl ? "💬 التواصل وملاحظات التدقيق" : "Direct Messages & Notes"}</span>
+                  {(submissions.some(s => s.adminFeedback) || messages.filter(m => m.sender === "admin" && !m.read).length > 0) && (
+                    <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0 h-4 font-black animate-pulse">
+                      {isRtl ? "ملاحظات جديدة" : "New"}
+                    </Badge>
+                  )}
                 </TabsTrigger>
 
                 {/* 5. مبيعات الكتب والأرباح */}
@@ -613,6 +618,57 @@ const NasherDashboard = () => {
             </Tabs>
           </div>
         </Card>
+
+        {/* 📬 صندوق ملاحظات وتوجيهات هيئة التحكيم والتدقيق الواردة من إدارة دار عبيد */}
+        {submissions.filter(s => s.adminFeedback).length > 0 && (
+          <div className="space-y-3 animate-fade-in">
+            {submissions.filter(s => s.adminFeedback).map((sub) => (
+              <div 
+                key={`feedback-${sub.id}`}
+                className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border-2 border-amber-500/40 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4"
+              >
+                <div className="flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black text-lg shadow-md shrink-0">
+                    📬
+                  </div>
+                  <div className="space-y-1.5 text-start">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-black uppercase text-amber-800 dark:text-amber-300">
+                        {isRtl ? "توجيهات وملاحظات هيئة التحكيم والتدقيق (دار عبيد):" : "Dar Obeid Editorial Guidance:"}
+                      </span>
+                      <Badge variant="outline" className="bg-card text-foreground text-[10px] font-bold border-amber-500/40">
+                        {sub.title}
+                      </Badge>
+                      <Badge className="bg-amber-500 text-white text-[10px] font-black px-1.5 py-0">
+                        {isRtl ? "ملاحظات تدقيق واردة" : "New Feedback"}
+                      </Badge>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-card/90 border border-amber-500/30 text-xs sm:text-sm font-bold text-foreground leading-relaxed shadow-xs">
+                      💬 "{sub.adminFeedback}"
+                    </div>
+                    <span className="text-[10px] text-muted-foreground block">
+                      {isRtl ? "واردة من: إدارة النشر والتحكيم الأكاديمي • يرجى الاطلاع على الملاحظات والتواصل أو تعديل المخطوطة." : "Sent by: Dar Obeid Editorial Board"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      handleTabChange("chat");
+                      setChatInput(`بخصوص ملاحظات هيئة التدقيق على مؤلف "${sub.title}": `);
+                    }}
+                    className="h-10 px-4 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md gap-1.5"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>{isRtl ? "الرد على الملاحظات بالمحادثة 💬" : "Reply to Notes"}</span>
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* ------------------------------------------------------------- */}
         {/* TAB 1: 📁 رفع مؤلفات (Submit Manuscript) */}

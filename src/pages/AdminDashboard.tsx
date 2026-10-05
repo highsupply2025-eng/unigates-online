@@ -257,7 +257,7 @@ export const AdminDashboard = () => {
     NashrDataStore.updateSubmissionStatus(
       selectedManuscript.id, 
       "approved", 
-      isRtl ? `تمت الموافقة على المخطوطة وإصدار فاتورة تكاليف النشر بمبلغ ${amountNum} ج.م. يرجى سداد الفاتورة للبدء في الطباعة.` : `Approved with invoice of ${amountNum} EGP.`
+      isRtl ? `تمت الموافقة على الملفات وإصدار فاتورة تكاليف النشر بمبلغ ${amountNum} ج.م. يرجى سداد الفاتورة للبدء في الطباعة.` : `Approved with invoice of ${amountNum} EGP.`
     );
 
     loadAllData();
@@ -854,7 +854,7 @@ export const AdminDashboard = () => {
                               <FileText className="w-5 h-5 text-blue-500 shrink-0" />
                               <div className="text-start truncate">
                                 <span className="text-[11px] font-bold block truncate">
-                                  {sub.manuscriptFile?.name || (isRtl ? "ملف المخطوطة الرئيسي" : "Manuscript File")}
+                                  {sub.manuscriptFile?.name || (isRtl ? "ملف العمل المرفق" : "Main File")}
                                 </span>
                                 <span className="text-[10px] text-muted-foreground">{sub.manuscriptFile?.size || "4.2 MB"} • PDF/Word</span>
                               </div>
@@ -1853,13 +1853,13 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
                     <FileText className="w-5 h-5 text-blue-500" />
-                    <span>{isRtl ? "معاينة وفحص ملف المخطوطة (PDF / Word)" : "Manuscript Document Viewer"}</span>
+                    <span>{isRtl ? "معاينة وفحص الملفات المرفقة (PDF / Word)" : "Uploaded Document Viewer"}</span>
                   </DialogTitle>
                 </div>
                 <DialogDescription className="text-xs">
                   {isRtl 
-                    ? `فحص محتوى المخطوطة "${previewManuscript.title}" للمؤلف ${previewManuscript.authorName}.`
-                    : `Inspecting manuscript file for ${previewManuscript.title}.`}
+                    ? `فحص محتوى الملفات المرفقة للعمل "${previewManuscript.title}" للمؤلف ${previewManuscript.authorName}.`
+                    : `Inspecting uploaded files for ${previewManuscript.title}.`}
                 </DialogDescription>
               </DialogHeader>
 

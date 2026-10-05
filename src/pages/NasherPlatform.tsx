@@ -113,10 +113,10 @@ const NasherPlatform = () => {
   const workflowSteps = [
     {
       step: "01",
-      titleAr: "1. إنشاء حساب المؤلف ورفع المخطوطة",
-      titleEn: "1. Register & Submit Manuscript",
-      descAr: "ينشئ المؤلف حسابه بكلمة مرور مؤقتة فريدة، ويرفع ملف المخطوطة والغلاف والفيديو التعريفي مع اختيار صيغة النشر (رقمي، ورقي، أو كلاهما).",
-      descEn: "Author registers with secure credentials, submits manuscript and cover, and selects publishing mode (Digital, Print, or Hybrid).",
+      titleAr: "1. إنشاء حساب المؤلف ورفع الملفات",
+      titleEn: "1. Register & Submit Files",
+      descAr: "ينشئ المؤلف حسابه بكلمة مرور مؤقتة فريدة، ويرفع الملفات والغلاف والفيديو التعريفي مع اختيار صيغة النشر (رقمي، ورقي، أو كلاهما).",
+      descEn: "Author registers with secure credentials, submits files and cover, and selects publishing mode (Digital, Print, or Hybrid).",
       icon: PenTool,
       color: "from-amber-500 to-orange-500",
       badgeAr: "حفظ الألقاب والبيانات",
@@ -683,7 +683,7 @@ const NasherPlatform = () => {
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground font-medium">
             {isRtl
-              ? "خطوات واضحة وسريعة من تسجيل المؤلف ورفع المخطوطة حتى استلام الأرباح في حسابكم البنكي"
+              ? "خطوات واضحة وسريعة من تسجيل المؤلف ورفع الملفات حتى استلام الأرباح في حسابكم البنكي"
               : "Clear and streamlined steps from author onboarding to receiving bank royalties"}
           </p>
         </div>
@@ -749,8 +749,8 @@ const NasherPlatform = () => {
               <h3 className="font-black text-base text-foreground">{isRtl ? "رفع المؤلفات (رقمي / ورقي / كلاهما)" : "Manuscript Submissions"}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {isRtl 
-                  ? "ارفع ملفات المخطوطة بصيغة PDF أو Word، صورة الغلاف، والفيديو التعريفي مع خيارات النشر الرقمي أو الورقي بمرونة تامة."
-                  : "Upload manuscript files, cover imagery, and intro videos with flexible digital and print options."}
+                  ? "ارفع الملفات بصيغة PDF أو Word، صورة الغلاف، والفيديو التعريفي مع خيارات النشر الرقمي أو الورقي بمرونة تامة."
+                  : "Upload book files, cover imagery, and intro videos with flexible digital and print options."}
               </p>
             </Card>
 
@@ -775,7 +775,7 @@ const NasherPlatform = () => {
               <h3 className="font-black text-base text-foreground">{isRtl ? "التواصل المباشر مع إدارة دار عبيد" : "Direct Editorial Chat"}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {isRtl 
-                  ? "شات داخلي وتواصل مباشر مع فريق التحرير والتدقيق اللغوي لمناقشة كافة التفاصيل والملاحظات وتصميم الغلاف حول المخطوطة."
+                  ? "شات داخلي وتواصل مباشر مع فريق التحرير والتدقيق اللغوي لمناقشة كافة التفاصيل والملاحظات وتصميم الغلاف حول الملفات المرفوعة."
                   : "Direct messaging with Dar Obeid editors to discuss reviews, revisions, and design feedback."}
               </p>
             </Card>

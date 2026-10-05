@@ -235,10 +235,10 @@ const NasherDashboard = () => {
       setVideoFileName("");
 
       toast({
-        title: isRtl ? "🎉 تم إرسال المؤلف بنجاح للمراجعة!" : "Manuscript Submitted Successfully!",
+        title: isRtl ? "🎉 تم إرسال الملفات بنجاح للمراجعة!" : "Files Submitted Successfully!",
         description: isRtl 
-          ? "تم تحويل المخطوطة لإدارة دار عبيد للمراجعة والتدقيق والاعتماد."
-          : "Your work is now under review by Dar Obeid editors."
+          ? "تم تحويل الملفات لإدارة دار عبيد للمراجعة والتدقيق والاعتماد."
+          : "Your files are now under review by Dar Obeid editors."
       });
     }, 600);
   };
@@ -738,7 +738,7 @@ const NasherDashboard = () => {
                       💬 "{sub.adminFeedback}"
                     </div>
                     <span className="text-[10px] text-muted-foreground block">
-                      {isRtl ? "واردة من: إدارة النشر والتحكيم الأكاديمي • يرجى الاطلاع على الملاحظات والتواصل أو تعديل المخطوطة." : "Sent by: Dar Obeid Editorial Board"}
+                      {isRtl ? "واردة من: إدارة النشر والتحكيم الأكاديمي • يرجى الاطلاع على الملاحظات والتواصل أو تعديل الملفات." : "Sent by: Dar Obeid Editorial Board"}
                     </span>
                   </div>
                 </div>
@@ -1030,7 +1030,7 @@ const NasherDashboard = () => {
                         className="w-full h-12 rounded-2xl font-black text-sm bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/25 gap-2 hover:scale-[1.01] transition-all"
                       >
                         <CheckCircle2 className="w-5 h-5" />
-                        <span>{isRtl ? "إرسال المخطوطة لإدارة المنصة للموافقة والاعتماد ➔" : "Submit Manuscript for Review ➔"}</span>
+                        <span>{isRtl ? "إرسال الملفات لإدارة المنصة للموافقة والاعتماد ➔" : "Submit Files for Review ➔"}</span>
                       </Button>
 
                     </form>
@@ -1655,8 +1655,8 @@ const NasherDashboard = () => {
                 </h2>
                 <p className="text-xs text-muted-foreground">
                   {isRtl 
-                    ? "قناة مراسلة مشفرة ومباشرة مع فريق دار عبيد لمناقشة تعديلات المخطوطة، الغلاف، والتحكيم"
-                    : "Direct chat with Dar Obeid editors regarding manuscripts, covers, and reviews"}
+                    ? "قناة مراسلة مشفرة ومباشرة مع فريق دار عبيد لمناقشة تعديلات الملفات، الغلاف، والتحكيم"
+                    : "Direct chat with Dar Obeid editors regarding files, covers, and reviews"}
                 </p>
               </div>
             </div>

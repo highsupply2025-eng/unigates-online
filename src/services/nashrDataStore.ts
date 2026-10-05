@@ -9,6 +9,7 @@ import {
 
 const STORAGE_KEYS = {
   CURRENT_AUTHOR: "nashr_current_author",
+  ALL_AUTHORS: "nashr_all_authors",
   SUBMISSIONS: "nashr_submissions",
   INVOICES: "nashr_invoices",
   MESSAGES: "nashr_messages",
@@ -286,8 +287,35 @@ export class NashrDataStore {
     return DEFAULT_DEMO_AUTHOR;
   }
 
+  static getAllAuthors(): AuthorProfile[] {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.ALL_AUTHORS);
+      let list: AuthorProfile[] = saved ? JSON.parse(saved) : [DEFAULT_DEMO_AUTHOR];
+      const current = this.getAuthorProfile();
+      if (current && !list.some(a => a.id === current.id)) {
+        list.push(current);
+      }
+      return list;
+    } catch (e) {
+      console.error(e);
+      return [DEFAULT_DEMO_AUTHOR];
+    }
+  }
+
   static saveAuthorProfile(profile: AuthorProfile): void {
     localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(profile));
+    try {
+      const all = this.getAllAuthors();
+      const idx = all.findIndex(a => a.id === profile.id);
+      if (idx !== -1) {
+        all[idx] = profile;
+      } else {
+        all.unshift(profile);
+      }
+      localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(all));
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   static updatePassword(newPassword: string): boolean {
@@ -297,23 +325,44 @@ export class NashrDataStore {
     return true;
   }
 
-  static approveAuthor(): AuthorProfile {
-    const profile = this.getAuthorProfile();
-    profile.verificationStatus = "approved";
-    profile.verificationDate = new Date().toISOString().split("T")[0];
-    this.saveAuthorProfile(profile);
-    return profile;
+  static approveAuthor(authorId?: string): AuthorProfile {
+    return this.setVerificationStatus("approved", undefined, authorId);
   }
 
-  static setVerificationStatus(status: "pending_review" | "approved" | "rejected", notes?: string): AuthorProfile {
-    const profile = this.getAuthorProfile();
-    profile.verificationStatus = status;
-    if (notes) profile.verificationNotes = notes;
-    if (status === "approved") {
-      profile.verificationDate = new Date().toISOString().split("T")[0];
+  static setVerificationStatus(
+    status: "pending_review" | "approved" | "rejected", 
+    notes?: string,
+    authorId?: string
+  ): AuthorProfile {
+    const current = this.getAuthorProfile();
+    const targetId = authorId || current.id;
+
+    const all = this.getAllAuthors();
+    const author = all.find(a => a.id === targetId) || (targetId === current.id ? current : null);
+
+    if (author) {
+      author.verificationStatus = status;
+      if (notes !== undefined) author.verificationNotes = notes;
+      if (status === "approved") {
+        author.verificationDate = new Date().toISOString().split("T")[0];
+      }
+      const idx = all.findIndex(a => a.id === targetId);
+      if (idx !== -1) all[idx] = author;
+      else all.push(author);
+      localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(all));
     }
-    this.saveAuthorProfile(profile);
-    return profile;
+
+    if (current.id === targetId) {
+      current.verificationStatus = status;
+      if (notes !== undefined) current.verificationNotes = notes;
+      if (status === "approved") {
+        current.verificationDate = new Date().toISOString().split("T")[0];
+      }
+      localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(current));
+      return current;
+    }
+
+    return author || current;
   }
 
   // Submissions
@@ -380,6 +429,47 @@ export class NashrDataStore {
       list[index].paymentDate = new Date().toISOString().split("T")[0];
       localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(list));
     }
+  }
+
+  static updateSubmissionStatus(
+    submissionId: string, 
+    status: ManuscriptSubmission["status"], 
+    adminFeedback?: string,
+    storeBookCode?: string
+  ): ManuscriptSubmission | null {
+    const list = this.getAllSubmissions();
+    const item = list.find(s => s.id === submissionId);
+    if (!item) return null;
+    item.status = status;
+    if (adminFeedback !== undefined) item.adminFeedback = adminFeedback;
+    if (storeBookCode) item.storeBookCode = storeBookCode;
+    localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(list));
+    return item;
+  }
+
+  static createInvoice(data: Omit<NashrInvoice, "id" | "invoiceNumber" | "createdAt">): NashrInvoice {
+    const all = this.getAllInvoices();
+    const newInv: NashrInvoice = {
+      ...data,
+      id: `inv-${Date.now()}`,
+      invoiceNumber: `INV-NASHR-${Math.floor(1000 + Math.random() * 9000)}`,
+      createdAt: new Date().toISOString().split("T")[0]
+    };
+    all.unshift(newInv);
+    localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all));
+    return newInv;
+  }
+
+  static verifyInvoiceReceipt(invoiceId: string, approved: boolean): NashrInvoice | null {
+    const all = this.getAllInvoices();
+    const inv = all.find(i => i.id === invoiceId);
+    if (!inv) return null;
+    inv.status = approved ? "paid" : "unpaid";
+    if (approved) {
+      inv.paymentDate = new Date().toISOString().split("T")[0];
+    }
+    localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all));
+    return inv;
   }
 
   // Messages

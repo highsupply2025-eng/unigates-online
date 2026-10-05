@@ -56,7 +56,7 @@ const INITIAL_SUBMISSIONS: ManuscriptSubmission[] = [
     language: "العربية",
     status: "published",
     submissionDate: "2026-02-10",
-    adminFeedback: "تمت مراجعة المخطوطة والتدقيق اللغوي وتنسيق الغلاف الرسمي من قبل دار عبيد. الكتاب معتمد ومدرج بمتجر UNIGATES.",
+    adminFeedback: "تمت مراجعة الملفات والتدقيق اللغوي وتنسيق الغلاف الرسمي من قبل دار عبيد. الكتاب معتمد ومدرج بمتجر UNIGATES.",
     storeBookCode: "BK-DAR-4491",
     storeUrl: "/book-store?code=BK-DAR-4491",
     priceEstimate: 140
@@ -87,12 +87,12 @@ const INITIAL_SUBMISSIONS: ManuscriptSubmission[] = [
     title: "الذكاء الاصطناعي والقانون الدولي الإنساني: تحديات السيادة والمسؤولية",
     category: "قانون وعلوم سياسية",
     publishType: "both",
-    synopsis: "مخطوطة بحثية حديثة تتناول الأطر التشريعية والأخلاقية لاستخدام خوارزميات الذكاء الاصطناعي في النزاعات والعلاقات الدولية.",
+    synopsis: "دراسة بحثية حديثة تتناول الأطر التشريعية والأخلاقية لاستخدام خوارزميات الذكاء الاصطناعي في النزاعات والعلاقات الدولية.",
     pageCount: 320,
     language: "العربية",
     status: "pending_review",
     submissionDate: "2026-09-20",
-    adminFeedback: "المخطوطة قيد الفحص الأكاديمي ولجنة القراءة والتقييم الفني في دار عبيد للنشر.",
+    adminFeedback: "الملفات قيد الفحص الأكاديمي ولجنة القراءة والتقييم الفني في دار عبيد للنشر.",
     priceEstimate: 160
   }
 ];
@@ -393,7 +393,7 @@ export class NashrDataStore {
       id: `sub-${Date.now()}`,
       submissionDate: new Date().toISOString().split("T")[0],
       status: "pending_review",
-      adminFeedback: "تم إرسال المخطوطة بنجاح إلى إدارة دار عبيد للنشر للمراجعة والتدقيق والاعتماد."
+      adminFeedback: "تم إرسال الملفات بنجاح إلى إدارة دار عبيد للنشر للمراجعة والتدقيق والاعتماد."
     };
     list.unshift(newSub);
     localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(list));

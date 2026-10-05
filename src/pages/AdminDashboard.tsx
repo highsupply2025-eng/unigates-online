@@ -753,7 +753,7 @@ export const AdminDashboard = () => {
                 <div className="relative flex-1">
                   <Search className="w-4 h-4 absolute top-1/2 -translate-y-1/2 text-muted-foreground start-3" />
                   <Input 
-                    placeholder={isRtl ? "ابحث بعنوان المخطوطة، اسم المؤلف، أو التخصص العلمي..." : "Search by title, author, field..."}
+                    placeholder={isRtl ? "ابحث بعنوان العمل، اسم المؤلف، أو التخصص العلمي..." : "Search by title, author, field..."}
                     value={manuscriptSearch}
                     onChange={(e) => setManuscriptSearch(e.target.value)}
                     className="h-10 text-xs rounded-xl ps-9"
@@ -1620,7 +1620,7 @@ export const AdminDashboard = () => {
                   <span className="font-bold text-foreground">{selectedInvoice.authorName}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block">{isRtl ? "المخطوطة / المؤلف:" : "Manuscript:"}</span>
+                  <span className="text-muted-foreground block">{isRtl ? "العمل / المؤلف:" : "Work / Author:"}</span>
                   <span className="font-bold text-foreground">{selectedInvoice.manuscriptTitle}</span>
                 </div>
                 <div>
@@ -1800,7 +1800,7 @@ export const AdminDashboard = () => {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="font-bold">{isRtl ? "عنوان المخطوطة أو الخدمة: *" : "Manuscript or Service Title: *"}</Label>
+              <Label className="font-bold">{isRtl ? "عنوان العمل أو الخدمة: *" : "Work or Service Title: *"}</Label>
               <Input 
                 placeholder={isRtl ? "مثال: كتاب الذكاء الاصطناعي والقانون الدولي" : "e.g. Manuscript Title"}
                 value={customInvoiceTitle}
@@ -1880,7 +1880,7 @@ export const AdminDashboard = () => {
                     onClick={() => {
                       toast({
                         title: isRtl ? "جاري تحميل الملف..." : "Downloading file...",
-                        description: isRtl ? `تم بدء تحميل ${previewManuscript.manuscriptFile?.name || "المخطوطة"} إلى جهازك.` : "Download initiated."
+                        description: isRtl ? `تم بدء تحميل ${previewManuscript.manuscriptFile?.name || "الملف"} إلى جهازك.` : "Download initiated."
                       });
                     }}
                     className="h-8 px-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
@@ -1905,7 +1905,7 @@ export const AdminDashboard = () => {
 
                 <div className="space-y-4 text-xs leading-relaxed text-slate-300">
                   <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                    <strong className="text-amber-400 block mb-1">ملخص المخطوطة والتمهيد العلمي:</strong>
+                    <strong className="text-amber-400 block mb-1">ملخص العمل والتمهيد العلمي:</strong>
                     <p className="text-slate-300 text-[11px] leading-relaxed">{previewManuscript.synopsis}</p>
                   </div>
 

@@ -187,15 +187,91 @@ const NasherSignup = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !email.trim() || !phone.trim()) {
+
+    // 1. Full name validation (must be at least 3 parts/words)
+    const nameWords = fullName.trim().split(/\s+/).filter(Boolean);
+    if (!fullName.trim() || nameWords.length < 3) {
       toast({
-        title: isRtl ? "بيانات ناقصة" : "Missing Details",
-        description: isRtl ? "يرجى استكمال الاسم، البريد الإلكتروني، ورقم الهاتف." : "Please fill out name, email, and phone number.",
+        title: isRtl ? "الاسم الكامل غير مكتمل" : "Incomplete Full Name",
+        description: isRtl 
+          ? "يرجى كتابة الاسم كاملاً (ثلاثي أو رباعي على الأقل) كما يظهر في الوثائق الرسمية."
+          : "Please enter your full name (at least 3 names) as in official IDs.",
         variant: "destructive"
       });
       return;
     }
 
+    // 2. Specialization validation
+    if (specialization === "other" && !customSpecialization.trim()) {
+      toast({
+        title: isRtl ? "مجال التخصص مطلوب" : "Specialization Required",
+        description: isRtl ? "يرجى كتابة مجال تخصصك الدقيق في الخانة المخصصة." : "Please enter your specific specialization.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 3. Institution / University validation (Mandatory)
+    if (!institution.trim()) {
+      toast({
+        title: isRtl ? "جهة العمل أو الجامعة مطلوبة" : "Institution / University Required",
+        description: isRtl ? "يرجى كتابة الجامعة أو الكلية أو المؤسسة الأكاديمية التابع لها." : "Please enter your university, faculty, or institution.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 4. Email validation
+    if (!email.trim() || !email.includes("@") || !email.includes(".")) {
+      toast({
+        title: isRtl ? "البريد الإلكتروني غير صحيح" : "Invalid Email",
+        description: isRtl ? "يرجى إدخال بريد إلكتروني صحيح ومعتمد لاستلام بيانات الحساب." : "Please enter a valid official email address.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 5. Phone validation
+    if (!phone.trim() || phone.trim().length < 8) {
+      toast({
+        title: isRtl ? "رقم الهاتف غير مكتمل" : "Incomplete Phone",
+        description: isRtl ? "يرجى إدخال رقم هاتف / واتساب صحيح للتواصل الفوري." : "Please enter a valid phone number.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 6. Personal Photo (Mandatory)
+    if (!avatarFile) {
+      toast({
+        title: isRtl ? "الصورة الشخصية مطلوبة" : "Profile Photo Required",
+        description: isRtl ? "يرجى إرفاق الصورة الشخصية للمؤلف لإضافتها للملف الأكاديمي." : "Please attach a personal profile photo.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 7. National ID / Passport (Mandatory)
+    if (!nationalIdFile) {
+      toast({
+        title: isRtl ? "صورة الهوية مطلوبة" : "National ID Required",
+        description: isRtl ? "يرجى إرفاق صورة بطاقة الرقم القومي أو جواز السفر لتوثيق الحساب." : "Please attach your national ID or passport for verification.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 8. Academic Qualification(s) (Mandatory)
+    if (qualificationFiles.length === 0) {
+      toast({
+        title: isRtl ? "شهادة المؤهل الأكاديمي مطلوبة" : "Degree Certificate Required",
+        description: isRtl ? "يرجى إرفاق صورة المؤهل الأكاديمي أو الشهادات لتوثيق رتبة المؤلف." : "Please attach at least one academic degree certificate.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // 9. Terms and conditions
     if (!agreedToTerms) {
       toast({
         title: isRtl ? "الموافقة على الشروط والأحكام مطلوبة" : "Terms & Conditions Required",
@@ -628,12 +704,13 @@ const NasherSignup = () => {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-extrabold flex items-center gap-1">
                         <span>{isRtl ? "الجامعة / الكلية / جهة العمل" : "Institution / University"}</span>
-                        <span className="text-[10px] text-muted-foreground">({isRtl ? "اختياري" : "Optional"})</span>
+                        <span className="text-destructive">*</span>
                       </Label>
                       <Input 
                         placeholder={isRtl ? "مثال: جامعة القاهرة - كلية الآداب" : "e.g. Cairo University - Faculty of Arts"}
                         value={institution}
                         onChange={(e) => setInstitution(e.target.value)}
+                        required
                         className="h-11 rounded-xl text-xs sm:text-sm font-semibold border-border bg-muted/30 focus:bg-background focus:border-amber-500 transition-all"
                       />
                     </div>
@@ -697,20 +774,25 @@ const NasherSignup = () => {
                   {/* SECTION: Document Uploads (Photo, National ID, Qualifications) */}
                   {/* ------------------------------------------------------------- */}
                   <div className="pt-3 border-t border-border/70 space-y-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs">
-                        📎
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs">
+                          📎
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-black text-foreground">
+                            {isRtl ? "المستندات والوثائق الرسمية للمؤلف" : "Author Verification Documents"}
+                          </h3>
+                          <p className="text-[11px] text-muted-foreground font-medium">
+                            {isRtl 
+                              ? "جميع الوثائق أدناه إلزامية لتوثيق الهوية والرتبة العلمية واعتماد الحساب من دار عبيد"
+                              : "All verification documents below are mandatory for official Dar Obeid approval"}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-sm font-black text-foreground">
-                          {isRtl ? "المستندات والصور المرفقة للمؤلف" : "Author Attachments & ID Documents"}
-                        </h3>
-                        <p className="text-[11px] text-muted-foreground font-medium">
-                          {isRtl 
-                            ? "أرفق الصورة الشخصية، صورة الهوية، وصور الشهادات والمؤهلات الأكاديمية لتوثيق ملف المؤلف"
-                            : "Upload your personal avatar, national ID, and qualification degrees/certificates"}
-                        </p>
-                      </div>
+                      <Badge className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 text-[10px] font-black px-2.5 py-1">
+                        {isRtl ? "مستندات توثيق إلزامية *" : "Mandatory Documents *"}
+                      </Badge>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -721,6 +803,7 @@ const NasherSignup = () => {
                           <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
                             <Camera className="w-4 h-4 text-amber-500" />
                             <span>{isRtl ? "1. الصورة الشخصية للمؤلف" : "1. Personal Profile Photo"}</span>
+                            <span className="text-destructive font-black">*</span>
                           </Label>
                           {avatarFile && (
                             <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
@@ -780,6 +863,7 @@ const NasherSignup = () => {
                           <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
                             <ShieldCheck className="w-4 h-4 text-rose-500" />
                             <span>{isRtl ? "2. صورة الهوية / بطاقة الرقم القومي" : "2. National ID / Passport Photo"}</span>
+                            <span className="text-destructive font-black">*</span>
                           </Label>
                           {nationalIdFile && (
                             <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
@@ -841,6 +925,7 @@ const NasherSignup = () => {
                         <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
                           <GraduationCap className="w-4 h-4 text-purple-500" />
                           <span>{isRtl ? "3. صورة المؤهل الأكاديمي والشهادات (صورة أو عدة صور)" : "3. Academic Qualification(s) & Degree Certificates"}</span>
+                          <span className="text-destructive font-black">*</span>
                         </Label>
                         {qualificationFiles.length > 0 && (
                           <Badge className="bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30 text-[10px] font-black">

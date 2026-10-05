@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import SiteFooter from "@/components/SiteFooter";
 import { 
   PenTool, 
   FileText, 
@@ -458,7 +457,7 @@ const NasherDashboard = () => {
       ) : null}
 
       {/* Main Studio Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 pb-16 space-y-6">
 
         {/* Author Executive Header Card */}
         <Card className="border-2 border-border/80 shadow-xl bg-card rounded-3xl overflow-hidden">
@@ -1822,8 +1821,6 @@ const NasherDashboard = () => {
           </form>
         </DialogContent>
       </Dialog>
-
-      <SiteFooter />
     </div>
   );
 };

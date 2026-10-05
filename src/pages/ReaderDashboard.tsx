@@ -49,7 +49,6 @@ import { useToast } from "@/hooks/use-toast";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
 import { PurchasedBook, BookOrder, WishlistAlert, ReadingChallengeData } from "@/types/bookStore";
 import { ReaderEbookModal } from "@/components/bookstore/ReaderEbookModal";
-import SiteFooter from "@/components/SiteFooter";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useSmartBack } from "@/hooks/use-smart-back";
@@ -990,8 +989,6 @@ export const ReaderDashboard: React.FC = () => {
           userEmail="reader@unigates.online"
         />
       )}
-
-      <SiteFooter />
     </div>
   );
 };

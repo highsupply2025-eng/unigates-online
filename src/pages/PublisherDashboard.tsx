@@ -59,7 +59,6 @@ import {
   BookStoreItem,
   BookFormat 
 } from "@/types/bookStore";
-import SiteFooter from "@/components/SiteFooter";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -856,8 +855,6 @@ export const PublisherDashboard: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <SiteFooter />
     </div>
   );
 };

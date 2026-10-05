@@ -13,6 +13,7 @@ import {
   Sparkles, 
   ArrowRight,
   BookOpen,
+  Home,
   Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -76,43 +77,73 @@ const NasherLogin = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       {/* Header */}
-      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/60 backdrop-blur-md flex items-center justify-between sticky top-0 z-50">
-        <Link to="/nashr" className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md flex items-center justify-center text-white">
-            <PenTool className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-lg font-black text-foreground">UNIGATES</span>
-              <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px] font-bold px-1.5 py-0">
-                {isRtl ? "منصة نشر" : "Nashr"}
-              </Badge>
+      <header className="border-b border-border/50 px-4 sm:px-8 py-3 bg-card/85 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          
+          {/* Right / Brand */}
+          <Link to="/nashr" className="flex items-center gap-3 group shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md shadow-amber-500/25 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
+              <PenTool className="w-5 h-5" />
             </div>
-            <span className="text-[10px] block font-bold text-muted-foreground">
-              {isRtl ? "بوابة دخول المؤلفين والباحثين" : "Author Sign In Portal"}
-            </span>
-          </div>
-        </Link>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-black tracking-tight text-foreground group-hover:text-amber-500 transition-colors">UNIGATES</span>
+                <Badge className="bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-rose-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[10px] font-black px-2 py-0.5">
+                  {isRtl ? "منصة نشر" : "Nashr"}
+                </Badge>
+              </div>
+              <span className="text-[10px] block font-bold text-muted-foreground">
+                {isRtl ? "بوابة دخول المؤلفين والباحثين • دار عبيد للنشر" : "Author Sign In Portal • Dar Obeid"}
+              </span>
+            </div>
+          </Link>
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <LanguageSelectorDropdown />
-          <Link to="/nashr/signup">
-            <Button size="sm" variant="outline" className="font-bold border-border bg-background/50 hover:bg-muted text-xs h-9 px-3 rounded-xl">
-              {isRtl ? "تسجيل مؤلف جديد" : "Author Sign Up"}
-            </Button>
-          </Link>
-          <Link to="/nashr">
-            <Button size="sm" variant="outline" className="font-bold border-border bg-background/50 hover:bg-muted text-xs h-9 px-3 rounded-xl gap-1">
-              {isRtl ? <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground" />}
-              <span>{isRtl ? "الرئيسية" : "Home"}</span>
-            </Button>
-          </Link>
+          {/* Center Navigation Links (Tablet & Desktop) */}
+          <div className="hidden md:flex items-center gap-1.5 bg-muted/40 p-1 rounded-2xl border border-border/60">
+            <Link to="/">
+              <Button variant="ghost" size="sm" className="h-8 px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-background/80 rounded-xl gap-1.5">
+                <Home className="w-3.5 h-3.5 text-amber-500" />
+                <span>{isRtl ? "الرئيسية" : "Home"}</span>
+              </Button>
+            </Link>
+            <Link to="/nashr">
+              <Button variant="ghost" size="sm" className="h-8 px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-background/80 rounded-xl gap-1.5">
+                <PenTool className="w-3.5 h-3.5 text-orange-500" />
+                <span>{isRtl ? "منصة نشر" : "About Nashr"}</span>
+              </Button>
+            </Link>
+            <Link to="/book-store">
+              <Button variant="ghost" size="sm" className="h-8 px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-background/80 rounded-xl gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-rose-500" />
+                <span>{isRtl ? "متجر الكتب" : "Bookstore"}</span>
+              </Button>
+            </Link>
+          </div>
+
+          {/* Left / Actions & Controls */}
+          <div className="flex items-center gap-2">
+            <Link to="/nashr/signup">
+              <Button size="sm" className="font-extrabold bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white text-xs h-9 px-3.5 rounded-xl gap-1.5 shadow-sm">
+                <PenTool className="w-3.5 h-3.5" />
+                <span>{isRtl ? "تسجيل مؤلف جديد" : "Sign Up"}</span>
+              </Button>
+            </Link>
+
+            <div className="h-5 w-px bg-border/80 mx-1 hidden sm:block" />
+
+            <ThemeToggle />
+            <LanguageSelectorDropdown />
+          </div>
+
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 my-auto">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 my-auto relative">
+        {/* Ambient Glows */}
+        <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-amber-500/5 via-rose-500/5 to-transparent pointer-events-none -z-10" />
+        <div className="absolute top-10 start-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+        <div className="absolute top-32 end-1/4 w-80 h-80 bg-rose-500/10 rounded-full blur-[140px] pointer-events-none -z-10" />
         <div className="w-full max-w-md space-y-6">
           <div className="text-center space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold mb-1">

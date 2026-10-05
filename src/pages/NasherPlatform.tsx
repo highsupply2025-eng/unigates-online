@@ -380,7 +380,7 @@ const NasherPlatform = () => {
       <section className="py-16 sm:py-24 px-4 sm:px-8 md:px-12 max-w-7xl mx-auto w-full space-y-12">
         <div className="text-center space-y-3 max-w-3xl mx-auto">
           <Badge className="bg-gradient-to-r from-amber-500/15 to-rose-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 font-bold px-3 py-1 text-xs">
-            {isRtl ? "سياسة توزيع الإيرادات الشفافة" : "Transparent Revenue Split Policy"}
+            {isRtl ? "سياسة توزيع الإيرادات" : "Revenue Split Policy"}
           </Badge>
           <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-foreground">
             {isRtl ? "نموذج توزيع الأرباح العادل (الرقمي والورقي)" : "Fair Author Royalties: Digital vs. Print"}

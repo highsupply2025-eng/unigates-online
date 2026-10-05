@@ -8,7 +8,8 @@ import {
   PackageCheck, Bookmark, Store, Menu, X, GraduationCap, Cpu,
   Trophy, BookCheck, Palette, ShoppingBag, Zap, Flame, PenTool,
   Home, Heart, Eye, Check, Clock, HelpCircle, Layers, ChevronRight,
-  SlidersHorizontal, Library, User, LogOut, Award, TrendingUp, Tag
+  SlidersHorizontal, Library, User, LogOut, Award, TrendingUp, Tag,
+  LogIn, UserPlus, Compass
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -217,13 +218,14 @@ const BookStorePlatform = () => {
         {/* ========================================================================= */}
         {/* 1. E-COMMERCE TOP HEADER BAR (CLEAN, WORLD-CLASS BOOKSTORE LOOK)           */}
         {/* ========================================================================= */}
-        <header className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80 shadow-lg">
+        <header className="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-18 flex items-center justify-between gap-4">
             
-            {/* Store Brand Logo */}
-            <div className="flex items-center gap-3">
+            {/* Right Side (Start in RTL): Brand Logo & Primary Navigation */}
+            <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
+              {/* Store Brand Logo */}
               <Link to="/book-store" className="flex items-center gap-3 group">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 p-0.5 shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 p-0.5 shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white shrink-0">
                   <BookOpen className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
                 <div>
@@ -238,30 +240,36 @@ const BookStorePlatform = () => {
                   </p>
                 </div>
               </Link>
+
+              {/* Desktop Navigation Links anchored next to brand */}
+              <nav className="hidden md:flex items-center gap-1.5 text-sm font-bold text-slate-300">
+                <Link to="/">
+                  <Button variant="ghost" size="sm" className="hover:bg-slate-800/80 text-slate-300 hover:text-white gap-1.5 h-10 px-3 rounded-xl font-bold">
+                    <Home className="w-4 h-4 text-blue-400" />
+                    <span>{isRtl ? "الرئيسية" : "Home"}</span>
+                  </Button>
+                </Link>
+                <Link to="/book-store/browse">
+                  <Button variant="ghost" size="sm" className="hover:bg-slate-800/80 text-slate-300 hover:text-white gap-1.5 h-10 px-3 rounded-xl font-bold">
+                    <Compass className="w-4 h-4 text-cyan-400" />
+                    <span>{isRtl ? "تصفح الكتالوج" : "Catalog"}</span>
+                  </Button>
+                </Link>
+              </nav>
             </div>
 
-            {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1.5 text-sm font-bold text-slate-300">
-              <Link to="/">
-                <Button variant="ghost" size="sm" className="hover:bg-slate-800 text-slate-300 hover:text-white gap-1.5 h-10 px-3.5">
-                  <Home className="w-4 h-4 text-blue-400" />
-                  <span>{isRtl ? "الرئيسية" : "Home"}</span>
-                </Button>
-              </Link>
-            </nav>
-
-            {/* Action Buttons: Cart, Publish Bridge, Login, Utils */}
+            {/* Left Side (End in RTL): Actions, Auth, Utils */}
             <div className="flex items-center gap-2 sm:gap-2.5">
               
               {/* CROSS-LINK: طلب نشر -> opens /nashr */}
               <Link to="/nashr" title={isRtl ? "هل تريد نشر كتابك؟ انتقل إلى منصة نشر الرسمية" : "Publish with us on Nashr Platform"}>
                 <Button
                   size="sm"
-                  className="font-black text-xs sm:text-sm h-10 px-3.5 sm:px-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md shadow-amber-500/20 gap-1.5 hover:scale-105 transition-all"
+                  className="font-black text-xs sm:text-sm h-10 px-3 sm:px-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md shadow-amber-500/20 gap-1.5 hover:scale-105 transition-all"
                 >
                   <PenTool className="w-3.5 h-3.5" />
                   <span>{isRtl ? "طلب نشر كتاب" : "Publish a Book"}</span>
-                  <span className="hidden sm:inline-block px-1.5 py-0.2 rounded-md bg-white/20 text-[10px]">
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-md bg-white/20 text-[10px]">
                     {isRtl ? "منصة نشر" : "Nashr"}
                   </span>
                 </Button>
@@ -286,7 +294,7 @@ const BookStorePlatform = () => {
                 </Link>
               )}
 
-              {/* Sign In / Account Link */}
+              {/* Sign In / Sign Up / Account Link */}
               {currentSession ? (
                 <div className="flex items-center gap-1.5">
                   <Link to={currentSession.role === "reader" ? "/book-store/reader-dashboard" : "/book-store/publisher-dashboard"}>
@@ -303,34 +311,49 @@ const BookStorePlatform = () => {
                     size="sm"
                     variant="ghost"
                     onClick={handleLogout}
-                    className="text-xs font-bold text-slate-400 hover:text-rose-400 h-10 px-2.5 gap-1"
+                    className="text-xs font-bold text-slate-400 hover:text-rose-400 h-10 px-2.5 gap-1 rounded-xl"
                     title={isRtl ? "تسجيل الخروج" : "Logout"}
                   >
                     <LogOut className="w-3.5 h-3.5" />
                   </Button>
                 </div>
               ) : (
-                <Link to="/book-store/login">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="hidden sm:flex h-10 px-4 rounded-xl border-slate-700 bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold gap-1.5"
-                  >
-                    <ShoppingBag className="w-4 h-4 text-blue-400" />
-                    <span>{isRtl ? "تسجيل الدخول" : "Sign In"}</span>
-                  </Button>
-                </Link>
+                <div className="hidden sm:flex items-center gap-1.5 sm:gap-2">
+                  <Link to="/book-store/login">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-10 px-3 sm:px-3.5 rounded-xl border-slate-700 bg-slate-900/90 text-white hover:bg-slate-800 text-xs font-bold gap-1.5 shadow-xs"
+                    >
+                      <LogIn className="w-4 h-4 text-blue-400" />
+                      <span>{isRtl ? "تسجيل الدخول" : "Sign In"}</span>
+                    </Button>
+                  </Link>
+
+                  <Link to="/book-store/signup">
+                    <Button
+                      size="sm"
+                      className="h-10 px-3.5 sm:px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black gap-1.5 shadow-md shadow-blue-500/25 hover:scale-105 transition-all"
+                    >
+                      <UserPlus className="w-4 h-4 text-cyan-200" />
+                      <span>{isRtl ? "إنشاء حساب" : "Sign Up"}</span>
+                    </Button>
+                  </Link>
+                </div>
               )}
 
-              <LanguageSelectorDropdown className="h-10 px-2.5 rounded-xl border-slate-800 bg-slate-900 text-white" />
-              <ThemeToggle className="h-10 w-10 p-0 rounded-xl border-slate-800 bg-slate-900 text-white" />
+              {/* Utility Dropdowns */}
+              <div className="flex items-center gap-1">
+                <LanguageSelectorDropdown className="h-10 px-2.5 rounded-xl border-slate-800 bg-slate-900 text-white" />
+                <ThemeToggle className="h-10 w-10 p-0 rounded-xl border-slate-800 bg-slate-900 text-white" />
+              </div>
 
               {/* Mobile Menu Trigger */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden text-white hover:bg-slate-800 p-2 h-10 w-10"
+                className="lg:hidden text-white hover:bg-slate-800 p-2 h-10 w-10 rounded-xl"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </Button>
@@ -341,21 +364,33 @@ const BookStorePlatform = () => {
           {mobileMenuOpen && (
             <div className="lg:hidden bg-slate-950/98 border-b border-slate-800 px-6 py-5 space-y-3 animate-fade-in text-white">
               <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block">
-                <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold">
+                <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold rounded-xl">
                   <Home className="w-4 h-4 text-blue-400" />
                   <span>{isRtl ? "العودة للرئيسية" : "Home"}</span>
+                </Button>
+              </Link>
+              <Link to="/book-store/browse" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold rounded-xl">
+                  <Compass className="w-4 h-4 text-cyan-400" />
+                  <span>{isRtl ? "استكشف كتالوج الكتب" : "Browse Catalog"}</span>
+                </Button>
+              </Link>
+              <Link to="/nashr" onClick={() => setMobileMenuOpen(false)} className="block">
+                <Button className="w-full justify-start bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white h-11 gap-2 font-black rounded-xl shadow-md">
+                  <PenTool className="w-4 h-4" />
+                  <span>{isRtl ? "طلب نشر كتاب (منصة نشر)" : "Publish Book on Nashr"}</span>
                 </Button>
               </Link>
               {currentSession ? (
                 <>
                   <Link to="/book-store/cart" onClick={() => setMobileMenuOpen(false)} className="block">
-                    <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white h-11 gap-2 font-bold">
+                    <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white h-11 gap-2 font-bold rounded-xl">
                       <ShoppingCart className="w-4 h-4" />
                       <span>{isRtl ? `سلة المشتريات (${cartCount})` : `Cart (${cartCount})`}</span>
                     </Button>
                   </Link>
                   <Link to={currentSession.role === "reader" ? "/book-store/reader-dashboard" : "/book-store/publisher-dashboard"} onClick={() => setMobileMenuOpen(false)} className="block">
-                    <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold">
+                    <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold rounded-xl">
                       <User className="w-4 h-4 text-emerald-400" />
                       <span>{isRtl ? "لوحة حسابي" : "My Account"}</span>
                     </Button>
@@ -366,25 +401,28 @@ const BookStorePlatform = () => {
                       setMobileMenuOpen(false);
                       handleLogout();
                     }}
-                    className="w-full justify-start text-rose-400 hover:bg-rose-500/10 h-11 font-bold gap-2"
+                    className="w-full justify-start text-rose-400 hover:bg-rose-500/10 h-11 font-bold gap-2 rounded-xl"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>{isRtl ? "تسجيل الخروج" : "Logout"}</span>
                   </Button>
                 </>
               ) : (
-                <Link to="/book-store/login" onClick={() => setMobileMenuOpen(false)} className="block">
-                  <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white h-11 font-bold">
-                    <span>{isRtl ? "تسجيل دخول القراء" : "Reader Login"}</span>
-                  </Button>
-                </Link>
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <Link to="/book-store/login" onClick={() => setMobileMenuOpen(false)} className="block">
+                    <Button variant="outline" className="w-full border-slate-800 bg-slate-900 text-white hover:bg-slate-800 h-11 font-bold rounded-xl gap-1.5">
+                      <LogIn className="w-4 h-4 text-blue-400" />
+                      <span>{isRtl ? "تسجيل الدخول" : "Sign In"}</span>
+                    </Button>
+                  </Link>
+                  <Link to="/book-store/signup" onClick={() => setMobileMenuOpen(false)} className="block">
+                    <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white h-11 font-black rounded-xl gap-1.5 shadow-md">
+                      <UserPlus className="w-4 h-4 text-cyan-200" />
+                      <span>{isRtl ? "إنشاء حساب" : "Sign Up"}</span>
+                    </Button>
+                  </Link>
+                </div>
               )}
-              <Link to="/nashr" onClick={() => setMobileMenuOpen(false)} className="block pt-1">
-                <Button className="w-full justify-start bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white h-11 gap-2 font-bold">
-                  <PenTool className="w-4 h-4" />
-                  <span>{isRtl ? "طلب نشر كتاب ➔ منصة نشر" : "Publish Book on Nashr"}</span>
-                </Button>
-              </Link>
             </div>
           )}
         </header>

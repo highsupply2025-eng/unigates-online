@@ -317,7 +317,8 @@ export class NashrDataStore {
   }
 
   // Submissions
-  static getSubmissions(): ManuscriptSubmission[] {
+  // Submissions
+  static getAllSubmissions(): ManuscriptSubmission[] {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SUBMISSIONS);
       if (saved) return JSON.parse(saved);
@@ -328,8 +329,16 @@ export class NashrDataStore {
     return INITIAL_SUBMISSIONS;
   }
 
+  static getSubmissions(authorId?: string): ManuscriptSubmission[] {
+    const all = this.getAllSubmissions();
+    const author = this.getAuthorProfile();
+    const targetId = authorId || author.id;
+    const targetCode = author.authorCode;
+    return all.filter(s => s.authorId === targetId || (targetCode && s.authorCode === targetCode));
+  }
+
   static addSubmission(submission: Omit<ManuscriptSubmission, "id" | "submissionDate" | "status">): ManuscriptSubmission {
-    const list = this.getSubmissions();
+    const list = this.getAllSubmissions();
     const newSub: ManuscriptSubmission = {
       ...submission,
       id: `sub-${Date.now()}`,
@@ -343,7 +352,7 @@ export class NashrDataStore {
   }
 
   // Invoices
-  static getInvoices(): NashrInvoice[] {
+  static getAllInvoices(): NashrInvoice[] {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.INVOICES);
       if (saved) return JSON.parse(saved);
@@ -354,8 +363,15 @@ export class NashrDataStore {
     return INITIAL_INVOICES;
   }
 
+  static getInvoices(authorId?: string): NashrInvoice[] {
+    const all = this.getAllInvoices();
+    const author = this.getAuthorProfile();
+    const targetId = authorId || author.id;
+    return all.filter(inv => inv.authorId === targetId);
+  }
+
   static uploadPaymentReceipt(invoiceId: string, receiptImageUrl: string, paymentMethod: string): void {
-    const list = this.getInvoices();
+    const list = this.getAllInvoices();
     const index = list.findIndex(inv => inv.id === invoiceId);
     if (index !== -1) {
       list[index].receiptImageUrl = receiptImageUrl;
@@ -367,20 +383,40 @@ export class NashrDataStore {
   }
 
   // Messages
-  static getMessages(): NashrMessage[] {
+  static getMessages(authorId?: string): NashrMessage[] {
+    const author = this.getAuthorProfile();
+    const targetId = authorId || author.id;
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+      const storageKey = `${STORAGE_KEYS.MESSAGES}_${targetId}`;
+      const saved = localStorage.getItem(storageKey);
       if (saved) return JSON.parse(saved);
+
+      if (targetId === "auth-2026-001") {
+        localStorage.setItem(storageKey, JSON.stringify(INITIAL_MESSAGES));
+        return INITIAL_MESSAGES;
+      }
+
+      const welcomeMsg: NashrMessage = {
+        id: `msg-welcome-${targetId}`,
+        sender: "admin",
+        senderName: "إدارة دار عبيد للنشر والتوزيع",
+        senderTitle: "فريق الإشراف والتدقيق",
+        text: `أهلاً ومرحباً بحضرتكم في منصة نشر الموحدة. تم تسجيل حسابكم بنجاح وهو الآن قيد التدقيق والمراجعة الأكاديمية. نحن بخدمتكم لأي استفسار عبر هذه المحادثة المباشرة.`,
+        timestamp: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }),
+        read: true
+      };
+      const initial = [welcomeMsg];
+      localStorage.setItem(storageKey, JSON.stringify(initial));
+      return initial;
     } catch (e) {
       console.error(e);
+      return [];
     }
-    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(INITIAL_MESSAGES));
-    return INITIAL_MESSAGES;
   }
 
   static sendMessage(text: string, attachmentName?: string, attachmentUrl?: string): NashrMessage {
-    const list = this.getMessages();
     const author = this.getAuthorProfile();
+    const list = this.getMessages(author.id);
     const now = new Date();
     const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`;
     
@@ -396,20 +432,33 @@ export class NashrDataStore {
       read: true
     };
     list.push(newMsg);
-    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(list));
+    localStorage.setItem(`${STORAGE_KEYS.MESSAGES}_${author.id}`, JSON.stringify(list));
     return newMsg;
   }
 
-  // Sales & Royalties (20%)
-  static getSales(): BookSaleRecord[] {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.SALES);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error(e);
+  // Sales & Royalties
+  static getSales(authorId?: string): BookSaleRecord[] {
+    const author = this.getAuthorProfile();
+    const targetId = authorId || author.id;
+    if (targetId === "auth-2026-001") {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEYS.SALES);
+        if (saved) return JSON.parse(saved);
+        localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(INITIAL_SALES));
+        return INITIAL_SALES;
+      } catch (e) {
+        console.error(e);
+        return INITIAL_SALES;
+      }
     }
-    localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(INITIAL_SALES));
-    return INITIAL_SALES;
+    // New authors start with clean 0 sales
+    try {
+      const saved = localStorage.getItem(`${STORAGE_KEYS.SALES}_${targetId}`);
+      if (saved) return JSON.parse(saved);
+      return [];
+    } catch (e) {
+      return [];
+    }
   }
 
   static getFinancialSummary() {
@@ -446,7 +495,7 @@ export class NashrDataStore {
   }
 
   // Payouts
-  static getPayouts(): PayoutRequest[] {
+  static getAllPayouts(): PayoutRequest[] {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PAYOUTS);
       if (saved) return JSON.parse(saved);
@@ -457,8 +506,15 @@ export class NashrDataStore {
     return INITIAL_PAYOUTS;
   }
 
+  static getPayouts(authorId?: string): PayoutRequest[] {
+    const all = this.getAllPayouts();
+    const author = this.getAuthorProfile();
+    const targetId = authorId || author.id;
+    return all.filter(p => p.authorId === targetId);
+  }
+
   static requestPayout(amount: number, payoutMethod: any, accountDetails: string, currency = "EGP"): PayoutRequest {
-    const list = this.getPayouts();
+    const all = this.getAllPayouts();
     const author = this.getAuthorProfile();
     const newReq: PayoutRequest = {
       id: `pay-${Date.now()}`,
@@ -473,8 +529,8 @@ export class NashrDataStore {
       requestDate: new Date().toISOString().split("T")[0],
       notes: "طلب السحب قيد المراجعة والتحويل من الإدارة المالية بدار عبيد."
     };
-    list.unshift(newReq);
-    localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(list));
+    all.unshift(newReq);
+    localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(all));
     return newReq;
   }
 }

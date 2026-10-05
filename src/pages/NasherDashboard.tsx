@@ -1096,63 +1096,79 @@ const NasherDashboard = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 space-y-4">
-                    {invoices.map((inv) => (
-                      <div 
-                        key={inv.id} 
-                        className={`p-5 rounded-2xl border-2 transition-all space-y-3 ${
-                          inv.status === "paid" 
-                            ? "border-emerald-500/30 bg-emerald-500/5" 
-                            : inv.status === "under_review"
-                            ? "border-blue-500/30 bg-blue-500/5"
-                            : "border-amber-500/40 bg-amber-500/5 shadow-md"
-                        }`}
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-black text-sm text-foreground">{inv.invoiceNumber}</span>
-                            <Badge className={
-                              inv.status === "paid" 
-                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]"
-                                : inv.status === "under_review"
-                                ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[10px]"
-                                : "bg-destructive/15 text-destructive border-destructive/30 text-[10px]"
-                            }>
-                              {inv.status === "paid" 
-                                ? (isRtl ? "تم السداد بنجاح ✅" : "Paid") 
-                                : inv.status === "under_review" 
-                                ? (isRtl ? "الإيصال قيد المراجعة ⏳" : "Under Review") 
-                                : (isRtl ? "بانتظار السداد ⚠️" : "Unpaid")}
-                            </Badge>
-                          </div>
-                          <span className="text-base font-black text-foreground font-mono">
-                            {inv.amount} {inv.currency}
-                          </span>
-                        </div>
-
-                        <div className="space-y-1 text-xs">
-                          <span className="font-bold text-foreground block">{inv.manuscriptTitle}</span>
-                          <p className="text-muted-foreground text-[11px] leading-relaxed">{inv.description}</p>
-                        </div>
-
-                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50 text-[11px] text-muted-foreground">
-                          <span>{isRtl ? "تاريخ الإصدار:" : "Date:"} {inv.createdAt}</span>
-                          {inv.paymentMethod && (
-                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                              {inv.paymentMethod}
-                            </span>
-                          )}
-                          {inv.status === "unpaid" && (
-                            <Button 
-                              onClick={() => setSelectedInvoice(inv)}
-                              size="sm" 
-                              className="h-8 px-3.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
-                            >
-                              {isRtl ? "اختيار طريقة الدفع ورفع الإيصال ➔" : "Pay & Upload Receipt"}
-                            </Button>
-                          )}
+                    {invoices.length === 0 ? (
+                      <div className="py-12 px-4 text-center rounded-2xl border-2 border-dashed border-border/80 bg-muted/20 space-y-3">
+                        <CreditCard className="w-10 h-10 mx-auto text-muted-foreground/40" />
+                        <div className="space-y-1">
+                          <p className="text-sm font-bold text-foreground">
+                            {isRtl ? "لا توجد فواتير صادرة حالياً" : "No invoices issued yet"}
+                          </p>
+                          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                            {isRtl 
+                              ? "سيتم إصدار فواتير رسوم النشر والخدمات الأكاديمية بعد مراجعة وقبول المخطوطات وتقديم عروض النشر."
+                              : "Invoices will be issued after manuscripts are reviewed and publishing offers are made."}
+                          </p>
                         </div>
                       </div>
-                    ))}
+                    ) : (
+                      invoices.map((inv) => (
+                        <div 
+                          key={inv.id} 
+                          className={`p-5 rounded-2xl border-2 transition-all space-y-3 ${
+                            inv.status === "paid" 
+                              ? "border-emerald-500/30 bg-emerald-500/5" 
+                              : inv.status === "under_review"
+                              ? "border-blue-500/30 bg-blue-500/5"
+                              : "border-amber-500/40 bg-amber-500/5 shadow-md"
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-black text-sm text-foreground">{inv.invoiceNumber}</span>
+                              <Badge className={
+                                inv.status === "paid" 
+                                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]"
+                                  : inv.status === "under_review"
+                                  ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[10px]"
+                                  : "bg-destructive/15 text-destructive border-destructive/30 text-[10px]"
+                              }>
+                                {inv.status === "paid" 
+                                  ? (isRtl ? "تم السداد بنجاح ✅" : "Paid") 
+                                  : inv.status === "under_review" 
+                                  ? (isRtl ? "الإيصال قيد المراجعة ⏳" : "Under Review") 
+                                  : (isRtl ? "بانتظار السداد ⚠️" : "Unpaid")}
+                              </Badge>
+                            </div>
+                            <span className="text-base font-black text-foreground font-mono">
+                              {inv.amount} {inv.currency}
+                            </span>
+                          </div>
+
+                          <div className="space-y-1 text-xs">
+                            <span className="font-bold text-foreground block">{inv.manuscriptTitle}</span>
+                            <p className="text-muted-foreground text-[11px] leading-relaxed">{inv.description}</p>
+                          </div>
+
+                          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50 text-[11px] text-muted-foreground">
+                            <span>{isRtl ? "تاريخ الإصدار:" : "Date:"} {inv.createdAt}</span>
+                            {inv.paymentMethod && (
+                              <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                                {inv.paymentMethod}
+                              </span>
+                            )}
+                            {inv.status === "unpaid" && (
+                              <Button 
+                                onClick={() => setSelectedInvoice(inv)}
+                                size="sm" 
+                                className="h-8 px-3.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+                              >
+                                {isRtl ? "اختيار طريقة الدفع ورفع الإيصال ➔" : "Pay & Upload Receipt"}
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </CardContent>
                 </Card>
               </div>

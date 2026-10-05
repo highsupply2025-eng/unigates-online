@@ -318,10 +318,42 @@ export class NashrDataStore {
     }
   }
 
-  static updatePassword(newPassword: string): boolean {
-    const profile = this.getAuthorProfile();
-    profile.isTemporaryPassword = false;
-    this.saveAuthorProfile(profile);
+  static findAuthorByIdentifier(identifier: string): AuthorProfile | null {
+    const clean = identifier.trim().toLowerCase();
+    const all = this.getAllAuthors();
+    const found = all.find(a => 
+      a.authorCode.toLowerCase() === clean || 
+      a.email.toLowerCase() === clean
+    );
+    if (found) return found;
+    const current = this.getAuthorProfile();
+    if (current && (current.authorCode.toLowerCase() === clean || current.email.toLowerCase() === clean)) {
+      return current;
+    }
+    return null;
+  }
+
+  static updatePassword(newPassword: string, authorId?: string): boolean {
+    const current = this.getAuthorProfile();
+    const targetId = authorId || current.id;
+    const all = this.getAllAuthors();
+    const author = all.find(a => a.id === targetId) || (targetId === current.id ? current : null);
+
+    if (author) {
+      author.isTemporaryPassword = false;
+      author.permanentPassword = newPassword;
+      const idx = all.findIndex(a => a.id === targetId);
+      if (idx !== -1) all[idx] = author;
+      else all.push(author);
+      localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(all));
+    }
+
+    if (current.id === targetId || !authorId) {
+      current.isTemporaryPassword = false;
+      current.permanentPassword = newPassword;
+      localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(current));
+    }
+
     return true;
   }
 

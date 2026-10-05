@@ -27,6 +27,8 @@ export interface AuthorProfile {
   qualificationUrls?: string[];
   agreedToTerms?: boolean;
   isTemporaryPassword?: boolean;
+  tempPassword?: string;
+  permanentPassword?: string;
   verificationStatus?: AuthorVerificationStatus;
   verificationDate?: string;
   verificationNotes?: string;

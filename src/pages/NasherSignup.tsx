@@ -307,6 +307,7 @@ const NasherSignup = () => {
         qualificationUrls: qualificationFiles.map(q => q.url),
         agreedToTerms: true,
         isTemporaryPassword: true,
+        tempPassword,
         verificationStatus: "pending_review",
         joinedDate: new Date().toISOString().split("T")[0]
       };
@@ -349,7 +350,13 @@ const NasherSignup = () => {
   };
 
   const proceedToDashboard = () => {
-    navigate("/nashr/dashboard");
+    navigate("/nashr/login", { 
+      state: { 
+        authorCode: generatedAccount?.profile.authorCode, 
+        email: generatedAccount?.profile.email, 
+        tempPassword: generatedAccount?.tempPassword 
+      } 
+    });
   };
 
   return (
@@ -604,8 +611,8 @@ const NasherSignup = () => {
                     size="lg" 
                     className="w-full h-12 rounded-2xl font-black text-base bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/25 gap-2 hover:scale-[1.01] transition-all"
                   >
-                    <BookOpen className="w-5 h-5" />
-                    <span>{isRtl ? "الدخول إلى لوحة تحكم المؤلف واستوديو النشر ➔" : "Enter Author Dashboard & Studio ➔"}</span>
+                    <Lock className="w-5 h-5" />
+                    <span>{isRtl ? "الانتقال إلى صفحة تسجيل الدخول وتغيير الكلمة المؤقتة ➔" : "Go to Sign In & Change Temp Password ➔"}</span>
                   </Button>
                 </div>
               </CardContent>

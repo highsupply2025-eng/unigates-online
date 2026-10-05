@@ -147,6 +147,27 @@ const NasherDashboard = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Guard: if user has a temporary password, redirect to login to change it
+  useEffect(() => {
+    if (authorProfile.isTemporaryPassword) {
+      toast({
+        title: isRtl ? "تنبيه: مطلوب تغيير كلمة المرور المؤقتة" : "Notice: Change Temporary Password",
+        description: isRtl 
+          ? "يرجى تعيين كلمة مرور شخصية دائمة لحسابك أولاً قبل استخدام استوديو المؤلف."
+          : "Please set your permanent password first.",
+        variant: "destructive"
+      });
+      navigate("/nashr/login", {
+        state: {
+          authorCode: authorProfile.authorCode,
+          email: authorProfile.email,
+          tempPassword: authorProfile.tempPassword,
+          needsPasswordChange: true
+        }
+      });
+    }
+  }, [authorProfile, navigate, isRtl, toast]);
+
   // Sync tab with URL
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab");

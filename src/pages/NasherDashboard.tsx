@@ -807,7 +807,7 @@ const NasherDashboard = () => {
                         {/* 2. Manuscript File */}
                         <div className="p-3.5 rounded-2xl bg-muted/30 border border-border/80 text-center space-y-2">
                           <FileText className="w-6 h-6 text-blue-500 mx-auto" />
-                          <span className="text-xs font-bold block">{isRtl ? "ملف المخطوطة (PDF / Word)" : "Manuscript File"}</span>
+                          <span className="text-xs font-bold block">{isRtl ? "رفع ملف (PDF / Word)" : "Upload File (PDF / Word)"}</span>
                           <Input 
                             type="file" 
                             accept=".pdf,.doc,.docx"

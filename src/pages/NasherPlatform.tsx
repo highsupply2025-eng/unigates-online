@@ -161,7 +161,7 @@ const NasherPlatform = () => {
     {
       qAr: "ما هي سياسة توزيع الأرباح بين المؤلف والمنصة عند نشر الكتب؟",
       qEn: "What is the royalty split policy between the author and the platform?",
-      aAr: "تعتمد منصة نشر سياسة عادلة وشفافة تخدم المؤلف وتحميه من المخاطر: (1) في النشر الرقمي (E-Book) يحصل المؤلف على 70% من سعر بيع كل نسخة وتحصل المنصة على 30% فقط لتغطية التشفير وقارئ الكتب والاستضافة السحابية. (2) في النشر الورقي المطبوع يحدث العكس: يحصل المؤلف على 30% ربحاً صافياً دون أن يدفع أي مليم من تكاليف الإنتاج، بينما تحصل دار عبيد والمنصة على 70% لتغطية تكاليف الورق الفاخر، الطباعة والتجليد، التخزين في المستودعات، والتغليف والشحن للعميل.",
+      aAr: "تعتمد منصة نشر سياسة عادلة تخدم المؤلف وتحميه من المخاطر: (1) في النشر الرقمي (E-Book) يحصل المؤلف على 70% من سعر بيع كل نسخة وتحصل المنصة على 30% فقط لتغطية التشفير وقارئ الكتب والاستضافة السحابية. (2) في النشر الورقي المطبوع يحدث العكس: يحصل المؤلف على 30% ربحاً صافياً دون أن يدفع أي مليم من تكاليف الإنتاج، بينما تحصل دار عبيد والمنصة على 70% لتغطية تكاليف الورق الفاخر، الطباعة والتجليد، التخزين في المستودعات، والتغليف والشحن للعميل.",
       aEn: "Nashr operates a transparent two-tier royalty model: (1) Digital E-Books: Author earns 70% and platform takes 30% to cover DRM and cloud reader hosting. (2) Print Books: Author earns 30% net profit with zero printing or shipping costs, while Dar Obeid & the platform receive 70% to cover high-grade paper, binding, warehouse storage, packaging, and courier delivery.",
     },
     {

@@ -908,7 +908,7 @@ const NasherDashboard = () => {
                       <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-xs shrink-0">1</div>
                       <div>
                         <span className="font-black text-foreground block">{isRtl ? "المراجعة والتدقيق" : "Review & Editing"}</span>
-                        <p className="text-muted-foreground text-[11px] leading-relaxed">{isRtl ? "فحص المخطوطة والتأكد من استيفاء الشروط والتدقيق اللغوي الأكاديمي." : "Manuscript vetting & academic proofreading."}</p>
+                        <p className="text-muted-foreground text-[11px] leading-relaxed">{isRtl ? "فحص الملفات المرفقة والتأكد من استيفاء الشروط والتدقيق اللغوي الأكاديمي." : "Reviewing attached files & academic proofreading."}</p>
                       </div>
                     </div>
 

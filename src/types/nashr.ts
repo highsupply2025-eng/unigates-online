@@ -9,6 +9,8 @@ export type AcademicTitle =
 
 export type PublishType = "digital" | "print" | "both";
 
+export type AuthorVerificationStatus = "pending_review" | "approved" | "rejected";
+
 export interface AuthorProfile {
   id: string;
   authorCode: string;
@@ -25,6 +27,9 @@ export interface AuthorProfile {
   qualificationUrls?: string[];
   agreedToTerms?: boolean;
   isTemporaryPassword?: boolean;
+  verificationStatus?: AuthorVerificationStatus;
+  verificationDate?: string;
+  verificationNotes?: string;
   joinedDate: string;
   bankDetails?: {
     accountHolder: string;

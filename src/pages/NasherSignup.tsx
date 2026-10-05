@@ -27,7 +27,8 @@ import {
   Plus,
   FileText,
   Lock,
-  Eye
+  Eye,
+  Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -229,6 +230,7 @@ const NasherSignup = () => {
         qualificationUrls: qualificationFiles.map(q => q.url),
         agreedToTerms: true,
         isTemporaryPassword: true,
+        verificationStatus: "pending_review",
         joinedDate: new Date().toISOString().split("T")[0]
       };
 
@@ -377,12 +379,18 @@ const NasherSignup = () => {
                     <span className="text-xs font-bold text-muted-foreground">{isRtl ? "البريد الإلكتروني:" : "Email:"}</span>
                     <span className="text-xs font-bold text-foreground">{generatedAccount.profile.email}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between pb-2 border-b border-border/40">
                     <span className="text-xs font-bold text-muted-foreground">{isRtl ? "المستندات المرفقة:" : "Attached Documents:"}</span>
-                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                      <Check className="w-3.5 h-3.5" />
-                      {isRtl ? "الهوية والمؤهلات الأكاديمية موثقة" : "Identity & Academic Credentials Verified"}
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+                      <span>{isRtl ? "الهوية والمؤهلات (تخضع للمراجعة والتدقيق)" : "Credentials Uploaded (Under Review)"}</span>
                     </span>
+                  </div>
+                  <div className="flex items-center justify-between pt-0.5">
+                    <span className="text-xs font-bold text-muted-foreground">{isRtl ? "حالة اعتماد الحساب:" : "Account Status:"}</span>
+                    <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-xs font-black px-2.5 py-0.5">
+                      {isRtl ? "قيد التدقيق والمراجعة من المنصة" : "Pending Platform Review"}
+                    </Badge>
                   </div>
                 </div>
 
@@ -412,8 +420,8 @@ const NasherSignup = () => {
                     <Info className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                     <span>
                       {isRtl 
-                        ? "تم إنشاء هذا الحساب بكلمة مرور مؤقتة لراحتكم وأمانكم. ستتمكن من تغييرها فوراً بكلمة مرور دائمة من داخل لوحة التحكم بعد الدخول."
-                        : "Your account is created with a temporary password. You can immediately update it to a permanent password in your dashboard."}
+                        ? "تم إنشاء هذا الحساب بكلمة مرور مؤقتة لراحتكم وأمانكم. ستتمكن من تغييرها فوراً بكلمة مرور دائمة. تنبيه: حتى وإن قمت بتغيير كلمة المرور المؤقتة، سيبقى الحساب تحت المراجعة والتدقيق حتى تصدر موافقة إدارة المنصة."
+                        : "Your account is created with a temporary password. You can update it anytime. Note: even after updating your temporary password, the account remains under review until officially approved."}
                     </span>
                   </div>
                 </div>

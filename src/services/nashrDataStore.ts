@@ -30,6 +30,7 @@ export const DEFAULT_DEMO_AUTHOR: AuthorProfile = {
   bio: "أستاذ الدراسات الاستراتيجية، مؤلف 8 كتب علمية وأكاديمية منشورة، وباحث مهتم بالتحول الجيوسياسي والذكاء الاصطناعي في التعليم العالي.",
   avatarUrl: "",
   isTemporaryPassword: true,
+  verificationStatus: "approved",
   joinedDate: "2026-01-15",
   bankDetails: {
     accountHolder: "عبد الرحمن أحمد المنشاوي",
@@ -294,6 +295,25 @@ export class NashrDataStore {
     profile.isTemporaryPassword = false;
     this.saveAuthorProfile(profile);
     return true;
+  }
+
+  static approveAuthor(): AuthorProfile {
+    const profile = this.getAuthorProfile();
+    profile.verificationStatus = "approved";
+    profile.verificationDate = new Date().toISOString().split("T")[0];
+    this.saveAuthorProfile(profile);
+    return profile;
+  }
+
+  static setVerificationStatus(status: "pending_review" | "approved" | "rejected", notes?: string): AuthorProfile {
+    const profile = this.getAuthorProfile();
+    profile.verificationStatus = status;
+    if (notes) profile.verificationNotes = notes;
+    if (status === "approved") {
+      profile.verificationDate = new Date().toISOString().split("T")[0];
+    }
+    this.saveAuthorProfile(profile);
+    return profile;
   }
 
   // Submissions

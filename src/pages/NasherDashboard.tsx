@@ -81,6 +81,19 @@ const NasherDashboard = () => {
 
   // State from DataStore
   const [authorProfile, setAuthorProfile] = useState<AuthorProfile>(NashrDataStore.getAuthorProfile());
+  const isUnderReview = authorProfile.verificationStatus === "pending_review";
+
+  const handleApproveAccount = () => {
+    NashrDataStore.approveAuthor();
+    refreshData();
+    toast({
+      title: isRtl ? "🎉 تمت الموافقة على الحساب واعتماده بنجاح!" : "Account Approved Successfully!",
+      description: isRtl 
+        ? "تمت مطابقة وثائق الهوية والمؤهلات الأكاديمية واعتماد الحساب رسمياً من إدارة دار عبيد. أصبحت كافة خدمات النشر والاستوديو متاحة لك الآن."
+        : "Your credentials have been verified and author account officially activated.",
+    });
+  };
+
   const [submissions, setSubmissions] = useState<ManuscriptSubmission[]>(NashrDataStore.getSubmissions());
   const [invoices, setInvoices] = useState<NashrInvoice[]>(NashrDataStore.getInvoices());
   const [messages, setMessages] = useState<NashrMessage[]>(NashrDataStore.getMessages());
@@ -148,6 +161,17 @@ const NasherDashboard = () => {
   // Submit New Manuscript
   const handleSubmitManuscript = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isUnderReview) {
+      toast({
+        title: isRtl ? "الحساب قيد المراجعة" : "Account Under Review",
+        description: isRtl 
+          ? "حسابكم ومستنداتكم قيد التدقيق حالياً من قبل لجان التحكيم. ستتمكن من إرسال المخطوطات والتعاقد فور اعتماد الإدارة وتفعيل الحساب."
+          : "Your credentials are under review. Submissions will be activated upon official platform approval.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!newTitle.trim() || !newSynopsis.trim()) {
       toast({
         title: isRtl ? "بيانات ناقصة" : "Missing fields",
@@ -298,7 +322,13 @@ const NasherDashboard = () => {
     setConfirmPassword("");
     toast({
       title: isRtl ? "🎉 تم تعيين كلمة المرور الدائمة بنجاح!" : "Password Updated Successfully!",
-      description: isRtl ? "تم تأمين حساب المؤلف بكلمة المرور الجديدة الخاصة بك." : "Your permanent password is now active."
+      description: isUnderReview
+        ? (isRtl 
+            ? "تم حفظ كلمة المرور الجديدة. تنبيه: يبقى الحساب تحت المراجعة والتدقيق لحين صدور الموافقة الرسمية من المنصة." 
+            : "Password updated. Note: Account remains under administrative review until officially approved.")
+        : (isRtl 
+            ? "تم تأمين حساب المؤلف بكلمة المرور الجديدة الخاصة بك." 
+            : "Your permanent password is now active.")
     });
   };
 
@@ -353,8 +383,61 @@ const NasherDashboard = () => {
         </div>
       </header>
 
-      {/* Temporary Password Alert Banner */}
-      {authorProfile.isTemporaryPassword && (
+      {/* Account Verification & Security Status Banner */}
+      {isUnderReview ? (
+        <div className="bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-rose-500/15 border-b-2 border-amber-500/40 px-4 sm:px-8 py-4 shadow-sm animate-fade-in">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+            
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-inner">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
+              </div>
+              <div className="space-y-0.5 text-start">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-sm sm:text-base font-black text-amber-900 dark:text-amber-200">
+                    {isRtl ? "الحساب تحت المراجعة والتدقيق من قبل إدارة المنصة" : "Account Under Platform Review"}
+                  </h3>
+                  <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-black px-2 py-0.5">
+                    {isRtl ? "مستندات الهوية والمؤهلات الأكاديمية قيد الفحص ⏳" : "Documents Under Verification"}
+                  </Badge>
+                </div>
+                <p className="text-xs text-amber-800/90 dark:text-amber-300/80 leading-relaxed font-medium max-w-3xl">
+                  {isRtl
+                    ? "يجري حالياً فحص وتدقيق مستنداتكم الرسمية (الهوية الوطنية والمؤهلات الأكاديمية) من قبل لجان التحكيم وإدارة دار عبيد للنشر والتوزيع. حتى وإن قمت بتغيير كلمة المرور المؤقتة، سيبقى الحساب تحت المراجعة، وفور اعتماد الإدارة ستختفي هذه الرسالة تلقائياً وتتمكن من استخدام كامل خدمات الاستوديو."
+                    : "Your identity and academic credentials are being reviewed by Dar Obeid committee. Even after updating your temporary password, this notice remains active until officially approved."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setPasswordModalOpen(true)}
+                className="h-9 px-3.5 rounded-xl border-amber-500/40 bg-background/80 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 text-xs font-bold gap-1.5"
+              >
+                <Key className="w-3.5 h-3.5 text-amber-500" />
+                <span>
+                  {authorProfile.isTemporaryPassword 
+                    ? (isRtl ? "تعيين كلمة مرور دائمة" : "Set Permanent Password") 
+                    : (isRtl ? "تغيير كلمة المرور" : "Change Password")}
+                </span>
+              </Button>
+
+              <Button
+                size="sm"
+                onClick={handleApproveAccount}
+                className="h-9 px-4 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md shadow-emerald-500/20 gap-1.5 hover:scale-105 transition-all"
+                title={isRtl ? "محاكاة اعتماد الإدارة وتفعيل الحساب فوراً" : "Simulate Platform Approval"}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{isRtl ? "اعتماد الحساب (موافقة الإدارة)" : "Simulate Approval"}</span>
+              </Button>
+            </div>
+
+          </div>
+        </div>
+      ) : authorProfile.isTemporaryPassword ? (
         <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2.5 flex items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold">
             <Key className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -372,7 +455,7 @@ const NasherDashboard = () => {
             {isRtl ? "تغيير كلمة المرور الآن" : "Set Password"}
           </Button>
         </div>
-      )}
+      ) : null}
 
       {/* Main Studio Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
@@ -395,6 +478,17 @@ const NasherDashboard = () => {
                     <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-black text-xs px-2.5 py-0.5">
                       {isRtl ? "كود المؤلف:" : "Code:"} {authorProfile.authorCode}
                     </Badge>
+                    {isUnderReview ? (
+                      <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 font-black text-xs px-2.5 py-0.5 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-amber-500 animate-pulse" />
+                        <span>{isRtl ? "الحساب تحت المراجعة والتدقيق" : "Under Review"}</span>
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-black text-xs px-2.5 py-0.5 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                        <span>{isRtl ? "حساب معتمد وموثق رسمياً" : "Verified Author"}</span>
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-xs sm:text-sm font-bold text-muted-foreground">
                     {authorProfile.specialization} {authorProfile.institution ? `• ${authorProfile.institution}` : ""}
@@ -512,6 +606,21 @@ const NasherDashboard = () => {
         {/* ------------------------------------------------------------- */}
         {activeTab === "submit" && (
           <div className="space-y-6 animate-fade-in">
+            {isUnderReview && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 flex items-start gap-3 shadow-xs">
+                <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
+                <div className="space-y-1 text-xs text-start">
+                  <h4 className="font-black text-amber-900 dark:text-amber-300">
+                    {isRtl ? "تنبيه: حساب المؤلف قيد المراجعة والتدقيق الأكاديمي" : "Notice: Author Account Under Review"}
+                  </h4>
+                  <p className="text-amber-800/90 dark:text-amber-300/80 leading-relaxed font-medium">
+                    {isRtl
+                      ? "المستندات المرفقة (الهوية الوطنية والمؤهلات الأكاديمية) قيد الفحص والتدقيق من قبل إدارة النشر والتحكيم بدار عبيد. حتى وإن قمت بتغيير كلمة المرور المؤقتة، سيبقى الحساب تحت المراجعة، وسيتم تفعيل إرسال المخطوطات والتعاقد فور اعتماد الإدارة."
+                      : "Your credentials are under administrative review. Manuscript submissions and contracts will be enabled once your account is officially approved."}
+                  </p>
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* Form Column */}
@@ -1394,6 +1503,58 @@ const NasherDashboard = () => {
               </CardHeader>
 
               <CardContent className="p-6 sm:p-8 space-y-6">
+
+                {/* Account Review & Verification Status Block */}
+                <div className="p-4 rounded-2xl bg-muted/40 border border-border/80 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground">{isRtl ? "حالة اعتماد وتوثيق الحساب:" : "Verification Status:"}</span>
+                    {isUnderReview ? (
+                      <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-black text-xs px-2.5 py-0.5 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-amber-500 animate-pulse" />
+                        <span>{isRtl ? "الحساب تحت المراجعة والتدقيق" : "Under Platform Review"}</span>
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-black text-xs px-2.5 py-0.5 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                        <span>{isRtl ? "حساب معتمد وموثق رسمياً ✓" : "Verified Author Account ✓"}</span>
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs pt-1 border-t border-border/40">
+                    <span className="text-muted-foreground">{isRtl ? "المستندات المرفقة (الهوية والمؤهلات):" : "Attached Credentials:"}</span>
+                    <span className="font-bold text-foreground flex items-center gap-1">
+                      {isUnderReview ? (
+                        <span className="text-amber-600 dark:text-amber-400 font-bold">{isRtl ? "مرفوعة (تخضع للتدقيق من قبل الإدارة ⏳)" : "Uploaded (Under Review)"}</span>
+                      ) : (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">{isRtl ? "موثقة ومعتمدة رسمياً ✓" : "Verified & Authenticated ✓"}</span>
+                      )}
+                    </span>
+                  </div>
+
+                  {isUnderReview ? (
+                    <div className="pt-2 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-amber-800 dark:text-amber-300">
+                      <p className="font-medium">
+                        {isRtl
+                          ? "تنبيه: حتى وإن قمت بتغيير كلمة المرور المؤقتة، سيبقى الحساب تحت المراجعة حتى صدور موافقة الإدارة الرسمية."
+                          : "Note: Even after updating your temporary password, your account remains under review until official platform approval."}
+                      </p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleApproveAccount}
+                        className="h-8 px-3 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white shrink-0 shadow-xs"
+                      >
+                        {isRtl ? "اعتماد الحساب من المنصة" : "Simulate Approval"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/40">
+                      {isRtl ? "تم اعتماد ملفكم الأكاديمي رسمياً وتوثيق بطاقة المؤلف لدى دار عبيد." : "Your author credentials have been officially approved by Dar Obeid."}
+                    </p>
+                  )}
+                </div>
+
                 <form onSubmit={handleChangePassword} className="space-y-4">
                   
                   <div className="space-y-1.5">

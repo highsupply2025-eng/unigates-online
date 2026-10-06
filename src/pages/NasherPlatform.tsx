@@ -304,11 +304,6 @@ const NasherPlatform = () => {
                 {isRtl ? "دخول المؤلفين" : "Author Sign In"}
               </Button>
             </Link>
-            <Link to="/nashr/dashboard" onClick={() => setMobileMenuOpen(false)} className="block pt-2">
-              <Button variant="ghost" className="w-full text-amber-300 font-bold h-11">
-                {isRtl ? "استوديو لوحة التحكم" : "Author Dashboard"}
-              </Button>
-            </Link>
           </div>
         )}
 
@@ -346,23 +341,16 @@ const NasherPlatform = () => {
           {/* Quick Action CTA Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
             <Link to="/nashr/signup">
-              <Button size="lg" className="h-11 sm:h-12 px-6 sm:px-7 font-black text-xs sm:text-sm md:text-base rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
+              <Button size="lg" className="h-11 sm:h-12 px-7 sm:px-8 font-black text-xs sm:text-sm md:text-base rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
                 <PenTool className="w-4 h-4 sm:w-5 sm:h-5" />
                 {isRtl ? "✍️ تسجيل مؤلف جديد" : "Register Author"}
               </Button>
             </Link>
 
             <Link to="/nashr/login">
-              <Button size="lg" variant="outline" className="h-11 sm:h-12 px-5 sm:px-6 font-black text-xs sm:text-sm md:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
+              <Button size="lg" variant="outline" className="h-11 sm:h-12 px-6 sm:px-7 font-black text-xs sm:text-sm md:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2 hover:scale-105 transition-all">
                 <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                 {isRtl ? "🔐 دخول المؤلفين" : "Author Sign In"}
-              </Button>
-            </Link>
-
-            <Link to="/nashr/dashboard">
-              <Button size="lg" variant="outline" className="h-11 sm:h-12 px-5 sm:px-6 font-black text-xs sm:text-sm md:text-base rounded-2xl bg-white/5 hover:bg-white/15 text-amber-300 border-amber-400/30 shadow-lg backdrop-blur-md gap-2">
-                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
-                {isRtl ? "استوديو لوحة التحكم" : "Open Studio"}
               </Button>
             </Link>
           </div>

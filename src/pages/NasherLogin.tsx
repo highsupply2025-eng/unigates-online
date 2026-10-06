@@ -308,32 +308,19 @@ const NasherLogin = () => {
             </div>
           </Link>
 
-          {/* Center Navigation Links (Tablet & Desktop) */}
-          <div className="hidden md:flex items-center gap-1.5 bg-muted/40 p-1 rounded-2xl border border-border/60">
-            <Link to="/">
-              <Button variant="ghost" size="sm" className="h-8 px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-background/80 rounded-xl gap-1.5">
+          {/* Header Navigation & Controls: (الرئيسية ثم تسجيل مؤلف جديد ثم السطوع ثم تغيير اللغه) */}
+          <div className="flex items-center gap-2">
+            {/* 1. الرئيسية (يرجع لصفحة منصة نشر) */}
+            <Link to="/nashr">
+              <Button variant="ghost" size="sm" className="h-9 px-3.5 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-xl gap-1.5 transition-all">
                 <Home className="w-3.5 h-3.5 text-amber-500" />
                 <span>{isRtl ? "الرئيسية" : "Home"}</span>
               </Button>
             </Link>
-            <Link to="/nashr">
-              <Button variant="ghost" size="sm" className="h-8 px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-background/80 rounded-xl gap-1.5">
-                <PenTool className="w-3.5 h-3.5 text-orange-500" />
-                <span>{isRtl ? "منصة نشر" : "About Nashr"}</span>
-              </Button>
-            </Link>
-            <Link to="/book-store">
-              <Button variant="ghost" size="sm" className="h-8 px-3 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-background/80 rounded-xl gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-rose-500" />
-                <span>{isRtl ? "متجر الكتب" : "Bookstore"}</span>
-              </Button>
-            </Link>
-          </div>
 
-          {/* Left / Actions & Controls */}
-          <div className="flex items-center gap-2">
+            {/* 2. تسجيل مؤلف جديد */}
             <Link to="/nashr/signup">
-              <Button size="sm" className="font-extrabold bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white text-xs h-9 px-3.5 rounded-xl gap-1.5 shadow-sm">
+              <Button size="sm" className="font-extrabold bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white text-xs h-9 px-3.5 rounded-xl gap-1.5 shadow-sm transition-all">
                 <PenTool className="w-3.5 h-3.5" />
                 <span>{isRtl ? "تسجيل مؤلف جديد" : "Sign Up"}</span>
               </Button>
@@ -341,7 +328,10 @@ const NasherLogin = () => {
 
             <div className="h-5 w-px bg-border/80 mx-1 hidden sm:block" />
 
+            {/* 3. السطوع (ThemeToggle) */}
             <ThemeToggle />
+
+            {/* 4. تغيير اللغة (LanguageSelectorDropdown) */}
             <LanguageSelectorDropdown />
           </div>
 

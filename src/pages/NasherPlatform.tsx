@@ -202,45 +202,64 @@ const NasherPlatform = () => {
         </div>
 
         {/* Navigation Bar */}
-        <header className="relative z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-4 border-b border-white/10 backdrop-blur-md">
-          <Link to="/" className="flex items-center gap-3 group min-w-0">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-xl shadow-amber-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
-              <PenTool className="w-6 h-6" />
+        <header className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-3.5 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl shadow-md">
+          {/* Right / Brand */}
+          <Link to="/" className="flex items-center gap-3 group min-w-0 shrink-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-xl shadow-amber-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
+              <PenTool className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
-                UNIGATES
-              </span>
-              <p className="text-[10px] font-bold text-amber-300 tracking-wide">
-                {isRtl ? "منصة نشر • دار عبيد للنشر والتوزيع" : "Nashr Platform • Dar Obeid Publishing"}
+              <div className="flex items-center gap-2">
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
+                  UNIGATES
+                </span>
+                <Badge className="bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-rose-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black px-2 py-0.5">
+                  {isRtl ? "منصة نشر" : "Nashr"}
+                </Badge>
+              </div>
+              <p className="text-[10px] font-bold text-amber-300/90 tracking-wide">
+                {isRtl ? "دار عبيد للنشر والتوزيع" : "Dar Obeid Publishing & Distribution"}
               </p>
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-2.5">
+          {/* Center Navigation Links (Tablet & Desktop) */}
+          <div className="hidden lg:flex items-center gap-1.5 bg-white/10 p-1.5 rounded-2xl border border-white/20 backdrop-blur-xl shadow-inner">
             <Link to="/">
-              <Button size="sm" variant="ghost" className="font-bold px-3.5 h-10 text-xs bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md gap-1.5 hover:scale-105 transition-all">
-                <Home className="w-4 h-4 text-amber-300" />
+              <Button variant="ghost" size="sm" className="h-9 px-3.5 text-xs font-bold text-white/90 hover:text-white hover:bg-white/15 rounded-xl gap-1.5 transition-all">
+                <Home className="w-3.5 h-3.5 text-amber-300" />
                 <span>{isRtl ? "الرئيسية" : "Home"}</span>
               </Button>
             </Link>
-            <Link to="/book-store" title={isRtl ? "الانتقال إلى متجر الكتب الإلكتروني" : "Go to Book Store"}>
-              <Button size="sm" variant="outline" className="font-black px-4 h-10 text-xs bg-blue-600/20 hover:bg-blue-600/35 text-white border border-blue-400/30 shadow-md backdrop-blur-md gap-1.5 hover:scale-105 transition-all">
-                <BookOpen className="w-4 h-4 text-cyan-300" />
+            <Link to="/nashr">
+              <Button variant="ghost" size="sm" className="h-9 px-3.5 text-xs font-bold text-amber-300 bg-white/15 hover:bg-white/20 rounded-xl gap-1.5 transition-all">
+                <PenTool className="w-3.5 h-3.5 text-orange-400" />
+                <span>{isRtl ? "عن منصة نشر" : "About Nashr"}</span>
+              </Button>
+            </Link>
+            <Link to="/book-store">
+              <Button variant="ghost" size="sm" className="h-9 px-3.5 text-xs font-bold text-white/90 hover:text-white hover:bg-white/15 rounded-xl gap-1.5 transition-all">
+                <BookOpen className="w-3.5 h-3.5 text-rose-300" />
                 <span>{isRtl ? "متجر الكتب" : "Bookstore"}</span>
               </Button>
             </Link>
-            <Link to="/nashr/login">
-              <Button size="sm" className="font-bold px-4 h-10 text-xs bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-md backdrop-blur-md">
-                {isRtl ? "دخول المؤلفين" : "Author Sign In"}
-              </Button>
-            </Link>
+          </div>
+
+          {/* Left / Actions & Controls */}
+          <div className="hidden md:flex items-center gap-2">
             <Link to="/nashr/signup">
-              <Button size="sm" className="font-bold px-5 h-10 text-xs bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-lg shadow-amber-500/25">
-                {isRtl ? "تسجيل مؤلف جديد" : "Register as Author"}
+              <Button size="sm" className="font-extrabold bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white text-xs h-10 px-4 rounded-xl gap-1.5 shadow-lg shadow-amber-500/25 hover:scale-105 transition-all">
+                <PenTool className="w-3.5 h-3.5" />
+                <span>{isRtl ? "تسجيل مؤلف جديد" : "Sign Up"}</span>
               </Button>
             </Link>
+            <Link to="/nashr/login">
+              <Button size="sm" variant="outline" className="font-bold text-xs h-10 px-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border-white/20 shadow-md backdrop-blur-md gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-amber-300" />
+                <span>{isRtl ? "دخول المؤلفين" : "Sign In"}</span>
+              </Button>
+            </Link>
+            <div className="h-5 w-px bg-white/20 mx-1 hidden sm:block" />
             <ThemeToggle />
             <LanguageSelectorDropdown />
           </div>
@@ -294,7 +313,7 @@ const NasherPlatform = () => {
         )}
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-12 pt-12 sm:pt-20 pb-16 sm:pb-24 text-center space-y-8">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-12 pt-7 sm:pt-12 pb-10 sm:pb-14 text-center space-y-5">
           
           {/* Pill Tag */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-amber-300 shadow-xl">
@@ -305,8 +324,8 @@ const NasherPlatform = () => {
           </div>
 
           {/* Main Headline */}
-          <div className="space-y-4">
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-tight drop-shadow-lg tracking-tight">
+          <div className="space-y-3">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight drop-shadow-lg tracking-tight">
               {isRtl ? (
                 <>
                   انشر مؤلفاتك <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">رقمياً وورقياً</span> واحصل على عوائد تصل إلى 70% أرباح فورية
@@ -317,7 +336,7 @@ const NasherPlatform = () => {
                 </>
               )}
             </h1>
-            <p className="text-sm sm:text-lg md:text-xl text-slate-200/90 font-medium max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xs sm:text-base md:text-lg text-slate-200/90 font-medium max-w-3xl mx-auto leading-relaxed">
               {isRtl
                 ? "منظومة نشر متكاملة للمؤلفين والباحثين الأكاديميين: 70% للنسخ الرقمية الفورية، و30% للنسخ المطبوعة مع تكفل دار عبيد بكامل تكاليف الورق الفاخر، الطباعة والتجليد، التخزين، والتوصيل السريع لباب المنزل."
                 : "A modern author suite offering 70% royalties for instant digital e-books, and 30% net author profit for print books with all printing, binding, storage, and home delivery costs covered by Dar Obeid."}
@@ -325,24 +344,24 @@ const NasherPlatform = () => {
           </div>
 
           {/* Quick Action CTA Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
             <Link to="/nashr/signup">
-              <Button size="lg" className="h-12 px-7 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
-                <PenTool className="w-5 h-5" />
+              <Button size="lg" className="h-11 sm:h-12 px-6 sm:px-7 font-black text-xs sm:text-sm md:text-base rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
+                <PenTool className="w-4 h-4 sm:w-5 sm:h-5" />
                 {isRtl ? "✍️ تسجيل مؤلف جديد" : "Register Author"}
               </Button>
             </Link>
 
             <Link to="/nashr/login">
-              <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
-                <Lock className="w-5 h-5" />
+              <Button size="lg" variant="outline" className="h-11 sm:h-12 px-5 sm:px-6 font-black text-xs sm:text-sm md:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
+                <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                 {isRtl ? "🔐 دخول المؤلفين" : "Author Sign In"}
               </Button>
             </Link>
 
             <Link to="/nashr/dashboard">
-              <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/5 hover:bg-white/15 text-amber-300 border-amber-400/30 shadow-lg backdrop-blur-md gap-2">
-                <BookOpen className="w-5 h-5" />
+              <Button size="lg" variant="outline" className="h-11 sm:h-12 px-5 sm:px-6 font-black text-xs sm:text-sm md:text-base rounded-2xl bg-white/5 hover:bg-white/15 text-amber-300 border-amber-400/30 shadow-lg backdrop-blur-md gap-2">
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
                 {isRtl ? "استوديو لوحة التحكم" : "Open Studio"}
               </Button>
             </Link>

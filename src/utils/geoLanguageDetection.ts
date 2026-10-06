@@ -170,11 +170,9 @@ export function mapCountryCodeToLanguage(countryCode: string): Language {
  */
 export function getInitialLanguage(): Language {
   try {
-    const isManuallySet = localStorage.getItem(MANUAL_SET_KEY) === "true";
     const saved = localStorage.getItem(STORAGE_KEY) as Language;
-
-    // 1. Explicit user manual selection
-    if (isManuallySet && (saved === "ar" || saved === "en")) {
+    // 1. Honor saved language if already stored from previous visits
+    if (saved === "ar" || saved === "en") {
       return saved;
     }
 
@@ -193,8 +191,9 @@ export function getInitialLanguage(): Language {
     // Fallback
   }
   
-  // Rest of the world defaults to English
-  return "en";
+  // UNIGATES by Dar Obeid is primarily an Arabic platform matching <html lang="ar" dir="rtl">.
+  // Default to Arabic ("ar") to prevent any layout/direction delay or flash.
+  return "ar";
 }
 
 /**

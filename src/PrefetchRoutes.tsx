@@ -141,6 +141,10 @@ export const ROUTE_LOADERS: Array<[RegExp, Loader]> = [
 
 // High-frequency routes pre-warmed progressively during idle time
 const TOP_ROUTE_LOADERS: Loader[] = [
+  () => import("./pages/NasherPlatform"),
+  () => import("./pages/NasherLogin"),
+  () => import("./pages/NasherSignup"),
+  () => import("./pages/BookStorePlatform"),
   () => import("./pages/UniversityPlatform"),
   () => import("./pages/Login"),
   () => import("./pages/Signup"),
@@ -161,8 +165,6 @@ const TOP_ROUTE_LOADERS: Loader[] = [
   () => import("./pages/SchoolDashboard"),
   () => import("./pages/SchoolAdminAccount"),
   () => import("./pages/CoursesPlatform"),
-  () => import("./pages/BookStorePlatform"),
-  () => import("./pages/NasherPlatform"),
 ];
 
 // In-memory module cache to avoid redundant network requests

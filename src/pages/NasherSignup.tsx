@@ -430,7 +430,7 @@ const NasherSignup = () => {
                 <span>{isRtl ? "حساب مؤلف وباحث رسمي • نشر رقمي وورقي معتمد" : "Official Author Account • Digital & Print Publishing"}</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-foreground">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-snug sm:leading-tight text-foreground font-cairo">
                 {isRtl ? (
                   <>
                     تسجيل حساب مؤلف جديد في{" "}
@@ -443,7 +443,7 @@ const NasherSignup = () => {
                 )}
               </h1>
 
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed font-cairo">
                 {isRtl 
                   ? "سجّل بياناتك الأكاديمية والمهنية وأرفق مستنداتك لرفع مؤلفاتك، متابعة الاعتماد والمبيعات، وتحصيل أعلى عوائد أرباح (70% للنسخ الرقمية و30% للمطبوعة) فورياً بإشراف دار عبيد للنشر."
                   : "Register your academic credentials and documents to publish works, track bookstore sales, and receive top royalties (70% digital / 30% print) with Dar Obeid."}

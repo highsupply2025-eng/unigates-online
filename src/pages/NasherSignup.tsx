@@ -91,6 +91,44 @@ interface UploadedDoc {
   size: string;
 }
 
+const getDocTypeInfo = (fileName: string) => {
+  const ext = fileName.split('.').pop()?.toLowerCase() || '';
+  if (ext === 'pdf') {
+    return {
+      isImage: false,
+      label: 'PDF',
+      color: 'text-rose-600 dark:text-rose-400',
+      bg: 'bg-rose-500/10',
+      border: 'border-rose-500/30'
+    };
+  }
+  if (['doc', 'docx'].includes(ext)) {
+    return {
+      isImage: false,
+      label: 'WORD',
+      color: 'text-blue-600 dark:text-blue-400',
+      bg: 'bg-blue-500/10',
+      border: 'border-blue-500/30'
+    };
+  }
+  if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'].includes(ext)) {
+    return {
+      isImage: true,
+      label: 'IMG',
+      color: 'text-emerald-600 dark:text-emerald-400',
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/30'
+    };
+  }
+  return {
+    isImage: false,
+    label: ext.toUpperCase() || 'FILE',
+    color: 'text-amber-600 dark:text-amber-400',
+    bg: 'bg-amber-500/10',
+    border: 'border-amber-500/30'
+  };
+};
+
 const NasherSignup = () => {
   const [academicTitle, setAcademicTitle] = useState<AcademicTitle>("prof");
   const [fullName, setFullName] = useState("");
@@ -158,7 +196,7 @@ const NasherSignup = () => {
       size: sizeStr,
     });
     toast({
-      title: isRtl ? "تم إرفاق صورة الهوية / الرقم القومي" : "National ID / Passport Attached",
+      title: isRtl ? "تم إرفاق وثيقة الهوية / الرقم القومي" : "National ID / Passport Document Attached",
       description: file.name,
     });
   };
@@ -176,8 +214,8 @@ const NasherSignup = () => {
 
     setQualificationFiles((prev) => [...prev, ...newDocs]);
     toast({
-      title: isRtl ? `تم إرفاق ${newDocs.length} من مستندات المؤهل` : `Attached ${newDocs.length} Qualification Documents`,
-      description: isRtl ? "يمكنك إضافة المزيد من شهادات المؤهلات في أي وقت" : "You can add more qualification certificates",
+      title: isRtl ? `تم إرفاق ${newDocs.length} من ملفات المؤهل الأكاديمي` : `Attached ${newDocs.length} Qualification Documents`,
+      description: isRtl ? "يمكنك إضافة المزيد من ملفات أو شهادات المؤهلات (PDF أو Word أو صور)" : "You can add more qualification files (PDF, Word, or Images)",
     });
   };
 
@@ -264,8 +302,8 @@ const NasherSignup = () => {
     // 8. Academic Qualification(s) (Mandatory)
     if (qualificationFiles.length === 0) {
       toast({
-        title: isRtl ? "شهادة المؤهل الأكاديمي مطلوبة" : "Degree Certificate Required",
-        description: isRtl ? "يرجى إرفاق صورة المؤهل الأكاديمي أو الشهادات لتوثيق رتبة المؤلف." : "Please attach at least one academic degree certificate.",
+        title: isRtl ? "ملف المؤهل الأكاديمي مطلوب" : "Degree Certificate / File Required",
+        description: isRtl ? "يرجى إرفاق ملف المؤهل الأكاديمي أو الشهادات (PDF أو Word أو صور) لتوثيق رتبة المؤلف." : "Please attach at least one academic degree document (PDF, Word, or Image).",
         variant: "destructive"
       });
       return;
@@ -852,7 +890,7 @@ const NasherSignup = () => {
                         <div className="flex items-center justify-between">
                           <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
                             <ShieldCheck className="w-4 h-4 text-rose-500" />
-                            <span>{isRtl ? "2. صورة الهوية / بطاقة الرقم القومي" : "2. National ID / Passport Photo"}</span>
+                            <span>{isRtl ? "2. مستند أو صورة الهوية / جواز السفر (PDF / Word / صورة)" : "2. National ID / Passport (PDF / Word / Image)"}</span>
                             <span className="text-destructive font-black">*</span>
                           </Label>
                           {nationalIdFile && (
@@ -865,21 +903,36 @@ const NasherSignup = () => {
                         <input 
                           type="file" 
                           ref={nationalIdInputRef}
-                          accept="image/*,.pdf" 
+                          accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
                           onChange={handleNationalIdSelect}
                           className="hidden" 
                         />
 
                         {nationalIdFile ? (
                           <div className="flex items-center gap-3 p-2.5 rounded-xl bg-card border border-border">
-                            <img 
-                              src={nationalIdFile.url} 
-                              alt="National ID Preview" 
-                              className="w-14 h-14 rounded-xl object-cover border border-rose-500/40 shadow-xs shrink-0" 
-                            />
+                            {(() => {
+                              const docInfo = getDocTypeInfo(nationalIdFile.name);
+                              return docInfo.isImage ? (
+                                <img 
+                                  src={nationalIdFile.url} 
+                                  alt="National ID Preview" 
+                                  className="w-14 h-14 rounded-xl object-cover border border-rose-500/40 shadow-xs shrink-0" 
+                                />
+                              ) : (
+                                <div className={`w-14 h-14 rounded-xl ${docInfo.bg} ${docInfo.border} ${docInfo.color} border flex flex-col items-center justify-center shrink-0`}>
+                                  <FileText className="w-6 h-6" />
+                                  <span className="text-[9px] font-black uppercase tracking-wider mt-0.5">{docInfo.label}</span>
+                                </div>
+                              );
+                            })()}
                             <div className="flex-1 min-w-0">
-                              <span className="text-xs font-bold text-foreground block truncate">{nationalIdFile.name}</span>
-                              <span className="text-[10px] text-muted-foreground font-semibold">{nationalIdFile.size}</span>
+                              <span className="text-xs font-bold text-foreground block truncate" title={nationalIdFile.name}>{nationalIdFile.name}</span>
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${getDocTypeInfo(nationalIdFile.name).bg} ${getDocTypeInfo(nationalIdFile.name).color}`}>
+                                  {getDocTypeInfo(nationalIdFile.name).label}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground font-semibold">{nationalIdFile.size}</span>
+                              </div>
                             </div>
                             <Button
                               type="button"
@@ -900,21 +953,21 @@ const NasherSignup = () => {
                               <Upload className="w-4 h-4" />
                             </div>
                             <span className="text-xs font-bold text-foreground group-hover:text-rose-600 transition-colors">
-                              {isRtl ? "رفع صورة بطاقة الهوية أو جواز السفر" : "Upload ID / Passport"}
+                              {isRtl ? "رفع بطاقة الهوية أو جواز السفر (PDF / Word / صورة)" : "Upload ID or Passport (PDF / Word / Image)"}
                             </span>
-                            <span className="text-[10px] text-muted-foreground">صورة واضحة للوجهين أو الجواز</span>
+                            <span className="text-[10px] text-muted-foreground">PDF, Word, أو صورة واضحة للوجهين</span>
                           </div>
                         )}
                       </div>
 
                     </div>
 
-                    {/* Upload 3: Academic Qualifications (Supports Multiple Photos) */}
+                    {/* Upload 3: Academic Qualifications (Supports Multiple Files: PDF, Word, Images) */}
                     <div className="p-4 sm:p-5 rounded-2xl bg-muted/20 border-2 border-dashed border-border/80 hover:border-amber-500/50 transition-all space-y-3">
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
                           <GraduationCap className="w-4 h-4 text-purple-500" />
-                          <span>{isRtl ? "3. صورة المؤهل الأكاديمي والشهادات (صورة أو عدة صور)" : "3. Academic Qualification(s) & Degree Certificates"}</span>
+                          <span>{isRtl ? "3. المؤهل الأكاديمي والشهادات (ملفات PDF، Word، أو صور)" : "3. Academic Qualification(s) & Degree Certificates (PDF, Word, or Images)"}</span>
                           <span className="text-destructive font-black">*</span>
                         </Label>
                         {qualificationFiles.length > 0 && (
@@ -927,7 +980,7 @@ const NasherSignup = () => {
                       <input 
                         type="file" 
                         ref={qualificationInputRef}
-                        accept="image/*,.pdf" 
+                        accept=".pdf,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
                         multiple
                         onChange={handleQualificationSelect}
                         className="hidden" 
@@ -944,47 +997,62 @@ const NasherSignup = () => {
                           </div>
                           <div>
                             <span className="text-xs font-bold text-foreground block group-hover:text-purple-600 transition-colors">
-                              {isRtl ? "إضافة صور شهادة البكالوريوس / الماجستير / الدكتوراه" : "Add Degree / Certificate Images"}
+                              {isRtl ? "إضافة شهادة البكالوريوس / الماجستير / الدكتوراه (PDF أو Word أو صور)" : "Add Degree / Certificate Files (PDF, Word, Images)"}
                             </span>
                             <span className="text-[10px] text-muted-foreground">
-                              {isRtl ? "يمكنك اختيار صورة واحدة أو تحديد عدة صور معاً" : "Select one or multiple degree photos simultaneously"}
+                              {isRtl ? "يمكنك إرفاق ملفات PDF، مستندات Word (doc, docx)، أو صور متعددة معاً" : "Upload PDF, Word (doc/docx), or multiple images simultaneously"}
                             </span>
                           </div>
                         </div>
 
                         <Button type="button" size="sm" variant="outline" className="h-8 text-xs font-bold gap-1 rounded-lg border-purple-500/30 text-purple-600 dark:text-purple-400">
                           <Upload className="w-3.5 h-3.5" />
-                          <span>{isRtl ? "إرفاق صور" : "Upload"}</span>
+                          <span>{isRtl ? "إرفاق ملفات / صور" : "Upload Files / Images"}</span>
                         </Button>
                       </div>
 
                       {/* Uploaded Qualifications Gallery */}
                       {qualificationFiles.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-2">
-                          {qualificationFiles.map((qf, i) => (
-                            <div 
-                              key={qf.id} 
-                              className="flex items-center gap-2.5 p-2 rounded-xl bg-card border border-border/80 shadow-xs relative group"
-                            >
-                              <img 
-                                src={qf.url} 
-                                alt={qf.name} 
-                                className="w-11 h-11 rounded-lg object-cover border border-border shrink-0" 
-                              />
-                              <div className="flex-1 min-w-0">
-                                <span className="text-[11px] font-bold text-foreground block truncate">{qf.name}</span>
-                                <span className="text-[9px] text-muted-foreground">{qf.size}</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => removeQualification(qf.id)}
-                                className="w-6 h-6 rounded-md bg-destructive/10 text-destructive hover:bg-destructive hover:text-white flex items-center justify-center transition-colors shrink-0"
-                                title="حذف"
+                          {qualificationFiles.map((qf) => {
+                            const docInfo = getDocTypeInfo(qf.name);
+                            return (
+                              <div 
+                                key={qf.id} 
+                                className="flex items-center gap-2.5 p-2 rounded-xl bg-card border border-border/80 shadow-xs relative group"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ))}
+                                {docInfo.isImage ? (
+                                  <img 
+                                    src={qf.url} 
+                                    alt={qf.name} 
+                                    className="w-11 h-11 rounded-lg object-cover border border-border shrink-0" 
+                                  />
+                                ) : (
+                                  <div className={`w-11 h-11 rounded-lg ${docInfo.bg} ${docInfo.border} ${docInfo.color} border flex flex-col items-center justify-center shrink-0`}>
+                                    <FileText className="w-5 h-5" />
+                                    <span className="text-[8px] font-black uppercase tracking-wider mt-0.5">{docInfo.label}</span>
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <span className="text-[11px] font-bold text-foreground block truncate" title={qf.name}>{qf.name}</span>
+                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                    <span className={`text-[8px] font-black px-1 py-0.2 rounded ${docInfo.bg} ${docInfo.color}`}>
+                                      {docInfo.label}
+                                    </span>
+                                    <span className="text-[9px] text-muted-foreground font-semibold">{qf.size}</span>
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeQualification(qf.id)}
+                                  className="w-6 h-6 rounded-md bg-destructive/10 text-destructive hover:bg-destructive hover:text-white flex items-center justify-center transition-colors shrink-0"
+                                  title="حذف"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
 

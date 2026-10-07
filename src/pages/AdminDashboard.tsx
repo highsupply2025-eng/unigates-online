@@ -171,9 +171,19 @@ export const AdminDashboard = () => {
   };
 
   const loadAllData = () => {
-    setAuthors(NashrDataStore.getAllAuthors());
-    setSubmissions(NashrDataStore.getAllSubmissions());
-    setInvoices(NashrDataStore.getAllInvoices());
+    try {
+      const a = NashrDataStore.getAllAuthors();
+      const s = NashrDataStore.getAllSubmissions();
+      const i = NashrDataStore.getAllInvoices();
+      setAuthors(Array.isArray(a) ? a.filter(Boolean) : []);
+      setSubmissions(Array.isArray(s) ? s.filter(Boolean) : []);
+      setInvoices(Array.isArray(i) ? i.filter(Boolean) : []);
+    } catch (err) {
+      console.error("[AdminDashboard] Error loading data:", err);
+      setAuthors([]);
+      setSubmissions([]);
+      setInvoices([]);
+    }
   };
 
   // -------------------------------------------------------------
@@ -303,8 +313,9 @@ export const AdminDashboard = () => {
       return;
     }
 
-    const targetAuthor = authors.find(a => a.id === customInvoiceAuthorId) || authors[0];
-    if (!targetAuthor) {
+    const authorList = Array.isArray(authors) ? authors.filter(Boolean) : [];
+    const targetAuthor = authorList.find(a => a && a.id === customInvoiceAuthorId) || authorList[0];
+    if (!targetAuthor || !targetAuthor.id) {
       toast({
         title: isRtl ? "يرجى اختيار المؤلف" : "Select Author",
         variant: "destructive"
@@ -314,7 +325,7 @@ export const AdminDashboard = () => {
 
     NashrDataStore.createInvoice({
       authorId: targetAuthor.id,
-      authorName: targetAuthor.fullName,
+      authorName: targetAuthor.fullName || (isRtl ? "مؤلف" : "Author"),
       manuscriptTitle: customInvoiceTitle.trim() || (isRtl ? "تكاليف وخدمات نشر أكاديمي" : "Academic Publishing Services"),
       amount: amountNum,
       currency: "EGP",
@@ -335,44 +346,69 @@ export const AdminDashboard = () => {
     });
   };
 
-  // Filters
-  const filteredAuthors = authors.filter(a => {
-    const matchesSearch = 
-      a.fullName.toLowerCase().includes(authorSearch.toLowerCase()) ||
-      a.authorCode.toLowerCase().includes(authorSearch.toLowerCase()) ||
-      a.email.toLowerCase().includes(authorSearch.toLowerCase()) ||
-      a.specialization.toLowerCase().includes(authorSearch.toLowerCase());
+  // Filters with defensive null/undefined checks
+  const safeAuthors = Array.isArray(authors) ? authors.filter(Boolean) : [];
+  const safeSubmissions = Array.isArray(submissions) ? submissions.filter(Boolean) : [];
+  const safeInvoices = Array.isArray(invoices) ? invoices.filter(Boolean) : [];
+
+  const filteredAuthors = safeAuthors.filter(a => {
+    if (!a) return false;
+    const search = (authorSearch || "").trim().toLowerCase();
+    const fullName = (a.fullName || "").toLowerCase();
+    const authorCode = (a.authorCode || "").toLowerCase();
+    const email = (a.email || "").toLowerCase();
+    const specialization = (a.specialization || "").toLowerCase();
+
+    const matchesSearch = !search || 
+      fullName.includes(search) ||
+      authorCode.includes(search) ||
+      email.includes(search) ||
+      specialization.includes(search);
+
+    const status = a.verificationStatus || "pending_review";
     const matchesStatus = 
       authorFilterStatus === "all" || 
-      (authorFilterStatus === "pending" && a.verificationStatus === "pending_review") ||
-      (authorFilterStatus === "approved" && a.verificationStatus === "approved") ||
-      (authorFilterStatus === "rejected" && a.verificationStatus === "rejected");
+      (authorFilterStatus === "pending" && status === "pending_review") ||
+      (authorFilterStatus === "approved" && status === "approved") ||
+      (authorFilterStatus === "rejected" && status === "rejected");
     return matchesSearch && matchesStatus;
   });
 
-  const filteredSubmissions = submissions.filter(s => {
-    const matchesSearch = 
-      s.title.toLowerCase().includes(manuscriptSearch.toLowerCase()) ||
-      s.authorName.toLowerCase().includes(manuscriptSearch.toLowerCase()) ||
-      s.category.toLowerCase().includes(manuscriptSearch.toLowerCase());
+  const filteredSubmissions = safeSubmissions.filter(s => {
+    if (!s) return false;
+    const search = (manuscriptSearch || "").trim().toLowerCase();
+    const title = (s.title || "").toLowerCase();
+    const authorName = (s.authorName || "").toLowerCase();
+    const category = (s.category || "").toLowerCase();
+
+    const matchesSearch = !search ||
+      title.includes(search) ||
+      authorName.includes(search) ||
+      category.includes(search);
     const matchesStatus = 
       manuscriptFilterStatus === "all" || s.status === manuscriptFilterStatus;
     return matchesSearch && matchesStatus;
   });
 
-  const filteredInvoices = invoices.filter(inv => {
-    const matchesSearch = 
-      inv.invoiceNumber.toLowerCase().includes(invoiceSearch.toLowerCase()) ||
-      inv.authorName.toLowerCase().includes(invoiceSearch.toLowerCase()) ||
-      inv.manuscriptTitle.toLowerCase().includes(invoiceSearch.toLowerCase());
+  const filteredInvoices = safeInvoices.filter(inv => {
+    if (!inv) return false;
+    const search = (invoiceSearch || "").trim().toLowerCase();
+    const invoiceNumber = (inv.invoiceNumber || "").toLowerCase();
+    const authorName = (inv.authorName || "").toLowerCase();
+    const manuscriptTitle = (inv.manuscriptTitle || "").toLowerCase();
+
+    const matchesSearch = !search ||
+      invoiceNumber.includes(search) ||
+      authorName.includes(search) ||
+      manuscriptTitle.includes(search);
     const matchesStatus = 
       invoiceFilterStatus === "all" || inv.status === invoiceFilterStatus;
     return matchesSearch && matchesStatus;
   });
 
-  const pendingAuthorsCount = authors.filter(a => a.verificationStatus === "pending_review").length;
-  const pendingSubmissionsCount = submissions.filter(s => s.status === "pending_review").length;
-  const pendingInvoicesCount = invoices.filter(i => i.status === "under_review").length;
+  const pendingAuthorsCount = safeAuthors.filter(a => (a?.verificationStatus || "pending_review") === "pending_review").length;
+  const pendingSubmissionsCount = safeSubmissions.filter(s => s?.status === "pending_review").length;
+  const pendingInvoicesCount = safeInvoices.filter(i => i?.status === "under_review").length;
 
   if (loading) {
     return (
@@ -552,7 +588,7 @@ export const AdminDashboard = () => {
               <Card className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between">
                 <div>
                   <span className="text-xs text-muted-foreground font-bold block">{isRtl ? "إجمالي المؤلفين المسجلين" : "Total Authors"}</span>
-                  <span className="text-2xl font-black text-foreground">{authors.length}</span>
+                  <span className="text-2xl font-black text-foreground">{safeAuthors.length}</span>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
                   ✍️
@@ -573,7 +609,7 @@ export const AdminDashboard = () => {
                 <div>
                   <span className="text-xs text-muted-foreground font-bold block">{isRtl ? "مؤلفون معتمدون رسمياً" : "Approved Authors"}</span>
                   <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                    {authors.filter(a => a.verificationStatus === "approved").length}
+                    {safeAuthors.filter(a => a?.verificationStatus === "approved").length}
                   </span>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">
@@ -717,7 +753,7 @@ export const AdminDashboard = () => {
               <Card className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between">
                 <div>
                   <span className="text-xs text-muted-foreground font-bold block">{isRtl ? "إجمالي المخطوطات الواردة" : "Total Manuscripts"}</span>
-                  <span className="text-2xl font-black text-foreground">{submissions.length}</span>
+                  <span className="text-2xl font-black text-foreground">{safeSubmissions.length}</span>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center font-bold">
                   📚
@@ -738,7 +774,7 @@ export const AdminDashboard = () => {
                 <div>
                   <span className="text-xs text-muted-foreground font-bold block">{isRtl ? "مؤلفات منشورة في المتجر" : "Published Works"}</span>
                   <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                    {submissions.filter(s => s.status === "published").length}
+                    {safeSubmissions.filter(s => s?.status === "published").length}
                   </span>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">
@@ -1060,7 +1096,7 @@ export const AdminDashboard = () => {
                 <div>
                   <span className="text-xs text-muted-foreground font-bold block">{isRtl ? "فواتير تم سدادها بنجاح" : "Paid Invoices"}</span>
                   <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                    {invoices.filter(i => i.status === "paid").length}
+                    {safeInvoices.filter(i => i?.status === "paid").length}
                   </span>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">
@@ -1096,7 +1132,7 @@ export const AdminDashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {invoices.filter(i => i.status === "under_review").map((inv) => (
+                  {safeInvoices.filter(i => i?.status === "under_review").map((inv) => (
                     <Card key={`queue-${inv.id}`} className="p-4 rounded-2xl border-2 border-blue-500/40 bg-card shadow-md flex flex-col justify-between space-y-3 hover:border-blue-500 transition-all">
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-1">
@@ -1233,7 +1269,7 @@ export const AdminDashboard = () => {
                   onClick={() => setInvoiceFilterStatus("paid")}
                   className="h-8 px-3 rounded-xl text-xs font-bold"
                 >
-                  {isRtl ? `فواتير مسددة (${invoices.filter(i => i.status === "paid").length})` : "Paid"}
+                  {isRtl ? `فواتير مسددة (${safeInvoices.filter(i => i?.status === "paid").length})` : "Paid"}
                 </Button>
                 <Button 
                   size="sm" 
@@ -1241,7 +1277,7 @@ export const AdminDashboard = () => {
                   onClick={() => setInvoiceFilterStatus("unpaid")}
                   className="h-8 px-3 rounded-xl text-xs font-bold"
                 >
-                  {isRtl ? `بانتظار السداد (${invoices.filter(i => i.status === "unpaid").length})` : "Unpaid"}
+                  {isRtl ? `بانتظار السداد (${safeInvoices.filter(i => i?.status === "unpaid").length})` : "Unpaid"}
                 </Button>
               </div>
 
@@ -1785,14 +1821,14 @@ export const AdminDashboard = () => {
           <form onSubmit={handleCreateCustomInvoice} className="space-y-3.5 text-xs">
             <div className="space-y-1.5">
               <Label className="font-bold">{isRtl ? "اختر المؤلف: *" : "Select Author: *"}</Label>
-              <Select value={customInvoiceAuthorId} onValueChange={setCustomInvoiceAuthorId}>
+              <Select value={customInvoiceAuthorId || undefined} onValueChange={(val) => setCustomInvoiceAuthorId(val)}>
                 <SelectTrigger className="h-10 rounded-xl text-xs font-bold">
                   <SelectValue placeholder={isRtl ? "اختر المؤلف..." : "Select Author"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {authors.map((a) => (
+                  {safeAuthors.filter(a => a && a.id).map((a) => (
                     <SelectItem key={a.id} value={a.id}>
-                      {a.fullName} ({a.authorCode})
+                      {a.fullName || (isRtl ? "مؤلف" : "Author")} ({a.authorCode || "NA"})
                     </SelectItem>
                   ))}
                 </SelectContent>

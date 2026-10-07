@@ -280,7 +280,10 @@ export class NashrDataStore {
   static getAuthorProfile(): AuthorProfile {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_AUTHOR);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object" && parsed.id) return parsed;
+      }
     } catch (e) {
       console.error(e);
     }
@@ -290,12 +293,21 @@ export class NashrDataStore {
   static getAllAuthors(): AuthorProfile[] {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.ALL_AUTHORS);
-      let list: AuthorProfile[] = saved ? JSON.parse(saved) : [DEFAULT_DEMO_AUTHOR];
+      let list: AuthorProfile[] = [];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          list = parsed.filter(a => a && typeof a === "object" && a.id);
+        }
+      }
+      if (list.length === 0) {
+        list = [DEFAULT_DEMO_AUTHOR];
+      }
       const current = this.getAuthorProfile();
-      if (current && !list.some(a => a.id === current.id)) {
+      if (current && current.id && !list.some(a => a && a.id === current.id)) {
         list.push(current);
       }
-      return list;
+      return list.filter(a => a && a.id);
     } catch (e) {
       console.error(e);
       return [DEFAULT_DEMO_AUTHOR];
@@ -398,11 +410,13 @@ export class NashrDataStore {
   }
 
   // Submissions
-  // Submissions
   static getAllSubmissions(): ManuscriptSubmission[] {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SUBMISSIONS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed.filter(s => s && typeof s === "object" && s.id);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -413,9 +427,9 @@ export class NashrDataStore {
   static getSubmissions(authorId?: string): ManuscriptSubmission[] {
     const all = this.getAllSubmissions();
     const author = this.getAuthorProfile();
-    const targetId = authorId || author.id;
-    const targetCode = author.authorCode;
-    return all.filter(s => s.authorId === targetId || (targetCode && s.authorCode === targetCode));
+    const targetId = authorId || author?.id;
+    const targetCode = author?.authorCode;
+    return all.filter(s => s && (s.authorId === targetId || (targetCode && s.authorCode === targetCode)));
   }
 
   static addSubmission(submission: Omit<ManuscriptSubmission, "id" | "submissionDate" | "status">): ManuscriptSubmission {
@@ -436,7 +450,10 @@ export class NashrDataStore {
   static getAllInvoices(): NashrInvoice[] {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.INVOICES);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed.filter(i => i && typeof i === "object" && i.id);
+      }
     } catch (e) {
       console.error(e);
     }

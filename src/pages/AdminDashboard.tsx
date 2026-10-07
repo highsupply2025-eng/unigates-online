@@ -33,7 +33,8 @@ import {
   LogOut,
   ChevronRight,
   Layers,
-  PlusCircle
+  PlusCircle,
+  Trash2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -87,6 +88,10 @@ export const AdminDashboard = () => {
   const [rejectionNotes, setRejectionNotes] = useState("");
   const [showRejectAuthorModal, setShowRejectAuthorModal] = useState(false);
 
+  // Delete Author Modal
+  const [deleteAuthorCandidate, setDeleteAuthorCandidate] = useState<AuthorProfile | null>(null);
+  const [showDeleteAuthorModal, setShowDeleteAuthorModal] = useState(false);
+
   // Manuscript Review & Action Modal
   const [selectedManuscript, setSelectedManuscript] = useState<ManuscriptSubmission | null>(null);
   const [showManuscriptModal, setShowManuscriptModal] = useState(false);
@@ -122,6 +127,7 @@ export const AdminDashboard = () => {
 
   // Check admin access while ensuring account stays active
   useEffect(() => {
+    NashrDataStore.clearOldTestAuthors();
     checkAdmin();
   }, []);
 
@@ -215,6 +221,29 @@ export const AdminDashboard = () => {
       title: isRtl ? "تم رفض اعتماد الحساب" : "Author Rejected",
       description: isRtl ? "تم إرسال الملاحظات للمؤلف لمعالجة أسباب الرفض." : "Feedback sent to author.",
       variant: "destructive"
+    });
+  };
+
+  const handleConfirmDeleteAuthor = () => {
+    if (!deleteAuthorCandidate) return;
+    NashrDataStore.deleteAuthor(deleteAuthorCandidate.id);
+    loadAllData();
+    setShowDeleteAuthorModal(false);
+    toast({
+      title: isRtl ? "🗑️ تم حذف حساب المؤلف بنجاح" : "Author Account Deleted",
+      description: isRtl 
+        ? `تم حذف حساب ${deleteAuthorCandidate.fullName} (${deleteAuthorCandidate.authorCode}) نهائياً من المنصة.` 
+        : `Author account deleted permanently.`
+    });
+    setDeleteAuthorCandidate(null);
+  };
+
+  const handlePurgeOldTestAuthors = () => {
+    NashrDataStore.clearOldTestAuthors();
+    loadAllData();
+    toast({
+      title: isRtl ? "🧹 تم تنظيف وحذف الحسابات القديمة بنجاح" : "Old Accounts Cleared",
+      description: isRtl ? "تمت إزالة كافة الحسابات التجريبية والقديمة." : "Old test accounts have been deleted."
     });
   };
 
@@ -642,6 +671,16 @@ export const AdminDashboard = () => {
                     <SelectItem value="rejected">{isRtl ? "مرفوض ❌" : "Rejected"}</SelectItem>
                   </SelectContent>
                 </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePurgeOldTestAuthors}
+                  className="h-10 px-3.5 rounded-xl text-xs font-bold border-destructive/30 text-destructive hover:bg-destructive/10 gap-1.5 shrink-0"
+                  title={isRtl ? "تنظيف وحذف الحسابات القديمة والتجريبية" : "Purge Old Accounts"}
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                  <span>{isRtl ? "حذف الحسابات القديمة" : "Delete Old Accounts"}</span>
+                </Button>
               </div>
             </Card>
 
@@ -734,6 +773,20 @@ export const AdminDashboard = () => {
                             <span>{isRtl ? "رفض" : "Reject"}</span>
                           </Button>
                         )}
+
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            setDeleteAuthorCandidate(author);
+                            setShowDeleteAuthorModal(true);
+                          }}
+                          className="h-9 px-2.5 rounded-xl text-xs font-bold text-destructive hover:bg-destructive/10 gap-1.5"
+                          title={isRtl ? "حذف الحساب نهائياً" : "Delete Account"}
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          <span>{isRtl ? "حذف الحساب" : "Delete"}</span>
+                        </Button>
                       </div>
 
                     </div>
@@ -2078,6 +2131,49 @@ export const AdminDashboard = () => {
               </DialogFooter>
             </>
           )}
+        </DialogContent>
+      {/* ── Dialog 9: Delete Author Confirmation ── */}
+      <Dialog open={showDeleteAuthorModal} onOpenChange={setShowDeleteAuthorModal}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5 text-destructive" />
+              <span>{isRtl ? "تأكيد حذف حساب المؤلف" : "Confirm Author Deletion"}</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-2 text-muted-foreground leading-relaxed">
+              {isRtl ? (
+                <span>
+                  هل أنت متأكد من رغبتك في حذف حساب المؤلف <strong className="text-foreground">{deleteAuthorCandidate?.fullName}</strong> ({deleteAuthorCandidate?.authorCode}) نهائياً؟
+                  <br />
+                  سيتم حذف بيانات الحساب والمخطوطات المرتبطة به ولن يتمكن المؤلف من الدخول مجدداً.
+                </span>
+              ) : (
+                <span>
+                  Are you sure you want to permanently delete the author account for {deleteAuthorCandidate?.fullName} ({deleteAuthorCandidate?.authorCode})?
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="gap-2 pt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDeleteAuthorModal(false)}
+              className="rounded-xl text-xs font-bold"
+            >
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleConfirmDeleteAuthor}
+              className="rounded-xl text-xs font-black gap-1.5 shadow-sm"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{isRtl ? "تأكيد الحذف نهائياً" : "Confirm Delete"}</span>
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

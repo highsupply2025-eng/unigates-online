@@ -275,6 +275,16 @@ const INITIAL_PAYOUTS: PayoutRequest[] = [
   }
 ];
 
+export const OLD_TEST_AUTHOR_CODES = [
+  "AUT-7890",
+  "AUT-8555",
+  "AUT-7414",
+  "AUT-4121",
+  "AUT-4933",
+  "auth-2026-001",
+  "author-demo-1"
+];
+
 export class NashrDataStore {
   // Author Profile
   static getAuthorProfile(): AuthorProfile {
@@ -282,11 +292,19 @@ export class NashrDataStore {
       const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_AUTHOR);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === "object" && parsed.id) return parsed;
+        if (parsed && typeof parsed === "object" && parsed.id) {
+          const code = (parsed.authorCode || "").trim().toUpperCase();
+          const id = (parsed.id || "").trim();
+          if (!OLD_TEST_AUTHOR_CODES.includes(code) && !OLD_TEST_AUTHOR_CODES.includes(id)) {
+            return parsed;
+          }
+        }
       }
     } catch (e) {
       console.error(e);
     }
+    const all = this.getAllAuthors();
+    if (all.length > 0) return all[0];
     return DEFAULT_DEMO_AUTHOR;
   }
 
@@ -300,17 +318,83 @@ export class NashrDataStore {
           list = parsed.filter(a => a && typeof a === "object" && a.id);
         }
       }
-      if (list.length === 0) {
-        list = [DEFAULT_DEMO_AUTHOR];
+
+      // Filter out old test accounts requested for deletion by admin
+      const filtered = list.filter(a => {
+        if (!a || !a.id) return false;
+        const code = (a.authorCode || "").trim().toUpperCase();
+        const id = (a.id || "").trim();
+        const name = (a.fullName || "").trim();
+        if (OLD_TEST_AUTHOR_CODES.includes(code) || OLD_TEST_AUTHOR_CODES.includes(id)) return false;
+        if (name.includes("المنشاوي") || name === "ؤؤؤ" || name === "m" || name.includes("hgsd]")) return false;
+        return true;
+      });
+
+      // Synchronize back to storage if items were pruned
+      if (saved && list.length !== filtered.length) {
+        localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(filtered));
       }
-      const current = this.getAuthorProfile();
-      if (current && current.id && !list.some(a => a && a.id === current.id)) {
-        list.push(current);
-      }
-      return list.filter(a => a && a.id);
+
+      return filtered;
     } catch (e) {
       console.error(e);
-      return [DEFAULT_DEMO_AUTHOR];
+      return [];
+    }
+  }
+
+  static deleteAuthor(authorId: string): void {
+    try {
+      const all = this.getAllAuthors();
+      const updated = all.filter(a => a.id !== authorId && a.authorCode !== authorId);
+      localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(updated));
+
+      // Also clean CURRENT_AUTHOR if matching
+      const current = localStorage.getItem(STORAGE_KEYS.CURRENT_AUTHOR);
+      if (current) {
+        const parsed = JSON.parse(current);
+        if (parsed?.id === authorId || parsed?.authorCode === authorId) {
+          localStorage.removeItem(STORAGE_KEYS.CURRENT_AUTHOR);
+        }
+      }
+
+      // Also clean submissions and invoices for this author
+      const allSubs = this.getAllSubmissions();
+      const updatedSubs = allSubs.filter(s => s.authorId !== authorId && s.authorCode !== authorId);
+      localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(updatedSubs));
+
+      const allInvs = this.getAllInvoices();
+      const updatedInvs = allInvs.filter(i => i.authorId !== authorId);
+      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(updatedInvs));
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  static clearOldTestAuthors(): void {
+    try {
+      const all = this.getAllAuthors();
+      const updated = all.filter(a => {
+        const code = (a.authorCode || "").trim().toUpperCase();
+        const id = (a.id || "").trim();
+        const name = (a.fullName || "").trim();
+        if (OLD_TEST_AUTHOR_CODES.includes(code) || OLD_TEST_AUTHOR_CODES.includes(id)) return false;
+        if (name.includes("المنشاوي") || name === "ؤؤؤ" || name === "m" || name.includes("hgsd]")) return false;
+        return true;
+      });
+      localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(updated));
+
+      const current = localStorage.getItem(STORAGE_KEYS.CURRENT_AUTHOR);
+      if (current) {
+        const parsed = JSON.parse(current);
+        const code = (parsed?.authorCode || "").trim().toUpperCase();
+        const id = (parsed?.id || "").trim();
+        const name = (parsed?.fullName || "").trim();
+        if (OLD_TEST_AUTHOR_CODES.includes(code) || OLD_TEST_AUTHOR_CODES.includes(id) || name.includes("المنشاوي") || name === "ؤؤؤ" || name === "m" || name.includes("hgsd]")) {
+          localStorage.removeItem(STORAGE_KEYS.CURRENT_AUTHOR);
+        }
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -415,13 +499,20 @@ export class NashrDataStore {
       const saved = localStorage.getItem(STORAGE_KEYS.SUBMISSIONS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed.filter(s => s && typeof s === "object" && s.id);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(s => {
+            if (!s || typeof s !== "object" || !s.id) return false;
+            const authorCode = (s.authorCode || "").trim().toUpperCase();
+            const authorId = (s.authorId || "").trim();
+            if (OLD_TEST_AUTHOR_CODES.includes(authorCode) || OLD_TEST_AUTHOR_CODES.includes(authorId)) return false;
+            return true;
+          });
+        }
       }
     } catch (e) {
       console.error(e);
     }
-    localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(INITIAL_SUBMISSIONS));
-    return INITIAL_SUBMISSIONS;
+    return [];
   }
 
   static getSubmissions(authorId?: string): ManuscriptSubmission[] {
@@ -452,13 +543,19 @@ export class NashrDataStore {
       const saved = localStorage.getItem(STORAGE_KEYS.INVOICES);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed.filter(i => i && typeof i === "object" && i.id);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(i => {
+            if (!i || typeof i !== "object" || !i.id) return false;
+            const authorId = (i.authorId || "").trim();
+            if (OLD_TEST_AUTHOR_CODES.includes(authorId)) return false;
+            return true;
+          });
+        }
       }
     } catch (e) {
       console.error(e);
     }
-    localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(INITIAL_INVOICES));
-    return INITIAL_INVOICES;
+    return [];
   }
 
   static getInvoices(authorId?: string): NashrInvoice[] {

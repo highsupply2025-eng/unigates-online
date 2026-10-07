@@ -264,26 +264,6 @@ const NasherLogin = () => {
     }, 600);
   };
 
-  // Instant simulate approval for testing/admin
-  const handleSimulateApproval = () => {
-    const targetId = currentAuthor?.id;
-    NashrDataStore.approveAuthor(targetId);
-    const approved = targetId 
-      ? (NashrDataStore.getAllAuthors().find(a => a.id === targetId) || NashrDataStore.getAuthorProfile())
-      : NashrDataStore.getAuthorProfile();
-
-    setCurrentAuthor(approved);
-
-    toast({
-      title: isRtl ? "⚡ تم اعتماد الحساب بنجاح (محاكاة المشرف)" : "Account Approved (Simulated)",
-      description: isRtl 
-        ? "تم تفعيل حساب المؤلف واعتماده رسمياً. أصبحت كافة أدوات النشر متاحة الآن."
-        : "Author account activated. All studio publishing tools are now available."
-    });
-
-    navigate("/nashr/dashboard");
-  };
-
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       {/* Header */}
@@ -692,25 +672,6 @@ const NasherLogin = () => {
                       <RefreshCw className={`w-4 h-4 text-amber-600 dark:text-amber-400 ${refreshingStatus ? "animate-spin" : ""}`} />
                       <span>{refreshingStatus ? (isRtl ? "جاري فحص حالة الاعتماد..." : "Checking Status...") : (isRtl ? "فحص وتحديث حالة الاعتماد الآن" : "Check Approval Status Now")}</span>
                     </Button>
-
-                    {/* Instant Demo Approve Button for testing / preview */}
-                    <div className="p-3 rounded-2xl bg-muted/40 border border-border/80 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-black text-muted-foreground flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                          <span>{isRtl ? "تجربة النظام والتحقق (للمشرف والمختبر):" : "Demo Quick Approval (Admin / Reviewer):"}</span>
-                        </span>
-                      </div>
-                      <Button 
-                        type="button" 
-                        onClick={handleSimulateApproval}
-                        size="sm"
-                        className="w-full h-10 rounded-xl font-black text-xs bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md shadow-amber-500/20 gap-1.5"
-                      >
-                        <ShieldCheck className="w-4 h-4" />
-                        <span>{isRtl ? "محاكاة اعتماد الحساب فوراً والدخول للاستوديو ⚡" : "Simulate Instant Approval & Open Studio ⚡"}</span>
-                      </Button>
-                    </div>
 
                     {/* Back to Login Button */}
                     <div className="text-center pt-2">

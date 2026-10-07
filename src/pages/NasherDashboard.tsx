@@ -83,17 +83,6 @@ const NasherDashboard = () => {
   const [authorProfile, setAuthorProfile] = useState<AuthorProfile>(NashrDataStore.getAuthorProfile());
   const isUnderReview = authorProfile.verificationStatus === "pending_review";
 
-  const handleApproveAccount = () => {
-    NashrDataStore.approveAuthor();
-    refreshData();
-    toast({
-      title: isRtl ? "🎉 تمت الموافقة على الحساب واعتماده بنجاح!" : "Account Approved Successfully!",
-      description: isRtl 
-        ? "تمت مطابقة وثائق الهوية والمؤهلات الأكاديمية واعتماد الحساب رسمياً من إدارة دار عبيد. أصبحت كافة خدمات النشر والاستوديو متاحة لك الآن."
-        : "Your credentials have been verified and author account officially activated.",
-    });
-  };
-
   const [submissions, setSubmissions] = useState<ManuscriptSubmission[]>(NashrDataStore.getSubmissions());
   const [invoices, setInvoices] = useState<NashrInvoice[]>(NashrDataStore.getInvoices());
   const [messages, setMessages] = useState<NashrMessage[]>(NashrDataStore.getMessages());
@@ -547,16 +536,6 @@ const NasherDashboard = () => {
                     ? (isRtl ? "تعيين كلمة مرور دائمة" : "Set Permanent Password") 
                     : (isRtl ? "تغيير كلمة المرور" : "Change Password")}
                 </span>
-              </Button>
-
-              <Button
-                size="sm"
-                onClick={handleApproveAccount}
-                className="h-9 px-4 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md shadow-emerald-500/20 gap-1.5 hover:scale-105 transition-all"
-                title={isRtl ? "محاكاة اعتماد الإدارة وتفعيل الحساب فوراً" : "Simulate Platform Approval"}
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>{isRtl ? "اعتماد الحساب (موافقة الإدارة)" : "Simulate Approval"}</span>
               </Button>
             </div>
 

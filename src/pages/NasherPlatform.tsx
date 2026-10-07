@@ -231,12 +231,6 @@ const NasherPlatform = () => {
                 <span>{isRtl ? "الرئيسية" : "Home"}</span>
               </Button>
             </Link>
-            <Link to="/nashr">
-              <Button variant="ghost" size="sm" className="h-9 px-3.5 text-xs font-bold text-amber-300 bg-white/15 hover:bg-white/20 rounded-xl gap-1.5 transition-all">
-                <PenTool className="w-3.5 h-3.5 text-orange-400" />
-                <span>{isRtl ? "عن منصة نشر" : "About Nashr"}</span>
-              </Button>
-            </Link>
             <Link to="/book-store">
               <Button variant="ghost" size="sm" className="h-9 px-3.5 text-xs font-bold text-white/90 hover:text-white hover:bg-white/15 rounded-xl gap-1.5 transition-all">
                 <BookOpen className="w-3.5 h-3.5 text-rose-300" />

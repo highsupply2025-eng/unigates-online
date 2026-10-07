@@ -160,6 +160,7 @@ const NasherSignup = () => {
     tempPassword: string;
   } | null>(null);
   const [copiedPass, setCopiedPass] = useState(false);
+  const [copiedAuthorCode, setCopiedAuthorCode] = useState(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -387,6 +388,20 @@ const NasherSignup = () => {
     }
   };
 
+  const handleCopyAuthorCode = () => {
+    if (generatedAccount?.profile?.authorCode) {
+      navigator.clipboard.writeText(generatedAccount.profile.authorCode);
+      setCopiedAuthorCode(true);
+      toast({
+        title: isRtl ? "تم النسخ" : "Copied",
+        description: isRtl 
+          ? `تم نسخ كود المؤلف (${generatedAccount.profile.authorCode}) إلى الحافظة.`
+          : `Author code (${generatedAccount.profile.authorCode}) copied to clipboard.`
+      });
+      setTimeout(() => setCopiedAuthorCode(false), 3000);
+    }
+  };
+
   const proceedToDashboard = () => {
     navigate("/nashr/login", { 
       state: { 
@@ -571,9 +586,21 @@ const NasherSignup = () => {
 
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-muted-foreground">{isRtl ? "كود المؤلف المعتمد:" : "Author Code:"}</span>
-                    <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-black text-xs px-2.5 py-0.5">
-                      {generatedAccount.profile.authorCode}
-                    </Badge>
+                    <div className="flex items-center gap-1.5">
+                      <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-black text-xs px-2.5 py-1 font-mono">
+                        {generatedAccount.profile.authorCode}
+                      </Badge>
+                      <Button 
+                        type="button" 
+                        size="sm"
+                        variant="outline"
+                        onClick={handleCopyAuthorCode}
+                        className="h-7 px-2 rounded-lg border-amber-500/40 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-[11px] gap-1 shrink-0"
+                      >
+                        {copiedAuthorCode ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedAuthorCode ? (isRtl ? "تم النسخ" : "Copied") : (isRtl ? "نسخ" : "Copy")}</span>
+                      </Button>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-muted-foreground">{isRtl ? "البريد الإلكتروني:" : "Email:"}</span>
@@ -594,28 +621,56 @@ const NasherSignup = () => {
                   </div>
                 </div>
 
-                {/* Temporary Password Highlight Box */}
-                <div className="p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 space-y-3">
-                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-xs">
-                    <Key className="w-4 h-4" />
-                    <span>{isRtl ? "كلمة المرور المؤقتة الخاصة بحسابكم (احفظها الآن):" : "Your Temporary Password (Save it now):"}</span>
+                {/* Credentials & Access Keys Highlight Box */}
+                <div className="p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 space-y-4">
+                  {/* 1. Official Author Code */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-xs">
+                      <User className="w-4 h-4" />
+                      <span>{isRtl ? "كود المؤلف المعتمد (اسم المستخدم للدخول):" : "Official Author Code (Login Username):"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        readOnly 
+                        value={generatedAccount.profile.authorCode} 
+                        className="font-mono font-black text-lg sm:text-xl text-center tracking-widest bg-background border-amber-500/40 text-foreground h-12 rounded-xl"
+                      />
+                      <Button 
+                        type="button" 
+                        onClick={handleCopyAuthorCode}
+                        variant="outline" 
+                        className="h-12 px-4 rounded-xl border-amber-500/40 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold gap-1.5 shrink-0"
+                      >
+                        {copiedAuthorCode ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                        <span className="text-xs">{copiedAuthorCode ? (isRtl ? "تم النسخ" : "Copied") : (isRtl ? "نسخ" : "Copy")}</span>
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Input 
-                      readOnly 
-                      value={generatedAccount.tempPassword} 
-                      className="font-mono font-black text-lg sm:text-xl text-center tracking-widest bg-background border-amber-500/40 text-foreground h-12 rounded-xl"
-                    />
-                    <Button 
-                      type="button" 
-                      onClick={handleCopyPassword}
-                      variant="outline" 
-                      className="h-12 px-4 rounded-xl border-amber-500/40 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold gap-1.5 shrink-0"
-                    >
-                      {copiedPass ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                      <span className="text-xs">{copiedPass ? (isRtl ? "تم النسخ" : "Copied") : (isRtl ? "نسخ" : "Copy")}</span>
-                    </Button>
+
+                  {/* 2. Temporary Password */}
+                  <div className="space-y-2 pt-3 border-t border-amber-500/20">
+                    <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-xs">
+                      <Key className="w-4 h-4" />
+                      <span>{isRtl ? "كلمة المرور المؤقتة الخاصة بحسابكم (احفظها الآن):" : "Your Temporary Password (Save it now):"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        readOnly 
+                        value={generatedAccount.tempPassword} 
+                        className="font-mono font-black text-lg sm:text-xl text-center tracking-widest bg-background border-amber-500/40 text-foreground h-12 rounded-xl"
+                      />
+                      <Button 
+                        type="button" 
+                        onClick={handleCopyPassword}
+                        variant="outline" 
+                        className="h-12 px-4 rounded-xl border-amber-500/40 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold gap-1.5 shrink-0"
+                      >
+                        {copiedPass ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                        <span className="text-xs">{copiedPass ? (isRtl ? "تم النسخ" : "Copied") : (isRtl ? "نسخ" : "Copy")}</span>
+                      </Button>
+                    </div>
                   </div>
+
                   <div className="flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed pt-1">
                     <Info className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                     <span>

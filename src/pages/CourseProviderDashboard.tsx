@@ -2030,16 +2030,7 @@ export default function CourseProviderDashboard({ fixedRole }: Props) {
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label className="text-xs text-slate-300">{isRtl ? "اليوم" : "Day"}</Label>
-              <Select value={newSchedule.day} onValueChange={(val) => setNewSchedule({ ...newSchedule, day: val })}>
-                <SelectTrigger className="bg-slate-950 border-white/15 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-white/10 text-white">
-                  {["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"].map((d) => (
-                    <SelectItem key={d} value={d}>{d}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input type="date" value={newSchedule.day} onChange={(e) => setNewSchedule({ ...newSchedule, day: e.target.value })} className="bg-slate-950 border-white/15 text-white" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-slate-300">{isRtl ? "المادة / المحاضرة" : "Subject"}</Label>

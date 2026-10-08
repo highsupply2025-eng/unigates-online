@@ -107,8 +107,10 @@ export default function PromoVideoPage() {
     if (saved) {
       try {
         const parsed: StudioVideo[] = JSON.parse(saved);
-        const filtered = parsed.filter(v => v.videoUrl && !v.videoUrl.includes("dQw4w9WgXcQ"));
-        if (filtered.length > 0) return filtered;
+        const officialIds = new Set(ALL_INITIAL_VIDEOS.map(v => v.id));
+        const officialUrls = new Set(ALL_INITIAL_VIDEOS.map(v => v.videoUrl));
+        const custom = parsed.filter(v => v.videoUrl && !v.videoUrl.includes("dQw4w9WgXcQ") && !officialIds.has(v.id) && !officialUrls.has(v.videoUrl) && !v.videoUrl.includes("unigates-university-platform-promo"));
+        return [...ALL_INITIAL_VIDEOS, ...custom];
       } catch (e) {
         return ALL_INITIAL_VIDEOS;
       }

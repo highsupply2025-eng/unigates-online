@@ -575,29 +575,6 @@ export const AdminDashboard = () => {
             <span className="hidden sm:inline">{isRtl ? "تحديث البيانات" : "Refresh"}</span>
           </Button>
 
-          <Button 
-            variant="outline" 
-            size="sm" 
-            asChild
-            className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5 border-border hover:bg-muted"
-          >
-            <Link to="/nashr" target="_blank">
-              <ExternalLink className="w-3.5 h-3.5 text-amber-500" />
-              <span className="hidden sm:inline">{isRtl ? "منصة نشر" : "Nashr Portal"}</span>
-            </Link>
-          </Button>
-
-          <Button 
-            variant="outline" 
-            size="sm" 
-            asChild
-            className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5 border-border hover:bg-muted"
-          >
-            <Link to="/book-store" target="_blank">
-              <BookOpen className="w-3.5 h-3.5 text-blue-500" />
-              <span className="hidden sm:inline">{isRtl ? "متجر الكتب" : "Book Store"}</span>
-            </Link>
-          </Button>
 
           <ThemeToggle />
           <LanguageSelectorDropdown />

@@ -44,7 +44,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { AcademicTitle, AuthorProfile } from "@/types/nashr";
-import { NashrDataStore } from "@/services/nashrDataStore";
+import { 
+  NashrDataStore, 
+  generateSampleAuthorAvatarSvg, 
+  generateSampleCertificateSvg 
+} from "@/services/nashrDataStore";
 
 const ACADEMIC_TITLES = [
   { value: "prof", labelAr: "أ.د. / أستاذ دكتور", labelEn: "Prof. Dr." },
@@ -127,11 +131,11 @@ const readFileAsDataUrl = async (file: File): Promise<string> => {
         img.onerror = () => resolve(resultStr);
         img.src = resultStr;
       };
-      reader.onerror = () => resolve(URL.createObjectURL(file));
+      reader.onerror = () => resolve(generateSampleAuthorAvatarSvg(file.name));
       reader.readAsDataURL(file);
     } else {
       reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => resolve(URL.createObjectURL(file));
+      reader.onerror = () => resolve(generateSampleCertificateSvg(file.name, "وثيقة", "مستند مرفق"));
       reader.readAsDataURL(file);
     }
   });

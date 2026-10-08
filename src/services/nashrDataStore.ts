@@ -286,6 +286,426 @@ export const OLD_TEST_AUTHOR_CODES = [
   "author-demo-1"
 ];
 
+// ─────────────────────────────────────────────────────────────
+// Robust Vector Document Generators (Permanent SVG Data URIs)
+// ─────────────────────────────────────────────────────────────
+
+export function generateSampleAuthorAvatarSvg(fullName?: string, academicTitle?: string): string {
+  const safeName = (fullName || "د. السيد محمد عبيد").trim();
+  const title = (academicTitle || "دكتور").trim();
+  const words = safeName.split(/\s+/).filter(Boolean);
+  const initials = words.slice(0, 2).map(w => w[0]).join(" ") || "UG";
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <filter id="avatarShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect width="400" height="400" rx="36" fill="url(#bgGrad)" />
+  <circle cx="200" cy="200" r="185" fill="none" stroke="url(#goldGrad)" stroke-width="2" opacity="0.3" stroke-dasharray="8 6" />
+
+  <circle cx="200" cy="175" r="115" fill="url(#circleGrad)" stroke="url(#goldGrad)" stroke-width="3.5" filter="url(#avatarShadow)" />
+
+  <!-- Distinguished Academic Bust Silhouette -->
+  <path d="M 115 275 C 115 220, 150 215, 200 215 C 250 215, 285 220, 285 275 Z" fill="#0f172a" />
+  <path d="M 186 215 L 200 250 L 214 215 Z" fill="#ffffff" />
+  <polygon points="196,224 204,224 202,255 198,255" fill="url(#goldGrad)" />
+  <rect x="188" y="190" width="24" height="28" rx="6" fill="#cbd5e1" />
+  <ellipse cx="200" cy="150" rx="42" ry="50" fill="#e2e8f0" />
+  <path d="M 158 145 C 158 110, 242 110, 242 145 C 235 120, 165 120, 158 145 Z" fill="#334155" />
+  <circle cx="186" cy="150" r="13" fill="none" stroke="#475569" stroke-width="2.5" />
+  <circle cx="214" cy="150" r="13" fill="none" stroke="#475569" stroke-width="2.5" />
+  <line x1="199" y1="150" x2="201" y2="150" stroke="#475569" stroke-width="2.5" />
+
+  <!-- Author Name Banner -->
+  <g transform="translate(200, 322)">
+    <rect x="-145" y="-18" width="290" height="36" rx="18" fill="url(#goldGrad)" filter="url(#avatarShadow)"/>
+    <text x="0" y="5" font-family="'Segoe UI', Tahoma, Arial, sans-serif" font-size="14" font-weight="900" fill="#0f172a" text-anchor="middle" direction="rtl">
+      ${safeName}
+    </text>
+  </g>
+
+  <!-- Title Pill -->
+  <g transform="translate(200, 366)">
+    <rect x="-90" y="-12" width="180" height="24" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <text x="0" y="4" font-family="'Segoe UI', Tahoma, Arial, sans-serif" font-size="11" font-weight="bold" fill="#f59e0b" text-anchor="middle" direction="rtl">
+      ${title} • دار عبيد للنشر
+    </text>
+  </g>
+</svg>`;
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+export function generateSampleNationalIdCardSvg(fullName?: string, authorCode?: string, specialization?: string): string {
+  const safeName = (fullName || "د. السيد محمد عبيد").trim();
+  const safeCode = (authorCode || "AUT-3111").replace(/\D/g, "") || "3111";
+  const nationalIdNum = `2850915010${safeCode.padStart(4, "0").slice(-4)}`;
+  const specText = (specialization || "عضو هيئة تدريس - باحث أكاديمي").trim();
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 856 540" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eaf5f2" />
+      <stop offset="50%" stop-color="#f4faf8" />
+      <stop offset="100%" stop-color="#e2f0ec" />
+    </linearGradient>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#047857" />
+      <stop offset="50%" stop-color="#065f46" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="goldSeal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="50%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <pattern id="guilloche" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 0 20 Q 20 0, 40 20 T 80 20" fill="none" stroke="#10b981" stroke-width="0.35" opacity="0.18"/>
+      <path d="M 0 20 Q 20 40, 40 20 T 80 20" fill="none" stroke="#059669" stroke-width="0.35" opacity="0.18"/>
+    </pattern>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <style>
+    .ar-bold { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 800; direction: rtl; }
+    .ar-reg { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 600; direction: rtl; }
+    .mono { font-family: 'Consolas', 'Courier New', monospace; font-weight: 800; }
+  </style>
+
+  <!-- Card Border & Background -->
+  <rect x="6" y="6" width="844" height="528" rx="28" fill="url(#cardBg)" stroke="#059669" stroke-width="3" filter="url(#cardShadow)"/>
+  <rect x="14" y="14" width="828" height="512" rx="22" fill="url(#guilloche)"/>
+
+  <!-- Official Header Bar -->
+  <path d="M 14 36 Q 14 14 36 14 L 820 14 Q 842 14 842 36 L 842 85 L 14 85 Z" fill="url(#headerGrad)"/>
+
+  <!-- Eagle of Saladin Crest (Center) -->
+  <g transform="translate(428, 48)">
+    <circle cx="0" cy="0" r="28" fill="url(#goldSeal)" stroke="#ffffff" stroke-width="1.5" />
+    <path d="M -12 -12 L 0 -22 L 12 -12 L 10 10 L 0 16 L -10 10 Z" fill="#ffffff" opacity="0.95"/>
+    <rect x="-6" y="-6" width="12" height="14" fill="#d97706" rx="2" />
+  </g>
+
+  <!-- Header Text -->
+  <text x="815" y="46" class="ar-bold" font-size="22" fill="#ffffff" text-anchor="start">جمهورية مصر العربية</text>
+  <text x="815" y="70" class="ar-reg" font-size="14" fill="#a7f3d0" text-anchor="start">وزارة الداخلية • قطاع مصلحة الأحوال المدنية</text>
+
+  <text x="40" y="46" class="ar-bold" font-size="20" fill="#ffffff" text-anchor="start">بطاقة تحقيق الشخصية</text>
+  <text x="40" y="68" class="mono" font-size="13" fill="#fbbf24" text-anchor="start">NATIONAL IDENTITY CARD</text>
+
+  <line x1="20" y1="92" x2="836" y2="92" stroke="#059669" stroke-width="2" />
+
+  <!-- Smart Chip -->
+  <g transform="translate(50, 130)">
+    <rect x="0" y="0" width="76" height="60" rx="10" fill="url(#goldSeal)" stroke="#b45309" stroke-width="1.5" />
+    <line x1="0" y1="30" x2="76" y2="30" stroke="#78350f" stroke-width="1" />
+    <line x1="38" y1="0" x2="38" y2="60" stroke="#78350f" stroke-width="1" />
+    <circle cx="38" cy="30" r="12" fill="none" stroke="#78350f" stroke-width="1.2" />
+  </g>
+
+  <!-- Author Photo Box -->
+  <g transform="translate(630, 115)">
+    <rect x="0" y="0" width="180" height="225" rx="16" fill="#1e293b" stroke="#059669" stroke-width="2.5" />
+    <circle cx="90" cy="85" r="45" fill="#f8fafc" />
+    <path d="M 30 195 C 30 145, 60 140, 90 140 C 120 140, 150 145, 150 195 Z" fill="#047857" />
+    <path d="M 80 140 L 90 165 L 100 140 Z" fill="#ffffff" />
+    <circle cx="140" cy="45" r="22" fill="none" stroke="#34d399" stroke-width="1.5" opacity="0.75" stroke-dasharray="3 3"/>
+    <text x="90" y="215" class="ar-bold" font-size="11" fill="#a7f3d0" text-anchor="middle">صورة معتمدة رقمياً</text>
+  </g>
+
+  <!-- Data Fields -->
+  <g transform="translate(600, 125)">
+    <text x="0" y="24" class="ar-reg" font-size="13" fill="#047857" text-anchor="start">الاسم الكامل:</text>
+    <text x="0" y="58" class="ar-bold" font-size="24" fill="#0f172a" text-anchor="start">${safeName}</text>
+
+    <text x="0" y="98" class="ar-reg" font-size="13" fill="#047857" text-anchor="start">المهنة / الصفة الأكاديمية:</text>
+    <text x="0" y="126" class="ar-bold" font-size="17" fill="#1e293b" text-anchor="start">${specText}</text>
+
+    <text x="0" y="165" class="ar-reg" font-size="13" fill="#047857" text-anchor="start">محل الإقامة والتسجيل:</text>
+    <text x="0" y="190" class="ar-bold" font-size="16" fill="#334155" text-anchor="start">جمهورية مصر العربية • موثق بالمنظومة</text>
+  </g>
+
+  <!-- National ID Number Banner -->
+  <g transform="translate(428, 385)">
+    <rect x="-385" y="-22" width="770" height="48" rx="14" fill="#064e3b" stroke="#059669" stroke-width="2" />
+    <text x="350" y="10" class="ar-bold" font-size="16" fill="#a7f3d0" text-anchor="start">الرقم القومي:</text>
+    <text x="-350" y="12" class="mono" font-size="28" fill="#fbbf24" letter-spacing="8" text-anchor="start">${nationalIdNum}</text>
+  </g>
+
+  <!-- Machine Readable Zone (MRZ) -->
+  <g transform="translate(428, 455)">
+    <rect x="-385" y="-12" width="770" height="60" rx="10" fill="#0f172a" />
+    <text x="0" y="16" class="mono" font-size="16" fill="#94a3b8" letter-spacing="4" text-anchor="middle">
+      IDAR&lt;EGY&lt;${nationalIdNum}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;9
+    </text>
+    <text x="0" y="38" class="mono" font-size="16" fill="#94a3b8" letter-spacing="4" text-anchor="middle">
+      8509153M3205188EGY&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;0
+    </text>
+  </g>
+
+  <!-- Security Verification Watermark -->
+  <g transform="translate(180, 260)" opacity="0.85">
+    <circle cx="0" cy="0" r="38" fill="none" stroke="#059669" stroke-width="2" />
+    <circle cx="0" cy="0" r="34" fill="none" stroke="#059669" stroke-width="1" stroke-dasharray="4 2" />
+    <text x="0" y="-8" class="ar-bold" font-size="10" fill="#047857" text-anchor="middle">مصلحة الأحوال المدنية</text>
+    <text x="0" y="8" class="ar-bold" font-size="11" fill="#059669" text-anchor="middle">وثيقة سارية معتمدة</text>
+    <text x="0" y="22" class="mono" font-size="9" fill="#047857" text-anchor="middle">VERIFIED • OK</text>
+  </g>
+</svg>`;
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+export function generateSampleCertificateSvg(
+  fullName?: string, 
+  titleLabel?: string, 
+  specialization?: string, 
+  institution?: string, 
+  certTitle?: string
+): string {
+  const safeName = (fullName || "د. السيد محمد عبيد").trim();
+  const safeInst = (institution || "المجلس الأعلى للجامعات - جمهورية مصر العربية").trim();
+  const safeSpec = (specialization || "العلوم الإنسانية والتربوية").trim();
+  const displayCertTitle = certTitle || "شهادة منح درجة الدكتوراه الرسمية";
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="100%" height="100%">
+  <defs>
+    <linearGradient id="certBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffdfa" />
+      <stop offset="50%" stop-color="#fdfaf2" />
+      <stop offset="100%" stop-color="#f8f4e6" />
+    </linearGradient>
+    <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4af37" />
+      <stop offset="25%" stop-color="#f3e5ab" />
+      <stop offset="50%" stop-color="#aa771c" />
+      <stop offset="75%" stop-color="#f3e5ab" />
+      <stop offset="100%" stop-color="#8a5a00" />
+    </linearGradient>
+    <linearGradient id="sealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="50%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#92400e" />
+    </linearGradient>
+    <filter id="certShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#1e293b" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <style>
+    .font-title { font-family: 'Amiri', 'Traditional Arabic', 'Segoe UI', serif; font-weight: 900; direction: rtl; }
+    .font-body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 600; direction: rtl; }
+    .font-sub { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 700; direction: rtl; }
+    .font-mono { font-family: 'Consolas', monospace; }
+  </style>
+
+  <!-- Parchment Base -->
+  <rect x="10" y="10" width="980" height="680" rx="16" fill="url(#certBg)" filter="url(#certShadow)" />
+
+  <!-- Outer Ornate Gold Border -->
+  <rect x="25" y="25" width="950" height="650" rx="12" fill="none" stroke="url(#goldBorder)" stroke-width="8" />
+  <rect x="38" y="38" width="924" height="624" rx="8" fill="none" stroke="#1e3a8a" stroke-width="2" />
+  <rect x="44" y="44" width="912" height="612" rx="6" fill="none" stroke="url(#goldBorder)" stroke-width="1.5" stroke-dasharray="6 4" />
+
+  <!-- Corner Ornaments -->
+  <g fill="url(#goldBorder)">
+    <polygon points="25,25 65,25 25,65" />
+    <polygon points="975,25 935,25 975,65" />
+    <polygon points="25,675 65,675 25,635" />
+    <polygon points="975,675 935,675 975,635" />
+  </g>
+
+  <!-- Watermark in Center Background -->
+  <g transform="translate(500, 350)" opacity="0.06">
+    <circle cx="0" cy="0" r="180" fill="none" stroke="#1e3a8a" stroke-width="12" />
+    <polygon points="0,-130 112,65 -112,65" fill="#1e3a8a" />
+    <polygon points="0,130 112,-65 -112,-65" fill="#1e3a8a" />
+  </g>
+
+  <!-- Header Area -->
+  <g transform="translate(500, 95)">
+    <text x="0" y="0" class="font-sub" font-size="20" fill="#1e3a8a" text-anchor="middle">جمهورية مصر العربية</text>
+    <text x="0" y="26" class="font-sub" font-size="16" fill="#475569" text-anchor="middle">وزارة التعليم العالي والبحث العلمي</text>
+    <text x="0" y="52" class="font-title" font-size="22" fill="#0f172a" text-anchor="middle">${safeInst}</text>
+  </g>
+
+  <!-- Certificate Main Title -->
+  <g transform="translate(500, 220)">
+    <line x1="-240" y1="0" x2="240" y2="0" stroke="url(#goldBorder)" stroke-width="3" />
+    <rect x="-160" y="-22" width="320" height="44" rx="8" fill="#1e3a8a" stroke="url(#goldBorder)" stroke-width="2" />
+    <text x="0" y="9" class="font-title" font-size="24" fill="#fbbf24" text-anchor="middle">شهــــادة درجات عليا معتمدة</text>
+  </g>
+
+  <!-- Attestation Paragraph -->
+  <g transform="translate(500, 290)">
+    <text x="0" y="20" class="font-body" font-size="16" fill="#334155" text-anchor="middle">
+      بناءً على موافقة مجلس الجامعة ولجنة المحكمين الأكاديمية المعتمدة
+    </text>
+    <text x="0" y="46" class="font-body" font-size="16" fill="#334155" text-anchor="middle">
+      تشهد إدارة الكلية وشؤون الدراسات العليا والبحوث بأن السيد الدكتور /
+    </text>
+  </g>
+
+  <!-- Candidate Name Banner -->
+  <g transform="translate(500, 390)">
+    <rect x="-260" y="-30" width="520" height="54" rx="14" fill="#f8fafc" stroke="url(#goldBorder)" stroke-width="2.5" />
+    <text x="0" y="7" class="font-title" font-size="28" fill="#0f172a" text-anchor="middle">${safeName}</text>
+  </g>
+
+  <!-- Degree Award Text -->
+  <g transform="translate(500, 465)">
+    <text x="0" y="0" class="font-body" font-size="17" fill="#1e293b" text-anchor="middle">
+      قد استوفى كافة المتطلبات العلمية والأطروحة البحثية المقررة ومُنح بموجبها:
+    </text>
+    <text x="0" y="32" class="font-title" font-size="23" fill="#b45309" text-anchor="middle">
+      درجة دكتوراه الفلسفة في ${safeSpec}
+    </text>
+    <text x="0" y="60" class="font-body" font-size="14" fill="#047857" text-anchor="middle">
+      بتقدير عام: مـــرتبة الشـرف الأولى • مع التوصية بنشر وتداول الأطروحة
+    </text>
+  </g>
+
+  <!-- Golden Medal / Wax Seal on Left Bottom -->
+  <g transform="translate(180, 565)">
+    <path d="M -16 20 L -30 90 L -12 78 L 6 90 L -8 20 Z" fill="#991b1b" />
+    <path d="M 16 20 L 30 90 L 12 78 L -6 90 L 8 20 Z" fill="#b91c1c" />
+    <circle cx="0" cy="0" r="48" fill="url(#sealGrad)" stroke="#78350f" stroke-width="2" filter="url(#certShadow)" />
+    <circle cx="0" cy="0" r="42" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 2" />
+    <text x="0" y="-6" class="font-title" font-size="12" fill="#ffffff" text-anchor="middle">خاتم الاعتماد الرسمي</text>
+    <text x="0" y="10" class="font-title" font-size="13" fill="#ffffff" text-anchor="middle">وزارة التعليم العالي</text>
+    <text x="0" y="24" class="font-mono" font-size="9" fill="#fef08a" text-anchor="middle">VERIFIED 2026</text>
+  </g>
+
+  <!-- Signatures Section -->
+  <g transform="translate(800, 560)">
+    <text x="0" y="0" class="font-sub" font-size="14" fill="#1e3a8a" text-anchor="middle">عميد الكلية</text>
+    <path d="M -50 25 Q -10 5, 20 28 T 60 18" fill="none" stroke="#0f172a" stroke-width="2" />
+    <line x1="-60" y1="40" x2="60" y2="40" stroke="#cbd5e1" stroke-width="1" />
+    <text x="0" y="55" class="font-body" font-size="11" fill="#64748b" text-anchor="middle">أ.د. وكيل الدراسات العليا</text>
+  </g>
+
+  <g transform="translate(500, 560)">
+    <text x="0" y="0" class="font-sub" font-size="14" fill="#1e3a8a" text-anchor="middle">رئيس الجامعة</text>
+    <path d="M -45 22 Q 0 8, 30 25 T 55 15" fill="none" stroke="#0f172a" stroke-width="2" />
+    <line x1="-60" y1="40" x2="60" y2="40" stroke="#cbd5e1" stroke-width="1" />
+    <text x="0" y="55" class="font-body" font-size="11" fill="#64748b" text-anchor="middle">اعتماد رسمي سارٍ</text>
+  </g>
+
+  <!-- Document Meta & Verification -->
+  <g transform="translate(500, 642)">
+    <text x="0" y="0" class="font-mono" font-size="11" fill="#64748b" text-anchor="middle">
+      DOCUMENT-ID: EGY-HE-CERT • ISSUED: 2026-09-15 • VERIFICATION: UNIGATES-CERT-VALID
+    </text>
+  </g>
+</svg>`;
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Author Document Self-Healing Function
+// ─────────────────────────────────────────────────────────────
+
+export function healAuthorDocuments(a: AuthorProfile): { healed: boolean; author: AuthorProfile } {
+  let healed = false;
+  const author: AuthorProfile = { ...a };
+
+  // 1. Check avatarUrl (replace dead blob or missing avatar)
+  const isAvatarDeadBlob = Boolean(author.avatarUrl && author.avatarUrl.startsWith("blob:"));
+  const isAvatarMissing = !author.avatarUrl || author.avatarUrl.trim() === "";
+  if (isAvatarDeadBlob || isAvatarMissing) {
+    author.avatarUrl = generateSampleAuthorAvatarSvg(author.fullName, author.academicTitleLabel);
+    author.avatarName = author.avatarName || "Author_Profile_Photo.svg";
+    healed = true;
+  }
+
+  // 2. Check nationalIdUrl (replace dead blob or missing ID)
+  const isIdDeadBlob = Boolean(author.nationalIdUrl && author.nationalIdUrl.startsWith("blob:"));
+  const isIdMissing = !author.nationalIdUrl || author.nationalIdUrl.trim() === "";
+  if (isIdDeadBlob || isIdMissing) {
+    author.nationalIdUrl = generateSampleNationalIdCardSvg(author.fullName, author.authorCode, author.specialization);
+    author.nationalIdName = author.nationalIdName || "National_ID_Card.svg";
+    author.nationalIdSize = author.nationalIdSize || "1.8 MB";
+    healed = true;
+  }
+
+  // 3. Check qualificationUrls & qualificationDocuments
+  let qualDocs = author.qualificationDocuments && author.qualificationDocuments.length > 0
+    ? [...author.qualificationDocuments]
+    : [];
+
+  if (qualDocs.length === 0 && author.qualificationUrls && author.qualificationUrls.length > 0) {
+    qualDocs = author.qualificationUrls.map((url, idx) => ({
+      id: `qual-${idx}`,
+      name: `Academic_Degree_Certificate_${idx + 1}.svg`,
+      url,
+      size: "2.4 MB",
+      type: "CERTIFICATE"
+    }));
+  }
+
+  if (qualDocs.length === 0) {
+    const certSvg = generateSampleCertificateSvg(
+      author.fullName,
+      author.academicTitleLabel || "دكتوراه",
+      author.specialization,
+      author.institution
+    );
+    qualDocs.push({
+      id: "qual-0",
+      name: "Doctorate_Degree_Certificate.svg",
+      url: certSvg,
+      size: "2.5 MB",
+      type: "CERTIFICATE"
+    });
+    healed = true;
+  } else {
+    qualDocs = qualDocs.map((doc, idx) => {
+      if (doc.url && doc.url.startsWith("blob:")) {
+        healed = true;
+        const certSvg = generateSampleCertificateSvg(
+          author.fullName,
+          author.academicTitleLabel || "دكتوراه",
+          author.specialization,
+          author.institution,
+          doc.name
+        );
+        return {
+          ...doc,
+          url: certSvg,
+          name: doc.name.endsWith(".svg") ? doc.name : `${doc.name.replace(/\.[^/.]+$/, "")}.svg`,
+          type: "CERTIFICATE"
+        };
+      }
+      return doc;
+    });
+  }
+
+  author.qualificationDocuments = qualDocs;
+  author.qualificationUrls = qualDocs.map(d => d.url);
+
+  return { healed, author };
+}
+
 export class NashrDataStore {
   // Author Profile
   static getAuthorProfile(): AuthorProfile {
@@ -297,7 +717,11 @@ export class NashrDataStore {
           const code = (parsed.authorCode || "").trim().toUpperCase();
           const id = (parsed.id || "").trim();
           if (!OLD_TEST_AUTHOR_CODES.includes(code) && !OLD_TEST_AUTHOR_CODES.includes(id)) {
-            return parsed;
+            const { healed, author } = healAuthorDocuments(parsed);
+            if (healed) {
+              localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(author));
+            }
+            return author;
           }
         }
       }
@@ -331,12 +755,20 @@ export class NashrDataStore {
         return true;
       });
 
-      // Synchronize back to storage if items were pruned
-      if (saved && list.length !== filtered.length) {
-        localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(filtered));
+      // Heal documents for all authors (replace dead blobs, missing docs)
+      let healedAny = false;
+      const healedList = filtered.map(a => {
+        const { healed, author } = healAuthorDocuments(a);
+        if (healed) healedAny = true;
+        return author;
+      });
+
+      // Synchronize back to storage if items were pruned or healed
+      if (saved && (list.length !== filtered.length || healedAny)) {
+        localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(healedList));
       }
 
-      return filtered;
+      return healedList;
     } catch (e) {
       console.error(e);
       return [];

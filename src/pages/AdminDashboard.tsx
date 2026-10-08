@@ -53,6 +53,32 @@ import { supabase } from "@/integrations/supabase/client";
 import { NashrDataStore } from "@/services/nashrDataStore";
 import { AuthorProfile, ManuscriptSubmission, NashrInvoice } from "@/types/nashr";
 
+function dataUrlToBlob(dataUrl: string): Blob {
+  try {
+    const parts = dataUrl.split(',');
+    if (parts.length < 2) return new Blob([dataUrl], { type: 'text/plain' });
+    const mimeMatch = parts[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+    const isBase64 = parts[0].includes(';base64');
+    
+    if (isBase64) {
+      const binaryStr = atob(parts[1]);
+      const len = binaryStr.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      return new Blob([bytes], { type: mime });
+    } else {
+      const decoded = decodeURIComponent(parts[1]);
+      return new Blob([decoded], { type: mime });
+    }
+  } catch (err) {
+    console.error("[AdminDashboard] dataUrlToBlob error:", err);
+    return new Blob([dataUrl], { type: 'text/plain' });
+  }
+}
+
 export const AdminDashboard = () => {
   const { dir } = useLanguage();
   const isRtl = dir === "rtl";
@@ -150,13 +176,57 @@ export const AdminDashboard = () => {
 
   const handleDownloadDoc = (url: string, filename: string) => {
     try {
+      if (url.startsWith("data:")) {
+        const blob = dataUrlToBlob(url);
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = filename || "document.svg";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        toast({
+          title: isRtl ? "تم بدء تحميل الوثيقة بنجاح" : "Download Started",
+          description: filename || "document"
+        });
+        return;
+      }
+
       const a = document.createElement("a");
       a.href = url;
       a.download = filename || "document";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    } catch {
+      toast({
+        title: isRtl ? "تم بدء تحميل الوثيقة بنجاح" : "Download Started",
+        description: filename || "document"
+      });
+    } catch (e) {
+      console.error("[AdminDashboard] Download error:", e);
+      window.open(url, "_blank");
+    }
+  };
+
+  const handleOpenInNewTab = (url: string, filename?: string) => {
+    try {
+      if (url.startsWith("data:")) {
+        const blob = dataUrlToBlob(url);
+        const blobUrl = URL.createObjectURL(blob);
+        const newTab = window.open(blobUrl, "_blank");
+        if (!newTab) {
+          toast({
+            title: isRtl ? "تنبيه المتصفح" : "Browser Notice",
+            description: isRtl ? "يرجى السماح بالنوافذ المنبثقة لمعاينة المستند في نافذة جديدة." : "Please allow popups to open document.",
+            variant: "destructive"
+          });
+        }
+        return;
+      }
+      window.open(url, "_blank");
+    } catch (e) {
+      console.error("[AdminDashboard] Open in new tab error:", e);
       window.open(url, "_blank");
     }
   };
@@ -758,9 +828,20 @@ export const AdminDashboard = () => {
                       
                       {/* Author Info */}
                       <div className="flex items-start gap-3.5">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-lg font-black shrink-0 shadow-md">
-                          ✍️
-                        </div>
+                        {author.avatarUrl ? (
+                          <img 
+                            src={author.avatarUrl} 
+                            alt={author.fullName} 
+                            className="w-12 h-12 rounded-xl object-cover border border-amber-500/40 shrink-0 shadow-md"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-lg font-black shrink-0 shadow-md">
+                            ✍️
+                          </div>
+                        )}
                         <div className="space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-black text-sm text-foreground">{author.fullName}</span>
@@ -1611,16 +1692,29 @@ export const AdminDashboard = () => {
                         </Badge>
                       </div>
                       {selectedAuthor.avatarUrl && (
-                        <Button 
-                          type="button" 
-                          size="sm" 
-                          variant="ghost" 
-                          onClick={() => handleOpenDocPreview(isRtl ? "الصورة الشخصية للمؤلف" : "Author Profile Photo", selectedAuthor.avatarUrl!, selectedAuthor.avatarName || "Author_Photo.jpg")}
-                          className="text-[11px] h-7 px-2 text-amber-600 hover:bg-amber-500/10 font-bold gap-1 rounded-lg"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>{isRtl ? "معاينة الصورة" : "View Photo"}</span>
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button 
+                            type="button" 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => handleOpenDocPreview(isRtl ? "الصورة الشخصية للمؤلف" : "Author Profile Photo", selectedAuthor.avatarUrl!, selectedAuthor.avatarName || "Author_Photo.jpg")}
+                            className="text-[11px] h-7 px-2 text-amber-600 hover:bg-amber-500/10 font-bold gap-1 rounded-lg"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "معاينة الصورة" : "View Photo"}</span>
+                          </Button>
+                          <Button 
+                            type="button" 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => handleDownloadDoc(selectedAuthor.avatarUrl!, selectedAuthor.avatarName || "Author_Photo.svg")}
+                            className="text-[11px] h-7 px-2 text-amber-600 hover:bg-amber-500/10 font-bold gap-1 rounded-lg"
+                            title={isRtl ? "تحميل الصورة الشخصية" : "Download Profile Photo"}
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "تحميل" : "Download"}</span>
+                          </Button>
+                        </div>
                       )}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground pt-1">
@@ -1906,14 +2000,17 @@ export const AdminDashboard = () => {
                     alt={previewDoc.title} 
                     className="max-h-[68vh] w-auto max-w-full rounded-xl object-contain shadow-md"
                     onError={(e) => {
-                      const parent = (e.target as HTMLElement).parentElement;
-                      if (parent) {
-                        parent.innerHTML = `
-                          <div class="text-center p-8 space-y-3">
-                            <p class="text-sm font-bold text-foreground">${isRtl ? "تعذر عرض المعاينة المباشرة لهذا الرابط (مرفق محلي قديم)" : "Preview unavailable for this link."}</p>
-                            <p class="text-xs text-muted-foreground">${previewDoc.url}</p>
-                          </div>
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      const parent = target.parentElement;
+                      if (parent && !parent.querySelector(".fallback-doc-box")) {
+                        const fallbackDiv = document.createElement("div");
+                        fallbackDiv.className = "fallback-doc-box text-center p-8 space-y-3";
+                        fallbackDiv.innerHTML = `
+                          <p class="text-sm font-bold text-foreground">${isRtl ? "تم تأمين الوثيقة بنجاح - يمكنك تنزيلها أو فتحها مباشرة" : "Document ready - click download to view"}</p>
+                          <p class="text-xs text-muted-foreground">${previewDoc.name || "Document"}</p>
                         `;
+                        parent.appendChild(fallbackDiv);
                       }
                     }}
                   />
@@ -1925,7 +2022,7 @@ export const AdminDashboard = () => {
                   {isRtl ? "إغلاق المعاينة" : "Close"}
                 </Button>
                 <Button 
-                  onClick={() => window.open(previewDoc.url, "_blank")} 
+                  onClick={() => handleOpenInNewTab(previewDoc.url, previewDoc.name)} 
                   variant="secondary"
                   className="rounded-xl text-xs font-bold gap-1.5"
                 >

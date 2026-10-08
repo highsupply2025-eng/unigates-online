@@ -1091,7 +1091,7 @@ const NasherDashboard = () => {
                   <CardHeader className="bg-muted/20 border-b border-border/60 pb-3">
                     <CardTitle className="text-sm font-black flex items-center gap-2">
                       <Clock className="w-4 h-4 text-primary" />
-                      <span>{isRtl ? "مخطوطاتك قيد المتابعة والاعتماد" : "Submissions Status"}</span>
+                      <span>{isRtl ? "الملفات قيد المتابعة والاعتماد" : "Files Status"}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 space-y-3">
@@ -1160,7 +1160,7 @@ const NasherDashboard = () => {
                 <BookOpen className="w-12 h-12 text-muted-foreground mx-auto" />
                 <h3 className="text-base font-black">{isRtl ? "لا توجد مؤلفات منشورة بعد" : "No published works yet"}</h3>
                 <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                  {isRtl ? "بمجرد اعتماد وموافقة إدارة المنصة على مخطوطاتك، ستظهر هنا مباشرة مع كود الكتاب ورابط المتجر." : "Once approved, books appear here."}
+                  {isRtl ? "بمجرد اعتماد وموافقة إدارة المنصة على الملفات، ستظهر هنا مباشرة مع كود الكتاب ورابط المتجر." : "Once approved, books appear here."}
                 </p>
                 <Button onClick={() => handleTabChange("submit")} className="bg-amber-500 text-white text-xs font-bold rounded-xl">
                   {isRtl ? "رفع أول مؤلف الآن" : "Submit First Book"}

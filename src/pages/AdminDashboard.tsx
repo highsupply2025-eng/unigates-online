@@ -2236,6 +2236,7 @@ export const AdminDashboard = () => {
             </>
           )}
         </DialogContent>
+      </Dialog>
       {/* ── Dialog 9: Delete Author Confirmation ── */}
       <Dialog open={showDeleteAuthorModal} onOpenChange={setShowDeleteAuthorModal}>
         <DialogContent className="max-w-md rounded-2xl p-6">

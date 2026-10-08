@@ -97,6 +97,10 @@ export const AdminDashboard = () => {
   const [showManuscriptModal, setShowManuscriptModal] = useState(false);
   const [adminFeedback, setAdminFeedback] = useState("");
 
+  // Delete Manuscript Modal
+  const [deleteManuscriptCandidate, setDeleteManuscriptCandidate] = useState<ManuscriptSubmission | null>(null);
+  const [showDeleteManuscriptModal, setShowDeleteManuscriptModal] = useState(false);
+
   // Invoice Generation Modal
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [invoiceAmount, setInvoiceAmount] = useState<number | string>(1500);
@@ -128,6 +132,7 @@ export const AdminDashboard = () => {
   // Check admin access while ensuring account stays active
   useEffect(() => {
     NashrDataStore.clearOldTestAuthors();
+    NashrDataStore.clearOldSubmissions();
     checkAdmin();
   }, []);
 
@@ -267,6 +272,29 @@ export const AdminDashboard = () => {
       description: isRtl 
         ? "تم إرسال الملاحظات لحساب المؤلف فورياً وتثبيتها في لوحة تحكمه ومحادثته المباشرة."
         : "Feedback delivered to author's portal and direct chat.",
+    });
+  };
+
+  const handleConfirmDeleteManuscript = () => {
+    if (!deleteManuscriptCandidate) return;
+    NashrDataStore.deleteSubmission(deleteManuscriptCandidate.id);
+    loadAllData();
+    setShowDeleteManuscriptModal(false);
+    toast({
+      title: isRtl ? "🗑️ تم حذف المخطوطة بنجاح" : "Manuscript Deleted",
+      description: isRtl 
+        ? `تم حذف العمل "${deleteManuscriptCandidate.title}" نهائياً من قائمة المخطوطات.` 
+        : `Manuscript deleted successfully.`
+    });
+    setDeleteManuscriptCandidate(null);
+  };
+
+  const handlePurgeOldManuscripts = () => {
+    NashrDataStore.clearOldSubmissions();
+    loadAllData();
+    toast({
+      title: isRtl ? "🧹 تم تنظيف وحذف المخطوطات القديمة" : "Old Manuscripts Cleared",
+      description: isRtl ? "تمت إزالة كافة المخطوطات والملفات التجريبية القديمة بنجاح." : "Old test manuscripts deleted."
     });
   };
 
@@ -862,6 +890,16 @@ export const AdminDashboard = () => {
                     <SelectItem value="rejected">{isRtl ? "مرفوضة ❌" : "Rejected"}</SelectItem>
                   </SelectContent>
                 </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePurgeOldManuscripts}
+                  className="h-10 px-3.5 rounded-xl text-xs font-bold border-destructive/30 text-destructive hover:bg-destructive/10 gap-1.5 shrink-0"
+                  title={isRtl ? "تنظيف وحذف المخطوطات والملفات القديمة" : "Purge Old Manuscripts"}
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                  <span>{isRtl ? "حذف المخطوطات القديمة" : "Delete Old Manuscripts"}</span>
+                </Button>
               </div>
             </Card>
 
@@ -1074,6 +1112,20 @@ export const AdminDashboard = () => {
                           >
                             <Send className="w-3.5 h-3.5 text-muted-foreground" />
                             <span>{isRtl ? "إرسال ملاحظات تدقيق" : "Review Notes"}</span>
+                          </Button>
+
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => {
+                              setDeleteManuscriptCandidate(sub);
+                              setShowDeleteManuscriptModal(true);
+                            }}
+                            className="h-9 px-2.5 rounded-xl font-bold text-xs text-destructive hover:bg-destructive/10 gap-1.5"
+                            title={isRtl ? "حذف المخطوطة نهائياً" : "Delete Manuscript"}
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                            <span>{isRtl ? "حذف المخطوطة" : "Delete"}</span>
                           </Button>
                         </div>
                       </div>
@@ -2168,6 +2220,51 @@ export const AdminDashboard = () => {
               variant="destructive"
               size="sm"
               onClick={handleConfirmDeleteAuthor}
+              className="rounded-xl text-xs font-black gap-1.5 shadow-sm"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{isRtl ? "تأكيد الحذف نهائياً" : "Confirm Delete"}</span>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog 10: Delete Manuscript Confirmation ── */}
+      <Dialog open={showDeleteManuscriptModal} onOpenChange={setShowDeleteManuscriptModal}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5 text-destructive" />
+              <span>{isRtl ? "تأكيد حذف المخطوطة" : "Confirm Manuscript Deletion"}</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-2 text-muted-foreground leading-relaxed">
+              {isRtl ? (
+                <span>
+                  هل أنت متأكد من رغبتك في حذف مخطوطة <strong className="text-foreground">"{deleteManuscriptCandidate?.title}"</strong> للمؤلف <strong className="text-foreground">{deleteManuscriptCandidate?.authorName}</strong> نهائياً؟
+                  <br />
+                  سيتم حذف الملفات المرفقة والمخطوطة بشكل كامل من المنصة.
+                </span>
+              ) : (
+                <span>
+                  Are you sure you want to permanently delete the manuscript "{deleteManuscriptCandidate?.title}"?
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="gap-2 pt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDeleteManuscriptModal(false)}
+              className="rounded-xl text-xs font-bold"
+            >
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleConfirmDeleteManuscript}
               className="rounded-xl text-xs font-black gap-1.5 shadow-sm"
             >
               <Trash2 className="w-3.5 h-3.5" />

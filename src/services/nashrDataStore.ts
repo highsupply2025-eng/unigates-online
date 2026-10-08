@@ -281,6 +281,7 @@ export const OLD_TEST_AUTHOR_CODES = [
   "AUT-7414",
   "AUT-4121",
   "AUT-4933",
+  "AUT-9261",
   "auth-2026-001",
   "author-demo-1"
 ];
@@ -497,22 +498,69 @@ export class NashrDataStore {
   static getAllSubmissions(): ManuscriptSubmission[] {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SUBMISSIONS);
+      let list: ManuscriptSubmission[] = [];
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          return parsed.filter(s => {
+          list = parsed.filter(s => {
             if (!s || typeof s !== "object" || !s.id) return false;
             const authorCode = (s.authorCode || "").trim().toUpperCase();
             const authorId = (s.authorId || "").trim();
+            const authorName = (s.authorName || "").trim();
+            const title = (s.title || "").trim();
+            const id = (s.id || "").trim();
+
             if (OLD_TEST_AUTHOR_CODES.includes(authorCode) || OLD_TEST_AUTHOR_CODES.includes(authorId)) return false;
+            if (id === "sub-101" || id === "sub-102" || id === "sub-103" || id === "sub-1791204357620") return false;
+            if (title.includes("غثغسغت") || title.includes("الحوكمة الرقمية") || title.includes("دليل الباحث") || title.includes("الذكاء الاصطناعي والقانون")) return false;
+            if (authorName.includes("المنشاوي") || authorName.includes("مؤلف تجريبي")) return false;
             return true;
           });
         }
       }
+
+      if (saved && list.length !== (JSON.parse(saved) || []).length) {
+        localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(list));
+      }
+
+      return list;
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  static deleteSubmission(submissionId: string): void {
+    try {
+      const all = this.getAllSubmissions();
+      const updated = all.filter(s => s.id !== submissionId);
+      localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(updated));
     } catch (e) {
       console.error(e);
     }
-    return [];
+  }
+
+  static clearOldSubmissions(): void {
+    try {
+      const all = this.getAllSubmissions();
+      const updated = all.filter(s => {
+        if (!s || !s.id) return false;
+        const authorCode = (s.authorCode || "").trim().toUpperCase();
+        const authorId = (s.authorId || "").trim();
+        const authorName = (s.authorName || "").trim();
+        const title = (s.title || "").trim();
+        const id = (s.id || "").trim();
+
+        if (OLD_TEST_AUTHOR_CODES.includes(authorCode) || OLD_TEST_AUTHOR_CODES.includes(authorId)) return false;
+        if (id === "sub-101" || id === "sub-102" || id === "sub-103" || id === "sub-1791204357620") return false;
+        if (title.includes("غثغسغت") || title.includes("الحوكمة الرقمية") || title.includes("دليل الباحث") || title.includes("الذكاء الاصطناعي والقانون")) return false;
+        if (authorName.includes("المنشاوي") || authorName.includes("مؤلف تجريبي")) return false;
+        return true;
+      });
+      localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(updated));
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   static getSubmissions(authorId?: string): ManuscriptSubmission[] {

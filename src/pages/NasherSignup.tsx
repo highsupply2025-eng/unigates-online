@@ -89,7 +89,53 @@ interface UploadedDoc {
   name: string;
   url: string;
   size: string;
+  type?: string;
 }
+
+const readFileAsDataUrl = async (file: File): Promise<string> => {
+  return new Promise((resolve) => {
+    const isImage = file.type.startsWith("image/");
+    const reader = new FileReader();
+
+    if (isImage) {
+      reader.onload = (e) => {
+        const resultStr = e.target?.result as string;
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 1200;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", 0.85));
+            return;
+          }
+          resolve(resultStr);
+        };
+        img.onerror = () => resolve(resultStr);
+        img.src = resultStr;
+      };
+      reader.onerror = () => resolve(URL.createObjectURL(file));
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(URL.createObjectURL(file));
+      reader.readAsDataURL(file);
+    }
+  });
+};
 
 const getDocTypeInfo = (fileName: string) => {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
@@ -168,16 +214,17 @@ const NasherSignup = () => {
   const isRtl = dir === "rtl";
 
   // File Handlers
-  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
+    const url = await readFileAsDataUrl(file);
     const sizeStr = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
     setAvatarFile({
       id: `av-${Date.now()}`,
       name: file.name,
       url,
       size: sizeStr,
+      type: file.type || "image/jpeg"
     });
     toast({
       title: isRtl ? "تم إرفاق الصورة الشخصية" : "Profile Photo Attached",
@@ -185,16 +232,17 @@ const NasherSignup = () => {
     });
   };
 
-  const handleNationalIdSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNationalIdSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
+    const url = await readFileAsDataUrl(file);
     const sizeStr = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
     setNationalIdFile({
       id: `id-${Date.now()}`,
       name: file.name,
       url,
       size: sizeStr,
+      type: file.type || "image/jpeg"
     });
     toast({
       title: isRtl ? "تم إرفاق وثيقة الهوية / الرقم القومي" : "National ID / Passport Document Attached",
@@ -202,16 +250,22 @@ const NasherSignup = () => {
     });
   };
 
-  const handleQualificationSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQualificationSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const newDocs: UploadedDoc[] = Array.from(files).map((file, idx) => ({
-      id: `qual-${Date.now()}-${idx}`,
-      name: file.name,
-      url: URL.createObjectURL(file),
-      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-    }));
+    const newDocs: UploadedDoc[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      const url = await readFileAsDataUrl(f);
+      newDocs.push({
+        id: `qual-${Date.now()}-${i}`,
+        name: f.name,
+        url,
+        size: `${(f.size / (1024 * 1024)).toFixed(2)} MB`,
+        type: f.type || getDocTypeInfo(f.name).label
+      });
+    }
 
     setQualificationFiles((prev) => [...prev, ...newDocs]);
     toast({
@@ -342,8 +396,18 @@ const NasherSignup = () => {
         phone: `${countryCode} ${phone.trim()}`,
         bio: bio.trim() || undefined,
         avatarUrl: avatarFile?.url,
+        avatarName: avatarFile?.name,
         nationalIdUrl: nationalIdFile?.url,
+        nationalIdName: nationalIdFile?.name,
+        nationalIdSize: nationalIdFile?.size,
         qualificationUrls: qualificationFiles.map(q => q.url),
+        qualificationDocuments: qualificationFiles.map(q => ({
+          id: q.id,
+          name: q.name,
+          url: q.url,
+          size: q.size,
+          type: q.type || getDocTypeInfo(q.name).label
+        })),
         agreedToTerms: true,
         isTemporaryPassword: true,
         tempPassword,

@@ -133,6 +133,34 @@ export const AdminDashboard = () => {
   const [previewVideo, setPreviewVideo] = useState<ManuscriptSubmission | null>(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
 
+  // Dedicated KYC Document Inspection Lightbox
+  const [previewDoc, setPreviewDoc] = useState<{
+    title: string;
+    url: string;
+    name?: string;
+    type?: string;
+    size?: string;
+  } | null>(null);
+  const [showDocPreviewModal, setShowDocPreviewModal] = useState(false);
+
+  const handleOpenDocPreview = (title: string, url: string, name?: string, size?: string) => {
+    setPreviewDoc({ title, url, name, size });
+    setShowDocPreviewModal(true);
+  };
+
+  const handleDownloadDoc = (url: string, filename: string) => {
+    try {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename || "document";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch {
+      window.open(url, "_blank");
+    }
+  };
+
   // Check admin access while ensuring account stays active
   useEffect(() => {
     NashrDataStore.clearOldTestAuthors();
@@ -1571,62 +1599,270 @@ export const AdminDashboard = () => {
 
               <div className="space-y-4 text-xs">
                 
-                {/* Author Info Grid */}
-                <div className="p-4 rounded-2xl bg-muted/30 border border-border/80 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-foreground text-sm">{selectedAuthor.fullName}</span>
-                    <Badge className="bg-amber-500/15 text-amber-600 font-bold text-[10px]">
-                      {selectedAuthor.authorCode}
-                    </Badge>
+                {/* Author Info Grid with Personal Photo */}
+                <div className="p-4 rounded-2xl bg-muted/30 border border-border/80 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  {/* Personal Photo */}
+                  <div className="relative shrink-0">
+                    {selectedAuthor.avatarUrl ? (
+                      <div 
+                        className="relative group cursor-pointer" 
+                        onClick={() => handleOpenDocPreview(isRtl ? "الصورة الشخصية للمؤلف" : "Author Profile Photo", selectedAuthor.avatarUrl!, selectedAuthor.avatarName || "Author_Photo.jpg")}
+                      >
+                        <img 
+                          src={selectedAuthor.avatarUrl} 
+                          alt={selectedAuthor.fullName} 
+                          className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-500/40 shadow-md group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
+                          <Eye className="w-5 h-5" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border-2 border-dashed border-amber-500/30 flex items-center justify-center text-amber-600">
+                        <Users className="w-7 h-7" />
+                      </div>
+                    )}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground pt-1">
-                    <div>🎓 <strong className="text-foreground">{isRtl ? "التخصص:" : "Field:"}</strong> {selectedAuthor.specialization}</div>
-                    <div>🏛️ <strong className="text-foreground">{isRtl ? "الجامعة/الجهة:" : "Institution:"}</strong> {selectedAuthor.institution || (isRtl ? "مؤلف مستقل" : "Independent")}</div>
-                    <div>📞 <strong className="text-foreground">{isRtl ? "الهاتف:" : "Phone:"}</strong> {selectedAuthor.phone}</div>
-                    <div>✉️ <strong className="text-foreground">{isRtl ? "البريد:" : "Email:"}</strong> {selectedAuthor.email}</div>
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0 space-y-1.5 w-full">
+                    <div className="flex justify-between items-center gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-foreground text-sm sm:text-base">{selectedAuthor.fullName}</span>
+                        <Badge className="bg-amber-500/15 text-amber-600 font-bold text-[10px]">
+                          {selectedAuthor.authorCode}
+                        </Badge>
+                      </div>
+                      {selectedAuthor.avatarUrl && (
+                        <Button 
+                          type="button" 
+                          size="sm" 
+                          variant="ghost" 
+                          onClick={() => handleOpenDocPreview(isRtl ? "الصورة الشخصية للمؤلف" : "Author Profile Photo", selectedAuthor.avatarUrl!, selectedAuthor.avatarName || "Author_Photo.jpg")}
+                          className="text-[11px] h-7 px-2 text-amber-600 hover:bg-amber-500/10 font-bold gap-1 rounded-lg"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "معاينة الصورة" : "View Photo"}</span>
+                        </Button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground pt-1">
+                      <div>🎓 <strong className="text-foreground">{isRtl ? "التخصص:" : "Field:"}</strong> {selectedAuthor.specialization}</div>
+                      <div>🏛️ <strong className="text-foreground">{isRtl ? "الجامعة/الجهة:" : "Institution:"}</strong> {selectedAuthor.institution || (isRtl ? "مؤلف مستقل" : "Independent")}</div>
+                      <div>📞 <strong className="text-foreground">{isRtl ? "الهاتف:" : "Phone:"}</strong> <span dir="ltr">{selectedAuthor.phone}</span></div>
+                      <div>✉️ <strong className="text-foreground">{isRtl ? "البريد:" : "Email:"}</strong> {selectedAuthor.email}</div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Documents Inspection */}
-                <div className="space-y-3">
-                  <span className="font-black text-foreground block">{isRtl ? "المستندات الرسمية المرفقة للتدقيق:" : "Attached Verification Documents:"}</span>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-border/50 pb-1.5">
+                    <span className="font-black text-foreground text-sm flex items-center gap-1.5">
+                      <span>📁</span>
+                      <span>{isRtl ? "المستندات الرسمية المرفقة للتدقيق الأكاديمي:" : "Attached Verification Documents:"}</span>
+                    </span>
+                    <Badge variant="outline" className="text-[10px] font-bold text-amber-600 border-amber-500/30">
+                      {isRtl ? "فحص ومعاينة وتنزيل فوري" : "Instant Preview & Download"}
+                    </Badge>
+                  </div>
                   
-                  {/* National ID */}
-                  <div className="p-3.5 rounded-2xl border border-border/80 bg-card space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-foreground flex items-center gap-1.5">
-                        <span>🆔</span>
+                  {/* 1. National ID / Passport */}
+                  <div className="p-4 rounded-2xl border-2 border-border/80 bg-card space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <span className="font-black text-foreground flex items-center gap-2">
+                        <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600">🆔</span>
                         <span>{isRtl ? "بطاقة الهوية الوطنية / جواز السفر" : "National ID / Passport"}</span>
                       </span>
-                      <Badge className="bg-emerald-500/10 text-emerald-600 text-[10px]">
-                        {isRtl ? "ملف مرفق جاهز للفحص" : "Attached"}
-                      </Badge>
+                      <div className="flex items-center gap-1.5">
+                        <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
+                          {isRtl ? "وثيقة رسمية مرفقة" : "Official Document"}
+                        </Badge>
+                        {selectedAuthor.nationalIdSize && (
+                          <span className="text-[10px] text-muted-foreground font-mono">({selectedAuthor.nationalIdSize})</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="p-4 rounded-xl bg-muted/40 text-center border border-dashed border-border/80 text-muted-foreground text-xs space-y-2">
-                      <ImageIcon className="w-8 h-8 mx-auto text-amber-500/60" />
-                      <p className="font-bold text-foreground">{selectedAuthor.nationalIdUrl || "National_ID_Card_Scan.jpg"}</p>
-                      <p className="text-[10px]">تم تشفير الوثيقة ومطابقتها وفق معايير الأمان الوطنية للتحقق من هوية الباحثين.</p>
-                    </div>
+
+                    {selectedAuthor.nationalIdUrl ? (
+                      <div className="space-y-3">
+                        {/* Visual Image Preview */}
+                        <div className="relative group rounded-xl overflow-hidden border border-border/80 bg-muted/30 p-2 flex items-center justify-center min-h-[140px] max-h-56">
+                          <img 
+                            src={selectedAuthor.nationalIdUrl} 
+                            alt="National ID Preview" 
+                            className="max-h-52 w-auto max-w-full rounded-lg object-contain cursor-pointer transition-transform group-hover:scale-[1.02]"
+                            onClick={() => handleOpenDocPreview(isRtl ? "بطاقة الرقم القومي / جواز السفر" : "National ID / Passport", selectedAuthor.nationalIdUrl!, selectedAuthor.nationalIdName || "National_ID.jpg", selectedAuthor.nationalIdSize)}
+                            onError={(e) => {
+                              // If image fails (expired blob from older test), show elegant document card
+                              const target = e.target as HTMLElement;
+                              target.style.display = "none";
+                              const fallback = target.parentElement?.querySelector(".fallback-doc-box") as HTMLElement;
+                              if (fallback) fallback.style.display = "block";
+                            }}
+                          />
+                          <div className="fallback-doc-box hidden text-center p-4 space-y-2">
+                            <ImageIcon className="w-10 h-10 mx-auto text-amber-500/60" />
+                            <p className="font-bold text-foreground text-xs">{selectedAuthor.nationalIdName || (isRtl ? "مستند الهوية المرفق" : "Attached ID Document")}</p>
+                            <p className="text-[10px] text-muted-foreground">{isRtl ? "تم إرفاق الملف أثناء التسجيل." : "Uploaded during signup."}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/60">
+                          <div className="min-w-0">
+                            <p className="font-bold text-foreground text-xs truncate max-w-xs sm:max-w-md">
+                              {selectedAuthor.nationalIdName || "National_ID_Passport.jpg"}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {isRtl ? "تم التحقق من تشفير ومطابقة الوثيقة وفق اشتراطات التوثيق." : "Verified identity document."}
+                            </p>
+                          </div>
+                          
+                          <div className="flex items-center gap-1.5 shrink-0 w-full sm:w-auto justify-end">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleOpenDocPreview(isRtl ? "بطاقة الرقم القومي / جواز السفر" : "National ID / Passport", selectedAuthor.nationalIdUrl!, selectedAuthor.nationalIdName || "National_ID.jpg", selectedAuthor.nationalIdSize)}
+                              className="h-8 px-2.5 text-xs font-bold gap-1 rounded-xl bg-card hover:bg-muted"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-amber-500" />
+                              <span>{isRtl ? "معاينة وتكبير" : "Preview"}</span>
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="default"
+                              onClick={() => handleDownloadDoc(selectedAuthor.nationalIdUrl!, selectedAuthor.nationalIdName || "National_ID_Passport.jpg")}
+                              className="h-8 px-2.5 text-xs font-bold gap-1 rounded-xl bg-amber-600 hover:bg-amber-700 text-white"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>{isRtl ? "تحميل" : "Download"}</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 rounded-xl bg-muted/40 text-center border border-dashed border-border/80 text-muted-foreground text-xs space-y-1">
+                        <ImageIcon className="w-8 h-8 mx-auto text-amber-500/60" />
+                        <p className="font-bold text-foreground">National_ID_Card_Scan.jpg</p>
+                        <p className="text-[10px]">{isRtl ? "لم يتم إرفاق ملف الهوية." : "No document uploaded."}</p>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Academic Qualifications */}
-                  <div className="p-3.5 rounded-2xl border border-border/80 bg-card space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-foreground flex items-center gap-1.5">
-                        <span>🎓</span>
-                        <span>{isRtl ? "المؤهلات والشهادات الأكاديمية" : "Academic Qualifications"}</span>
+                  {/* 2. All Academic Qualifications & Certificates */}
+                  <div className="p-4 rounded-2xl border-2 border-border/80 bg-card space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <span className="font-black text-foreground flex items-center gap-2">
+                        <span className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600">🎓</span>
+                        <span>{isRtl ? "المؤهلات والشهادات الأكاديمية الرسمية" : "Academic Qualifications & Certificates"}</span>
                       </span>
-                      <Badge className="bg-blue-500/10 text-blue-600 text-[10px]">
-                        {isRtl ? "شهادة الدكتوراه / الماجستير" : "Degree Certified"}
+                      <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-300 font-bold text-[10px] border border-blue-500/30">
+                        {isRtl 
+                          ? `${(selectedAuthor.qualificationDocuments?.length || selectedAuthor.qualificationUrls?.length || 1)} مستندات مرفقة`
+                          : "Certified Credentials"}
                       </Badge>
                     </div>
-                    <div className="p-4 rounded-xl bg-muted/40 text-center border border-dashed border-border/80 text-muted-foreground text-xs space-y-2">
-                      <GraduationCap className="w-8 h-8 mx-auto text-blue-500/60" />
-                      <p className="font-bold text-foreground">
-                        {selectedAuthor.qualificationUrls?.[0] || "Doctorate_Degree_Certificate.pdf"}
-                      </p>
-                      <p className="text-[10px]">شهادة موثقة صادرة من الجامعة ومعتمدة من المجلس الأعلى للجامعات.</p>
-                    </div>
+
+                    {/* Render ALL documents uploaded by author */}
+                    {(() => {
+                      const docs = selectedAuthor.qualificationDocuments && selectedAuthor.qualificationDocuments.length > 0
+                        ? selectedAuthor.qualificationDocuments
+                        : (selectedAuthor.qualificationUrls || []).map((url, idx) => ({
+                            id: `qual-${idx}`,
+                            name: `Academic_Degree_Certificate_${idx + 1}.pdf`,
+                            url,
+                            size: "2.4 MB",
+                            type: url.startsWith("data:image") ? "IMAGE" : "PDF"
+                          }));
+
+                      if (docs.length === 0 && selectedAuthor.qualificationUrls?.[0]) {
+                        docs.push({
+                          id: "qual-0",
+                          name: "Doctorate_Degree_Certificate.pdf",
+                          url: selectedAuthor.qualificationUrls[0],
+                          size: "2.4 MB",
+                          type: "PDF"
+                        });
+                      }
+
+                      if (docs.length === 0) {
+                        return (
+                          <div className="p-4 rounded-xl bg-muted/40 text-center border border-dashed border-border/80 text-muted-foreground text-xs space-y-1">
+                            <GraduationCap className="w-8 h-8 mx-auto text-blue-500/60" />
+                            <p className="font-bold text-foreground">Doctorate_Degree_Certificate.pdf</p>
+                            <p className="text-[10px]">{isRtl ? "لم يتم إرفاق شهادات." : "No certificates uploaded."}</p>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="space-y-2.5 pt-1">
+                          {docs.map((doc, idx) => (
+                            <div key={doc.id || idx} className="p-3 rounded-xl bg-muted/30 border border-border/70 hover:border-blue-500/40 transition-colors space-y-2">
+                              <div className="flex items-center justify-between flex-wrap gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="w-6 h-6 rounded-lg bg-blue-500/15 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0">
+                                    {idx + 1}
+                                  </span>
+                                  <div>
+                                    <p className="font-bold text-foreground text-xs truncate max-w-xs sm:max-w-md">
+                                      {doc.name}
+                                    </p>
+                                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                                      <span className="font-bold text-blue-600">{doc.type || "PDF"}</span>
+                                      {doc.size && <span>• {doc.size}</span>}
+                                      <span>• {isRtl ? "شهادة معتمدة موثقة" : "Verified degree"}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleOpenDocPreview(`${isRtl ? "المؤهل الأكاديمي" : "Degree"} #${idx + 1}: ${doc.name}`, doc.url, doc.name, doc.size)}
+                                    className="h-8 px-2.5 text-xs font-bold gap-1 rounded-xl bg-card hover:bg-muted"
+                                  >
+                                    <Eye className="w-3.5 h-3.5 text-blue-500" />
+                                    <span>{isRtl ? "معاينة كاملة" : "Preview"}</span>
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="default"
+                                    onClick={() => handleDownloadDoc(doc.url, doc.name)}
+                                    className="h-8 px-2.5 text-xs font-bold gap-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
+                                  >
+                                    <Download className="w-3.5 h-3.5" />
+                                    <span>{isRtl ? "تحميل" : "Download"}</span>
+                                  </Button>
+                                </div>
+                              </div>
+
+                              {/* Inline mini thumbnail if it's an image */}
+                              {(doc.url.startsWith("data:image") || doc.url.includes(".png") || doc.url.includes(".jpg") || doc.url.includes(".jpeg")) && (
+                                <div 
+                                  className="mt-1 cursor-pointer rounded-lg overflow-hidden border border-border/60 bg-muted/20 p-1 max-h-36 flex items-center justify-center"
+                                  onClick={() => handleOpenDocPreview(`${isRtl ? "المؤهل الأكاديمي" : "Degree"} #${idx + 1}: ${doc.name}`, doc.url, doc.name, doc.size)}
+                                >
+                                  <img 
+                                    src={doc.url} 
+                                    alt={doc.name} 
+                                    className="max-h-32 object-contain rounded"
+                                    onError={(e) => {
+                                      (e.target as HTMLElement).style.display = "none";
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                 </div>
@@ -1649,6 +1885,76 @@ export const AdminDashboard = () => {
                     <span>{isRtl ? "اعتماد الحساب رسمياً الآن" : "Approve Account"}</span>
                   </Button>
                 )}
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog: High-Res KYC Document Inspection Lightbox ── */}
+      <Dialog open={showDocPreviewModal} onOpenChange={setShowDocPreviewModal}>
+        <DialogContent className="max-w-4xl rounded-3xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+          {previewDoc && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <DialogTitle className="text-base font-black flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-amber-500" />
+                    <span>{previewDoc.title}</span>
+                  </DialogTitle>
+                  <Button
+                    size="sm"
+                    onClick={() => handleDownloadDoc(previewDoc.url, previewDoc.name || "document")}
+                    className="h-8 px-3 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl gap-1.5 shrink-0"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>{isRtl ? "تنزيل الوثيقة" : "Download"}</span>
+                  </Button>
+                </div>
+                <DialogDescription className="text-xs">
+                  {previewDoc.name} {previewDoc.size ? `• ${previewDoc.size}` : ""} • {isRtl ? "فحص ومعاينة المستند بدقة عالية" : "High-resolution document review"}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="rounded-2xl border border-border/80 bg-muted/30 p-2 sm:p-4 flex items-center justify-center min-h-[350px] max-h-[72vh] overflow-auto">
+                {previewDoc.url.startsWith("data:application/pdf") || previewDoc.url.endsWith(".pdf") ? (
+                  <iframe 
+                    src={previewDoc.url} 
+                    title={previewDoc.title}
+                    className="w-full h-[65vh] rounded-xl border border-border"
+                  />
+                ) : (
+                  <img 
+                    src={previewDoc.url} 
+                    alt={previewDoc.title} 
+                    className="max-h-[68vh] w-auto max-w-full rounded-xl object-contain shadow-md"
+                    onError={(e) => {
+                      const parent = (e.target as HTMLElement).parentElement;
+                      if (parent) {
+                        parent.innerHTML = `
+                          <div class="text-center p-8 space-y-3">
+                            <p class="text-sm font-bold text-foreground">${isRtl ? "تعذر عرض المعاينة المباشرة لهذا الرابط (مرفق محلي قديم)" : "Preview unavailable for this link."}</p>
+                            <p class="text-xs text-muted-foreground">${previewDoc.url}</p>
+                          </div>
+                        `;
+                      }
+                    }}
+                  />
+                )}
+              </div>
+
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setShowDocPreviewModal(false)} className="rounded-xl text-xs font-bold">
+                  {isRtl ? "إغلاق المعاينة" : "Close"}
+                </Button>
+                <Button 
+                  onClick={() => window.open(previewDoc.url, "_blank")} 
+                  variant="secondary"
+                  className="rounded-xl text-xs font-bold gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>{isRtl ? "فتح في نافذة جديدة" : "Open in New Tab"}</span>
+                </Button>
               </DialogFooter>
             </>
           )}

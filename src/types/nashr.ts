@@ -11,6 +11,14 @@ export type PublishType = "digital" | "print" | "both";
 
 export type AuthorVerificationStatus = "pending_review" | "approved" | "rejected";
 
+export interface AuthorDocumentItem {
+  id?: string;
+  name: string;
+  url: string;
+  size?: string;
+  type?: string;
+}
+
 export interface AuthorProfile {
   id: string;
   authorCode: string;
@@ -23,8 +31,12 @@ export interface AuthorProfile {
   phone: string;
   bio?: string;
   avatarUrl?: string;
+  avatarName?: string;
   nationalIdUrl?: string;
+  nationalIdName?: string;
+  nationalIdSize?: string;
   qualificationUrls?: string[];
+  qualificationDocuments?: AuthorDocumentItem[];
   agreedToTerms?: boolean;
   isTemporaryPassword?: boolean;
   tempPassword?: string;

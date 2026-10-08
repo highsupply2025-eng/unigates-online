@@ -43,6 +43,7 @@ export interface AuthorProfile {
 
 export interface ManuscriptSubmission {
   id: string;
+  format?: "digital" | "print" | "both" | string;
   authorId: string;
   authorName: string;
   authorCode: string;

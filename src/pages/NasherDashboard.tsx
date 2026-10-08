@@ -1979,14 +1979,7 @@ const NasherDashboard = () => {
                           ? "تنبيه: حتى وإن قمت بتغيير كلمة المرور المؤقتة، سيبقى الحساب تحت المراجعة حتى صدور موافقة الإدارة الرسمية."
                           : "Note: Even after updating your temporary password, your account remains under review until official platform approval."}
                       </p>
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={handleApproveAccount}
-                        className="h-8 px-3 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white shrink-0 shadow-xs"
-                      >
-                        {isRtl ? "اعتماد الحساب من المنصة" : "Simulate Approval"}
-                      </Button>
+                      
                     </div>
                   ) : (
                     <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/40">

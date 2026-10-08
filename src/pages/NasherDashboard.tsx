@@ -636,12 +636,12 @@ const NasherDashboard = () => {
           {/* Navigation Tabs Bar */}
           <div className="px-4 sm:px-6 pt-3 bg-muted/20 border-b border-border/60">
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="flex flex-wrap h-auto bg-transparent p-0 gap-1 sm:gap-2 justify-start overflow-x-auto">
+              <TabsList className="flex flex-nowrap md:flex-wrap items-center h-auto bg-transparent p-0 gap-1.5 sm:gap-2 justify-start overflow-x-auto pb-1 scrollbar-none">
                 
                 {/* 1. رفع مؤلفات */}
                 <TabsTrigger 
                   value="submit" 
-                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-3.5 sm:px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2 shrink-0 whitespace-nowrap"
                 >
                   <UploadCloud className="w-4 h-4" />
                   <span>{isRtl ? "📁 رفع مؤلفات جديدة" : "Submit Manuscript"}</span>
@@ -650,7 +650,7 @@ const NasherDashboard = () => {
                 {/* 2. المؤلفات المنشورة */}
                 <TabsTrigger 
                   value="published" 
-                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-3.5 sm:px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2 shrink-0 whitespace-nowrap"
                 >
                   <BookOpen className="w-4 h-4" />
                   <span>{isRtl ? "📚 المؤلفات المنشورة" : "Published Works"}</span>
@@ -662,7 +662,7 @@ const NasherDashboard = () => {
                 {/* 3. الدفع والفواتير */}
                 <TabsTrigger 
                   value="payments" 
-                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-3.5 sm:px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2 shrink-0 whitespace-nowrap"
                 >
                   <CreditCard className="w-4 h-4" />
                   <span>{isRtl ? "💳 الفواتير وطرق الدفع" : "Invoices & Payments"}</span>
@@ -676,7 +676,7 @@ const NasherDashboard = () => {
                 {/* 4. التواصل الداخلي وملاحظات التدقيق */}
                 <TabsTrigger 
                   value="chat" 
-                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-3.5 sm:px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2 shrink-0 whitespace-nowrap"
                 >
                   <MessageSquare className="w-4 h-4" />
                   <span>{isRtl ? "💬 التواصل وملاحظات التدقيق" : "Direct Messages & Notes"}</span>
@@ -690,7 +690,7 @@ const NasherDashboard = () => {
                 {/* 5. مبيعات الكتب والأرباح */}
                 <TabsTrigger 
                   value="sales" 
-                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2"
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-3.5 sm:px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2 shrink-0 whitespace-nowrap"
                 >
                   <TrendingUp className="w-4 h-4" />
                   <span>{isRtl ? "📈 مبيعات الكتب والأرباح" : "Sales & Royalties"}</span>
@@ -699,7 +699,7 @@ const NasherDashboard = () => {
                 {/* 6. إدارة الحساب والأمان */}
                 <TabsTrigger 
                   value="settings" 
-                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2 ms-auto"
+                  className="data-[state=active]:bg-amber-500 data-[state=active]:text-white font-bold text-xs sm:text-sm py-2.5 px-3.5 sm:px-4 rounded-xl border border-transparent data-[state=active]:shadow-md transition-all gap-2 shrink-0 whitespace-nowrap"
                 >
                   <Key className="w-4 h-4" />
                   <span>{isRtl ? "🔐 الأمان وكلمة المرور" : "Security"}</span>

@@ -223,24 +223,20 @@ const NasherPlatform = () => {
             </div>
           </Link>
 
-          {/* Center Navigation Links (Tablet & Desktop) */}
-          <div className="hidden lg:flex items-center gap-1.5 bg-white/10 p-1.5 rounded-2xl border border-white/20 backdrop-blur-xl shadow-inner">
+          {/* Left / Navigation, Actions & Controls */}
+          <div className="hidden md:flex items-center gap-2">
             <Link to="/">
-              <Button variant="ghost" size="sm" className="h-9 px-3.5 text-xs font-bold text-white/90 hover:text-white hover:bg-white/15 rounded-xl gap-1.5 transition-all">
+              <Button variant="ghost" size="sm" className="h-10 px-3.5 text-xs font-bold text-white/90 hover:text-white hover:bg-white/15 rounded-xl gap-1.5 transition-all bg-white/5 border border-white/10">
                 <Home className="w-3.5 h-3.5 text-amber-300" />
                 <span>{isRtl ? "الرئيسية" : "Home"}</span>
               </Button>
             </Link>
             <Link to="/book-store">
-              <Button variant="ghost" size="sm" className="h-9 px-3.5 text-xs font-bold text-white/90 hover:text-white hover:bg-white/15 rounded-xl gap-1.5 transition-all">
+              <Button variant="ghost" size="sm" className="h-10 px-3.5 text-xs font-bold text-white/90 hover:text-white hover:bg-white/15 rounded-xl gap-1.5 transition-all bg-white/5 border border-white/10">
                 <BookOpen className="w-3.5 h-3.5 text-rose-300" />
                 <span>{isRtl ? "متجر الكتب" : "Bookstore"}</span>
               </Button>
             </Link>
-          </div>
-
-          {/* Left / Actions & Controls */}
-          <div className="hidden md:flex items-center gap-2">
             <Link to="/nashr/signup">
               <Button size="sm" className="font-extrabold bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white text-xs h-10 px-4 rounded-xl gap-1.5 shadow-lg shadow-amber-500/25 hover:scale-105 transition-all">
                 <PenTool className="w-3.5 h-3.5" />

@@ -9,7 +9,7 @@ import {
   Trophy, BookCheck, Palette, ShoppingBag, Zap, Flame, PenTool,
   Home, Heart, Eye, Check, Clock, HelpCircle, Layers, ChevronRight,
   SlidersHorizontal, Library, User, LogOut, Award, TrendingUp, Tag,
-  LogIn, UserPlus, Compass
+  LogIn, UserPlus
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -240,28 +240,20 @@ const BookStorePlatform = () => {
                   </p>
                 </div>
               </Link>
-
-              {/* Desktop Navigation Links anchored next to brand */}
-              <nav className="hidden md:flex items-center gap-1.5 text-sm font-bold text-slate-300">
-                <Link to="/">
-                  <Button variant="ghost" size="sm" className="hover:bg-slate-800/80 text-slate-300 hover:text-white gap-1.5 h-10 px-3 rounded-xl font-bold">
-                    <Home className="w-4 h-4 text-blue-400" />
-                    <span>{isRtl ? "الرئيسية" : "Home"}</span>
-                  </Button>
-                </Link>
-                <Link to="/book-store/browse">
-                  <Button variant="ghost" size="sm" className="hover:bg-slate-800/80 text-slate-300 hover:text-white gap-1.5 h-10 px-3 rounded-xl font-bold">
-                    <Compass className="w-4 h-4 text-cyan-400" />
-                    <span>{isRtl ? "تصفح الكتالوج" : "Catalog"}</span>
-                  </Button>
-                </Link>
-              </nav>
             </div>
 
             {/* Left Side (End in RTL): Actions, Auth, Utils */}
             <div className="flex items-center gap-2 sm:gap-2.5">
               
-              {/* CROSS-LINK: طلب نشر -> opens /nashr */}
+              {/* 1. الرئيسية بجوار طلب نشر كتاب */}
+              <Link to="/">
+                <Button variant="ghost" size="sm" className="hover:bg-slate-800/80 text-slate-300 hover:text-white gap-1.5 h-10 px-3 rounded-xl font-bold">
+                  <Home className="w-4 h-4 text-blue-400" />
+                  <span>{isRtl ? "الرئيسية" : "Home"}</span>
+                </Button>
+              </Link>
+
+              {/* 2. CROSS-LINK: طلب نشر -> opens /nashr */}
               <Link to="/nashr" title={isRtl ? "هل تريد نشر كتابك؟ انتقل إلى منصة نشر الرسمية" : "Publish with us on Nashr Platform"}>
                 <Button
                   size="sm"
@@ -367,12 +359,6 @@ const BookStorePlatform = () => {
                 <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold rounded-xl">
                   <Home className="w-4 h-4 text-blue-400" />
                   <span>{isRtl ? "العودة للرئيسية" : "Home"}</span>
-                </Button>
-              </Link>
-              <Link to="/book-store/browse" onClick={() => setMobileMenuOpen(false)} className="block">
-                <Button variant="outline" className="w-full justify-start border-slate-800 bg-slate-900 text-white h-11 gap-2 font-bold rounded-xl">
-                  <Compass className="w-4 h-4 text-cyan-400" />
-                  <span>{isRtl ? "استكشف كتالوج الكتب" : "Browse Catalog"}</span>
                 </Button>
               </Link>
               <Link to="/nashr" onClick={() => setMobileMenuOpen(false)} className="block">

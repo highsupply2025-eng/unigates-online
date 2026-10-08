@@ -228,6 +228,14 @@ const BookStore = () => {
               </>
             )}
 
+            {/* Home Link */}
+            <Link to="/">
+              <Button size="sm" variant="ghost" className="font-bold gap-1.5 h-9 text-muted-foreground hover:text-foreground text-xs">
+                <Home className="w-3.5 h-3.5 text-amber-500" />
+                <span>{isRtl ? "الرئيسية" : "Home"}</span>
+              </Button>
+            </Link>
+
             {/* Dedicated Publishing Cross-Link to Nashr Platform */}
             <Link to="/nashr" title={isRtl ? "طلب نشر كتاب عبر منصة نشر" : "Publish on Nashr Platform"}>
               <Button size="sm" className="font-bold gap-1.5 h-9 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xs text-xs">

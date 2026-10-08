@@ -21,12 +21,13 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   className = "",
   showLabel = false,
 }) => {
-  const { theme = "dark", setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const { dir, translate } = useLanguage();
   const isRtl = dir === "rtl";
 
-  const isDark = theme === "dark";
-  const isLight = theme === "light";
+  const currentTheme = theme === "system" ? resolvedTheme : (theme || "light");
+  const isDark = currentTheme === "dark";
+  const isLight = currentTheme === "light";
 
   const lightLabel = translate("فاتح", "Light");
   const darkLabel = translate("داكن", "Dark");
@@ -106,8 +107,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
 
         {/* Light Mode */}
         <DropdownMenuItem
+          onSelect={() => setTheme("light")}
           onClick={() => setTheme("light")}
-          className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
+          className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-colors ${
             isLight
               ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-black border border-amber-500/30"
               : "hover:bg-muted/80 text-foreground"
@@ -126,8 +128,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
 
         {/* Dark Mode */}
         <DropdownMenuItem
+          onSelect={() => setTheme("dark")}
           onClick={() => setTheme("dark")}
-          className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
+          className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-colors ${
             isDark
               ? "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-black border border-indigo-500/30"
               : "hover:bg-muted/80 text-foreground"
@@ -146,8 +149,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
 
         {/* System Mode */}
         <DropdownMenuItem
+          onSelect={() => setTheme("system")}
           onClick={() => setTheme("system")}
-          className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
+          className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-colors ${
             theme === "system"
               ? "bg-primary/15 text-primary font-black border border-primary/30"
               : "hover:bg-muted/80 text-foreground"

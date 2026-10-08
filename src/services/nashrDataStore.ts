@@ -589,21 +589,69 @@ export class NashrDataStore {
   static getAllInvoices(): NashrInvoice[] {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.INVOICES);
+      let list: NashrInvoice[] = [];
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          return parsed.filter(i => {
+          list = parsed.filter(i => {
             if (!i || typeof i !== "object" || !i.id) return false;
             const authorId = (i.authorId || "").trim();
+            const authorName = (i.authorName || "").trim();
+            const invoiceNum = (i.invoiceNumber || "").trim().toUpperCase();
+            const title = (i.manuscriptTitle || "").trim();
+            const id = (i.id || "").trim();
+
             if (OLD_TEST_AUTHOR_CODES.includes(authorId)) return false;
+            if (id === "inv-2026-01" || id === "inv-2026-02") return false;
+            if (invoiceNum === "INV-NASHR-7721" || invoiceNum === "INV-NASHR-8910") return false;
+            if (authorName.includes("المنشاوي") || title.includes("الحوكمة الرقمية") || title.includes("الذكاء الاصطناعي")) return false;
             return true;
           });
         }
       }
+
+      if (saved && list.length !== (JSON.parse(saved) || []).length) {
+        localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(list));
+      }
+
+      return list;
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  static deleteInvoice(invoiceId: string): void {
+    try {
+      const all = this.getAllInvoices();
+      const updated = all.filter(i => i.id !== invoiceId && i.invoiceNumber !== invoiceId);
+      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(updated));
     } catch (e) {
       console.error(e);
     }
-    return [];
+  }
+
+  static clearOldInvoices(): void {
+    try {
+      const all = this.getAllInvoices();
+      const updated = all.filter(i => {
+        if (!i || !i.id) return false;
+        const authorId = (i.authorId || "").trim();
+        const authorName = (i.authorName || "").trim();
+        const invoiceNum = (i.invoiceNumber || "").trim().toUpperCase();
+        const title = (i.manuscriptTitle || "").trim();
+        const id = (i.id || "").trim();
+
+        if (OLD_TEST_AUTHOR_CODES.includes(authorId)) return false;
+        if (id === "inv-2026-01" || id === "inv-2026-02") return false;
+        if (invoiceNum === "INV-NASHR-7721" || invoiceNum === "INV-NASHR-8910") return false;
+        if (authorName.includes("المنشاوي") || title.includes("الحوكمة الرقمية") || title.includes("الذكاء الاصطناعي")) return false;
+        return true;
+      });
+      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(updated));
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   static getInvoices(authorId?: string): NashrInvoice[] {

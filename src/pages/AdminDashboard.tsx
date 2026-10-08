@@ -112,6 +112,10 @@ export const AdminDashboard = () => {
   const [showRejectReceiptModal, setShowRejectReceiptModal] = useState(false);
   const [receiptRejectionReason, setReceiptRejectionReason] = useState("");
 
+  // Delete Invoice Modal
+  const [deleteInvoiceCandidate, setDeleteInvoiceCandidate] = useState<NashrInvoice | null>(null);
+  const [showDeleteInvoiceModal, setShowDeleteInvoiceModal] = useState(false);
+
   // Custom Invoice Generation Modal
   const [showCustomInvoiceModal, setShowCustomInvoiceModal] = useState(false);
   const [customInvoiceAuthorId, setCustomInvoiceAuthorId] = useState("");
@@ -133,6 +137,7 @@ export const AdminDashboard = () => {
   useEffect(() => {
     NashrDataStore.clearOldTestAuthors();
     NashrDataStore.clearOldSubmissions();
+    NashrDataStore.clearOldInvoices();
     checkAdmin();
   }, []);
 
@@ -356,6 +361,29 @@ export const AdminDashboard = () => {
         ? (isRtl ? "تم تسجيل الفاتورة كـ مسددة بالكامل وإرسال إشعار للمؤلف." : "Invoice marked as paid and author notified.")
         : (isRtl ? "تمت إعادة حالة الفاتورة كـ بانتظار السداد مع إرسال سبب الرفض للمؤلف." : "Invoice returned to unpaid with notes."),
       variant: approved ? "default" : "destructive"
+    });
+  };
+
+  const handleConfirmDeleteInvoice = () => {
+    if (!deleteInvoiceCandidate) return;
+    NashrDataStore.deleteInvoice(deleteInvoiceCandidate.id);
+    loadAllData();
+    setShowDeleteInvoiceModal(false);
+    toast({
+      title: isRtl ? "🗑️ تم حذف الفاتورة بنجاح" : "Invoice Deleted",
+      description: isRtl 
+        ? `تم حذف الفاتورة رقم ${deleteInvoiceCandidate.invoiceNumber} نهائياً من النظام.` 
+        : `Invoice deleted successfully.`
+    });
+    setDeleteInvoiceCandidate(null);
+  };
+
+  const handlePurgeOldInvoices = () => {
+    NashrDataStore.clearOldInvoices();
+    loadAllData();
+    toast({
+      title: isRtl ? "🧹 تم تنظيف وحذف الفواتير القديمة" : "Old Invoices Cleared",
+      description: isRtl ? "تمت إزالة الفواتير التجريبية والقديمة بنجاح." : "Old test invoices deleted."
     });
   };
 
@@ -1385,6 +1413,16 @@ export const AdminDashboard = () => {
                 >
                   {isRtl ? `بانتظار السداد (${safeInvoices.filter(i => i?.status === "unpaid").length})` : "Unpaid"}
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePurgeOldInvoices}
+                  className="h-8 px-3 rounded-xl text-xs font-bold border-destructive/30 text-destructive hover:bg-destructive/10 gap-1.5"
+                  title={isRtl ? "تنظيف وحذف الفواتير القديمة والتجريبية" : "Purge Old Invoices"}
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                  <span>{isRtl ? "حذف الفواتير القديمة" : "Delete Old Invoices"}</span>
+                </Button>
               </div>
 
               <div className="w-full sm:w-64">
@@ -1487,6 +1525,20 @@ export const AdminDashboard = () => {
                             ✓ {isRtl ? "تمت المطابقة والاعتماد" : "Audited & Completed"}
                           </Badge>
                         )}
+
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          onClick={() => {
+                            setDeleteInvoiceCandidate(inv);
+                            setShowDeleteInvoiceModal(true);
+                          }}
+                          className="h-9 px-2.5 rounded-xl font-bold text-xs text-destructive hover:bg-destructive/10 gap-1.5"
+                          title={isRtl ? "حذف الفاتورة نهائياً" : "Delete Invoice"}
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          <span>{isRtl ? "حذف الفاتورة" : "Delete"}</span>
+                        </Button>
                       </div>
 
                     </div>
@@ -2265,6 +2317,53 @@ export const AdminDashboard = () => {
               variant="destructive"
               size="sm"
               onClick={handleConfirmDeleteManuscript}
+              className="rounded-xl text-xs font-black gap-1.5 shadow-sm"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{isRtl ? "تأكيد الحذف نهائياً" : "Confirm Delete"}</span>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog 11: Delete Invoice Confirmation ── */}
+      <Dialog open={showDeleteInvoiceModal} onOpenChange={setShowDeleteInvoiceModal}>
+        <DialogContent className="max-w-md rounded-2xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5 text-destructive" />
+              <span>{isRtl ? "تأكيد حذف الفاتورة" : "Confirm Invoice Deletion"}</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs pt-2 text-muted-foreground leading-relaxed">
+              {isRtl ? (
+                <span>
+                  هل أنت متأكد من رغبتك في حذف الفاتورة رقم <strong className="text-foreground font-mono">{deleteInvoiceCandidate?.invoiceNumber}</strong> الخاصة بالمؤلف <strong className="text-foreground">{deleteInvoiceCandidate?.authorName}</strong> نهائياً؟
+                  <br />
+                  بقيمة: <strong className="text-foreground font-mono">{deleteInvoiceCandidate?.amount} {deleteInvoiceCandidate?.currency}</strong>
+                  <br />
+                  سيتم حذف سجل الفاتورة وإيصالاتها المرتبطة بشكل نهائي.
+                </span>
+              ) : (
+                <span>
+                  Are you sure you want to permanently delete invoice {deleteInvoiceCandidate?.invoiceNumber} ({deleteInvoiceCandidate?.amount} {deleteInvoiceCandidate?.currency})?
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="gap-2 pt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDeleteInvoiceModal(false)}
+              className="rounded-xl text-xs font-bold"
+            >
+              {isRtl ? "إلغاء" : "Cancel"}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleConfirmDeleteInvoice}
               className="rounded-xl text-xs font-black gap-1.5 shadow-sm"
             >
               <Trash2 className="w-3.5 h-3.5" />

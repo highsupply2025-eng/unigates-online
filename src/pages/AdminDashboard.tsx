@@ -231,6 +231,72 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleDownloadManuscriptFile = async (sub: ManuscriptSubmission) => {
+    const fileName = sub.manuscriptFile?.name || `${sub.title}.pdf`;
+
+    // 1. If real file URL exists (Data URL or file path)
+    if (sub.manuscriptFile?.url) {
+      handleDownloadDoc(sub.manuscriptFile.url, fileName);
+      return;
+    }
+
+    // 2. Generate PDF from reader DOM element using html2canvas & jsPDF
+    try {
+      const element = document.getElementById("manuscript-reader-container");
+      if (element) {
+        toast({
+          title: isRtl ? "جاري تحضير وتصدير نسخة الكتاب..." : "Generating PDF...",
+          description: fileName
+        });
+        const html2canvasModule = await import("html2canvas");
+        const html2canvas = (html2canvasModule as any).default || html2canvasModule;
+        const jspdfModule = await import("jspdf");
+        const JsPDFClass = (jspdfModule as any).default || (jspdfModule as any).jsPDF;
+
+        const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#020617", useCORS: true, logging: false });
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new JsPDFClass("p", "mm", "a4");
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, Math.min(imgHeight, 297));
+        pdf.save(fileName);
+        toast({
+          title: isRtl ? "✅ تم تحميل نسخة الحاسوب بنجاح" : "Downloaded successfully",
+          description: fileName
+        });
+        return;
+      }
+    } catch (err) {
+      console.warn("[AdminDashboard] html2canvas error, falling back to direct PDF generation:", err);
+    }
+
+    // 3. Direct PDF fallback
+    try {
+      const jspdfModule = await import("jspdf");
+      const JsPDFClass = (jspdfModule as any).default || (jspdfModule as any).jsPDF;
+      const doc = new JsPDFClass();
+      doc.setFontSize(16);
+      doc.text("Dar Obeid Publishing - Manuscript Review Copy", 20, 20);
+      doc.setFontSize(12);
+      doc.text(`Title: ${sub.title}`, 20, 35);
+      doc.text(`Author: ${sub.authorName} (${sub.authorCode})`, 20, 45);
+      doc.text(`Category: ${sub.category}`, 20, 55);
+      doc.text(`Publish Type: ${sub.publishType}`, 20, 65);
+      doc.text(`Pages: ${sub.pageCount || 150}`, 20, 75);
+      doc.save(fileName);
+      toast({
+        title: isRtl ? "✅ تم تحميل نسخة الحاسوب بنجاح" : "Downloaded successfully",
+        description: fileName
+      });
+    } catch (e) {
+      console.error("[AdminDashboard] PDF generation failed:", e);
+      toast({
+        title: isRtl ? "تعذر تحميل نسخة الحاسوب" : "Download Failed",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Check admin access while ensuring account stays active
   useEffect(() => {
     NashrDataStore.clearOldTestAuthors();
@@ -2449,15 +2515,21 @@ export const AdminDashboard = () => {
                   <Badge variant="outline" className="text-[10px] font-bold bg-card border-border">
                     {isRtl ? "نظام تدقيق مشفر 🔒" : "Encrypted Document"}
                   </Badge>
+                  {previewManuscript.manuscriptFile?.url && (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleOpenInNewTab(previewManuscript.manuscriptFile!.url!, previewManuscript.manuscriptFile!.name)}
+                      className="h-8 px-3 rounded-xl text-xs font-bold gap-1.5"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>{isRtl ? "فتح في نافذة" : "Open"}</span>
+                    </Button>
+                  )}
                   <Button 
                     size="sm" 
-                    onClick={() => {
-                      toast({
-                        title: isRtl ? "جاري تحميل الملف..." : "Downloading file...",
-                        description: isRtl ? `تم بدء تحميل ${previewManuscript.manuscriptFile?.name || "الملف"} إلى جهازك.` : "Download initiated."
-                      });
-                    }}
-                    className="h-8 px-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+                    onClick={() => handleDownloadManuscriptFile(previewManuscript)}
+                    className="h-8 px-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white gap-1.5 shadow-sm active:scale-95 transition-all"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>{isRtl ? "تحميل نسخة للحاسوب" : "Download File"}</span>
@@ -2466,7 +2538,7 @@ export const AdminDashboard = () => {
               </div>
 
               {/* Document Reader Simulator */}
-              <div className="p-6 rounded-2xl bg-slate-950 text-slate-100 border border-border/80 space-y-6 min-h-[380px] shadow-inner select-none">
+              <div id="manuscript-reader-container" className="p-6 rounded-2xl bg-slate-950 text-slate-100 border border-border/80 space-y-6 min-h-[380px] shadow-inner select-none">
                 <div className="border-b border-slate-800 pb-4 text-center space-y-2">
                   <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
                     دار عبيد للنشر والتوزيع • النسخة الأكاديمية الأولية

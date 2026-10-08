@@ -67,6 +67,7 @@ export interface ManuscriptSubmission {
     name: string;
     size: string;
     type: string;
+    url?: string;
   };
   introVideo?: {
     name: string;

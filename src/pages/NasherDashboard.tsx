@@ -99,7 +99,10 @@ const NasherDashboard = () => {
   const [newPageCount, setNewPageCount] = useState<number | string>(200);
   const [newLanguage, setNewLanguage] = useState("العربية");
   const [coverFileName, setCoverFileName] = useState("");
+  const [coverImageUrl, setCoverImageUrl] = useState("");
   const [manuscriptFileName, setManuscriptFileName] = useState("");
+  const [manuscriptFileUrl, setManuscriptFileUrl] = useState("");
+  const [manuscriptFileSize, setManuscriptFileSize] = useState("4.2 MB");
   const [videoFileName, setVideoFileName] = useState("");
   const [submittingWork, setSubmittingWork] = useState(false);
 
@@ -226,8 +229,13 @@ const NasherDashboard = () => {
         synopsis: newSynopsis.trim(),
         pageCount: Number(newPageCount) || 150,
         language: newLanguage,
-        coverImage: coverFileName || undefined,
-        manuscriptFile: manuscriptFileName ? { name: manuscriptFileName, size: "4.2 MB", type: "PDF" } : undefined,
+        coverImage: coverImageUrl || coverFileName || undefined,
+        manuscriptFile: manuscriptFileName ? { 
+          name: manuscriptFileName, 
+          size: manuscriptFileSize || "4.2 MB", 
+          type: manuscriptFileName.endsWith(".docx") || manuscriptFileName.endsWith(".doc") ? "WORD" : "PDF",
+          url: manuscriptFileUrl || undefined
+        } : undefined,
         introVideo: videoFileName ? { name: videoFileName } : undefined,
         priceEstimate: newPublishType === "digital" ? 90 : newPublishType === "print" ? 140 : 160
       });
@@ -241,7 +249,10 @@ const NasherDashboard = () => {
       setCustomCategory("");
       setNewSynopsis("");
       setCoverFileName("");
+      setCoverImageUrl("");
       setManuscriptFileName("");
+      setManuscriptFileUrl("");
+      setManuscriptFileSize("4.2 MB");
       setVideoFileName("");
 
       toast({
@@ -945,7 +956,22 @@ const NasherDashboard = () => {
                           <Input 
                             type="file" 
                             accept="image/*"
-                            onChange={(e) => setCoverFileName(e.target.files?.[0]?.name || "")}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setCoverFileName(file.name);
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                  if (typeof reader.result === "string") {
+                                    setCoverImageUrl(reader.result);
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              } else {
+                                setCoverFileName("");
+                                setCoverImageUrl("");
+                              }
+                            }}
                             className="text-[10px] h-8 rounded-lg cursor-pointer bg-background"
                           />
                           {coverFileName && <span className="text-[10px] font-bold text-emerald-600 block truncate">{coverFileName}</span>}
@@ -958,7 +984,24 @@ const NasherDashboard = () => {
                           <Input 
                             type="file" 
                             accept=".pdf,.doc,.docx"
-                            onChange={(e) => setManuscriptFileName(e.target.files?.[0]?.name || "")}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setManuscriptFileName(file.name);
+                                const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                                setManuscriptFileSize(`${sizeMB} MB`);
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                  if (typeof reader.result === "string") {
+                                    setManuscriptFileUrl(reader.result);
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              } else {
+                                setManuscriptFileName("");
+                                setManuscriptFileUrl("");
+                              }
+                            }}
                             className="text-[10px] h-8 rounded-lg cursor-pointer bg-background"
                           />
                           {manuscriptFileName && <span className="text-[10px] font-bold text-emerald-600 block truncate">{manuscriptFileName}</span>}

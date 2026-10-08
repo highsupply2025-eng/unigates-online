@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { isPlatformUnderDevelopment, getPlatformMeta } from "@/lib/platformAvailability";
 
 describe("UniGates Platform Availability & Environment Controller", () => {
+  describe("0. University stays live", () => { it("is live on production", () => { expect(isPlatformUnderDevelopment("university", "unigates.online")).toBe(false); expect(isPlatformUnderDevelopment("university", "www.unigates.online")).toBe(false); }); });
+
   describe("1. Courses, Book Store & Nashr Platforms (Active & Live Everywhere)", () => {
     it("remains 100% active and live across all domains including production for Courses, Book Store and Nashr", () => {
       expect(isPlatformUnderDevelopment("courses", "unigates.online")).toBe(false);
@@ -28,8 +30,6 @@ describe("UniGates Platform Availability & Environment Controller", () => {
 
   describe("2. Production Domain (unigates.online) - Under Development Mode", () => {
     it("marks University, School, and Career Platforms as under development on unigates.online", () => {
-      expect(isPlatformUnderDevelopment("university", "unigates.online")).toBe(true);
-      expect(isPlatformUnderDevelopment("university", "www.unigates.online")).toBe(true);
 
       expect(isPlatformUnderDevelopment("school", "unigates.online")).toBe(true);
       expect(isPlatformUnderDevelopment("school", "www.unigates.online")).toBe(true);

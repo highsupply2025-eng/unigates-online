@@ -53,7 +53,7 @@ export function isPlatformUnderDevelopment(
   customHostname?: string
 ): boolean {
   // Courses Academy, Book Store, and Nashr Platform are always active & live across all domains
-  if (platform === "courses" || platform === "nasher" || platform === "nashr" || platform === "bookstore") {
+  if (platform === "university" || platform === "courses" || platform === "nasher" || platform === "nashr" || platform === "bookstore") {
     return false;
   }
 

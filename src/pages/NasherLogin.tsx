@@ -199,6 +199,8 @@ const NasherLogin = () => {
       const updatedAuthor = authorId 
         ? (NashrDataStore.getAllAuthors().find(a => a.id === authorId) || NashrDataStore.getAuthorProfile())
         : NashrDataStore.getAuthorProfile();
+      // Switch the session to this author so the dashboard opens their account
+      NashrDataStore.saveAuthorProfile({ ...updatedAuthor, isTemporaryPassword: false });
 
       setCurrentAuthor(updatedAuthor);
 

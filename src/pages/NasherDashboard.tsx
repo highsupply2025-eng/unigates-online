@@ -919,24 +919,12 @@ const NasherDashboard = () => {
 
               <DropdownMenuSeparator className="my-1.5" />
 
-              {/* 7. الأمان وكلمة المرور */}
+              {/* 7. البيانات الشخصية وإعدادات الأمان (صفحة مستقلة مدمجة) */}
               <DropdownMenuItem 
-                onClick={() => setPasswordModalOpen(true)}
-                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-muted transition-colors"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-600 flex items-center justify-center shrink-0">
-                    <Key className="w-4 h-4" />
-                  </div>
-                  <span>{isRtl ? "الأمان وكلمة المرور" : "Security & Password"}</span>
-                </div>
-                <span className="text-[10px] text-muted-foreground font-bold">{isRtl ? "تغيير" : "Change"}</span>
-              </DropdownMenuItem>
-
-              {/* 8. البيانات الشخصية */}
-              <DropdownMenuItem 
-                onClick={() => setShowProfileModal(true)}
-                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-muted transition-colors"
+                onClick={() => {
+                  navigate("/nashr/profile");
+                }}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-600 flex items-center justify-center shrink-0">
@@ -944,8 +932,8 @@ const NasherDashboard = () => {
                   </div>
                   <span>{isRtl ? "البيانات الشخصية" : "Personal Profile"}</span>
                 </div>
-                <Badge variant="outline" className="text-[10px] font-bold">
-                  {isRtl ? "عرض 👤" : "View"}
+                <Badge variant="outline" className="text-[10px] font-bold border-indigo-500/30 text-indigo-600">
+                  {isRtl ? "عرض وإدارة 👤" : "View & Manage"}
                 </Badge>
               </DropdownMenuItem>
 
@@ -2004,20 +1992,11 @@ const NasherDashboard = () => {
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  onClick={() => setPasswordModalOpen(true)}
-                  className="rounded-xl border-rose-500/40 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10 text-xs font-black gap-1.5"
-                >
-                  <Key className="w-3.5 h-3.5 text-rose-500" />
-                  <span>{isRtl ? "الأمان وكلمة المرور" : "Security"}</span>
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => setShowProfileModal(true)}
+                  onClick={() => navigate("/nashr/profile")}
                   className="rounded-xl border-indigo-500/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/10 text-xs font-black gap-1.5"
                 >
                   <User className="w-3.5 h-3.5 text-indigo-500" />
-                  <span>{isRtl ? "البيانات الشخصية" : "Profile"}</span>
+                  <span>{isRtl ? "البيانات الشخصية وكلمة المرور (صفحة مستقلة) 👤" : "Personal Profile & Security"}</span>
                 </Button>
               </div>
             </div>

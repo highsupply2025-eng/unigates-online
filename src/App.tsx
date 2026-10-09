@@ -85,6 +85,7 @@ const NasherDashboard = lazy(() => import("./pages/NasherDashboard"));
 const NasherLogin = lazy(() => import("./pages/NasherLogin"));
 const NasherSignup = lazy(() => import("./pages/NasherSignup"));
 const NasherNewNotesPage = lazy(() => import("./pages/NasherNewNotesPage"));
+const NasherProfilePage = lazy(() => import("./pages/NasherProfilePage"));
 const CollegeRegistration = lazy(() => import("./pages/CollegeRegistration"));
 const CollegeRoleSignup = lazy(() => import("./pages/CollegeRoleSignup"));
 const CollegeAdminSignup = lazy(() => import("./pages/CollegeAdminSignup"));
@@ -277,12 +278,14 @@ const App = () => (
               <Route path="/nashr" element={<NasherPlatform />} />
               <Route path="/nashr/dashboard" element={<NasherDashboard />} />
               <Route path="/nashr/notes" element={<NasherNewNotesPage />} />
+              <Route path="/nashr/profile" element={<NasherProfilePage />} />
               <Route path="/nashr/login" element={<NasherLogin />} />
               <Route path="/nashr/signup" element={<NasherSignup />} />
               {/* Backwards-compatible redirects from /nasher to /nashr */}
               <Route path="/nasher" element={<Navigate to="/nashr" replace />} />
               <Route path="/nasher/dashboard" element={<Navigate to="/nashr/dashboard" replace />} />
               <Route path="/nasher/notes" element={<Navigate to="/nashr/notes" replace />} />
+              <Route path="/nasher/profile" element={<Navigate to="/nashr/profile" replace />} />
               <Route path="/nasher/login" element={<Navigate to="/nashr/login" replace />} />
               <Route path="/nasher/signup" element={<Navigate to="/nashr/signup" replace />} />
               {/* School Platform */}

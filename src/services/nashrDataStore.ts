@@ -1184,6 +1184,18 @@ export class NashrDataStore {
     return item;
   }
 
+  static updateSubmission(
+    submissionId: string, 
+    updates: Partial<ManuscriptSubmission>
+  ): ManuscriptSubmission | null {
+    const list = this.getAllSubmissions();
+    const item = list.find(s => s.id === submissionId);
+    if (!item) return null;
+    Object.assign(item, updates);
+    localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(list));
+    return item;
+  }
+
   static createInvoice(data: Omit<NashrInvoice, "id" | "invoiceNumber" | "createdAt">): NashrInvoice {
     const all = this.getAllInvoices();
     const newInv: NashrInvoice = {

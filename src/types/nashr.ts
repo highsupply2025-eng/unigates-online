@@ -63,6 +63,8 @@ export interface ManuscriptSubmission {
   category: string;
   publishType: PublishType;
   coverImage?: string;
+  coverImageUrl?: string;
+  coverImageName?: string;
   manuscriptFile?: {
     name: string;
     size: string;

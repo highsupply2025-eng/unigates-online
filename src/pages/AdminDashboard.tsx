@@ -1184,10 +1184,18 @@ export const AdminDashboard = () => {
                           {/* File 2: Cover */}
                           <div className="p-3 rounded-xl bg-card border border-border/80 flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 overflow-hidden">
-                              <ImageIcon className="w-5 h-5 text-amber-500 shrink-0" />
+                              {(sub.coverImageUrl || (sub.coverImage && (sub.coverImage.startsWith("data:") || sub.coverImage.startsWith("http") || sub.coverImage.startsWith("/")))) ? (
+                                <img 
+                                  src={sub.coverImageUrl || sub.coverImage} 
+                                  alt="Cover" 
+                                  className="w-7 h-9 rounded object-cover border border-amber-500/40 shrink-0 shadow-sm" 
+                                />
+                              ) : (
+                                <ImageIcon className="w-5 h-5 text-amber-500 shrink-0" />
+                              )}
                               <div className="text-start truncate">
                                 <span className="text-[11px] font-bold block truncate">
-                                  {sub.coverImage || (isRtl ? "صورة الغلاف المقترح" : "Cover Image")}
+                                  {sub.coverImageName || (sub.coverImage?.startsWith("data:") ? (isRtl ? "صورة الغلاف المرفوعة" : "Uploaded Cover Image") : sub.coverImage) || (isRtl ? "صورة الغلاف المقترح" : "Cover Image")}
                                 </span>
                                 <span className="text-[10px] text-muted-foreground">{isRtl ? "صورة عالية الجودة" : "HD Cover"}</span>
                               </div>
@@ -2597,61 +2605,189 @@ export const AdminDashboard = () => {
       {/* ── Dialog 7: Cover Inspection Lightbox ── */}
       <Dialog open={showCoverModal} onOpenChange={setShowCoverModal}>
         <DialogContent className="max-w-md rounded-3xl p-6 space-y-4">
-          {previewCover && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-base font-black flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-amber-500" />
-                  <span>{isRtl ? "معاينة صورة الغلاف المقترح للكتاب" : "Cover Image Preview"}</span>
-                </DialogTitle>
-                <DialogDescription className="text-xs">
-                  {isRtl ? `مطابقة أبعاد وجودة غلاف "${previewCover.title}".` : "Cover resolution & spine inspect."}
-                </DialogDescription>
-              </DialogHeader>
+          {previewCover && (() => {
+            const coverSrc = (previewCover.coverImageUrl && (previewCover.coverImageUrl.startsWith("data:") || previewCover.coverImageUrl.startsWith("http") || previewCover.coverImageUrl.startsWith("blob:") || previewCover.coverImageUrl.startsWith("/")))
+              ? previewCover.coverImageUrl
+              : (previewCover.coverImage && (previewCover.coverImage.startsWith("data:") || previewCover.coverImage.startsWith("http") || previewCover.coverImage.startsWith("blob:") || previewCover.coverImage.startsWith("/")))
+              ? previewCover.coverImage
+              : null;
+            const displayName = previewCover.coverImageName || (coverSrc ? "Cover_Image.png" : previewCover.coverImage || (isRtl ? "غلاف_مقترح.jpg" : "cover.jpg"));
 
-              {/* 3D Realistic Book Cover Representation */}
-              <div className="p-6 rounded-2xl bg-gradient-to-b from-muted/50 to-muted/20 border-2 border-border/80 flex flex-col items-center justify-center">
-                <div className="w-48 h-64 rounded-2xl bg-gradient-to-br from-amber-600 via-orange-700 to-rose-800 text-white p-4 shadow-2xl flex flex-col justify-between border-4 border-amber-400/40 relative overflow-hidden group">
-                  <div className="space-y-1 z-10">
-                    <span className="text-[9px] uppercase tracking-wider block font-bold text-amber-200">DAR OBEID PUBLISHING</span>
-                    <h4 className="text-sm font-black leading-snug line-clamp-3">{previewCover.title}</h4>
+            return (
+              <>
+                <DialogHeader>
+                  <div className="flex items-center justify-between gap-2">
+                    <DialogTitle className="text-base font-black flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-amber-500" />
+                      <span>{isRtl ? "معاينة صورة الغلاف المقترح للكتاب" : "Cover Image Preview"}</span>
+                    </DialogTitle>
+                    <Badge variant="outline" className="text-[10px] font-mono max-w-[150px] truncate bg-card">
+                      {displayName}
+                    </Badge>
                   </div>
-                  <div className="z-10 pt-2 border-t border-white/20">
-                    <span className="text-[10px] font-bold block truncate">{previewCover.authorName}</span>
-                    <span className="text-[8px] text-amber-200 block">{previewCover.category}</span>
+                  <DialogDescription className="text-xs">
+                    {isRtl ? `مطابقة وفحص صورة غلاف "${previewCover.title}" للمؤلف ${previewCover.authorName}.` : "Cover resolution & inspect."}
+                  </DialogDescription>
+                </DialogHeader>
+
+                {/* Main Cover Visual Display */}
+                <div className="p-4 rounded-2xl bg-slate-950 border-2 border-border/80 flex flex-col items-center justify-center min-h-[300px]">
+                  {coverSrc ? (
+                    <div className="relative group rounded-xl overflow-hidden shadow-2xl border border-slate-800 bg-black/60 p-1 flex items-center justify-center w-full max-h-[380px]">
+                      <img 
+                        src={coverSrc} 
+                        alt={previewCover.title} 
+                        className="max-h-[360px] max-w-full w-auto rounded-lg object-contain shadow-2xl transition-transform hover:scale-105 duration-300" 
+                      />
+                    </div>
+                  ) : (
+                    /* Fallback Mockup if no raw image data URL exists */
+                    <div className="space-y-3 flex flex-col items-center">
+                      <div className="w-48 h-64 rounded-2xl bg-gradient-to-br from-amber-600 via-orange-700 to-rose-800 text-white p-4 shadow-2xl flex flex-col justify-between border-4 border-amber-400/40 relative overflow-hidden group">
+                        <div className="space-y-1 z-10">
+                          <span className="text-[9px] uppercase tracking-wider block font-bold text-amber-200">DAR OBEID PUBLISHING</span>
+                          <h4 className="text-sm font-black leading-snug line-clamp-3">{previewCover.title}</h4>
+                        </div>
+                        <div className="z-10 pt-2 border-t border-white/20">
+                          <span className="text-[10px] font-bold block truncate">{previewCover.authorName}</span>
+                          <span className="text-[8px] text-amber-200 block">{previewCover.category}</span>
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/10 pointer-events-none" />
+                      </div>
+
+                      {/* Attach real image button */}
+                      <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/30 transition-all">
+                        <PlusCircle className="w-3.5 h-3.5" />
+                        <span>{isRtl ? "اختيار وإرفاق صورة الغلاف الأصلية من جهازك" : "Upload actual image file"}</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file && previewCover) {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                if (typeof reader.result === "string") {
+                                  NashrDataStore.updateSubmission(previewCover.id, {
+                                    coverImage: reader.result,
+                                    coverImageUrl: reader.result,
+                                    coverImageName: file.name
+                                  });
+                                  setPreviewCover({
+                                    ...previewCover,
+                                    coverImage: reader.result,
+                                    coverImageUrl: reader.result,
+                                    coverImageName: file.name
+                                  });
+                                  loadAllData();
+                                  toast({
+                                    title: isRtl ? "✅ تم تحميل وحفظ صورة الغلاف بنجاح" : "Cover image attached",
+                                    description: file.name
+                                  });
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap justify-center gap-2 text-[10px] text-muted-foreground font-mono">
+                    <span>الأبعاد: 17x24 cm (قطع كبير)</span>
+                    <span>•</span>
+                    <span>الدقة: 300 DPI</span>
+                    <span>•</span>
+                    <span>{coverSrc ? "صورة أصلية مرفوعة ✓" : `الملف المرفق: ${displayName}`}</span>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/10 pointer-events-none" />
                 </div>
 
-                <div className="mt-4 flex flex-wrap justify-center gap-2 text-[10px] text-muted-foreground font-mono">
-                  <span>الأبعاد: 17x24 cm (قطع كبير)</span>
-                  <span>•</span>
-                  <span>الدقة: 300 DPI</span>
-                  <span>•</span>
-                  <span>الألوان: CMYK</span>
-                </div>
-              </div>
-
-              <DialogFooter className="gap-2 pt-2 border-t border-border/60">
-                <Button variant="outline" onClick={() => setShowCoverModal(false)} className="rounded-xl text-xs font-bold">
-                  {isRtl ? "إغلاق" : "Close"}
-                </Button>
-                <Button 
-                  onClick={() => {
-                    toast({
-                      title: isRtl ? "تم اعتماد الغلاف المقترح" : "Cover Approved",
-                      description: isRtl ? "تم إرسال الغلاف لقسم تجهيز طباعة الأوفست وتصميم النسخة الرقمية." : "Sent to pre-press."
-                    });
-                    setShowCoverModal(false);
-                  }}
-                  className="rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>{isRtl ? "اعتماد الغلاف الفني" : "Approve Cover"}</span>
-                </Button>
-              </DialogFooter>
-            </>
-          )}
+                <DialogFooter className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border/60">
+                  <div className="flex items-center gap-2">
+                    {coverSrc && (
+                      <>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleDownloadDoc(coverSrc, displayName)}
+                          className="h-8 px-3 rounded-xl text-xs font-bold gap-1.5"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "تحميل الصورة" : "Download"}</span>
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => handleOpenInNewTab(coverSrc, displayName)}
+                          className="h-8 px-2.5 rounded-xl text-xs font-bold gap-1"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "نافذة جديدة" : "Open"}</span>
+                        </Button>
+                      </>
+                    )}
+                    {/* Admin can replace image */}
+                    <label className="cursor-pointer inline-flex items-center gap-1 h-8 px-2.5 rounded-xl border border-border bg-card hover:bg-muted/50 text-xs font-bold text-muted-foreground transition-all">
+                      <RefreshCw className="w-3 h-3" />
+                      <span>{isRtl ? "تغيير الغلاف" : "Replace"}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file && previewCover) {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              if (typeof reader.result === "string") {
+                                NashrDataStore.updateSubmission(previewCover.id, {
+                                  coverImage: reader.result,
+                                  coverImageUrl: reader.result,
+                                  coverImageName: file.name
+                                });
+                                setPreviewCover({
+                                  ...previewCover,
+                                  coverImage: reader.result,
+                                  coverImageUrl: reader.result,
+                                  coverImageName: file.name
+                                });
+                                loadAllData();
+                                toast({
+                                  title: isRtl ? "✅ تم تحديث صورة الغلاف بنجاح" : "Cover updated",
+                                  description: file.name
+                                });
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => setShowCoverModal(false)} className="rounded-xl text-xs font-bold">
+                      {isRtl ? "إغلاق" : "Close"}
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        toast({
+                          title: isRtl ? "تم اعتماد الغلاف المقترح" : "Cover Approved",
+                          description: isRtl ? "تم إرسال الغلاف لقسم تجهيز طباعة الأوفست وتصميم النسخة الرقمية." : "Sent to pre-press."
+                        });
+                        setShowCoverModal(false);
+                      }}
+                      className="rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isRtl ? "اعتماد الغلاف الفني" : "Approve Cover"}</span>
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 

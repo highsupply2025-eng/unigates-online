@@ -230,6 +230,8 @@ const NasherDashboard = () => {
         pageCount: Number(newPageCount) || 150,
         language: newLanguage,
         coverImage: coverImageUrl || coverFileName || undefined,
+        coverImageUrl: coverImageUrl || undefined,
+        coverImageName: coverFileName || undefined,
         manuscriptFile: manuscriptFileName ? { 
           name: manuscriptFileName, 
           size: manuscriptFileSize || "4.2 MB", 

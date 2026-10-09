@@ -870,7 +870,7 @@ const NasherDashboard = () => {
                     className="h-10 px-4 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md gap-1.5 cursor-pointer hover:scale-105 transition-all"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
-                    <span>{isRtl ? "تعديل المخطوطة والملفات وإعادة الإرسال ✏️" : "Edit Manuscript & Resubmit"}</span>
+                    <span>{isRtl ? "تعديل المرفقات وإعادة الإرسال ✏️" : "Edit Attachments & Resubmit"}</span>
                   </Button>
                 </div>
               </div>
@@ -1281,7 +1281,7 @@ const NasherDashboard = () => {
                             className="h-7 px-2.5 rounded-xl text-[10px] font-black border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 gap-1.5 cursor-pointer"
                           >
                             <Edit3 className="w-3 h-3" />
-                            <span>{isRtl ? "تعديل الملفات والبيانات وإعادة الإرسال ✏️" : "Edit & Resubmit"}</span>
+                            <span>{isRtl ? "تعديل المرفقات وإعادة الإرسال ✏️" : "Edit Attachments & Resubmit"}</span>
                           </Button>
                         </div>
                       </div>
@@ -2500,7 +2500,7 @@ const NasherDashboard = () => {
               <DialogHeader>
                 <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
                   <Edit3 className="w-5 h-5 text-amber-500" />
-                  <span>{isRtl ? "تعديل ملفات وبيانات المخطوطة وإعادة الإرسال" : "Edit & Resubmit Manuscript"}</span>
+                  <span>{isRtl ? "تعديل المرفقات والبيانات وإعادة الإرسال" : "Edit Attachments & Resubmit"}</span>
                 </DialogTitle>
                 <DialogDescription className="text-xs">
                   {isRtl 
@@ -2699,7 +2699,7 @@ const NasherDashboard = () => {
                     className="rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md gap-2"
                   >
                     {savingEditSubmission ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    <span>{isRtl ? "حفظ التعديلات وإعادة الإرسال للتحكيم ➔" : "Save & Resubmit to Review ➔"}</span>
+                    <span>{isRtl ? "تعديل المرفقات وإعادة الإرسال ➔" : "Update Attachments & Resubmit ➔"}</span>
                   </Button>
                 </DialogFooter>
 

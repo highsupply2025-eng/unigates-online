@@ -731,7 +731,10 @@ const NasherDashboard = () => {
               <DropdownMenuItem 
                 onClick={() => {
                   handleTabChange("submit");
-                  window.scrollTo({ top: 380, behavior: "smooth" });
+                  setTimeout(() => {
+                    const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
                 }}
                 className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
               >
@@ -750,7 +753,10 @@ const NasherDashboard = () => {
               <DropdownMenuItem 
                 onClick={() => {
                   handleTabChange("published");
-                  window.scrollTo({ top: 380, behavior: "smooth" });
+                  setTimeout(() => {
+                    const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
                 }}
                 className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-blue-500/10 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
               >
@@ -769,7 +775,10 @@ const NasherDashboard = () => {
               <DropdownMenuItem 
                 onClick={() => {
                   handleTabChange("payments");
-                  window.scrollTo({ top: 380, behavior: "smooth" });
+                  setTimeout(() => {
+                    const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
                 }}
                 className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
               >
@@ -794,7 +803,10 @@ const NasherDashboard = () => {
               <DropdownMenuItem 
                 onClick={() => {
                   handleTabChange("chat");
-                  window.scrollTo({ top: 380, behavior: "smooth" });
+                  setTimeout(() => {
+                    const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
                 }}
                 className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-purple-500/10 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
               >
@@ -819,7 +831,10 @@ const NasherDashboard = () => {
                     feedbackEl.scrollIntoView({ behavior: "smooth", block: "center" });
                   } else {
                     handleTabChange("chat");
-                    window.scrollTo({ top: 380, behavior: "smooth" });
+                    setTimeout(() => {
+                      const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }, 50);
                   }
                   toast({
                     title: isRtl ? "📬 ملاحظات هيئة التحكيم والتدقيق" : "Editorial Review Notes",
@@ -847,7 +862,10 @@ const NasherDashboard = () => {
               <DropdownMenuItem 
                 onClick={() => {
                   handleTabChange("sales");
-                  window.scrollTo({ top: 380, behavior: "smooth" });
+                  setTimeout(() => {
+                    const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
                 }}
                 className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
               >
@@ -1190,6 +1208,9 @@ const NasherDashboard = () => {
             ))}
           </div>
         )}
+
+        {/* Content Anchor for Smooth Scroll from Dropdown Menu */}
+        <div id="nasher-tab-content" className="scroll-mt-20" />
 
         {/* ------------------------------------------------------------- */}
         {/* TAB 1: 📁 رفع مؤلفات (Submit Manuscript) */}

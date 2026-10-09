@@ -940,82 +940,54 @@ const NasherDashboard = () => {
               <DropdownMenuSeparator className="my-1.5" />
 
               {/* 9. تغيير اللغة */}
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-black flex items-center gap-2.5 cursor-pointer">
+              <DropdownMenuItem 
+                onClick={() => {
+                  const nextLang = language === "ar" ? "en" : "ar";
+                  setLanguage(nextLang);
+                  toast({
+                    title: nextLang === "ar" ? "تم تغيير اللغة إلى العربية 🌐" : "Language switched to English 🌐",
+                    description: nextLang === "ar" ? "تم تحديث واجهة المنصة باللغة العربية." : "Interface updated to English."
+                  });
+                }}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-cyan-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-600 flex items-center justify-center shrink-0">
                     <Globe className="w-4 h-4" />
                   </div>
-                  <div className="flex items-center justify-between flex-1">
-                    <span>{isRtl ? "تغيير اللغة" : "Change Language"}</span>
-                    <Badge variant="secondary" className="text-[10px] font-black">
-                      {language === "ar" ? "العربية" : "English"}
-                    </Badge>
-                  </div>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border border-border/80 bg-popover" dir={dir}>
-                  <DropdownMenuItem 
-                    onClick={() => setLanguage("ar")}
-                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${language === "ar" ? "bg-amber-500/10 text-amber-600" : ""}`}
-                  >
-                    <span>العربية (Arabic)</span>
-                    {language === "ar" && <Check className="w-4 h-4 text-amber-500" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setLanguage("en")}
-                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${language === "en" ? "bg-amber-500/10 text-amber-600" : ""}`}
-                  >
-                    <span>English (الإنجليزية)</span>
-                    {language === "en" && <Check className="w-4 h-4 text-amber-500" />}
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
+                  <span>{isRtl ? "تغيير اللغة" : "Change Language"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-black border-cyan-500/40 text-cyan-700 dark:text-cyan-300 bg-cyan-500/10">
+                  {language === "ar" ? "العربية ⟳" : "English ⟳"}
+                </Badge>
+              </DropdownMenuItem>
 
               {/* 10. السطوع */}
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-black flex items-center gap-2.5 cursor-pointer">
+              <DropdownMenuItem 
+                onClick={() => {
+                  const nextTheme = theme === "dark" ? "light" : "dark";
+                  setTheme(nextTheme);
+                  toast({
+                    title: nextTheme === "dark" 
+                      ? (isRtl ? "تم تفعيل الوضع الداكن 🌙" : "Dark Mode Activated 🌙") 
+                      : (isRtl ? "تم تفعيل الوضع الفاتح ☀️" : "Light Mode Activated ☀️"),
+                    description: nextTheme === "dark"
+                      ? (isRtl ? "مظهر داكن مريح للعين." : "Comfortable dark theme.")
+                      : (isRtl ? "مظهر ساطع وواضح." : "Bright and clear appearance.")
+                  });
+                }}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
                     {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                   </div>
-                  <div className="flex items-center justify-between flex-1">
-                    <span>{isRtl ? "السطوع" : "Appearance & Theme"}</span>
-                    <Badge variant="secondary" className="text-[10px] font-black">
-                      {theme === "dark" ? (isRtl ? "داكن" : "Dark") : (isRtl ? "فاتح" : "Light")}
-                    </Badge>
-                  </div>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border border-border/80 bg-popover" dir={dir}>
-                  <DropdownMenuItem 
-                    onClick={() => setTheme("light")}
-                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${theme === "light" ? "bg-amber-500/10 text-amber-600" : ""}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Sun className="w-4 h-4 text-amber-500" />
-                      <span>{isRtl ? "الوضع الفاتح" : "Light Mode"}</span>
-                    </div>
-                    {theme === "light" && <Check className="w-4 h-4 text-amber-500" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setTheme("dark")}
-                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${theme === "dark" ? "bg-amber-500/10 text-amber-600" : ""}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Moon className="w-4 h-4 text-blue-500" />
-                      <span>{isRtl ? "الوضع الداكن" : "Dark Mode"}</span>
-                    </div>
-                    {theme === "dark" && <Check className="w-4 h-4 text-amber-500" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setTheme("system")}
-                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${theme === "system" ? "bg-amber-500/10 text-amber-600" : ""}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <SunMoon className="w-4 h-4 text-muted-foreground" />
-                      <span>{isRtl ? "تلقائي حسب النظام" : "System Auto"}</span>
-                    </div>
-                    {theme === "system" && <Check className="w-4 h-4 text-amber-500" />}
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
+                  <span>{isRtl ? "السطوع والمظهر" : "Appearance & Theme"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10">
+                  {theme === "dark" ? (isRtl ? "داكن 🌙 ⟳" : "Dark 🌙 ⟳") : (isRtl ? "فاتح ☀️ ⟳" : "Light ☀️ ⟳")}
+                </Badge>
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator className="my-1.5" />
 
@@ -1028,7 +1000,7 @@ const NasherDashboard = () => {
                   });
                   navigate("/nashr");
                 }}
-                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer text-destructive hover:bg-destructive/10 transition-colors"
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-start cursor-pointer text-destructive hover:bg-destructive/10 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-destructive/15 text-destructive flex items-center justify-center shrink-0">
@@ -1036,7 +1008,6 @@ const NasherDashboard = () => {
                   </div>
                   <span>{isRtl ? "تسجيل الخروج" : "Logout"}</span>
                 </div>
-                <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -1423,4 +1423,86 @@ export class NashrDataStore {
     localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(all));
     return newReq;
   }
+
+  // Bookstore Bridge: Get submissions transferred/ready for bookstore pricing
+  static getSubmissionsPendingStore(): ManuscriptSubmission[] {
+    const all = this.getAllSubmissions();
+    return all.filter(s => s.status === "ready_for_pricing" || (s.status === "approved" && !s.storeBookCode));
+  }
+
+  // Bookstore Bridge: Transfer manuscript to bookstore studio for pricing
+  static transferToBookStoreStudio(submissionId: string, adminNotes?: string): ManuscriptSubmission | null {
+    const item = this.updateSubmissionStatus(
+      submissionId, 
+      "ready_for_pricing", 
+      adminNotes || "تمت الموافقة على المخطوطة وإحالتها رسمياً لاستوديو متجر الكتب للتسعير واستكمال الوصف التسويقي والنشر."
+    );
+    return item;
+  }
+
+  // Bookstore Bridge: Record a real sale for an author by authorCode or authorId
+  static recordSaleForAuthor(sale: {
+    bookCode: string;
+    bookTitle: string;
+    format: "digital" | "print" | "both";
+    salePrice: number;
+    authorRoyaltyPercentage: number;
+    authorEarnings: number;
+    buyerName: string;
+    orderNumber: string;
+    date?: string;
+    authorCode?: string;
+    authorId?: string;
+  }): BookSaleRecord {
+    const authorProfile = this.getAuthorProfile();
+    const targetAuthorId = sale.authorId || (sale.authorCode && sale.authorCode === authorProfile.authorCode ? authorProfile.id : authorProfile.id);
+
+    const newRecord: BookSaleRecord = {
+      id: `sale-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      bookCode: sale.bookCode,
+      bookTitle: sale.bookTitle,
+      format: sale.format,
+      salePrice: sale.salePrice,
+      authorRoyaltyPercentage: sale.authorRoyaltyPercentage,
+      authorEarnings: sale.authorEarnings,
+      buyerName: sale.buyerName,
+      orderNumber: sale.orderNumber,
+      date: sale.date || new Date().toISOString().split("T")[0]
+    };
+
+    // 1. Save to global sales
+    try {
+      const savedGlobal = localStorage.getItem(STORAGE_KEYS.SALES);
+      const listGlobal: BookSaleRecord[] = savedGlobal ? JSON.parse(savedGlobal) : [...INITIAL_SALES];
+      listGlobal.unshift(newRecord);
+      localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(listGlobal));
+    } catch (e) {
+      console.error(e);
+    }
+
+    // 2. Save to author-specific sales
+    if (targetAuthorId) {
+      try {
+        const authorKey = `${STORAGE_KEYS.SALES}_${targetAuthorId}`;
+        const savedAuth = localStorage.getItem(authorKey);
+        const listAuth: BookSaleRecord[] = savedAuth ? JSON.parse(savedAuth) : [];
+        listAuth.unshift(newRecord);
+        localStorage.setItem(authorKey, JSON.stringify(listAuth));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // 3. Notify author via direct internal announcement message
+    try {
+      this.sendAdminMessageToAuthor(
+        targetAuthorId,
+        `🎉 إشعار مبيعات جديد: تم تسجيل عملية شراء لمؤلفكم "${sale.bookTitle}" (رقم الطلب: ${sale.orderNumber}) بصيغة (${sale.format === "digital" ? "رقمية E-Book" : "ورقية مطبوعة"}) بمبلغ ${sale.salePrice} ج.م. تمت إضافة حصتكم الأرباح (${sale.authorEarnings} ج.م) لرصيدكم المتاح فورياً!`
+      );
+    } catch (e) {
+      console.error(e);
+    }
+
+    return newRecord;
+  }
 }

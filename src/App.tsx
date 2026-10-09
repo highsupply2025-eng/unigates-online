@@ -43,6 +43,7 @@ const CourseProviderDashboard = lazy(() => import("./pages/CourseProviderDashboa
 const LecturerCourseContent = lazy(() => import("./pages/LecturerCourseContent"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminOverview = lazy(() => import("./pages/AdminOverview"));
+const BookStoreAdminStudio = lazy(() => import("./pages/BookStoreAdminStudio"));
 const AdminSecurityCenter = lazy(() => import("./pages/AdminSecurityCenter"));
 const AdminPaymentSettings = lazy(() => import("./pages/AdminPaymentSettings"));
 const WatchStream = lazy(() => import("./pages/WatchStream"));
@@ -239,6 +240,8 @@ const App = () => (
               <Route path="/courses/dashboard/:role" element={<CourseProviderDashboard />} />
               <Route path="/lecturer/course/:courseId" element={<LecturerCourseContent />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/bookstore" element={<BookStoreAdminStudio />} />
+              <Route path="/book-store/admin" element={<BookStoreAdminStudio />} />
               <Route path="/admin" element={<AdminOverview />} />
               <Route path="/admin/overview" element={<AdminOverview />} />
               <Route path="/admin/security-center" element={<AdminSecurityCenter />} />

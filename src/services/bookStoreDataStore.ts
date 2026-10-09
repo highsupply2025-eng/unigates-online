@@ -15,6 +15,7 @@ import {
   LiveCourierTrackingOrder,
   ReaderRewardsAccount
 } from "@/types/bookStore";
+import { NashrDataStore } from "./nashrDataStore";
 
 const STORAGE_KEYS = {
   CATALOG: "unigates_bookstore_catalog",
@@ -39,6 +40,8 @@ export const INITIAL_BOOKS_CATALOG: BookStoreItem[] = [
     title_en: "Future of Digital Governance in Arab Universities & Institutions",
     author_ar: "أ.د. عبد الرحمن المنشاوي",
     author_en: "Prof. Dr. Abdelrahman El-Minshawi",
+    author_code: "AUTH-2026-001",
+    author_id: "auth-2026-001",
     publisher_ar: "دار عبيد للنشر والتوزيع والطباعة",
     publisher_en: "Dar Obeid Publishing & Distribution",
     publisher_id: "pub-obeid-001",
@@ -403,6 +406,25 @@ export class BookStoreDataStore {
     }
   }
 
+  static updateBookInCatalog(id: string, updates: Partial<BookStoreItem>): BookStoreItem | null {
+    const catalog = this.getCatalog();
+    const item = catalog.find(b => b.id === id || b.code === id);
+    if (!item) return null;
+    Object.assign(item, updates);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.CATALOG, JSON.stringify(catalog));
+    }
+    return item;
+  }
+
+  static removeBookFromCatalog(id: string): void {
+    const catalog = this.getCatalog();
+    const filtered = catalog.filter(b => b.id !== id && b.code !== id);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.CATALOG, JSON.stringify(filtered));
+    }
+  }
+
   // 2. Reader purchases and library
   static getPurchasedBooks(): PurchasedBook[] {
     if (typeof window === "undefined") return INITIAL_PURCHASED_BOOKS;
@@ -545,6 +567,39 @@ export class BookStoreDataStore {
     orders.unshift(order);
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+    }
+
+    // Auto-credit author royalties in NashrDataStore if any item belongs to an author
+    try {
+      const catalog = this.getCatalog();
+      order.items.forEach(item => {
+        const book = catalog.find(b => b.id === item.bookId || b.code === item.bookCode);
+        const authorCode = item.authorCode || book?.author_code;
+        const authorId = book?.author_id;
+        const royaltyRate = item.format === "digital" ? 70 : 30;
+        const itemQuantity = item.quantity || 1;
+        const itemPrice = item.price || (item.format === "digital" ? book?.price_digital : book?.price_print) || 100;
+        const totalItemGross = itemPrice * itemQuantity;
+        const authorEarnings = Math.round(totalItemGross * (royaltyRate / 100));
+
+        if (authorCode || authorId) {
+          NashrDataStore.recordSaleForAuthor({
+            bookCode: item.bookCode || book?.code || "BK-DAR-STORE",
+            bookTitle: item.bookTitle || book?.title_ar || "مؤلف منشور بالمتجر",
+            format: item.format,
+            salePrice: totalItemGross,
+            authorRoyaltyPercentage: royaltyRate,
+            authorEarnings,
+            buyerName: order.userName || "قارئ متجر UNIGATES",
+            orderNumber: order.orderNumber,
+            date: new Date().toISOString().split("T")[0],
+            authorCode,
+            authorId
+          });
+        }
+      });
+    } catch (e) {
+      console.error("[BookStoreDataStore] Error crediting author sale:", e);
     }
   }
 

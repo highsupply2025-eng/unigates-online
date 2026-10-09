@@ -78,7 +78,7 @@ export interface ManuscriptSubmission {
   synopsis: string;
   pageCount: number;
   language: string;
-  status: "pending_review" | "approved" | "rejected" | "in_print" | "published";
+  status: "pending_review" | "approved" | "rejected" | "in_print" | "published" | "ready_for_pricing";
   submissionDate: string;
   adminFeedback?: string;
   storeBookCode?: string;

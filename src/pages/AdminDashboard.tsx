@@ -36,7 +36,9 @@ import {
   PlusCircle,
   Trash2,
   MessageSquare,
-  MessageCircle
+  MessageCircle,
+  Store,
+  Tag
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -661,6 +663,7 @@ export const AdminDashboard = () => {
   const pendingAuthorsCount = safeAuthors.filter(a => (a?.verificationStatus || "pending_review") === "pending_review").length;
   const pendingSubmissionsCount = safeSubmissions.filter(s => s?.status === "pending_review").length;
   const pendingInvoicesCount = safeInvoices.filter(i => i?.status === "under_review").length;
+  const pendingStoreBooksCount = safeSubmissions.filter(s => s?.status === "ready_for_pricing" || (s?.status === "approved" && !s?.storeBookCode)).length;
 
   // Chat Authors List & Unread Calculations
   const allChatAuthorIds = Array.from(new Set([
@@ -796,6 +799,22 @@ export const AdminDashboard = () => {
             <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
             <span className="hidden sm:inline">{isRtl ? "تحديث البيانات" : "Refresh"}</span>
           </Button>
+
+          {/* Direct Link to Book Store Management Studio */}
+          <Link to="/admin/bookstore">
+            <Button 
+              size="sm" 
+              className="h-9 px-3.5 rounded-xl font-black text-xs bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md gap-1.5 cursor-pointer hover:scale-105 transition-all"
+            >
+              <Store className="w-3.5 h-3.5" />
+              <span>{isRtl ? "استوديو إدارة متجر الكتب 🏪" : "Book Store Studio 🏪"}</span>
+              {pendingStoreBooksCount > 0 && (
+                <Badge className="bg-white text-orange-600 font-mono text-[10px] font-black px-1.5 py-0 h-4 rounded-full">
+                  {pendingStoreBooksCount}
+                </Badge>
+              )}
+            </Button>
+          </Link>
 
 
           <ThemeToggle />
@@ -1226,6 +1245,8 @@ export const AdminDashboard = () => {
                         <Badge className={
                           sub.status === "published"
                             ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-xs font-black"
+                            : sub.status === "ready_for_pricing"
+                            ? "bg-amber-500 text-white text-xs font-black shadow-xs"
                             : sub.status === "approved"
                             ? "bg-blue-500/15 text-blue-600 border-blue-500/30 text-xs font-bold"
                             : sub.status === "rejected"
@@ -1234,6 +1255,8 @@ export const AdminDashboard = () => {
                         }>
                           {sub.status === "published"
                             ? (isRtl ? "منشور رسمياً بالمتجر 📚" : "Published")
+                            : sub.status === "ready_for_pricing"
+                            ? (isRtl ? "بانتظار التسعير في متجر الكتب 🏪" : "Pending Store Pricing")
                             : sub.status === "approved"
                             ? (isRtl ? "معتمد وصدرت الفاتورة ✅" : "Approved")
                             : sub.status === "in_print"
@@ -1378,28 +1401,37 @@ export const AdminDashboard = () => {
                             <span>{isRtl ? "قبول وإصدار فاتورة النشر" : "Approve & Issue Invoice"}</span>
                           </Button>
 
-                          {sub.status !== "published" && (
+                          {sub.status !== "published" && sub.status !== "ready_for_pricing" && (
                             <Button 
                               size="sm"
-                              variant="outline"
                               onClick={() => {
-                                NashrDataStore.updateSubmissionStatus(
+                                NashrDataStore.transferToBookStoreStudio(
                                   sub.id, 
-                                  "published", 
-                                  isRtl ? "تم طرح الكتاب بنجاح في متجر UNIGATES." : "Published live on book store.",
-                                  `BK-DAR-${Math.floor(1000 + Math.random() * 9000)}`
+                                  isRtl ? "تمت الموافقة الأكاديمية على المخطوطة وإحالتها رسمياً لاستوديو متجر الكتب للتسعير واستكمال الوصف التسويقي والنشر." : "Approved and sent to Bookstore Studio for pricing."
                                 );
                                 loadAllData();
                                 toast({
-                                  title: isRtl ? "🎉 تم النشر المباشر في المتجر!" : "Published Live!",
-                                  description: isRtl ? "أصبح الكتاب متاحاً للشراء في متجر الكتب وقائمة المؤلفات المنشورة." : "Book is now live for readers."
+                                  title: isRtl ? "🎉 تمت الموافقة والتحويل لمتجر الكتب!" : "Transferred to Bookstore Studio!",
+                                  description: isRtl ? "أصبح الكتاب الآن متاحاً في استوديو متجر الكتب للتسعير وإكمال الوصف وإطلاقه بالمتجر." : "Book transferred to store studio for pricing."
                                 });
                               }}
-                              className="h-9 px-3 rounded-xl font-bold text-xs border-emerald-500/40 text-emerald-600 hover:bg-emerald-500/10 gap-1.5"
+                              className="h-9 px-3.5 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xs gap-1.5 cursor-pointer"
                             >
-                              <BookOpen className="w-3.5 h-3.5" />
-                              <span>{isRtl ? "نشر مباشر بالمتجر" : "Publish to Store"}</span>
+                              <Store className="w-3.5 h-3.5" />
+                              <span>{isRtl ? "قبول وتحويل لمتجر الكتب للتسعير 🏪" : "Approve & Send to Store 🏪"}</span>
                             </Button>
+                          )}
+
+                          {sub.status === "ready_for_pricing" && (
+                            <Link to={`/admin/bookstore?tab=intake&submissionId=${sub.id}`}>
+                              <Button 
+                                size="sm"
+                                className="h-9 px-3.5 rounded-xl font-black text-xs bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md gap-1.5 cursor-pointer animate-pulse"
+                              >
+                                <Tag className="w-3.5 h-3.5" />
+                                <span>{isRtl ? "تسعير الكتاب في استوديو المتجر ➔" : "Price in Store Studio ➔"}</span>
+                              </Button>
+                            </Link>
                           )}
 
                           <Button 

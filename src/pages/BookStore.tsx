@@ -24,6 +24,7 @@ import {
   Bookmark,
   Check,
   PenTool,
+  Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -233,6 +234,14 @@ const BookStore = () => {
               <Button size="sm" variant="ghost" className="font-bold gap-1.5 h-9 text-muted-foreground hover:text-foreground text-xs">
                 <Home className="w-3.5 h-3.5 text-amber-500" />
                 <span>{isRtl ? "الرئيسية" : "Home"}</span>
+              </Button>
+            </Link>
+
+            {/* Dedicated Bookstore Management Studio link */}
+            <Link to="/admin/bookstore" title={isRtl ? "استوديو إدارة متجر الكتب" : "Bookstore Management Studio"}>
+              <Button size="sm" variant="outline" className="font-bold gap-1.5 h-9 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 text-xs">
+                <Store className="w-3.5 h-3.5 text-amber-500" />
+                <span className="hidden md:inline">{isRtl ? "إدارة المتجر 🏪" : "Store Admin"}</span>
               </Button>
             </Link>
 

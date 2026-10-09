@@ -7,6 +7,9 @@ export interface BookStoreItem {
   title_en: string;
   author_ar: string;
   author_en: string;
+  author_code?: string;
+  author_id?: string;
+  submission_id?: string;
   publisher_ar: string;
   publisher_en: string;
   publisher_id?: string;
@@ -82,10 +85,14 @@ export interface BookOrder {
   items: {
     bookId: string;
     bookTitle: string;
+    bookCode?: string;
     bookCover: string;
     format: "digital" | "print";
     price: number;
     quantity: number;
+    authorCode?: string;
+    authorName?: string;
+    authorRoyalty?: number;
     publisherId?: string;
     publisherName?: string;
   }[];

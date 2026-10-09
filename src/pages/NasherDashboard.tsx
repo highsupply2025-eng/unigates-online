@@ -829,25 +829,10 @@ const NasherDashboard = () => {
                 )}
               </DropdownMenuItem>
 
-              {/* 5. ملاحظات جديدة */}
+              {/* 5. ملاحظات جديدة (ينتقل إلى صفحة مستقلة) */}
               <DropdownMenuItem 
                 onClick={() => {
-                  const feedbackEl = document.getElementById("admin-reviews-banner");
-                  if (feedbackEl) {
-                    feedbackEl.scrollIntoView({ behavior: "smooth", block: "center" });
-                  } else {
-                    handleTabChange("chat");
-                    setTimeout(() => {
-                      const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }, 50);
-                  }
-                  toast({
-                    title: isRtl ? "📬 ملاحظات هيئة التحكيم والتدقيق" : "Editorial Review Notes",
-                    description: isRtl 
-                      ? "تم توجيهك إلى شريط ملاحظات التدقيق والرسائل الواردة من دار عبيد."
-                      : "Navigated to editorial review notes."
-                  });
+                  navigate("/nashr/notes");
                 }}
                 className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 transition-colors"
               >
@@ -1161,53 +1146,7 @@ const NasherDashboard = () => {
           </div>
         </Card>
 
-        {/* 📬 صندوق ملاحظات وتوجيهات هيئة التحكيم والتدقيق الواردة من إدارة دار عبيد */}
-        {submissions.filter(s => s.adminFeedback).length > 0 && (
-          <div id="admin-reviews-banner" className="space-y-3 animate-fade-in scroll-mt-24">
-            {submissions.filter(s => s.adminFeedback).map((sub) => (
-              <div 
-                key={`feedback-${sub.id}`}
-                className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border-2 border-amber-500/40 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4"
-              >
-                <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black text-lg shadow-md shrink-0">
-                    📬
-                  </div>
-                  <div className="space-y-1.5 text-start">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-black uppercase text-amber-800 dark:text-amber-300">
-                        {isRtl ? "توجيهات وملاحظات هيئة التحكيم والتدقيق (دار عبيد):" : "Dar Obeid Editorial Guidance:"}
-                      </span>
-                      <Badge variant="outline" className="bg-card text-foreground text-[10px] font-bold border-amber-500/40">
-                        {sub.title}
-                      </Badge>
-                      <Badge className="bg-amber-500 text-white text-[10px] font-black px-1.5 py-0">
-                        {isRtl ? "ملاحظات تدقيق واردة" : "New Feedback"}
-                      </Badge>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-card/90 border border-amber-500/30 text-xs sm:text-sm font-bold text-foreground leading-relaxed shadow-xs">
-                      💬 "{sub.adminFeedback}"
-                    </div>
-                    <span className="text-[10px] text-muted-foreground block">
-                      {isRtl ? "واردة من: إدارة النشر والتحكيم الأكاديمي • يرجى الاطلاع على الملاحظات وتعديل المخطوطة والملفات وإعادة إرسالها للاعتماد." : "Sent by: Dar Obeid Editorial Board • Review notes, edit files & details, and resubmit."}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button 
-                    size="sm"
-                    onClick={() => handleOpenEditSubmission(sub)}
-                    className="h-10 px-4 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md gap-1.5 cursor-pointer hover:scale-105 transition-all"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>{isRtl ? "تعديل المرفقات وإعادة الإرسال ✏️" : "Edit Attachments & Resubmit"}</span>
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* Content Anchor for Smooth Scroll from Dropdown Menu */}
         <div id="nasher-tab-content" className="scroll-mt-20" />

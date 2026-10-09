@@ -859,67 +859,7 @@ const BookStorePlatform = () => {
 
 
 
-        {/* ========================================================================= */}
-        {/* 4. FEATURED BOOK SPOTLIGHT BANNER                                         */}
-        {/* ========================================================================= */}
-        {catalog[0] && (
-          <section className="py-12 sm:py-16 px-4 sm:px-6 md:px-12 bg-muted/30 dark:bg-gradient-to-r dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 border-y border-border dark:border-slate-800 transition-colors">
-            <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-12">
-              {/* Cover 3D Mockup */}
-              <div className="w-56 sm:w-64 shrink-0 aspect-[3/4] rounded-3xl overflow-hidden shadow-xl dark:shadow-2xl dark:shadow-blue-500/20 border-2 border-border dark:border-blue-500/30 group">
-                <img
-                  src={catalog[0].cover_url}
-                  alt={catalog[0].title_ar}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
 
-              {/* Book Details & Fast Buy */}
-              <div className="flex-1 space-y-4 text-center md:text-start">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 text-xs font-bold border border-cyan-400/30 dark:border-cyan-500/30">
-                  <Star className="w-3.5 h-3.5 fill-cyan-500 text-cyan-500 dark:fill-cyan-400 dark:text-cyan-400" />
-                  <span>{isRtl ? "كتاب الشهر الأكثر تميزاً واستشهاداً أكاديمياً" : "Book of the Month Spotlight"}</span>
-                </div>
-
-                <h3 className="text-2xl sm:text-3xl font-black text-foreground dark:text-white leading-tight">
-                  {isRtl ? catalog[0].title_ar : catalog[0].title_en}
-                </h3>
-
-                <p className="text-xs sm:text-sm text-muted-foreground dark:text-slate-300 leading-relaxed max-w-2xl font-medium">
-                  {isRtl ? catalog[0].description_ar : catalog[0].description_en}
-                </p>
-
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-bold text-muted-foreground dark:text-slate-300 pt-1">
-                  <span>✍️ {catalog[0].author_ar}</span>
-                  <span>🏛️ {catalog[0].publisher_ar}</span>
-                  <span>📄 {catalog[0].pages} صفحة</span>
-                  <span>🔒 حماية DRM</span>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
-                  <Button
-                    size="lg"
-                    onClick={() => handleAddToCart(catalog[0], "digital")}
-                    className="h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-black text-xs gap-2 shadow-md"
-                  >
-                    <Zap className="w-4 h-4" />
-                    <span>{isRtl ? `شراء النسخة الرقمية (${catalog[0].price_digital} ج.م)` : "Buy Digital Edition"}</span>
-                  </Button>
-
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={() => handleAddToCart(catalog[0], "print")}
-                    className="h-11 px-6 rounded-xl border-border dark:border-slate-700 bg-background dark:bg-slate-900/90 text-foreground dark:text-white hover:bg-muted dark:hover:bg-slate-800 font-black text-xs gap-2"
-                  >
-                    <Truck className="w-4 h-4 text-amber-500 dark:text-amber-400" />
-                    <span>{isRtl ? `طلب النسخة المطبوعة (${catalog[0].price_print} ج.م)` : "Order Print Copy"}</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* ========================================================================= */}
         {/* 5. HOW SHOPPING & READING WORKS FOR BUYERS (3 SIMPLE STEPS)               */}

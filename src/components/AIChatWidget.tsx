@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useAllCourses } from "@/hooks/useCourses";
 import { useBooks } from "@/hooks/useBooks";
+import { PlatformKnowledgeEngine } from "@/services/platformKnowledgeEngine";
 
 const WHATSAPP_NUMBER = "00966563057356";
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
@@ -253,6 +254,7 @@ const AIChatWidget = () => {
       teachersCount: stats?.teachers ?? 0,
       studentsCount: stats?.students ?? uniStats?.students ?? 0,
       jobsCount,
+      liveKnowledge: PlatformKnowledgeEngine.getLiveKnowledge(),
       activePortals: [
         { name: "المنصة الجامعية (University Platform)", path: "/university-platform", badge: "كليات ومعاهد" },
         { name: "المنصة المدرسية (School Platform)", path: "/school-platform", badge: "مدارس K-12" },
@@ -359,14 +361,13 @@ const AIChatWidget = () => {
     try {
       await streamChat(updated);
     } catch (e) {
-      console.error(e);
+      console.warn("AI Stream fallback to PlatformKnowledgeEngine:", e);
+      const liveAnswer = PlatformKnowledgeEngine.answerQueryWithLiveKnowledge(trimmed, language);
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: isRtl
-            ? "عذراً، حدث خطأ في الاتصال. يمكنك التواصل المباشر مع فريق الدعم عبر الواتساب: [تواصل عبر الواتساب](https://wa.me/00966563057356)."
-            : "Sorry, a connection error occurred. You can reach out directly via WhatsApp: [Contact on WhatsApp](https://wa.me/00966563057356).",
+          content: liveAnswer,
         },
       ]);
     } finally {

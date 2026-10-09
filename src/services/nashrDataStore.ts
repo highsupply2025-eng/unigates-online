@@ -112,6 +112,9 @@ const INITIAL_INVOICES: NashrInvoice[] = [
     status: "paid",
     paymentMethod: "تحويل بنكي - البنك الأهلي",
     paymentDate: "2026-02-14",
+    receiptReference: "TX-EGY-781920",
+    receiptNotes: "تم سداد رسوم التدقيق والغلاف عبر حساب البنك الأهلي المصري، مع التحية.",
+    receiptUploadedAt: "2026-02-14 11:30 ص",
     createdAt: "2026-02-12"
   },
   {
@@ -1098,7 +1101,10 @@ export class NashrDataStore {
     receiptImageUrl: string, 
     paymentMethod: string,
     receiptReference?: string,
-    receiptNotes?: string
+    receiptNotes?: string,
+    receiptFileName?: string,
+    receiptFileSize?: string,
+    receiptFileType?: string
   ): NashrInvoice | null {
     const list = this.getAllInvoices();
     const index = list.findIndex(inv => inv.id === invoiceId);
@@ -1110,13 +1116,16 @@ export class NashrDataStore {
       list[index].receiptUploadedAt = new Date().toLocaleString("ar-EG");
       if (receiptReference) list[index].receiptReference = receiptReference;
       if (receiptNotes) list[index].receiptNotes = receiptNotes;
+      if (receiptFileName) list[index].receiptFileName = receiptFileName;
+      if (receiptFileSize) list[index].receiptFileSize = receiptFileSize;
+      if (receiptFileType) list[index].receiptFileType = receiptFileType;
       delete list[index].rejectionReason;
       localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(list));
 
       // Dispatch automated notice to admin
       this.sendMessage(
-        `💳 تم رفع إيصال سداد جديد للفاتورة (${list[index].invoiceNumber}) بمبلغ ${list[index].amount} ${list[index].currency} بواسطة (${paymentMethod}). بانتظار المراجعة والاعتماد المالي.`,
-        "إيصال_سداد.png",
+        `💳 تم رفع إيصال سداد جديد للفاتورة (${list[index].invoiceNumber}) بمبلغ ${list[index].amount} ${list[index].currency} بواسطة (${paymentMethod}). ملاحظات المؤلف: ${receiptNotes || "لا توجد ملاحظات إضافية"}. المرجع: ${receiptReference || "غير مدخل"}.`,
+        receiptFileName || "إيصال_سداد.png",
         receiptImageUrl
       );
 
@@ -1133,7 +1142,10 @@ export class NashrDataStore {
     receiptImageUrl: string,
     manuscriptTitle?: string,
     receiptReference?: string,
-    receiptNotes?: string
+    receiptNotes?: string,
+    receiptFileName?: string,
+    receiptFileSize?: string,
+    receiptFileType?: string
   ): NashrInvoice {
     const list = this.getAllInvoices();
     const newInv: NashrInvoice = {
@@ -1148,6 +1160,9 @@ export class NashrDataStore {
       description: receiptNotes || "سداد مباشر / تحويل إيصال بنكي أو إنستاباي من قبل المؤلف",
       status: "under_review",
       receiptImageUrl,
+      receiptFileName: receiptFileName || "إيصال_تحويل.png",
+      receiptFileSize: receiptFileSize || "مرفق معتمد",
+      receiptFileType: receiptFileType || "image/jpeg",
       receiptReference,
       receiptNotes,
       receiptUploadedAt: new Date().toLocaleString("ar-EG"),
@@ -1160,8 +1175,8 @@ export class NashrDataStore {
 
     // Send chat message
     this.sendMessage(
-      `💳 تم رفع إيصال تحويل مباشر جديد بمبلغ ${amount} ج.م عبر (${paymentMethod}) لمؤلف: ${manuscriptTitle || "دفعة نشر"}. برجاء المطابقة والاعتماد.`,
-      "إيصال_تحويل_مباشر.png",
+      `💳 تم رفع إيصال تحويل مباشر جديد بمبلغ ${amount} ج.م عبر (${paymentMethod}) لمؤلف: ${manuscriptTitle || "دفعة نشر"}. ملاحظات: ${receiptNotes || "بدون ملاحظات"}. المرجع: ${receiptReference || "قيد المطابقة"}.`,
+      receiptFileName || "إيصال_تحويل_مباشر.png",
       receiptImageUrl
     );
 

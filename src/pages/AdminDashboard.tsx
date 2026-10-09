@@ -56,6 +56,14 @@ import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { NashrDataStore } from "@/services/nashrDataStore";
 import { AuthorProfile, ManuscriptSubmission, NashrInvoice, NashrMessage } from "@/types/nashr";
+import { ReceiptAuditModal } from "@/components/nashr/ReceiptAuditModal";
+import { AttachmentViewerModal } from "@/components/nashr/AttachmentViewerModal";
+import { 
+  downloadFileOrDataUrl, 
+  generateOfficialReceiptSvg, 
+  printOfficialInvoiceOrReceipt,
+  compressAndProcessReceiptFile 
+} from "@/services/nashrReceiptHelper";
 
 function dataUrlToBlob(dataUrl: string): Blob {
   try {
@@ -158,6 +166,22 @@ export const AdminDashboard = () => {
   const [customInvoiceTitle, setCustomInvoiceTitle] = useState("");
   const [customInvoiceAmount, setCustomInvoiceAmount] = useState<number | string>(1200);
   const [customInvoiceDescription, setCustomInvoiceDescription] = useState("");
+
+  // Extra Invoice Creation Attachment & Notes
+  const [invoiceAdminNotes, setInvoiceAdminNotes] = useState("");
+  const [invoiceFileName, setInvoiceFileName] = useState("");
+  const [invoicePdfUrl, setInvoicePdfUrl] = useState("");
+  const [invoiceFileSize, setInvoiceFileSize] = useState("");
+
+  // Chat Attachment Viewer Modal
+  const [selectedAttachment, setSelectedAttachment] = useState<{
+    fileName?: string;
+    fileUrl?: string;
+    senderName?: string;
+    timestamp?: string;
+    messageText?: string;
+  } | null>(null);
+  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
 
   // Attached Files Inspection States
   const [previewManuscript, setPreviewManuscript] = useState<ManuscriptSubmission | null>(null);
@@ -491,7 +515,11 @@ export const AdminDashboard = () => {
       currency: "EGP",
       publishType: selectedManuscript.publishType,
       description: invoiceDescription.trim() || (isRtl ? "تكاليف التحكيم العلمي والتدقيق اللغوي وتصميم الغلاف والطباعة" : "Publishing, editing and printing costs"),
-      status: "unpaid"
+      status: "unpaid",
+      adminNotes: invoiceAdminNotes.trim() || undefined,
+      invoiceFileName: invoiceFileName || undefined,
+      invoicePdfUrl: invoicePdfUrl || undefined,
+      invoiceFileSize: invoiceFileSize || undefined
     });
 
     // Also update manuscript status
@@ -505,6 +533,10 @@ export const AdminDashboard = () => {
     setShowInvoiceModal(false);
     setShowManuscriptModal(false);
     setInvoiceDescription("");
+    setInvoiceAdminNotes("");
+    setInvoiceFileName("");
+    setInvoicePdfUrl("");
+    setInvoiceFileSize("");
     toast({
       title: isRtl ? "🎉 تم إصدار فاتورة النشر للمؤلف بنجاح" : "Invoice Issued Successfully",
       description: isRtl ? `تم إرسال الفاتورة لحساب المؤلف ${selectedManuscript.authorName} لسدادها.` : "Invoice is now visible in author portal."
@@ -585,7 +617,11 @@ export const AdminDashboard = () => {
       currency: "EGP",
       publishType: "both",
       description: customInvoiceDescription.trim() || (isRtl ? "رسوم التحكيم الأكاديمي، التدقيق اللغوي، وتجهيز الغلاف والطباعة" : "Publishing fees"),
-      status: "unpaid"
+      status: "unpaid",
+      adminNotes: invoiceAdminNotes.trim() || undefined,
+      invoiceFileName: invoiceFileName || undefined,
+      invoicePdfUrl: invoicePdfUrl || undefined,
+      invoiceFileSize: invoiceFileSize || undefined
     });
 
     loadAllData();
@@ -593,6 +629,10 @@ export const AdminDashboard = () => {
     setCustomInvoiceTitle("");
     setCustomInvoiceAmount(1200);
     setCustomInvoiceDescription("");
+    setInvoiceAdminNotes("");
+    setInvoiceFileName("");
+    setInvoicePdfUrl("");
+    setInvoiceFileSize("");
 
     toast({
       title: isRtl ? "🎉 تم إصدار الفاتورة بنجاح" : "Invoice Issued",
@@ -1618,26 +1658,23 @@ export const AdminDashboard = () => {
 
                       {/* Thumbnail Preview & Action Buttons */}
                       <div className="pt-2 border-t border-border/60 flex items-center justify-between gap-2">
-                        {inv.receiptImageUrl ? (
-                          <div 
-                            onClick={() => {
-                              setSelectedInvoice(inv);
-                              setShowReceiptModal(true);
+                        <div 
+                          onClick={() => {
+                            setSelectedInvoice(inv);
+                            setShowReceiptModal(true);
+                          }}
+                          className="w-12 h-12 rounded-xl border-2 border-blue-500/40 overflow-hidden cursor-pointer hover:scale-105 transition-all bg-slate-900 shrink-0 shadow-sm relative group"
+                          title={isRtl ? "اضغط لتكبير وفحص صورة الإيصال" : "Click to view full receipt"}
+                        >
+                          <img 
+                            src={inv.receiptImageUrl || generateOfficialReceiptSvg(inv)} 
+                            alt="Receipt" 
+                            onError={(e) => {
+                              e.currentTarget.src = generateOfficialReceiptSvg(inv);
                             }}
-                            className="w-12 h-12 rounded-xl border-2 border-blue-500/40 overflow-hidden cursor-pointer hover:scale-105 transition-all bg-slate-900 shrink-0 shadow-sm"
-                            title={isRtl ? "اضغط لتكبير وفحص صورة الإيصال" : "Click to view full receipt"}
-                          >
-                            <img 
-                              src={inv.receiptImageUrl.startsWith("data:") || inv.receiptImageUrl.startsWith("http") ? inv.receiptImageUrl : "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=200"} 
-                              alt="Receipt" 
-                              className="w-full h-full object-cover" 
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                            📄
-                          </div>
-                        )}
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
 
                         <div className="flex items-center gap-1.5 ms-auto">
                           <Button 
@@ -1650,6 +1687,18 @@ export const AdminDashboard = () => {
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>{isRtl ? "فحص الإيصال والمطابقة" : "Inspect Slip"}</span>
+                          </Button>
+                          <Button 
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const ext = inv.receiptFileType === "application/pdf" ? ".pdf" : ".png";
+                              downloadFileOrDataUrl(inv.receiptImageUrl || generateOfficialReceiptSvg(inv), inv.receiptFileName || `إيصال_${inv.invoiceNumber}${ext}`);
+                            }}
+                            className="h-8 px-2.5 rounded-xl text-xs font-bold gap-1 border-border hover:bg-muted"
+                            title={isRtl ? "تحميل ملف الإيصال" : "Download Slip"}
+                          >
+                            <Download className="w-3.5 h-3.5 text-amber-500" />
                           </Button>
                           <Button 
                             size="sm"
@@ -1805,43 +1854,56 @@ export const AdminDashboard = () => {
                       </div>
 
                       {/* Audit Action Controls */}
-                      <div className="flex items-center gap-2">
-                        {inv.receiptImageUrl ? (
-                          <div className="flex items-center gap-2">
-                            <Button 
-                              size="sm"
-                              onClick={() => {
-                                setSelectedInvoice(inv);
-                                setShowReceiptModal(true);
-                              }}
-                              className="h-9 px-3.5 rounded-xl text-xs font-black bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                              <span>{isRtl ? "معاينة واعتماد إيصال السداد" : "Audit Receipt"}</span>
-                            </Button>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedInvoice(inv);
+                            setShowReceiptModal(true);
+                          }}
+                          className={`h-9 px-3.5 rounded-xl text-xs font-black gap-1.5 text-white ${
+                            inv.status === "paid" 
+                              ? "bg-emerald-600 hover:bg-emerald-700" 
+                              : inv.status === "under_review"
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "bg-slate-700 hover:bg-slate-800"
+                          }`}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>
+                            {inv.status === "paid" 
+                              ? (isRtl ? "عرض الإيصال المعتمد والتحميل" : "View Paid Receipt") 
+                              : inv.status === "under_review"
+                              ? (isRtl ? "معاينة واعتماد الإيصال" : "Audit Receipt")
+                              : (isRtl ? "فحص بيانات الفاتورة والمستندات" : "Inspect Invoice")}
+                          </span>
+                        </Button>
 
-                            {inv.status !== "paid" && (
-                              <Button 
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setSelectedInvoice(inv);
-                                  setShowRejectReceiptModal(true);
-                                }}
-                                className="h-9 px-2.5 rounded-xl text-xs font-bold text-destructive hover:bg-destructive/10 border-destructive/30"
-                              >
-                                {isRtl ? "رفض ❌" : "Reject"}
-                              </Button>
-                            )}
-                          </div>
-                        ) : inv.status === "unpaid" ? (
-                          <Badge variant="outline" className="text-xs text-muted-foreground border-border/80">
-                            {isRtl ? "بانتظار قيام المؤلف برفع الإيصال" : "Awaiting receipt upload"}
-                          </Badge>
-                        ) : (
-                          <Badge className="h-9 px-3 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 text-xs font-bold">
-                            ✓ {isRtl ? "تمت المطابقة والاعتماد" : "Audited & Completed"}
-                          </Badge>
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const ext = inv.receiptFileType === "application/pdf" ? ".pdf" : ".png";
+                            downloadFileOrDataUrl(inv.receiptImageUrl || generateOfficialReceiptSvg(inv), inv.receiptFileName || `إيصال_${inv.invoiceNumber}${ext}`);
+                          }}
+                          className="h-9 px-2.5 rounded-xl text-xs font-bold gap-1 border-border hover:bg-muted"
+                          title={isRtl ? "تحميل ملف الإيصال / المستند" : "Download File"}
+                        >
+                          <Download className="w-3.5 h-3.5 text-amber-500" />
+                        </Button>
+
+                        {inv.status === "under_review" && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedInvoice(inv);
+                              setShowRejectReceiptModal(true);
+                            }}
+                            className="h-9 px-2.5 rounded-xl text-xs font-bold text-destructive hover:bg-destructive/10 border-destructive/30"
+                          >
+                            {isRtl ? "رفض ❌" : "Reject"}
+                          </Button>
                         )}
 
                         <Button 
@@ -2088,11 +2150,29 @@ export const AdminDashboard = () => {
                               }`}>
                                 <p className="whitespace-pre-wrap">{msg.text}</p>
                                 {msg.attachmentName && (
-                                  <div className={`mt-2 p-2 rounded-xl flex items-center gap-2 text-[10px] font-bold ${
-                                    isAuthor ? "bg-card border border-border" : "bg-white/20 text-white"
-                                  }`}>
-                                    <FileText className="w-3.5 h-3.5" />
-                                    <span>{msg.attachmentName}</span>
+                                  <div 
+                                    onClick={() => {
+                                      setSelectedAttachment({
+                                        fileName: msg.attachmentName,
+                                        fileUrl: msg.attachmentUrl,
+                                        senderName: msg.senderName,
+                                        timestamp: msg.timestamp,
+                                        messageText: msg.text
+                                      });
+                                      setShowAttachmentModal(true);
+                                    }}
+                                    className={`mt-2 p-2.5 rounded-xl flex items-center justify-between gap-2 text-[10px] font-bold cursor-pointer hover:opacity-90 transition-all ${
+                                      isAuthor ? "bg-card border border-border shadow-xs" : "bg-white/20 text-white"
+                                    }`}
+                                    title={isRtl ? "اضغط لمعاينة وتحميل المرفق" : "Click to view / download"}
+                                  >
+                                    <div className="flex items-center gap-1.5 truncate">
+                                      <FileText className="w-3.5 h-3.5 shrink-0" />
+                                      <span className="truncate">{msg.attachmentName}</span>
+                                    </div>
+                                    <span className="text-[9px] underline shrink-0 font-mono">
+                                      {isRtl ? "معاينة وتحميل 📥" : "View 📥"}
+                                    </span>
                                   </div>
                                 )}
                               </div>
@@ -2623,6 +2703,39 @@ export const AdminDashboard = () => {
                     className="rounded-xl text-xs min-h-[70px]"
                   />
                 </div>
+
+                <div className="space-y-1">
+                  <Label className="font-bold">{isRtl ? "توجيهات وملاحظات السداد للمؤلف:" : "Payment Instructions:"}</Label>
+                  <Input 
+                    placeholder={isRtl ? "مثال: يرجى التحويل على حساب البنك الأهلي أو إنستاباي وإرفاق الإيصال" : "Instructions..."}
+                    value={invoiceAdminNotes}
+                    onChange={(e) => setInvoiceAdminNotes(e.target.value)}
+                    className="h-9 rounded-xl text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="font-bold">{isRtl ? "إرفاق مستند فاتورة أو بيان تكلفة (اختياري - PDF / صورة):" : "Attach Invoice Document (Optional):"}</Label>
+                  <Input 
+                    type="file" 
+                    accept="application/pdf,image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const processed = await compressAndProcessReceiptFile(file);
+                        setInvoiceFileName(processed.fileName);
+                        setInvoicePdfUrl(processed.dataUrl);
+                        setInvoiceFileSize(processed.fileSize);
+                      }
+                    }}
+                    className="text-xs h-9 rounded-xl cursor-pointer"
+                  />
+                  {invoiceFileName && (
+                    <span className="text-[11px] text-emerald-600 font-bold block">
+                      ✓ {isRtl ? `تم إرفاق: ${invoiceFileName} (${invoiceFileSize})` : `Attached: ${invoiceFileName}`}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <DialogFooter className="gap-2 pt-2">
@@ -2672,130 +2785,28 @@ export const AdminDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ── Dialog 5: Advanced High-Resolution Receipt Inspection Modal ── */}
-      <Dialog open={showReceiptModal} onOpenChange={setShowReceiptModal}>
-        <DialogContent className="max-w-2xl rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto">
-          {selectedInvoice && (
-            <>
-              <DialogHeader>
-                <div className="flex items-center justify-between">
-                  <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-blue-500" />
-                    <span>{isRtl ? "فحص وتدقيق إيصال السداد والتحويل المالي" : "Verify Payment Receipt"}</span>
-                  </DialogTitle>
-                  <Badge className={
-                    selectedInvoice.status === "paid" 
-                      ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" 
-                      : selectedInvoice.status === "under_review"
-                      ? "bg-blue-500/15 text-blue-600 border-blue-500/30"
-                      : "bg-destructive/15 text-destructive border-destructive/30"
-                  }>
-                    {selectedInvoice.status === "paid" 
-                      ? (isRtl ? "تم الاعتماد بنجاح ✅" : "Paid") 
-                      : selectedInvoice.status === "under_review" 
-                      ? (isRtl ? "قيد المراجعة والمطابقة ⏳" : "Under Review") 
-                      : (isRtl ? "بانتظار السداد ⚠️" : "Unpaid")}
-                  </Badge>
-                </div>
-                <DialogDescription className="text-xs">
-                  {isRtl 
-                    ? `مطابقة إشعار التحويل البنكي للفاتورة رقم ${selectedInvoice.invoiceNumber} بمبلغ ${selectedInvoice.amount} ${selectedInvoice.currency}.`
-                    : `Audit payment proof for invoice ${selectedInvoice.invoiceNumber}.`}
-                </DialogDescription>
-              </DialogHeader>
+      {/* ── Dialog 5: Advanced High-Resolution Receipt Audit & Viewer Modal ── */}
+      <ReceiptAuditModal
+        open={showReceiptModal}
+        onOpenChange={setShowReceiptModal}
+        invoice={selectedInvoice}
+        isAdminView={true}
+        onApprove={() => handleVerifyReceipt(true)}
+        onReject={(_inv, reason) => handleVerifyReceipt(false, reason)}
+        isRtl={isRtl}
+      />
 
-              {/* Transaction & Author Summary Grid */}
-              <div className="p-4 rounded-2xl bg-muted/40 border border-border/80 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div>
-                  <span className="text-muted-foreground block">{isRtl ? "المؤلف:" : "Author:"}</span>
-                  <span className="font-bold text-foreground">{selectedInvoice.authorName}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block">{isRtl ? "العمل / المؤلف:" : "Work / Author:"}</span>
-                  <span className="font-bold text-foreground">{selectedInvoice.manuscriptTitle}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block">{isRtl ? "المبلغ المطلوب للفاتورة:" : "Required Amount:"}</span>
-                  <span className="font-black text-foreground font-mono text-sm">{selectedInvoice.amount} {selectedInvoice.currency}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block">{isRtl ? "طريقة التحويل المعلنة:" : "Payment Method:"}</span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">{selectedInvoice.paymentMethod || (isRtl ? "تحويل بنكي رسمي" : "Bank Transfer")}</span>
-                </div>
-                {selectedInvoice.receiptReference && (
-                  <div>
-                    <span className="text-muted-foreground block">{isRtl ? "رقم العملية / المرجع البنكي:" : "Reference / Transaction ID:"}</span>
-                    <span className="font-mono font-bold text-foreground">{selectedInvoice.receiptReference}</span>
-                  </div>
-                )}
-                {selectedInvoice.receiptUploadedAt && (
-                  <div>
-                    <span className="text-muted-foreground block">{isRtl ? "تاريخ ووقت الرفع:" : "Upload Timestamp:"}</span>
-                    <span className="text-foreground">{selectedInvoice.receiptUploadedAt}</span>
-                  </div>
-                )}
-                {selectedInvoice.receiptNotes && (
-                  <div className="sm:col-span-2 pt-1 border-t border-border/50 text-[11px]">
-                    <span className="text-muted-foreground font-bold">{isRtl ? "ملاحظة المؤلف المرفقة:" : "Author Note:"} </span>
-                    <span className="text-foreground">{selectedInvoice.receiptNotes}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Receipt Image Display Box with High-Res View */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold px-1">
-                  <span>{isRtl ? "صورة إشعار التحويل البنكي / الإيصال:" : "Transfer Receipt Slip:"}</span>
-                  {selectedInvoice.receiptImageUrl && (
-                    <a 
-                      href={selectedInvoice.receiptImageUrl} 
-                      target="_blank" 
-                      rel="noreferrer" 
-                      className="text-amber-500 hover:underline flex items-center gap-1 text-[11px]"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>{isRtl ? "فتح الصورة بحجمها الأصلي" : "Open Full Image"}</span>
-                    </a>
-                  )}
-                </div>
-
-                <div className="rounded-2xl border-2 border-border/80 overflow-hidden bg-slate-950 p-3 text-center relative group">
-                  <img 
-                    src={selectedInvoice.receiptImageUrl?.startsWith("data:") || selectedInvoice.receiptImageUrl?.startsWith("http") 
-                      ? selectedInvoice.receiptImageUrl 
-                      : "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800"} 
-                    alt="Receipt Image" 
-                    className="max-h-[380px] w-auto mx-auto object-contain rounded-xl shadow-lg border border-slate-800"
-                  />
-                  <div className="pt-2 text-[10px] text-slate-400 font-mono">
-                    {selectedInvoice.receiptImageUrl?.startsWith("data:") ? "صورة إيصال حقيقية تم رفعها من جهاز المؤلف" : "إشعار تحويل بنكي رسمي معتمد"}
-                  </div>
-                </div>
-              </div>
-
-              <DialogFooter className="gap-2 pt-2 border-t border-border/60">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setShowReceiptModal(false);
-                    setShowRejectReceiptModal(true);
-                  }} 
-                  className="rounded-xl text-xs font-bold text-destructive hover:bg-destructive/10 border-destructive/30"
-                >
-                  {isRtl ? "رفض الإيصال مع كتابة سبب ❌" : "Reject with Reason"}
-                </Button>
-                <Button 
-                  onClick={() => handleVerifyReceipt(true)} 
-                  className="rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-md shadow-emerald-500/20"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{isRtl ? "اعتماد السداد المالي وتأكيد التحصيل ✅" : "Approve & Mark Paid"}</span>
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* ── Dialog: Internal Chat Attachment Viewer Modal ── */}
+      <AttachmentViewerModal
+        open={showAttachmentModal}
+        onOpenChange={setShowAttachmentModal}
+        fileName={selectedAttachment?.fileName}
+        fileUrl={selectedAttachment?.fileUrl}
+        senderName={selectedAttachment?.senderName}
+        timestamp={selectedAttachment?.timestamp}
+        messageText={selectedAttachment?.messageText}
+        isRtl={isRtl}
+      />
 
       {/* ── Dialog: Reject Receipt with Reason Modal ── */}
       <Dialog open={showRejectReceiptModal} onOpenChange={setShowRejectReceiptModal}>
@@ -2921,6 +2932,39 @@ export const AdminDashboard = () => {
                 onChange={(e) => setCustomInvoiceDescription(e.target.value)}
                 className="rounded-xl text-xs min-h-[70px]"
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="font-bold">{isRtl ? "توجيهات وملاحظات السداد للمؤلف:" : "Payment Instructions:"}</Label>
+              <Input 
+                placeholder={isRtl ? "مثال: يرجى التحويل على حساب البنك الأهلي أو إنستاباي وإرفاق الإيصال" : "Instructions..."}
+                value={invoiceAdminNotes}
+                onChange={(e) => setInvoiceAdminNotes(e.target.value)}
+                className="h-9 rounded-xl text-xs"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="font-bold">{isRtl ? "إرفاق مستند فاتورة أو عرض سعر (اختياري - PDF / صورة):" : "Attach Invoice Document (Optional):"}</Label>
+              <Input 
+                type="file" 
+                accept="application/pdf,image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const processed = await compressAndProcessReceiptFile(file);
+                    setInvoiceFileName(processed.fileName);
+                    setInvoicePdfUrl(processed.dataUrl);
+                    setInvoiceFileSize(processed.fileSize);
+                  }
+                }}
+                className="text-xs h-9 rounded-xl cursor-pointer"
+              />
+              {invoiceFileName && (
+                <span className="text-[11px] text-emerald-600 font-bold block">
+                  ✓ {isRtl ? `تم إرفاق: ${invoiceFileName} (${invoiceFileSize})` : `Attached: ${invoiceFileName}`}
+                </span>
+              )}
             </div>
 
             <DialogFooter className="gap-2 pt-2 border-t border-border/60">

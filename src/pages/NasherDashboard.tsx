@@ -69,6 +69,14 @@ import {
   PublishType 
 } from "@/types/nashr";
 import { NashrDataStore } from "@/services/nashrDataStore";
+import { ReceiptAuditModal } from "@/components/nashr/ReceiptAuditModal";
+import { AttachmentViewerModal } from "@/components/nashr/AttachmentViewerModal";
+import { 
+  downloadFileOrDataUrl, 
+  generateOfficialReceiptSvg, 
+  printOfficialInvoiceOrReceipt,
+  compressAndProcessReceiptFile 
+} from "@/services/nashrReceiptHelper";
 
 const NasherDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -125,8 +133,20 @@ const NasherDashboard = () => {
   const [transferNotesInput, setTransferNotesInput] = useState<string>("");
   const [transferReceiptPreview, setTransferReceiptPreview] = useState<string>("");
   const [transferReceiptFileName, setTransferReceiptFileName] = useState<string>("");
+  const [transferReceiptFileSize, setTransferReceiptFileSize] = useState<string>("");
+  const [transferReceiptFileType, setTransferReceiptFileType] = useState<string>("");
   const [submittingDirectReceipt, setSubmittingDirectReceipt] = useState<boolean>(false);
   const [viewReceiptModalInvoice, setViewReceiptModalInvoice] = useState<NashrInvoice | null>(null);
+
+  // Chat Attachment Viewer Modal
+  const [selectedAttachment, setSelectedAttachment] = useState<{
+    fileName?: string;
+    fileUrl?: string;
+    senderName?: string;
+    timestamp?: string;
+    messageText?: string;
+  } | null>(null);
+  const [showAttachmentModal, setShowAttachmentModal] = useState<boolean>(false);
 
   // Form states for Payout Request Modal
   const [payoutModalOpen, setPayoutModalOpen] = useState(false);
@@ -405,16 +425,19 @@ const NasherDashboard = () => {
     }, 600);
   };
 
-  // Handle file selection and read as base64 data URL
-  const handleReceiptFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file selection and compress/read safely
+  const handleReceiptFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setTransferReceiptFileName(file.name);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setTransferReceiptPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const processed = await compressAndProcessReceiptFile(file);
+        setTransferReceiptFileName(processed.fileName);
+        setTransferReceiptFileSize(processed.fileSize);
+        setTransferReceiptFileType(processed.fileType);
+        setTransferReceiptPreview(processed.dataUrl);
+      } catch (err) {
+        console.error("Receipt process error:", err);
+      }
     }
   };
 
@@ -451,7 +474,10 @@ const NasherDashboard = () => {
           receiptUrlToSave,
           paymentMethodLabel,
           transferRefInput.trim() || undefined,
-          transferNotesInput.trim() || undefined
+          transferNotesInput.trim() || undefined,
+          transferReceiptFileName || undefined,
+          transferReceiptFileSize || undefined,
+          transferReceiptFileType || undefined
         );
       } else {
         const amountNum = Number(transferAmountInput) || 1200;
@@ -463,7 +489,10 @@ const NasherDashboard = () => {
           receiptUrlToSave,
           submissions[0]?.title || "رسوم نشر وتحكيم أكاديمي",
           transferRefInput.trim() || undefined,
-          transferNotesInput.trim() || undefined
+          transferNotesInput.trim() || undefined,
+          transferReceiptFileName || undefined,
+          transferReceiptFileSize || undefined,
+          transferReceiptFileType || undefined
         );
       }
 
@@ -1565,25 +1594,49 @@ const NasherDashboard = () => {
                     <div className="border-2 border-dashed border-amber-500/50 hover:border-amber-500 rounded-2xl p-4 sm:p-6 bg-card/60 transition-all text-center space-y-3">
                       {transferReceiptPreview ? (
                         <div className="space-y-3">
-                          <div className="relative inline-block max-h-52 rounded-xl overflow-hidden border-2 border-amber-500 shadow-md bg-slate-950 p-1">
-                            <img 
-                              src={transferReceiptPreview} 
-                              alt="Receipt Preview" 
-                              className="max-h-52 w-auto object-contain mx-auto rounded-lg"
-                            />
-                            <Button 
-                              type="button"
-                              size="sm" 
-                              variant="destructive" 
-                              onClick={() => {
-                                setTransferReceiptPreview("");
-                                setTransferReceiptFileName("");
-                              }}
-                              className="absolute top-2 end-2 h-7 px-2.5 rounded-lg text-xs font-bold shadow-md"
-                            >
-                              {isRtl ? "حذف وتغيير" : "Remove"}
-                            </Button>
-                          </div>
+                          {transferReceiptFileType === "application/pdf" || transferReceiptFileName.endsWith(".pdf") ? (
+                            <div className="relative inline-flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-amber-500 bg-slate-950 text-white min-w-[260px] shadow-lg">
+                              <FileText className="w-12 h-12 text-rose-500 mb-2" />
+                              <span className="text-xs font-bold truncate max-w-[220px]">{transferReceiptFileName}</span>
+                              <span className="text-[10px] text-slate-400 font-mono mt-0.5">{transferReceiptFileSize || "مستند PDF"}</span>
+                              <Button 
+                                type="button"
+                                size="sm" 
+                                variant="destructive" 
+                                onClick={() => {
+                                  setTransferReceiptPreview("");
+                                  setTransferReceiptFileName("");
+                                  setTransferReceiptFileSize("");
+                                  setTransferReceiptFileType("");
+                                }}
+                                className="absolute top-2 end-2 h-6 px-2 rounded-lg text-[10px] font-bold"
+                              >
+                                {isRtl ? "حذف" : "Remove"}
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="relative inline-block max-h-52 rounded-xl overflow-hidden border-2 border-amber-500 shadow-md bg-slate-950 p-1">
+                              <img 
+                                src={transferReceiptPreview} 
+                                alt="Receipt Preview" 
+                                className="max-h-52 w-auto object-contain mx-auto rounded-lg"
+                              />
+                              <Button 
+                                type="button"
+                                size="sm" 
+                                variant="destructive" 
+                                onClick={() => {
+                                  setTransferReceiptPreview("");
+                                  setTransferReceiptFileName("");
+                                  setTransferReceiptFileSize("");
+                                  setTransferReceiptFileType("");
+                                }}
+                                className="absolute top-2 end-2 h-7 px-2.5 rounded-lg text-xs font-bold shadow-md"
+                              >
+                                {isRtl ? "حذف وتغيير" : "Remove"}
+                              </Button>
+                            </div>
+                          )}
                           <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
                             ✓ {isRtl ? `تم تجهيز الإيصال: ${transferReceiptFileName || "صورة التحويل"}` : "Receipt ready"}
                           </p>
@@ -1728,18 +1781,33 @@ const NasherDashboard = () => {
                               )}
                             </div>
 
-                            <div className="flex items-center gap-2">
-                              {inv.receiptImageUrl && (
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={() => setViewReceiptModalInvoice(inv)}
-                                  className="h-8 px-3 rounded-xl font-bold text-xs gap-1.5 border-border hover:bg-muted"
-                                >
-                                  <Eye className="w-3.5 h-3.5 text-blue-500" />
-                                  <span>{isRtl ? "معاينة صورة الإيصال" : "View Receipt"}</span>
-                                </Button>
-                              )}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => setViewReceiptModalInvoice(inv)}
+                                className="h-8 px-3 rounded-xl font-bold text-xs gap-1.5 border-border hover:bg-muted"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-blue-500" />
+                                <span>
+                                  {inv.receiptImageUrl || inv.status === "paid" 
+                                    ? (isRtl ? "معاينة صورة الإيصال والملاحظات" : "View Receipt & Notes") 
+                                    : (isRtl ? "تفاصيل الفاتورة والمستندات" : "Invoice Details")}
+                                </span>
+                              </Button>
+
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  const ext = inv.receiptFileType === "application/pdf" ? ".pdf" : ".png";
+                                  downloadFileOrDataUrl(inv.receiptImageUrl || generateOfficialReceiptSvg(inv), inv.receiptFileName || `إيصال_${inv.invoiceNumber}${ext}`);
+                                }}
+                                className="h-8 px-2.5 rounded-xl font-bold text-xs gap-1 border-border hover:bg-muted"
+                                title={isRtl ? "تحميل ملف الإيصال" : "Download Slip"}
+                              >
+                                <Download className="w-3.5 h-3.5 text-amber-500" />
+                              </Button>
 
                               {inv.status === "unpaid" && (
                                 <Button 
@@ -1868,13 +1936,30 @@ const NasherDashboard = () => {
                           ? "bg-amber-500 text-white rounded-te-xs" 
                           : "bg-muted/80 text-foreground border border-border/80 rounded-ts-xs"
                       }`}>
-                        <p>{msg.text}</p>
                         {msg.attachmentName && (
-                          <div className={`mt-2 p-2 rounded-xl flex items-center gap-2 text-[10px] font-bold ${
-                            isAuthor ? "bg-white/20 text-white" : "bg-background border border-border"
-                          }`}>
-                            <FileText className="w-3.5 h-3.5" />
-                            <span>{msg.attachmentName}</span>
+                          <div 
+                            onClick={() => {
+                              setSelectedAttachment({
+                                fileName: msg.attachmentName,
+                                fileUrl: msg.attachmentUrl,
+                                senderName: msg.senderName,
+                                timestamp: msg.timestamp,
+                                messageText: msg.text
+                              });
+                              setShowAttachmentModal(true);
+                            }}
+                            className={`mt-2 p-2.5 rounded-xl flex items-center justify-between gap-2 text-[10px] font-bold cursor-pointer hover:opacity-90 transition-all ${
+                              isAuthor ? "bg-white/20 text-white" : "bg-background border border-border shadow-xs"
+                            }`}
+                            title={isRtl ? "اضغط لمعاينة وتحميل المرفق" : "Click to view / download"}
+                          >
+                            <div className="flex items-center gap-1.5 truncate">
+                              <FileText className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">{msg.attachmentName}</span>
+                            </div>
+                            <span className="text-[9px] underline shrink-0 font-mono">
+                              {isRtl ? "معاينة وتحميل 📥" : "View 📥"}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -2407,90 +2492,29 @@ const NasherDashboard = () => {
       </Dialog>
 
       {/* ------------------------------------------------------------- */}
-      {/* MODAL: View Uploaded Payment Receipt Lightbox */}
+      {/* MODAL: View Uploaded Payment Receipt & Invoice Statement */}
       {/* ------------------------------------------------------------- */}
-      <Dialog open={!!viewReceiptModalInvoice} onOpenChange={(open) => !open && setViewReceiptModalInvoice(null)}>
-        <DialogContent className="max-w-lg rounded-3xl p-6 space-y-4">
-          {viewReceiptModalInvoice && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-base font-black flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-amber-500" />
-                  <span>{isRtl ? "معاينة صورة إيصال التحويل المالي" : "Payment Receipt Preview"}</span>
-                </DialogTitle>
-                <DialogDescription className="text-xs">
-                  {viewReceiptModalInvoice.invoiceNumber} • {viewReceiptModalInvoice.amount} {viewReceiptModalInvoice.currency}
-                </DialogDescription>
-              </DialogHeader>
+      <ReceiptAuditModal
+        open={!!viewReceiptModalInvoice}
+        onOpenChange={(open) => {
+          if (!open) setViewReceiptModalInvoice(null);
+        }}
+        invoice={viewReceiptModalInvoice}
+        isAdminView={false}
+        isRtl={isRtl}
+      />
 
-              <div className="space-y-3">
-                <div className="rounded-2xl border-2 border-border/80 overflow-hidden bg-slate-950 p-2 text-center">
-                  <img 
-                    src={viewReceiptModalInvoice.receiptImageUrl?.startsWith("data:") || viewReceiptModalInvoice.receiptImageUrl?.startsWith("http") 
-                      ? viewReceiptModalInvoice.receiptImageUrl 
-                      : "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800"} 
-                    alt="Receipt" 
-                    className="max-h-[380px] w-auto mx-auto object-contain rounded-xl shadow-lg"
-                  />
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">{isRtl ? "حالة الإيصال:" : "Status:"}</span>
-                    <Badge className={
-                      viewReceiptModalInvoice.status === "paid" 
-                        ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" 
-                        : viewReceiptModalInvoice.status === "under_review" 
-                        ? "bg-blue-500/15 text-blue-600 border-blue-500/30" 
-                        : "bg-destructive/15 text-destructive border-destructive/30"
-                    }>
-                      {viewReceiptModalInvoice.status === "paid" 
-                        ? (isRtl ? "معتمد ومطابق بنجاح ✅" : "Verified") 
-                        : viewReceiptModalInvoice.status === "under_review" 
-                        ? (isRtl ? "قيد التدقيق من الإدارة المالية ⏳" : "Under Review") 
-                        : (isRtl ? "مرفوض - يرجى إعادة الرفع ❌" : "Rejected")}
-                    </Badge>
-                  </div>
-                  {viewReceiptModalInvoice.paymentMethod && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{isRtl ? "طريقة التحويل:" : "Method:"}</span>
-                      <span className="font-bold text-foreground">{viewReceiptModalInvoice.paymentMethod}</span>
-                    </div>
-                  )}
-                  {viewReceiptModalInvoice.receiptReference && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{isRtl ? "رقم المرجع / العملية:" : "Reference:"}</span>
-                      <span className="font-mono font-bold text-foreground">{viewReceiptModalInvoice.receiptReference}</span>
-                    </div>
-                  )}
-                  {viewReceiptModalInvoice.receiptUploadedAt && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{isRtl ? "تاريخ الرفع:" : "Uploaded At:"}</span>
-                      <span className="text-muted-foreground">{viewReceiptModalInvoice.receiptUploadedAt}</span>
-                    </div>
-                  )}
-                  {viewReceiptModalInvoice.rejectionReason && (
-                    <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-[11px] leading-relaxed">
-                      <strong>{isRtl ? "ملاحظة الإدارة المالية حول سبب الرفض:" : "Finance Rejection Note:"}</strong>
-                      <p className="mt-0.5">{viewReceiptModalInvoice.rejectionReason}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <DialogFooter className="gap-2">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setViewReceiptModalInvoice(null)} 
-                  className="rounded-xl text-xs font-bold w-full"
-                >
-                  {isRtl ? "إغلاق المعاينة" : "Close"}
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* ── Dialog: Internal Chat Attachment Viewer Modal ── */}
+      <AttachmentViewerModal
+        open={showAttachmentModal}
+        onOpenChange={setShowAttachmentModal}
+        fileName={selectedAttachment?.fileName}
+        fileUrl={selectedAttachment?.fileUrl}
+        senderName={selectedAttachment?.senderName}
+        timestamp={selectedAttachment?.timestamp}
+        messageText={selectedAttachment?.messageText}
+        isRtl={isRtl}
+      />
 
       {/* ✏️ نافذة تعديل بيانات وملفات المخطوطة وإعادة إرسالها للتحكيم */}
       <Dialog open={showEditSubmissionModal} onOpenChange={setShowEditSubmissionModal}>

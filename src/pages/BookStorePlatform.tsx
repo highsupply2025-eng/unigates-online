@@ -57,25 +57,38 @@ const BookStorePlatform = () => {
 
   // Magic Floating Popup for Authors / Nashr Platform (appears periodically, auto-hides after 3s, or closeable)
   const [showNashrPopup, setShowNashrPopup] = useState<boolean>(false);
+  // Magic Floating Popup for How It Works / Shopping Guide (appears periodically, auto-hides after 3s, or closeable)
+  const [showHowItWorksPopup, setShowHowItWorksPopup] = useState<boolean>(false);
 
   useEffect(() => {
-    // Show first popup after 5 seconds of browsing
-    const initialTimer = setTimeout(() => {
+    // Show Nashr popup after 6 seconds of browsing
+    const initialNashrTimer = setTimeout(() => {
       setShowNashrPopup(true);
-    }, 5000);
+    }, 6000);
 
-    // Recurring interval to show every 35 seconds
-    const interval = setInterval(() => {
+    // Show How It Works popup after 18 seconds of browsing
+    const initialHowTimer = setTimeout(() => {
+      setShowHowItWorksPopup(true);
+    }, 18000);
+
+    // Recurring intervals (staggered so they don't overlap)
+    const nashrInterval = setInterval(() => {
       setShowNashrPopup(true);
-    }, 35000);
+    }, 45000);
+
+    const howInterval = setInterval(() => {
+      setShowHowItWorksPopup(true);
+    }, 50000);
 
     return () => {
-      clearTimeout(initialTimer);
-      clearInterval(interval);
+      clearTimeout(initialNashrTimer);
+      clearTimeout(initialHowTimer);
+      clearInterval(nashrInterval);
+      clearInterval(howInterval);
     };
   }, []);
 
-  // When popup opens, automatically close it after 3 seconds
+  // When Nashr popup opens, automatically close it after 3 seconds
   useEffect(() => {
     if (!showNashrPopup) return;
     const hideTimer = setTimeout(() => {
@@ -83,6 +96,15 @@ const BookStorePlatform = () => {
     }, 3000);
     return () => clearTimeout(hideTimer);
   }, [showNashrPopup]);
+
+  // When How It Works popup opens, automatically close it after 3 seconds
+  useEffect(() => {
+    if (!showHowItWorksPopup) return;
+    const hideTimer = setTimeout(() => {
+      setShowHowItWorksPopup(false);
+    }, 3000);
+    return () => clearTimeout(hideTimer);
+  }, [showHowItWorksPopup]);
 
   // Cart count from BookStoreDataStore
   const [cartCount, setCartCount] = useState<number>(() => {
@@ -890,59 +912,7 @@ const BookStorePlatform = () => {
 
 
 
-        {/* ========================================================================= */}
-        {/* 5. HOW SHOPPING & READING WORKS FOR BUYERS (3 SIMPLE STEPS)               */}
-        {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/30 dark:bg-slate-900/40 border-b border-border dark:border-slate-800 transition-colors">
-          <div className="max-w-6xl mx-auto space-y-12">
-            <div className="text-center space-y-2">
-              <Badge className="bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border border-cyan-500/20 text-xs px-3 py-1">
-                {isRtl ? "تجربة القراءة والشراء" : "Shopping Experience"}
-              </Badge>
-              <h2 className="text-2xl sm:text-4xl font-black text-foreground dark:text-white">
-                {isRtl ? "كيف تطلب وتقرأ كتبك في 3 خطوات بسيطة؟" : "How to Buy & Read in 3 Steps"}
-              </h2>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 rounded-3xl bg-card dark:bg-slate-900 border border-border dark:border-slate-800 text-center space-y-3 shadow-xs">
-                <div className="w-12 h-12 rounded-2xl bg-blue-500/15 text-blue-600 dark:text-blue-400 font-black text-lg mx-auto flex items-center justify-center">
-                  1
-                </div>
-                <h4 className="text-base font-black text-foreground dark:text-white">{isRtl ? "تصفح واختر كتابك" : "Browse & Choose"}</h4>
-                <p className="text-xs text-muted-foreground dark:text-slate-400 leading-relaxed">
-                  {isRtl
-                    ? "ابحث في الكتالوج الشامل، واقرأ العينات وفهارس الفصول المجانية لاختيار الكتاب المناسب."
-                    : "Search thousands of books and preview free chapter samples."}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-3xl bg-card dark:bg-slate-900 border border-border dark:border-slate-800 text-center space-y-3 shadow-xs">
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 font-black text-lg mx-auto flex items-center justify-center">
-                  2
-                </div>
-                <h4 className="text-base font-black text-foreground dark:text-white">{isRtl ? "حدد الصيغة المفضلة" : "Select Format"}</h4>
-                <p className="text-xs text-muted-foreground dark:text-slate-400 leading-relaxed">
-                  {isRtl
-                    ? "اختر النسخة الرقمية للقراءة الفورية بأسعار مخفضة، أو النسخة الورقية المطبوعة للشحن الفاخر."
-                    : "Choose instant DRM e-book or high-grade printed physical edition."}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-3xl bg-card dark:bg-slate-900 border border-border dark:border-slate-800 text-center space-y-3 shadow-xs">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-black text-lg mx-auto flex items-center justify-center">
-                  3
-                </div>
-                <h4 className="text-base font-black text-foreground dark:text-white">{isRtl ? "دفع آمن واستلام مباشر" : "Secure Pay & Receive"}</h4>
-                <p className="text-xs text-muted-foreground dark:text-slate-400 leading-relaxed">
-                  {isRtl
-                    ? "ادفع بأمان عبر البطاقات أو إنستاباي أو المحافظ، واستمتع بالقراءة فوراً أو استلم طلبك في 48 ساعة."
-                    : "Instant cloud reading unlocked immediately, or tracked doorstep courier delivery."}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
 
 
 
@@ -1099,6 +1069,71 @@ const BookStorePlatform = () => {
                     <ArrowIcon className="w-3 h-3" />
                   </Button>
                 </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* MAGIC PERIODIC FLOATING POPUP FOR HOW SHOPPING & READING WORKS (3S TIMER) */}
+        {/* ========================================================================= */}
+        {showHowItWorksPopup && (
+          <div className="fixed bottom-6 start-4 sm:start-6 z-50 max-w-sm sm:max-w-md w-[calc(100%-2rem)] animate-in fade-in slide-in-from-bottom-6 duration-300">
+            <div className="relative rounded-2xl p-4 sm:p-5 bg-card/95 dark:bg-slate-900/95 backdrop-blur-xl border-2 border-cyan-500/60 shadow-2xl shadow-cyan-500/10 dark:shadow-cyan-500/20 text-start space-y-2.5 overflow-hidden">
+              {/* 3-Second Visual Progress Line */}
+              <div className="absolute top-0 start-0 h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-400 w-full animate-[shrinkWidth_3s_linear_forwards]" />
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setShowHowItWorksPopup(false)}
+                className="absolute top-3 end-3 p-1 rounded-full text-muted-foreground hover:text-foreground dark:text-slate-400 dark:hover:text-white hover:bg-muted dark:hover:bg-slate-800 transition-colors"
+                aria-label={isRtl ? "إغلاق" : "Close"}
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Header Badge */}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 text-[10px] sm:text-xs font-black">
+                <Sparkles className="w-3 h-3 text-cyan-500" />
+                <span>{isRtl ? "دليل القارئ السريع" : "Reader Quick Guide"}</span>
+              </div>
+
+              {/* Title & 3 Steps */}
+              <div>
+                <h4 className="text-xs sm:text-sm font-black text-foreground dark:text-white leading-snug">
+                  {isRtl ? "كيف تطلب وتقرأ كتبك في 3 خطوات بسيطة؟" : "How to Buy & Read in 3 Steps"}
+                </h4>
+                <div className="grid grid-cols-3 gap-1.5 mt-2 text-center">
+                  <div className="p-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                    <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 block">1. تصفح</span>
+                    <span className="text-[9px] text-muted-foreground block line-clamp-1">{isRtl ? "اختر كتابك" : "Browse"}</span>
+                  </div>
+                  <div className="p-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                    <span className="text-[10px] font-black text-cyan-600 dark:text-cyan-400 block">2. الصيغة</span>
+                    <span className="text-[9px] text-muted-foreground block line-clamp-1">{isRtl ? "رقمي أو ورقي" : "Format"}</span>
+                  </div>
+                  <div className="p-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                    <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 block">3. استلم</span>
+                    <span className="text-[9px] text-muted-foreground block line-clamp-1">{isRtl ? "فوري أو شحن" : "Instant"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Notice */}
+              <div className="flex items-center justify-between gap-2 pt-1 border-t border-border dark:border-slate-800">
+                <span className="text-[10px] text-muted-foreground dark:text-slate-400 font-medium">
+                  {isRtl ? "تختفي تلقائياً خلال 3 ثوانٍ ⏱️" : "Closes in 3s ⏱️"}
+                </span>
+
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowHowItWorksPopup(false)}
+                  className="h-7 px-2.5 rounded-lg text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10"
+                >
+                  {isRtl ? "حسناً، فهمت ✓" : "Got it ✓"}
+                </Button>
               </div>
             </div>
           </div>

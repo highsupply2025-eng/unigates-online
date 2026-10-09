@@ -1307,6 +1307,25 @@ export class NashrDataStore {
     return newMsg;
   }
 
+  static getAllAuthorIdsWithMessages(): string[] {
+    try {
+      const ids: string[] = [];
+      const prefix = `${STORAGE_KEYS.MESSAGES}_`;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) {
+          const id = key.substring(prefix.length);
+          if (id && !ids.includes(id)) {
+            ids.push(id);
+          }
+        }
+      }
+      return ids;
+    } catch (e) {
+      return [];
+    }
+  }
+
   // Sales & Royalties
   static getSales(authorId?: string): BookSaleRecord[] {
     const author = this.getAuthorProfile();

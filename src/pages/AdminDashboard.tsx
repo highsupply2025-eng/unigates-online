@@ -34,7 +34,9 @@ import {
   ChevronRight,
   Layers,
   PlusCircle,
-  Trash2
+  Trash2,
+  MessageSquare,
+  MessageCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,7 +53,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { NashrDataStore } from "@/services/nashrDataStore";
-import { AuthorProfile, ManuscriptSubmission, NashrInvoice } from "@/types/nashr";
+import { AuthorProfile, ManuscriptSubmission, NashrInvoice, NashrMessage } from "@/types/nashr";
 
 function dataUrlToBlob(dataUrl: string): Blob {
   try {
@@ -91,7 +93,13 @@ export const AdminDashboard = () => {
   const [adminUser, setAdminUser] = useState<any>(null);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"authors" | "manuscripts" | "invoices">("authors");
+  const [activeTab, setActiveTab] = useState<"authors" | "manuscripts" | "invoices" | "chat">("authors");
+
+  // Internal Communication / Chat States
+  const [selectedChatAuthorId, setSelectedChatAuthorId] = useState<string>("");
+  const [chatReplyText, setChatReplyText] = useState("");
+  const [chatSearchQuery, setChatSearchQuery] = useState("");
+  const [chatMessagesVersion, setChatMessagesVersion] = useState(0);
 
   // Data states
   const [authors, setAuthors] = useState<AuthorProfile[]>([]);
@@ -660,6 +668,90 @@ export const AdminDashboard = () => {
   const pendingSubmissionsCount = safeSubmissions.filter(s => s?.status === "pending_review").length;
   const pendingInvoicesCount = safeInvoices.filter(i => i?.status === "under_review").length;
 
+  // Chat Authors List & Unread Calculations
+  const allChatAuthorIds = Array.from(new Set([
+    ...safeAuthors.map(a => a.id),
+    ...NashrDataStore.getAllAuthorIdsWithMessages()
+  ]));
+
+  const chatAuthorsList = allChatAuthorIds.map(id => {
+    const existing = safeAuthors.find(a => a.id === id);
+    if (existing) return existing;
+    const authorProfile = NashrDataStore.getAuthorProfile();
+    if (authorProfile && authorProfile.id === id) return authorProfile;
+    return {
+      id,
+      authorCode: "AUT-" + id.slice(-4).toUpperCase(),
+      fullName: isRtl ? "مؤلف مسجل" : "Registered Author",
+      academicTitle: "author" as const,
+      academicTitleLabel: isRtl ? "مؤلف" : "Author",
+      specialization: isRtl ? "دراسات عامة" : "General Studies",
+      email: "",
+      phone: "",
+      joinedDate: new Date().toISOString().split("T")[0]
+    };
+  });
+
+  const authorsWithNewMessages = chatAuthorsList.filter(author => {
+    const msgs = NashrDataStore.getMessages(author.id);
+    if (!msgs || msgs.length === 0) return false;
+    const lastMsg = msgs[msgs.length - 1];
+    return lastMsg.sender === "author";
+  });
+
+  const selectedChatAuthor = chatAuthorsList.find(a => a.id === selectedChatAuthorId) || chatAuthorsList[0];
+  const activeChatMessages: NashrMessage[] = selectedChatAuthor 
+    ? NashrDataStore.getMessages(selectedChatAuthor.id) 
+    : [];
+
+  const handleAdminSendMessage = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!chatReplyText.trim() || !selectedChatAuthor) return;
+
+    NashrDataStore.sendAdminMessageToAuthor(selectedChatAuthor.id, chatReplyText.trim());
+    setChatReplyText("");
+    setChatMessagesVersion(v => v + 1);
+    toast({
+      title: isRtl ? "✅ تم إرسال الرد للمؤلف بنجاح" : "Reply Sent Successfully",
+      description: isRtl ? `تم تسليم الرسالة إلى حساب ${selectedChatAuthor.fullName}` : "Message delivered."
+    });
+  };
+
+  useEffect(() => {
+    if (!selectedChatAuthorId && chatAuthorsList.length > 0) {
+      if (authorsWithNewMessages.length > 0) {
+        setSelectedChatAuthorId(authorsWithNewMessages[0].id);
+      } else {
+        setSelectedChatAuthorId(chatAuthorsList[0].id);
+      }
+    }
+  }, [chatAuthorsList.length, selectedChatAuthorId, authorsWithNewMessages.length]);
+
+  // Real-time chat sync
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key && e.key.includes("messages")) {
+        setChatMessagesVersion(v => v + 1);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    const interval = setInterval(() => {
+      setChatMessagesVersion(v => v + 1);
+    }, 2000);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const chatQuickReplies = [
+    isRtl ? "وعليكم السلام ورحمة الله وبركاته، مرحباً بحضرتكم دكتور، نحن في خدمتكم دائماً." : "Peace be upon you, we are at your service.",
+    isRtl ? "أهلاً بحضرتكم، تم استلام رسالتكم والملفات قيد المراجعة والتدقيق الأكاديمي." : "Hello, we received your message and files are under academic review.",
+    isRtl ? "تم فحص المخطوطة واعتمادها بنجاح، يرجى سداد الفاتورة للبدء في الطباعة." : "Manuscript approved! Please settle invoice for printing.",
+    isRtl ? "يرجى تزويدنا بصورة غلاف بديلة بدقة عالية (300 DPI)." : "Please provide a high-resolution cover image (300 DPI).",
+    isRtl ? "تم إرسال كتابكم لمطبعة دار عبيد وسيتم شحن نسخ المؤلف فور الجاهزية." : "Book sent to press. Author copies will be dispatched once ready."
+  ];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -759,7 +851,7 @@ export const AdminDashboard = () => {
 
         {/* ── Main Navigation Tabs ── */}
         <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full space-y-6">
-          <TabsList className="grid grid-cols-1 sm:grid-cols-3 h-auto p-1.5 rounded-2xl bg-muted/40 border border-border/80 gap-2">
+          <TabsList className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 h-auto p-1.5 rounded-2xl bg-muted/40 border border-border/80 gap-2">
             
             {/* Tab 1: Authors */}
             <TabsTrigger 
@@ -799,6 +891,20 @@ export const AdminDashboard = () => {
               {pendingInvoicesCount > 0 && (
                 <Badge className="bg-blue-600 text-white text-[10px] px-1.5 py-0 h-4 font-black">
                   {pendingInvoicesCount}
+                </Badge>
+              )}
+            </TabsTrigger>
+
+            {/* Tab 4: Messages / Chat */}
+            <TabsTrigger 
+              value="chat"
+              className="data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-md font-bold text-xs sm:text-sm py-3 rounded-xl gap-2 transition-all"
+            >
+              <MessageSquare className="w-4 h-4 text-purple-500" />
+              <span>{isRtl ? "4. التواصل والمحادثات المباشرة" : "4. Author Chat"}</span>
+              {authorsWithNewMessages.length > 0 && (
+                <Badge className="bg-purple-600 text-white text-[10px] px-1.5 py-0 h-4 font-black animate-pulse">
+                  {authorsWithNewMessages.length}
                 </Badge>
               )}
             </TabsTrigger>
@@ -950,6 +1056,19 @@ export const AdminDashboard = () => {
                         >
                           <Eye className="w-3.5 h-3.5 text-blue-500" />
                           <span>{isRtl ? "فحص المستندات والهوية" : "Inspect KYC"}</span>
+                        </Button>
+
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedChatAuthorId(author.id);
+                            setActiveTab("chat");
+                          }}
+                          className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5 border-purple-500/30 text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-purple-500" />
+                          <span>{isRtl ? "مراسلة المؤلف 💬" : "Chat"}</span>
                         </Button>
 
                         {author.verificationStatus !== "approved" ? (
@@ -1300,6 +1419,19 @@ export const AdminDashboard = () => {
                           >
                             <Send className="w-3.5 h-3.5 text-muted-foreground" />
                             <span>{isRtl ? "إرسال ملاحظات تدقيق" : "Review Notes"}</span>
+                          </Button>
+
+                          <Button 
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedChatAuthorId(sub.authorId);
+                              setActiveTab("chat");
+                            }}
+                            className="h-9 px-3 rounded-xl font-bold text-xs border-purple-500/30 text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 gap-1.5"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5 text-purple-500" />
+                            <span>{isRtl ? "مراسلة المؤلف 💬" : "Chat with Author"}</span>
                           </Button>
 
                           <Button 
@@ -1705,6 +1837,291 @@ export const AdminDashboard = () => {
                   </Card>
                 ))
               )}
+            </div>
+
+          </TabsContent>
+
+          {/* ========================================================= */}
+          {/* TAB 4: التواصل والمحادثات المباشرة مع المؤلفين (Chat)     */}
+          {/* ========================================================= */}
+          <TabsContent value="chat" className="space-y-6 mt-0 animate-fade-in">
+            
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Card className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between shadow-xs">
+                <div>
+                  <span className="text-xs text-muted-foreground font-bold block">{isRtl ? "إجمالي قنوات المحادثة" : "Active Author Channels"}</span>
+                  <span className="text-2xl font-black text-foreground">{chatAuthorsList.length}</span>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                  <MessageSquare className="w-5 h-5" />
+                </div>
+              </Card>
+
+              <Card className="rounded-2xl border-2 border-purple-500/30 bg-purple-500/5 p-4 flex items-center justify-between shadow-xs">
+                <div>
+                  <span className="text-xs text-purple-700 dark:text-purple-300 font-extrabold block">{isRtl ? "رسائل واردة بانتظار الرد" : "Pending Replies"}</span>
+                  <span className="text-2xl font-black text-purple-600 dark:text-purple-400">
+                    {authorsWithNewMessages.length}
+                  </span>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                  📩
+                </div>
+              </Card>
+
+              <Card className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between shadow-xs">
+                <div>
+                  <span className="text-xs text-muted-foreground font-bold block">{isRtl ? "حالة قناة التواصل الداخلي" : "Chat Channel Status"}</span>
+                  <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 mt-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    {isRtl ? "متصلة ومتزامنة لحظياً ⚡" : "Online & Synchronized"}
+                  </span>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                  ⚡
+                </div>
+              </Card>
+            </div>
+
+            {/* Chat Workspace Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              
+              {/* Authors List (Sidebar: 4 cols) */}
+              <Card className="lg:col-span-4 rounded-3xl border border-border/80 bg-card shadow-sm overflow-hidden flex flex-col h-[650px]">
+                <CardHeader className="p-4 border-b border-border/60 space-y-3 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-black flex items-center gap-2">
+                      <Users className="w-4 h-4 text-purple-500" />
+                      <span>{isRtl ? "المؤلفون والمحادثات" : "Author Conversations"}</span>
+                    </CardTitle>
+                    <Badge variant="outline" className="text-[10px] font-bold">
+                      {chatAuthorsList.length} {isRtl ? "مؤلف" : "Authors"}
+                    </Badge>
+                  </div>
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Input 
+                      placeholder={isRtl ? "بحث باسم أو كود المؤلف..." : "Search author name or code..."}
+                      value={chatSearchQuery}
+                      onChange={(e) => setChatSearchQuery(e.target.value)}
+                      className="h-9 ps-9 text-xs rounded-xl bg-background border-border"
+                    />
+                  </div>
+                </CardHeader>
+
+                <div className="flex-1 overflow-y-auto divide-y divide-border/40 p-2 space-y-1">
+                  {chatAuthorsList
+                    .filter(a => {
+                      if (!chatSearchQuery.trim()) return true;
+                      const q = chatSearchQuery.toLowerCase();
+                      return (
+                        a.fullName.toLowerCase().includes(q) ||
+                        a.authorCode.toLowerCase().includes(q) ||
+                        (a.specialization || "").toLowerCase().includes(q)
+                      );
+                    })
+                    .map((author) => {
+                      const isSelected = selectedChatAuthor?.id === author.id;
+                      const msgs = NashrDataStore.getMessages(author.id);
+                      const lastMsg = msgs[msgs.length - 1];
+                      const isFromAuthor = lastMsg?.sender === "author";
+
+                      return (
+                        <div
+                          key={author.id}
+                          onClick={() => setSelectedChatAuthorId(author.id)}
+                          className={`p-3 rounded-2xl cursor-pointer transition-all flex items-start gap-3 ${
+                            isSelected 
+                              ? "bg-purple-500/15 border-2 border-purple-500/40 shadow-sm" 
+                              : "hover:bg-muted/50 border border-transparent"
+                          }`}
+                        >
+                          {/* Avatar */}
+                          <div className="relative shrink-0">
+                            {author.avatarUrl ? (
+                              <img src={author.avatarUrl} alt={author.fullName} className="w-10 h-10 rounded-xl object-cover border border-border" />
+                            ) : (
+                              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-sm">
+                                {author.fullName?.slice(0, 2) || "AU"}
+                              </div>
+                            )}
+                            {isFromAuthor && (
+                              <span className="w-3 h-3 rounded-full bg-purple-500 border-2 border-background absolute -top-1 -end-1 animate-pulse" />
+                            )}
+                          </div>
+
+                          {/* Author Info & Last Snippet */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-1 mb-0.5">
+                              <span className="font-extrabold text-xs text-foreground truncate block">
+                                {author.fullName}
+                              </span>
+                              <span className="text-[9px] text-muted-foreground font-mono shrink-0">
+                                {lastMsg?.timestamp?.split(" ")?.[1] || author.joinedDate}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mb-1">
+                              <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 font-mono">
+                                {author.authorCode}
+                              </Badge>
+                              <span className="truncate">{author.academicTitleLabel || author.specialization}</span>
+                            </div>
+                            <p className={`text-[11px] truncate leading-tight ${
+                              isFromAuthor ? "text-purple-600 dark:text-purple-300 font-bold" : "text-muted-foreground"
+                            }`}>
+                              {isFromAuthor && "📩 "}
+                              {lastMsg ? lastMsg.text : (isRtl ? "بدء محادثة جديدة..." : "Start chat...")}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </Card>
+
+              {/* Chat Room Area (Main: 8 cols) */}
+              <Card className="lg:col-span-8 rounded-3xl border border-border/80 bg-card shadow-sm overflow-hidden flex flex-col h-[650px]">
+                {selectedChatAuthor ? (
+                  <>
+                    {/* Chat Header */}
+                    <div className="p-4 bg-muted/30 border-b border-border/60 flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        {selectedChatAuthor.avatarUrl ? (
+                          <img src={selectedChatAuthor.avatarUrl} alt={selectedChatAuthor.fullName} className="w-11 h-11 rounded-2xl object-cover border border-border shadow-sm" />
+                        ) : (
+                          <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-base shadow-sm">
+                            {selectedChatAuthor.fullName?.slice(0, 2) || "AU"}
+                          </div>
+                        )}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-black text-sm text-foreground">{selectedChatAuthor.fullName}</h3>
+                            <Badge variant="outline" className="font-mono text-[10px] font-bold">
+                              {selectedChatAuthor.authorCode}
+                            </Badge>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">
+                            {selectedChatAuthor.academicTitleLabel} • {selectedChatAuthor.specialization} {selectedChatAuthor.institution ? `• ${selectedChatAuthor.institution}` : ""}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedAuthor(selectedChatAuthor);
+                            setShowAuthorKycModal(true);
+                          }}
+                          className="h-8 px-3 rounded-xl text-xs font-bold gap-1.5"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-blue-500" />
+                          <span>{isRtl ? "ملف المؤلف" : "Author KYC"}</span>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setChatMessagesVersion(v => v + 1)}
+                          className="h-8 w-8 p-0 rounded-xl"
+                          title={isRtl ? "تحديث المحادثة" : "Refresh"}
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Messages Scroll Area */}
+                    <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-muted/10">
+                      {activeChatMessages.length === 0 ? (
+                        <div className="text-center py-12 text-muted-foreground space-y-2">
+                          <MessageCircle className="w-10 h-10 text-muted-foreground/40 mx-auto" />
+                          <p className="text-xs font-bold">{isRtl ? "لا توجد رسائل سابقة مع هذا المؤلف" : "No messages yet."}</p>
+                          <p className="text-[11px]">{isRtl ? "يمكنك كتابة رسالة ترحيبية أو توجيه استفسار مباشرة بالأسفل." : "Send a message below."}</p>
+                        </div>
+                      ) : (
+                        activeChatMessages.map((msg) => {
+                          const isAuthor = msg.sender === "author";
+                          return (
+                            <div 
+                              key={msg.id}
+                              className={`flex flex-col ${isAuthor ? "items-start" : "items-end"}`}
+                            >
+                              <div className="flex items-center gap-1.5 mb-1 px-1">
+                                <span className="text-[10px] font-bold text-muted-foreground">
+                                  {isAuthor ? `✍️ ${msg.senderName} (${msg.senderTitle || "مؤلف"})` : "🏢 هيئة التدقيق والتحكيم بدار عبيد"}
+                                </span>
+                                <span className="text-[9px] text-muted-foreground font-mono">{msg.timestamp}</span>
+                              </div>
+
+                              <div className={`p-4 rounded-2xl max-w-xl text-xs leading-relaxed shadow-sm ${
+                                isAuthor 
+                                  ? "bg-amber-500/15 border border-amber-500/30 text-foreground rounded-ts-xs" 
+                                  : "bg-blue-600 text-white rounded-te-xs shadow-md"
+                              }`}>
+                                <p className="whitespace-pre-wrap">{msg.text}</p>
+                                {msg.attachmentName && (
+                                  <div className={`mt-2 p-2 rounded-xl flex items-center gap-2 text-[10px] font-bold ${
+                                    isAuthor ? "bg-card border border-border" : "bg-white/20 text-white"
+                                  }`}>
+                                    <FileText className="w-3.5 h-3.5" />
+                                    <span>{msg.attachmentName}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Quick Replies Strip */}
+                    <div className="px-4 py-2 bg-card border-t border-border/40 overflow-x-auto flex items-center gap-2 no-scrollbar">
+                      <span className="text-[10px] font-extrabold text-muted-foreground shrink-0 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-amber-500" />
+                        {isRtl ? "ردود سريعة:" : "Quick:"}
+                      </span>
+                      {chatQuickReplies.map((qr, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setChatReplyText(qr)}
+                          className="text-[10px] whitespace-nowrap px-2.5 py-1 rounded-lg bg-muted/60 hover:bg-muted text-foreground border border-border/60 transition-all font-medium shrink-0"
+                        >
+                          {qr.slice(0, 32)}...
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Chat Input Footer */}
+                    <div className="p-4 bg-card border-t border-border/60">
+                      <form onSubmit={handleAdminSendMessage} className="flex items-center gap-2">
+                        <Input 
+                          placeholder={isRtl ? `اكتب رد الإدارة على المؤلف ${selectedChatAuthor.fullName}...` : "Type admin reply..."}
+                          value={chatReplyText}
+                          onChange={(e) => setChatReplyText(e.target.value)}
+                          className="h-11 rounded-xl text-xs border-border bg-muted/20 flex-1"
+                        />
+                        <Button 
+                          type="submit" 
+                          size="sm" 
+                          disabled={!chatReplyText.trim()}
+                          className="h-11 px-5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white shadow-md gap-1.5 shrink-0 active:scale-95 transition-all"
+                        >
+                          <Send className="w-4 h-4" />
+                          <span>{isRtl ? "إرسال الرد ➔" : "Send Reply"}</span>
+                        </Button>
+                      </form>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
+                    {isRtl ? "يرجى اختيار مؤلف من القائمة لبدء المحادثة." : "Select an author to start chatting."}
+                  </div>
+                )}
+              </Card>
+
             </div>
 
           </TabsContent>

@@ -183,6 +183,25 @@ const NasherDashboard = () => {
     setFinancials(NashrDataStore.getFinancialSummary());
   };
 
+  // Real-time synchronization for internal chat
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key && e.key.includes("messages")) {
+        setMessages(NashrDataStore.getMessages());
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    const interval = setInterval(() => {
+      if (activeTab === "chat") {
+        setMessages(NashrDataStore.getMessages());
+      }
+    }, 2000);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      clearInterval(interval);
+    };
+  }, [activeTab]);
+
   // Submit New Manuscript
   const handleSubmitManuscript = (e: React.FormEvent) => {
     e.preventDefault();

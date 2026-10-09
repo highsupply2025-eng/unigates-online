@@ -58,7 +58,10 @@ import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
 import { NashrDataStore } from "@/services/nashrDataStore";
 import { BookStoreItem, BookOrder, BookFormat } from "@/types/bookStore";
-import { ManuscriptSubmission } from "@/types/nashr";
+import { ManuscriptSubmission, BookSaleRecord } from "@/types/nashr";
+import { BookSaleInvoiceModal } from "@/components/bookstore/BookSaleInvoiceModal";
+import { generateOfficialBookSaleInvoiceSvg } from "@/services/bookSaleInvoiceHelper";
+import { downloadFileOrDataUrl } from "@/services/nashrReceiptHelper";
 
 export const BookStoreAdminStudio: React.FC = () => {
   const { dir } = useLanguage();
@@ -120,6 +123,11 @@ export const BookStoreAdminStudio: React.FC = () => {
 
   // Preview File/Cover modals
   const [previewCoverUrl, setPreviewCoverUrl] = useState<string | null>(null);
+
+  // Official Book Sale Invoice Modal State
+  const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<BookOrder | null>(null);
+  const [selectedSaleForInvoiceModal, setSelectedSaleForInvoiceModal] = useState<BookSaleRecord | null>(null);
+  const [showInvoiceModal, setShowInvoiceModal] = useState<boolean>(false);
 
   // Synchronize tab with URL
   useEffect(() => {
@@ -402,6 +410,36 @@ export const BookStoreAdminStudio: React.FC = () => {
           : `Order ${orderNumber} created. Author credited ${authorRoyalty} EGP.`
       });
     }, 500);
+  };
+
+  // Open Official Book Sale Invoice Modal
+  const handleViewOrderInvoice = (ord: BookOrder) => {
+    setSelectedOrderForInvoice(ord);
+    const item = ord.items && ord.items[0];
+    const sale: BookSaleRecord = {
+      id: ord.id,
+      bookId: item?.bookId || "",
+      bookTitle: item?.bookTitle || "كتاب من المتجر",
+      bookCode: item?.bookCode || "BK-DAR-4491",
+      authorId: "auth-2026-001",
+      authorName: item?.authorName || "د. السيد المنشاوي",
+      authorCode: item?.authorCode || "AUT-7890",
+      format: (item?.format as "digital" | "print") || "digital",
+      salePrice: ord.subtotal || item?.price || 0,
+      authorRoyaltyPercentage: item?.format === "digital" ? 70 : 30,
+      authorRoyaltyAmount: item?.authorRoyalty || Math.round((ord.subtotal || 0) * (item?.format === "digital" ? 0.7 : 0.3)),
+      date: ord.createdAt,
+      orderNumber: ord.orderNumber,
+      invoiceNumber: `INV-${ord.orderNumber.replace(/[^0-9]/g, "") || Date.now().toString().slice(-5)}`,
+      buyerName: ord.userName,
+      buyerEmail: ord.userEmail,
+      buyerCity: ord.shippingAddress?.city || "القاهرة، مصر",
+      paymentMethod: ord.paymentMethod || "instapay",
+      quantity: item?.quantity || 1,
+      status: ord.status
+    };
+    setSelectedSaleForInvoiceModal(sale);
+    setShowInvoiceModal(true);
   };
 
   // Filter Catalog
@@ -1053,12 +1091,13 @@ export const BookStoreAdminStudio: React.FC = () => {
                         <th className="p-3.5 text-start">{isRtl ? "القيمة الإجمالية" : "Gross"}</th>
                         <th className="p-3.5 text-start">{isRtl ? "حصة أرباح المؤلف" : "Author Share"}</th>
                         <th className="p-3.5 text-start">{isRtl ? "الحالة" : "Status"}</th>
+                        <th className="p-3.5 text-center">{isRtl ? "الإجراءات / فاتورة البيع" : "Actions / Invoice"}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border/60">
                       {filteredOrders.length === 0 ? (
                         <tr>
-                          <td colSpan={8} className="p-8 text-center text-muted-foreground font-bold">
+                          <td colSpan={9} className="p-8 text-center text-muted-foreground font-bold">
                             {isRtl ? "لا توجد طلبات تطابق معايير البحث." : "No orders found."}
                           </td>
                         </tr>
@@ -1130,6 +1169,61 @@ export const BookStoreAdminStudio: React.FC = () => {
                                 <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[10px] font-black">
                                   {isRtl ? "مكتمل ومودع ✅" : "Completed"}
                                 </Badge>
+                              </td>
+
+                              {/* Invoice Actions */}
+                              <td className="p-3.5 text-center">
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleViewOrderInvoice(ord)}
+                                    className="h-7 px-2.5 text-[11px] font-bold rounded-lg gap-1 border-primary/30 hover:border-primary text-primary hover:bg-primary/10 shadow-sm"
+                                    title={isRtl ? "عرض فاتورة البيع الرسمية" : "View Invoice"}
+                                  >
+                                    <FileText className="w-3.5 h-3.5" />
+                                    <span>{isRtl ? "الفاتورة" : "Invoice"}</span>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      const itm = ord.items && ord.items[0];
+                                      const saleRec: BookSaleRecord = {
+                                        id: ord.id,
+                                        bookId: itm?.bookId || "",
+                                        bookTitle: itm?.bookTitle || "كتاب من المتجر",
+                                        bookCode: itm?.bookCode || "BK-DAR-4491",
+                                        authorId: "auth-2026-001",
+                                        authorName: itm?.authorName || "د. السيد المنشاوي",
+                                        authorCode: itm?.authorCode || "AUT-7890",
+                                        format: (itm?.format as "digital" | "print") || "digital",
+                                        salePrice: ord.subtotal || itm?.price || 0,
+                                        authorRoyaltyPercentage: itm?.format === "digital" ? 70 : 30,
+                                        authorRoyaltyAmount: itm?.authorRoyalty || Math.round((ord.subtotal || 0) * (itm?.format === "digital" ? 0.7 : 0.3)),
+                                        date: ord.createdAt,
+                                        orderNumber: ord.orderNumber,
+                                        invoiceNumber: `INV-${ord.orderNumber.replace(/[^0-9]/g, "") || Date.now().toString().slice(-5)}`,
+                                        buyerName: ord.userName,
+                                        buyerEmail: ord.userEmail,
+                                        buyerCity: ord.shippingAddress?.city || "القاهرة، مصر",
+                                        paymentMethod: ord.paymentMethod || "instapay",
+                                        quantity: itm?.quantity || 1,
+                                        status: ord.status
+                                      };
+                                      const svgContent = generateOfficialBookSaleInvoiceSvg(saleRec, ord);
+                                      downloadFileOrDataUrl(`BookSaleInvoice-${ord.orderNumber}.svg`, svgContent);
+                                      toast({
+                                        title: isRtl ? "📥 تم تنزيل الفاتورة بنجاح" : "Invoice Downloaded",
+                                        description: `${ord.orderNumber}`
+                                      });
+                                    }}
+                                    className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+                                    title={isRtl ? "تحميل الفاتورة مباشرة بصيغة SVG" : "Download SVG Invoice"}
+                                  >
+                                    <Download className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
                               </td>
                             </tr>
                           );
@@ -1491,6 +1585,38 @@ export const BookStoreAdminStudio: React.FC = () => {
                   />
                 </div>
 
+                {/* Live Author Royalty Card */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-primary/5 to-emerald-500/10 border border-amber-500/20 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-black">
+                    <span className="flex items-center gap-1.5 text-foreground">
+                      <BadgePercent className="w-4 h-4 text-amber-500" />
+                      <span>{isRtl ? "احتساب أرباح المؤلف المباشرة" : "Live Author Royalties"}</span>
+                    </span>
+                    <Badge variant="outline" className="font-mono text-[10px] text-amber-600 dark:text-amber-400 border-amber-500/40 bg-amber-500/10">
+                      {editingBookItem.author_code || "AUT-7890"}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="p-2 rounded-xl bg-background/80 border border-border/60">
+                      <div className="text-[10px] text-muted-foreground">{isRtl ? "النسخة الرقمية (70%)" : "Digital (70%)"}</div>
+                      <div className="text-sm font-black text-purple-600 dark:text-purple-400">
+                        {Math.round(Number(editItemDigitalPrice || 0) * 0.70)} EGP
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-background/80 border border-border/60">
+                      <div className="text-[10px] text-muted-foreground">{isRtl ? "النسخة الورقية (30%)" : "Print (30%)"}</div>
+                      <div className="text-sm font-black text-blue-600 dark:text-blue-400">
+                        {Math.round(Number(editItemPrintPrice || 0) * 0.30)} EGP
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[10.5px] text-muted-foreground leading-relaxed">
+                    {isRtl 
+                      ? "⚡ سيتم تحديث الأسعار فوراً في صفحة متجر الكتب ولوحة تحكم المؤلف مع إرسال إشعار رسمي للمؤلف."
+                      : "⚡ Price updates are instantly pushed to the bookstore and author dashboard."}
+                  </p>
+                </div>
+
                 <DialogFooter className="gap-2 pt-2">
                   <Button 
                     type="button" 
@@ -1626,6 +1752,17 @@ export const BookStoreAdminStudio: React.FC = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* ═══════════════════════════════════════════════════════════════════════ */}
+      {/* MODAL 4: 📄 معاينة وطباعة وتنزيل فاتورة مبيعات الكتاب الرسمية */}
+      {/* ═══════════════════════════════════════════════════════════════════════ */}
+      <BookSaleInvoiceModal
+        open={showInvoiceModal}
+        onOpenChange={setShowInvoiceModal}
+        sale={selectedSaleForInvoiceModal}
+        order={selectedOrderForInvoice}
+        isRtl={isRtl}
+      />
 
     </div>
   );

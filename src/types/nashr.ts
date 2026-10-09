@@ -137,6 +137,14 @@ export interface BookSaleRecord {
   buyerName: string;
   orderNumber: string;
   date: string;
+  invoiceNumber?: string;
+  buyerEmail?: string;
+  buyerCity?: string;
+  paymentMethod?: string;
+  quantity?: number;
+  authorName?: string;
+  authorCode?: string;
+  status?: string;
 }
 
 export interface PayoutRequest {

@@ -179,24 +179,40 @@ const INITIAL_SALES: BookSaleRecord[] = [
     bookCode: "BK-DAR-4491",
     bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
     format: "print",
-    salePrice: 140,
+    salePrice: 220,
     authorRoyaltyPercentage: 30,
-    authorEarnings: 42, // 140 * 0.30 = 42
+    authorEarnings: 66,
     buyerName: "مكتبة كلية الاقتصاد - جامعة القاهرة",
-    orderNumber: "ORD-99210",
-    date: "2026-09-28"
+    buyerEmail: "library@feps.cu.edu.eg",
+    buyerCity: "الجيزة، جامعة القاهرة",
+    orderNumber: "ORD-2026-9921",
+    invoiceNumber: "INV-SALE-2026-9921",
+    paymentMethod: "تحويل بنكي - البنك الأهلي",
+    quantity: 1,
+    authorName: "أ.د. عبد الرحمن المنشاوي",
+    authorCode: "AUT-7890",
+    date: "2026-09-28",
+    status: "completed"
   },
   {
     id: "sale-902",
     bookCode: "BK-DAR-4491",
     bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
     format: "print",
-    salePrice: 140,
+    salePrice: 220,
     authorRoyaltyPercentage: 30,
-    authorEarnings: 42,
+    authorEarnings: 66,
     buyerName: "د. خالد السعيد - الرياض",
-    orderNumber: "ORD-99215",
-    date: "2026-09-27"
+    buyerEmail: "dr.khaled@ksu.edu.sa",
+    buyerCity: "الرياض، الدرعية",
+    orderNumber: "ORD-2026-9915",
+    invoiceNumber: "INV-SALE-2026-9915",
+    paymentMethod: "بطاقة ائتمانية دولية",
+    quantity: 1,
+    authorName: "أ.د. عبد الرحمن المنشاوي",
+    authorCode: "AUT-7890",
+    date: "2026-09-27",
+    status: "completed"
   },
   {
     id: "sale-903",
@@ -205,10 +221,18 @@ const INITIAL_SALES: BookSaleRecord[] = [
     format: "digital",
     salePrice: 85,
     authorRoyaltyPercentage: 70,
-    authorEarnings: 59.5, // 85 * 0.70 = 59.5
+    authorEarnings: 60,
     buyerName: "أحمد ممدوح (باحث ماجستير)",
-    orderNumber: "ORD-99180",
-    date: "2026-09-27"
+    buyerEmail: "ahmed.mamdouh@gmail.com",
+    buyerCity: "القاهرة، مصر",
+    orderNumber: "ORD-2026-9918",
+    invoiceNumber: "INV-SALE-2026-9918",
+    paymentMethod: "إنستاباي (InstaPay)",
+    quantity: 1,
+    authorName: "أ.د. عبد الرحمن المنشاوي",
+    authorCode: "AUT-7890",
+    date: "2026-09-27",
+    status: "completed"
   },
   {
     id: "sale-904",
@@ -217,22 +241,38 @@ const INITIAL_SALES: BookSaleRecord[] = [
     format: "digital",
     salePrice: 85,
     authorRoyaltyPercentage: 70,
-    authorEarnings: 59.5,
+    authorEarnings: 60,
     buyerName: "سارة عبد العزيز (جامعة الملك سعود)",
-    orderNumber: "ORD-99162",
-    date: "2026-09-26"
+    buyerEmail: "sara.abdelaziz@ksu.edu.sa",
+    buyerCity: "الرياض، المملكة العربية السعودية",
+    orderNumber: "ORD-2026-9916",
+    invoiceNumber: "INV-SALE-2026-9916",
+    paymentMethod: "Apple Pay",
+    quantity: 1,
+    authorName: "أ.د. عبد الرحمن المنشاوي",
+    authorCode: "AUT-7890",
+    date: "2026-09-26",
+    status: "completed"
   },
   {
     id: "sale-905",
     bookCode: "BK-DAR-4491",
     bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
-    format: "both",
-    salePrice: 140,
+    format: "print",
+    salePrice: 440,
     authorRoyaltyPercentage: 30,
-    authorEarnings: 42,
+    authorEarnings: 132,
     buyerName: "معهد الدلتا العالي للهندسة والتكنولوجيا",
-    orderNumber: "ORD-99050",
-    date: "2026-09-24"
+    buyerEmail: "procurement@delta.edu.eg",
+    buyerCity: "المنصورة، الدقهلية",
+    orderNumber: "ORD-2026-9905",
+    invoiceNumber: "INV-SALE-2026-9905",
+    paymentMethod: "تحويل بنكي - البنك الأهلي",
+    quantity: 2,
+    authorName: "أ.د. عبد الرحمن المنشاوي",
+    authorCode: "AUT-7890",
+    date: "2026-09-24",
+    status: "completed"
   },
   {
     id: "sale-906",
@@ -241,22 +281,38 @@ const INITIAL_SALES: BookSaleRecord[] = [
     format: "digital",
     salePrice: 85,
     authorRoyaltyPercentage: 70,
-    authorEarnings: 59.5,
-    buyerName: "م. إبراهيم يوسف",
-    orderNumber: "ORD-98920",
-    date: "2026-09-22"
+    authorEarnings: 60,
+    buyerName: "م. إبراهيم يوسف (باحث مستقل)",
+    buyerEmail: "ibrahim.youssef@aucegypt.edu",
+    buyerCity: "القاهرة، المعادي",
+    orderNumber: "ORD-2026-9892",
+    invoiceNumber: "INV-SALE-2026-9892",
+    paymentMethod: "إنستاباي (InstaPay)",
+    quantity: 1,
+    authorName: "أ.د. عبد الرحمن المنشاوي",
+    authorCode: "AUT-7890",
+    date: "2026-09-22",
+    status: "completed"
   },
   {
     id: "sale-907",
     bookCode: "BK-DAR-4491",
     bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
     format: "print",
-    salePrice: 140,
+    salePrice: 220,
     authorRoyaltyPercentage: 30,
-    authorEarnings: 42,
-    buyerName: "مركز بحوث الشرق الأوسط",
-    orderNumber: "ORD-98841",
-    date: "2026-09-20"
+    authorEarnings: 66,
+    buyerName: "مركز بحوث الشرق الأوسط والدراسات المستقبلية",
+    buyerEmail: "library@merc-center.org",
+    buyerCity: "القاهرة، مدينة نصر",
+    orderNumber: "ORD-2026-9884",
+    invoiceNumber: "INV-SALE-2026-9884",
+    paymentMethod: "فودافون كاش",
+    quantity: 1,
+    authorName: "أ.د. عبد الرحمن المنشاوي",
+    authorCode: "AUT-7890",
+    date: "2026-09-20",
+    status: "completed"
   }
 ];
 
@@ -267,7 +323,7 @@ const INITIAL_PAYOUTS: PayoutRequest[] = [
     authorId: "auth-2026-001",
     authorName: "أ.د. عبد الرحمن المنشاوي",
     authorCode: "AUT-7890",
-    amount: 1500,
+    amount: 350,
     currency: "EGP",
     payoutMethod: "bank_transfer",
     accountDetails: "البنك الأهلي المصري - حساب رقم 12345678901",
@@ -1344,26 +1400,96 @@ export class NashrDataStore {
   // Sales & Royalties
   static getSales(authorId?: string): BookSaleRecord[] {
     const author = this.getAuthorProfile();
-    const targetId = authorId || author.id;
-    if (targetId === "auth-2026-001") {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEYS.SALES);
-        if (saved) return JSON.parse(saved);
-        localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(INITIAL_SALES));
-        return INITIAL_SALES;
-      } catch (e) {
-        console.error(e);
-        return INITIAL_SALES;
-      }
-    }
-    // New authors start with clean 0 sales
+    const targetId = authorId || author?.id;
+    const targetCode = author?.authorCode || "AUT-7890";
+
+    // 1. Fetch saved direct sales for this author
+    let savedDirectSales: BookSaleRecord[] = [];
     try {
-      const saved = localStorage.getItem(`${STORAGE_KEYS.SALES}_${targetId}`);
-      if (saved) return JSON.parse(saved);
-      return [];
+      const storageKey = targetId === "auth-2026-001" ? STORAGE_KEYS.SALES : `${STORAGE_KEYS.SALES}_${targetId}`;
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        savedDirectSales = JSON.parse(saved);
+      } else if (targetId === "auth-2026-001") {
+        localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(INITIAL_SALES));
+        savedDirectSales = [...INITIAL_SALES];
+      }
     } catch (e) {
-      return [];
+      console.error(e);
+      if (targetId === "auth-2026-001") savedDirectSales = [...INITIAL_SALES];
     }
+
+    // 2. Fetch live Bookstore orders from BookStoreDataStore (stored in "unigates_bookstore_orders")
+    let storeOrdersSales: BookSaleRecord[] = [];
+    try {
+      const ordersRaw = localStorage.getItem("unigates_bookstore_orders");
+      if (ordersRaw) {
+        const parsedOrders: any[] = JSON.parse(ordersRaw);
+        if (Array.isArray(parsedOrders)) {
+          parsedOrders.forEach((ord) => {
+            if (!ord || !Array.isArray(ord.items)) return;
+            ord.items.forEach((item: any, idx: number) => {
+              const itemAuthorCode = item.authorCode || "";
+              const itemBookCode = item.bookCode || "";
+              const isMatch =
+                itemAuthorCode === targetCode ||
+                itemAuthorCode === "AUT-7890" ||
+                itemAuthorCode === "AUTH-2026-001" ||
+                itemAuthorCode === targetId ||
+                (targetId === "auth-2026-001" && (itemBookCode === "BK-DAR-4491" || itemBookCode === "BK-DAR-8821"));
+
+              if (isMatch) {
+                const royaltyRate = item.format === "digital" ? 70 : 30;
+                const qty = item.quantity || 1;
+                const price = item.price || 100;
+                const gross = price * qty;
+                const authorEarnings = typeof item.authorRoyalty === "number" ? item.authorRoyalty : Math.round(gross * (royaltyRate / 100));
+
+                storeOrdersSales.push({
+                  id: `sale-ord-${ord.id || ord.orderNumber}-${itemBookCode || idx}`,
+                  bookCode: itemBookCode || "BK-DAR-4491",
+                  bookTitle: item.bookTitle || "مؤلف منشور بالمتجر",
+                  format: item.format || "digital",
+                  salePrice: gross,
+                  authorRoyaltyPercentage: royaltyRate,
+                  authorEarnings,
+                  buyerName: ord.userName || "قارئ متجر UNIGATES",
+                  buyerEmail: ord.userEmail,
+                  buyerCity: ord.shippingAddress?.city,
+                  paymentMethod: ord.paymentMethod,
+                  orderNumber: ord.orderNumber,
+                  invoiceNumber: `INV-SALE-${(ord.orderNumber || "").replace(/[^0-9]/g, "").slice(-4) || "9921"}`,
+                  date: (ord.createdAt || "").split(" ")[0] || new Date().toISOString().split("T")[0],
+                  quantity: qty,
+                  authorName: author.fullName,
+                  authorCode: targetCode,
+                  status: ord.status || "completed"
+                });
+              }
+            });
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Failed to parse bookstore orders for sales synchronization:", err);
+    }
+
+    // 3. Merge without duplicate order numbers and book codes
+    const combinedMap = new Map<string, BookSaleRecord>();
+    // Priority to direct sales, then fill from store orders
+    savedDirectSales.forEach(s => {
+      combinedMap.set(`${s.orderNumber}_${s.bookCode}`, s);
+    });
+    storeOrdersSales.forEach(s => {
+      const key = `${s.orderNumber}_${s.bookCode}`;
+      if (!combinedMap.has(key)) {
+        combinedMap.set(key, s);
+      }
+    });
+
+    const finalSales = Array.from(combinedMap.values());
+    finalSales.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    return finalSales;
   }
 
   static getFinancialSummary() {

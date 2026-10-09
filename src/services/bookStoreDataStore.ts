@@ -40,7 +40,7 @@ export const INITIAL_BOOKS_CATALOG: BookStoreItem[] = [
     title_en: "Future of Digital Governance in Arab Universities & Institutions",
     author_ar: "أ.د. عبد الرحمن المنشاوي",
     author_en: "Prof. Dr. Abdelrahman El-Minshawi",
-    author_code: "AUTH-2026-001",
+    author_code: "AUT-7890",
     author_id: "auth-2026-001",
     publisher_ar: "دار عبيد للنشر والتوزيع والطباعة",
     publisher_en: "Dar Obeid Publishing & Distribution",
@@ -249,6 +249,46 @@ export const INITIAL_BOOKS_CATALOG: BookStoreItem[] = [
         content_en: `Creativity is a trainable cognitive muscle developed through hypothesis testing and divergent thinking.`
       }
     ]
+  },
+  {
+    id: "bk-dar-006",
+    code: "BK-DAR-8821",
+    title_ar: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
+    title_en: "Academic Researcher Guide for International Peer-Reviewed Publishing",
+    author_ar: "أ.د. عبد الرحمن المنشاوي",
+    author_en: "Prof. Dr. Abdelrahman El-Minshawi",
+    author_code: "AUT-7890",
+    author_id: "auth-2026-001",
+    publisher_ar: "دار عبيد للنشر والتوزيع والطباعة",
+    publisher_en: "Dar Obeid Publishing & Distribution",
+    publisher_id: "pub-obeid-001",
+    category: "academic",
+    category_ar: "أدلة علمية وأكاديمية",
+    category_en: "Academic & Research Guides",
+    description_ar: "دليل إرشادي خطوة بخطوة للأساتذة وطلاب الدراسات العليا لإعداد الأوراق البحثية، اختيار المجلات المصنفة (Scopus / WoS)، وإدارة الاستشهادات.",
+    description_en: "Step-by-step guide for scholars to publish in high-impact indexed journals.",
+    price_digital: 85,
+    price_print: 160,
+    currency: "EGP",
+    pages: 195,
+    format: "both",
+    cover_url: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80",
+    isbn: "978-977-90-7741-2",
+    rating: 4.95,
+    reviews_count: 44,
+    publish_year: 2026,
+    is_bestseller: true,
+    is_featured: true,
+    stock_print: 55,
+    full_content_chapters: [
+      {
+        id: "ch-1",
+        title_ar: "الفصل الأول: معايير اختيار المجلات الدولية وتجنب المجلات المفترسة",
+        title_en: "Chapter 1: Target Journal Selection & Avoiding Predatory Publishers",
+        content_ar: `يعتبر النشر الدولي في المجلات المصنفة ضمن قواعد بيانات Scopus و Web of Science الركيزة الأساسية للترقية الأكاديمية والاعتراف العلمي الدولي. يستعرض هذا الفصل آليات فحص معامل التأثير (Impact Factor) وتصنيف الأرباع (Q1-Q4).`,
+        content_en: `Publishing in Scopus and WoS indexed journals is critical for academic promotion and global visibility.`
+      }
+    ]
   }
 ];
 
@@ -377,6 +417,251 @@ const INITIAL_PUBLISHER_SALES: PublisherSaleRecord[] = [
   }
 ];
 
+export const INITIAL_DEMO_ORDERS: BookOrder[] = [
+  {
+    id: "ord-9921",
+    orderNumber: "ORD-2026-9921",
+    userId: "buyer-inst-01",
+    userEmail: "library@feps.cu.edu.eg",
+    userName: "مكتبة كلية الاقتصاد - جامعة القاهرة",
+    items: [
+      {
+        bookId: "bk-dar-001",
+        bookCode: "BK-DAR-4491",
+        bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
+        bookCover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80",
+        format: "print",
+        price: 220,
+        quantity: 1,
+        authorCode: "AUT-7890",
+        authorName: "أ.د. عبد الرحمن المنشاوي",
+        authorRoyalty: 66,
+        publisherName: "دار عبيد للنشر والتوزيع"
+      }
+    ],
+    subtotal: 220,
+    shippingFee: 35,
+    platformFee: 44,
+    totalAmount: 255,
+    currency: "EGP",
+    status: "completed",
+    paymentMethod: "bank_transfer",
+    createdAt: "2026-09-28 11:30",
+    shippingAddress: {
+      fullName: "مكتبة كلية الاقتصاد - جامعة القاهرة",
+      phone: "+20 100 223 4455",
+      country: "مصر",
+      city: "الجيزة، جامعة القاهرة",
+      streetAddress: "مبنى كلية الاقتصاد والعلوم السياسية، الدور الثاني",
+      deliveryMethod: "express"
+    }
+  },
+  {
+    id: "ord-9915",
+    orderNumber: "ORD-2026-9915",
+    userId: "buyer-sa-02",
+    userEmail: "dr.khaled@ksu.edu.sa",
+    userName: "د. خالد السعيد - الرياض",
+    items: [
+      {
+        bookId: "bk-dar-001",
+        bookCode: "BK-DAR-4491",
+        bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
+        bookCover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80",
+        format: "print",
+        price: 220,
+        quantity: 1,
+        authorCode: "AUT-7890",
+        authorName: "أ.د. عبد الرحمن المنشاوي",
+        authorRoyalty: 66,
+        publisherName: "دار عبيد للنشر والتوزيع"
+      }
+    ],
+    subtotal: 220,
+    shippingFee: 80,
+    platformFee: 44,
+    totalAmount: 300,
+    currency: "EGP",
+    status: "completed",
+    paymentMethod: "credit_card",
+    createdAt: "2026-09-27 15:45",
+    shippingAddress: {
+      fullName: "د. خالد السعيد",
+      phone: "+966 50 123 4567",
+      country: "السعودية",
+      city: "الرياض، الدرعية",
+      streetAddress: "مجمع أعضاء هيئة التدريس، جامعة الملك سعود",
+      deliveryMethod: "express"
+    }
+  },
+  {
+    id: "ord-9918",
+    orderNumber: "ORD-2026-9918",
+    userId: "buyer-res-03",
+    userEmail: "ahmed.mamdouh@gmail.com",
+    userName: "أحمد ممدوح (باحث ماجستير)",
+    items: [
+      {
+        bookId: "bk-dar-006",
+        bookCode: "BK-DAR-8821",
+        bookTitle: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
+        bookCover: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80",
+        format: "digital",
+        price: 85,
+        quantity: 1,
+        authorCode: "AUT-7890",
+        authorName: "أ.د. عبد الرحمن المنشاوي",
+        authorRoyalty: 60,
+        publisherName: "دار عبيد للنشر والتوزيع"
+      }
+    ],
+    subtotal: 85,
+    shippingFee: 0,
+    platformFee: 17,
+    totalAmount: 85,
+    currency: "EGP",
+    status: "completed",
+    paymentMethod: "instapay",
+    createdAt: "2026-09-27 09:12"
+  },
+  {
+    id: "ord-9916",
+    orderNumber: "ORD-2026-9916",
+    userId: "buyer-sa-04",
+    userEmail: "sara.abdelaziz@ksu.edu.sa",
+    userName: "سارة عبد العزيز (جامعة الملك سعود)",
+    items: [
+      {
+        bookId: "bk-dar-006",
+        bookCode: "BK-DAR-8821",
+        bookTitle: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
+        bookCover: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80",
+        format: "digital",
+        price: 85,
+        quantity: 1,
+        authorCode: "AUT-7890",
+        authorName: "أ.د. عبد الرحمن المنشاوي",
+        authorRoyalty: 60,
+        publisherName: "دار عبيد للنشر والتوزيع"
+      }
+    ],
+    subtotal: 85,
+    shippingFee: 0,
+    platformFee: 17,
+    totalAmount: 85,
+    currency: "EGP",
+    status: "completed",
+    paymentMethod: "apple_pay",
+    createdAt: "2026-09-26 18:20"
+  },
+  {
+    id: "ord-9905",
+    orderNumber: "ORD-2026-9905",
+    userId: "buyer-delta-05",
+    userEmail: "procurement@delta.edu.eg",
+    userName: "معهد الدلتا العالي للهندسة والتكنولوجيا",
+    items: [
+      {
+        bookId: "bk-dar-001",
+        bookCode: "BK-DAR-4491",
+        bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
+        bookCover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80",
+        format: "print",
+        price: 220,
+        quantity: 2,
+        authorCode: "AUT-7890",
+        authorName: "أ.د. عبد الرحمن المنشاوي",
+        authorRoyalty: 132,
+        publisherName: "دار عبيد للنشر والتوزيع"
+      }
+    ],
+    subtotal: 440,
+    shippingFee: 45,
+    platformFee: 88,
+    totalAmount: 485,
+    currency: "EGP",
+    status: "completed",
+    paymentMethod: "bank_transfer",
+    createdAt: "2026-09-24 13:05",
+    shippingAddress: {
+      fullName: "معهد الدلتا العالي",
+      phone: "+20 50 223 9988",
+      country: "مصر",
+      city: "المنصورة، الدقهلية",
+      streetAddress: "طريق المنصورة الدائري، مجمع المعاهد",
+      deliveryMethod: "express"
+    }
+  },
+  {
+    id: "ord-9892",
+    orderNumber: "ORD-2026-9892",
+    userId: "buyer-eng-06",
+    userEmail: "ibrahim.youssef@aucegypt.edu",
+    userName: "م. إبراهيم يوسف (باحث مستقل)",
+    items: [
+      {
+        bookId: "bk-dar-006",
+        bookCode: "BK-DAR-8821",
+        bookTitle: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
+        bookCover: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80",
+        format: "digital",
+        price: 85,
+        quantity: 1,
+        authorCode: "AUT-7890",
+        authorName: "أ.د. عبد الرحمن المنشاوي",
+        authorRoyalty: 60,
+        publisherName: "دار عبيد للنشر والتوزيع"
+      }
+    ],
+    subtotal: 85,
+    shippingFee: 0,
+    platformFee: 17,
+    totalAmount: 85,
+    currency: "EGP",
+    status: "completed",
+    paymentMethod: "instapay",
+    createdAt: "2026-09-22 21:10"
+  },
+  {
+    id: "ord-9884",
+    orderNumber: "ORD-2026-9884",
+    userId: "buyer-merc-07",
+    userEmail: "library@merc-center.org",
+    userName: "مركز بحوث الشرق الأوسط والدراسات المستقبلية",
+    items: [
+      {
+        bookId: "bk-dar-001",
+        bookCode: "BK-DAR-4491",
+        bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
+        bookCover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80",
+        format: "print",
+        price: 220,
+        quantity: 1,
+        authorCode: "AUT-7890",
+        authorName: "أ.د. عبد الرحمن المنشاوي",
+        authorRoyalty: 66,
+        publisherName: "دار عبيد للنشر والتوزيع"
+      }
+    ],
+    subtotal: 220,
+    shippingFee: 35,
+    platformFee: 44,
+    totalAmount: 255,
+    currency: "EGP",
+    status: "completed",
+    paymentMethod: "vodafone_cash",
+    createdAt: "2026-09-20 16:40",
+    shippingAddress: {
+      fullName: "مركز بحوث الشرق الأوسط",
+      phone: "+20 100 445 6677",
+      country: "مصر",
+      city: "القاهرة، مدينة نصر",
+      streetAddress: "شارع الطيران، بجوار مركز المؤتمرات",
+      deliveryMethod: "express"
+    }
+  }
+];
+
 export class BookStoreDataStore {
   // 1. Catalog operations
   static getCatalog(): BookStoreItem[] {
@@ -410,10 +695,34 @@ export class BookStoreDataStore {
     const catalog = this.getCatalog();
     const item = catalog.find(b => b.id === id || b.code === id);
     if (!item) return null;
+    const oldDigitalPrice = item.price_digital;
+    const oldPrintPrice = item.price_print;
     Object.assign(item, updates);
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEYS.CATALOG, JSON.stringify(catalog));
+      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new CustomEvent("bookstore-updated"));
     }
+
+    // If price was updated by Store Admin, notify the author in their dashboard
+    if (
+      (updates.price_digital !== undefined && updates.price_digital !== oldDigitalPrice) ||
+      (updates.price_print !== undefined && updates.price_print !== oldPrintPrice)
+    ) {
+      const authorId = item.author_id || "auth-2026-001";
+      const digitalText = updates.price_digital !== undefined ? `النسخة الرقمية: ${updates.price_digital} ج.م (ربح المؤلف 70% = ${Math.round(Number(updates.price_digital) * 0.7)} ج.م)` : "";
+      const printText = updates.price_print !== undefined ? `النسخة الورقية: ${updates.price_print} ج.م (ربح المؤلف 30% = ${Math.round(Number(updates.price_print) * 0.3)} ج.م)` : "";
+      const priceSummary = [digitalText, printText].filter(Boolean).join(" | ");
+      try {
+        NashrDataStore.sendAdminMessageToAuthor(
+          authorId,
+          `🏷️ إشعار من إدارة متجر الكتب: قام مدير المتجر بتحديث تسعير مؤلفكم ("${item.title_ar}") إلى: [${priceSummary}]. تم تطبيق السعر الجديد في المتجر فورياً.`
+        );
+      } catch (e) {
+        console.error("Failed to notify author of price update:", e);
+      }
+    }
+
     return item;
   }
 
@@ -495,70 +804,24 @@ export class BookStoreDataStore {
 
   // 3. Orders history
   static getOrders(): BookOrder[] {
-    if (typeof window === "undefined") return [];
+    if (typeof window === "undefined") return INITIAL_DEMO_ORDERS;
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.ORDERS);
       if (!stored) {
-        const demoOrders: BookOrder[] = [
-          {
-            id: "ord-9041",
-            orderNumber: "ORD-2026-9041",
-            userId: "reader-demo",
-            userEmail: "reader@unigates.online",
-            userName: "قارئ متميز",
-            items: [
-              {
-                bookId: "bk-dar-001",
-                bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
-                bookCover: INITIAL_BOOKS_CATALOG[0].cover_url,
-                format: "digital",
-                price: 140,
-                quantity: 1,
-                publisherName: "دار عبيد للنشر والتوزيع"
-              }
-            ],
-            subtotal: 140,
-            shippingFee: 0,
-            platformFee: 28,
-            totalAmount: 140,
-            currency: "EGP",
-            status: "completed",
-            paymentMethod: "credit_card",
-            createdAt: "2026-03-20 14:30"
-          },
-          {
-            id: "ord-8812",
-            orderNumber: "ORD-2026-8812",
-            userId: "reader-demo",
-            userEmail: "reader@unigates.online",
-            userName: "قارئ متميز",
-            items: [
-              {
-                bookId: "bk-dar-002",
-                bookTitle: "أساسيات وتطبيقات الذكاء الاصطناعي التوليدي في الرعاية الصحية",
-                bookCover: INITIAL_BOOKS_CATALOG[1].cover_url,
-                format: "digital",
-                price: 180,
-                quantity: 1,
-                publisherName: "دار عبيد للنشر والتوزيع"
-              }
-            ],
-            subtotal: 180,
-            shippingFee: 0,
-            platformFee: 36,
-            totalAmount: 180,
-            currency: "EGP",
-            status: "completed",
-            paymentMethod: "instapay",
-            createdAt: "2026-03-25 10:15"
-          }
-        ];
-        localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(demoOrders));
-        return demoOrders;
+        localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(INITIAL_DEMO_ORDERS));
+        return INITIAL_DEMO_ORDERS;
       }
-      return JSON.parse(stored);
+      const parsed: BookOrder[] = JSON.parse(stored);
+      // If user had previous stale demo orders lacking author orders, merge them
+      const hasAuthorOrders = parsed.some(o => o.items.some(it => it.bookCode === "BK-DAR-4491" || it.authorCode === "AUT-7890"));
+      if (!hasAuthorOrders) {
+        const merged = [...INITIAL_DEMO_ORDERS, ...parsed.filter(p => !INITIAL_DEMO_ORDERS.some(d => d.id === p.id))];
+        localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
     } catch {
-      return [];
+      return INITIAL_DEMO_ORDERS;
     }
   }
 

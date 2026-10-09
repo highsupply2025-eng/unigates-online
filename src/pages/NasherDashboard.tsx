@@ -77,6 +77,10 @@ import {
   printOfficialInvoiceOrReceipt,
   compressAndProcessReceiptFile 
 } from "@/services/nashrReceiptHelper";
+import { BookStoreDataStore } from "@/services/bookStoreDataStore";
+import { BookStoreItem } from "@/types/bookStore";
+import { BookSaleInvoiceModal } from "@/components/bookstore/BookSaleInvoiceModal";
+import { generateOfficialBookSaleInvoiceSvg } from "@/services/bookSaleInvoiceHelper";
 
 const NasherDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -98,6 +102,9 @@ const NasherDashboard = () => {
   const [sales, setSales] = useState<BookSaleRecord[]>(NashrDataStore.getSales());
   const [payouts, setPayouts] = useState<PayoutRequest[]>(NashrDataStore.getPayouts());
   const [financials, setFinancials] = useState(NashrDataStore.getFinancialSummary());
+  const [bookStoreCatalog, setBookStoreCatalog] = useState<BookStoreItem[]>(BookStoreDataStore.getCatalog());
+  const [selectedSaleForInvoice, setSelectedSaleForInvoice] = useState<BookSaleRecord | null>(null);
+  const [showSaleInvoiceModal, setShowSaleInvoiceModal] = useState<boolean>(false);
 
   // Form states for New Submission
   const [newTitle, setNewTitle] = useState("");
@@ -218,23 +225,42 @@ const NasherDashboard = () => {
     setSales(NashrDataStore.getSales());
     setPayouts(NashrDataStore.getPayouts());
     setFinancials(NashrDataStore.getFinancialSummary());
+    setBookStoreCatalog(BookStoreDataStore.getCatalog());
   };
 
-  // Real-time synchronization for internal chat
+  // Real-time synchronization for internal chat & Bookstore live sales/prices
   useEffect(() => {
     const handleStorage = (e: StorageEvent) => {
       if (e.key && e.key.includes("messages")) {
         setMessages(NashrDataStore.getMessages());
       }
+      if (e.key && (e.key.includes("bookstore") || e.key.includes("sales") || e.key.includes("orders"))) {
+        refreshData();
+      }
     };
+
+    const handleCustomStoreEvent = () => {
+      refreshData();
+    };
+
     window.addEventListener("storage", handleStorage);
+    window.addEventListener("bookstore-updated", handleCustomStoreEvent);
+    window.addEventListener("bookstore-order-created", handleCustomStoreEvent);
+
     const interval = setInterval(() => {
       if (activeTab === "chat") {
         setMessages(NashrDataStore.getMessages());
+      } else if (activeTab === "sales" || activeTab === "published") {
+        setSales(NashrDataStore.getSales());
+        setBookStoreCatalog(BookStoreDataStore.getCatalog());
+        setFinancials(NashrDataStore.getFinancialSummary());
       }
-    }, 2000);
+    }, 2500);
+
     return () => {
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("bookstore-updated", handleCustomStoreEvent);
+      window.removeEventListener("bookstore-order-created", handleCustomStoreEvent);
       clearInterval(interval);
     };
   }, [activeTab]);
@@ -596,6 +622,15 @@ const NasherDashboard = () => {
   };
 
   const publishedWorks = submissions.filter(s => s.status === "published");
+  const authorStoreBooks = bookStoreCatalog.filter(
+    (b) =>
+      b &&
+      (b.author_id === authorProfile.id ||
+        b.author_code === authorProfile.authorCode ||
+        b.author_code === "AUT-7890" ||
+        b.author_code === "AUTH-2026-001" ||
+        (b.author_ar && b.author_ar.includes("المنشاوي")))
+  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
@@ -2080,13 +2115,125 @@ const NasherDashboard = () => {
 
             </div>
 
-            {/* Sales Table */}
+            {/* 📚 كتالوج كتبي المنشورة بالمتجر والأسعار المعتمدة من إدارة المتجر */}
+            <Card className="border-2 border-amber-500/30 shadow-md bg-gradient-to-r from-amber-500/5 via-background to-orange-500/5 rounded-3xl overflow-hidden">
+              <CardHeader className="bg-amber-500/10 border-b border-amber-500/20 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                    🏬
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm font-black flex items-center gap-2">
+                      <span>{isRtl ? "كتالوج كتبي المنشورة بالمتجر وتحديثات الأسعار من إدارة المتجر" : "Live Store Catalog & Admin Price Control"}</span>
+                      <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px] font-bold">
+                        {isRtl ? "متصل باستوديو المتجر ⚡" : "Studio Synced"}
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {isRtl 
+                        ? "الأسعار الرسمية المحددة والمعتمدة من قبل إدارة متجر كتب دار عبيد (Dar Obeid Bookstore Studio) مع احتساب حصة المؤلف فورياً."
+                        : "Official live pricing set by Dar Obeid bookstore management with real-time royalty calculations."}
+                    </CardDescription>
+                  </div>
+                </div>
+
+                <Link to="/book-store" target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="sm" className="h-8 px-3 rounded-xl text-xs font-bold gap-1.5 border-amber-500/30 hover:bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>{isRtl ? "تصفح متجر الكتب 🌐" : "Visit Public Store"}</span>
+                  </Button>
+                </Link>
+              </CardHeader>
+
+              <CardContent className="p-4 sm:p-5">
+                {authorStoreBooks.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground text-xs font-semibold">
+                    {isRtl ? "لا توجد كتب مدرجة بالمتجر حالياً. بمجرد موافقة الإدارة وتسعير المخطوطة في استوديو المتجر ستظهر هنا مباشرة." : "No books listed in the store yet."}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {authorStoreBooks.map((book) => {
+                      const bookSales = sales.filter((s) => s.bookCode === book.code);
+                      const copiesSold = bookSales.length;
+                      const bookEarnings = bookSales.reduce((acc, s) => acc + s.authorEarnings, 0);
+
+                      return (
+                        <div key={book.id} className="p-4 rounded-2xl bg-card border-2 border-border/80 hover:border-amber-500/40 transition-all flex flex-col justify-between gap-3 shadow-xs">
+                          <div className="flex items-start gap-3.5">
+                            <img 
+                              src={book.cover_url} 
+                              alt={book.title_ar} 
+                              className="w-16 h-22 rounded-xl object-cover border border-border/70 shadow-sm shrink-0 bg-slate-900"
+                            />
+                            <div className="space-y-1 min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className="font-mono text-[10px] font-bold text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
+                                  {book.code}
+                                </span>
+                                <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[9px] font-bold">
+                                  {isRtl ? "معتمد بالمتجر 🟢" : "Live in Store"}
+                                </Badge>
+                              </div>
+
+                              <h4 className="font-black text-xs text-foreground line-clamp-2 leading-snug">
+                                {book.title_ar}
+                              </h4>
+                              <p className="text-[10px] text-muted-foreground truncate">
+                                {book.category_ar} • {book.pages} صفحة • ISBN: {book.isbn}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Live Prices Set by Bookstore Studio */}
+                          <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/60 text-[11px]">
+                            <div className="space-y-0.5">
+                              <span className="text-[10px] text-muted-foreground block">{isRtl ? "سعر النسخة الرقمية (E-Book):" : "Digital Price:"}</span>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="font-black text-foreground">{book.price_digital} ج.م</span>
+                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold font-mono">
+                                  (ربحك 70%: {Math.round(book.price_digital * 0.70)} ج.م)
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="space-y-0.5">
+                              <span className="text-[10px] text-muted-foreground block">{isRtl ? "سعر النسخة الورقية (مطبوع):" : "Print Price:"}</span>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="font-black text-foreground">{book.price_print} ج.م</span>
+                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold font-mono">
+                                  (ربحك 30%: {Math.round(book.price_print * 0.30)} ج.م)
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Performance Footer */}
+                          <div className="flex items-center justify-between text-[11px] px-1 text-muted-foreground pt-1 border-t border-border/50">
+                            <span>
+                              {isRtl ? "النسخ المباعة:" : "Sold:"} <strong className="text-foreground">{copiesSold} نسخة</strong>
+                            </span>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                              {isRtl ? "أرباحك من هذا الكتاب:" : "Royalties:"} {bookEarnings} ج.م
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Sales Table with Official Invoices */}
             <Card className="border-2 border-border/80 shadow-md bg-card rounded-3xl overflow-hidden">
-              <CardHeader className="bg-muted/20 border-b border-border/60 pb-3">
+              <CardHeader className="bg-muted/20 border-b border-border/60 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <CardTitle className="text-sm font-black flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-emerald-500" />
-                  <span>{isRtl ? "سجل مبيعات الكتب المباشرة وتوزيع العوائد" : "Live Book Sales Roster"}</span>
+                  <span>{isRtl ? "سجل مبيعات الكتب المباشرة وتوزيع العوائد وفواتير البيع" : "Live Book Sales Roster & Official Invoices"}</span>
                 </CardTitle>
+                <span className="text-[11px] text-muted-foreground">
+                  {isRtl ? `إجمالي العمليات المنفذة: ${sales.length} عملية شراء` : `${sales.length} sales records`}
+                </span>
               </CardHeader>
               <CardContent className="p-0 overflow-x-auto">
                 <table className="w-full text-xs text-start">
@@ -2098,6 +2245,7 @@ const NasherDashboard = () => {
                       <th className="p-3.5 text-start">{isRtl ? "نسبة وربح المؤلف" : "Author Royalty"}</th>
                       <th className="p-3.5 text-start">{isRtl ? "المشتري / رقم الطلب" : "Buyer / Order"}</th>
                       <th className="p-3.5 text-start">{isRtl ? "التاريخ" : "Date"}</th>
+                      <th className="p-3.5 text-start">{isRtl ? "الإجراءات / فاتورة البيع" : "Actions / Invoice"}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60">
@@ -2109,7 +2257,7 @@ const NasherDashboard = () => {
                         </td>
                         <td className="p-3.5">
                           <Badge variant="outline" className="text-[10px] font-bold">
-                            {s.format === "digital" ? "رقمي 📱" : "ورقي 📖"}
+                            {s.format === "digital" ? "رقمي 📱 (70%)" : "ورقي 📖 (30%)"}
                           </Badge>
                         </td>
                         <td className="p-3.5 font-mono font-bold text-foreground">
@@ -2124,6 +2272,35 @@ const NasherDashboard = () => {
                         </td>
                         <td className="p-3.5 text-muted-foreground font-mono">
                           {s.date}
+                        </td>
+                        <td className="p-3.5">
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedSaleForInvoice(s);
+                                setShowSaleInvoiceModal(true);
+                              }}
+                              className="h-7 px-2.5 rounded-xl font-bold text-[11px] gap-1 border-border hover:bg-muted"
+                              title={isRtl ? "معاينة الفاتورة الرسمية" : "View Invoice"}
+                            >
+                              <FileText className="w-3 h-3 text-blue-500" />
+                              <span>{isRtl ? "عرض الفاتورة" : "Invoice"}</span>
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                const invoiceSvg = generateOfficialBookSaleInvoiceSvg(s);
+                                downloadFileOrDataUrl(invoiceSvg, `فاتورة_${s.orderNumber}_${s.bookCode}.svg`);
+                              }}
+                              className="h-7 w-7 p-0 rounded-xl text-muted-foreground hover:text-foreground"
+                              title={isRtl ? "تحميل الفاتورة" : "Download"}
+                            >
+                              <Download className="w-3.5 h-3.5 text-amber-500" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -2513,6 +2690,14 @@ const NasherDashboard = () => {
         senderName={selectedAttachment?.senderName}
         timestamp={selectedAttachment?.timestamp}
         messageText={selectedAttachment?.messageText}
+        isRtl={isRtl}
+      />
+
+      {/* 🧾 MODAL: View & Download Book Sale Invoice */}
+      <BookSaleInvoiceModal
+        open={showSaleInvoiceModal}
+        onOpenChange={setShowSaleInvoiceModal}
+        sale={selectedSaleForInvoice}
         isRtl={isRtl}
       />
 

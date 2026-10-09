@@ -675,33 +675,31 @@ const NasherDashboard = () => {
           </div>
         </Link>
 
-        {/* User Badge & Fast Actions */}
-        <div className="flex items-center gap-2.5">
-          {/* User Account Dropdown Menu */}
+        {/* User Badge & Fast Actions (Reordered: Menu -> Language -> Theme) */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* 1. القائمة المنسدلة (ثلاث خطوط أفقية كما في لوحة رئيس القسم) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-muted/60 hover:bg-amber-500/10 border-2 border-border/80 hover:border-amber-500/40 text-xs transition-all duration-200 outline-hidden group cursor-pointer shadow-xs active:scale-[0.98]"
-                title={isRtl ? "قائمة الحساب والإجراءات" : "Account & Navigation Menu"}
+                className="group relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 text-white hover:from-amber-600 hover:via-orange-600 hover:to-rose-600 active:scale-95 transition-all duration-300 shadow-md shadow-amber-500/25 hover:shadow-lg hover:shadow-amber-500/40 border border-white/20 outline-none focus:outline-none cursor-pointer shrink-0"
+                aria-label={isRtl ? "قائمة المؤلف والخدمات" : "Author Studio Menu"}
+                title={isRtl ? "القائمة الرئيسية لحساب المؤلف" : "Author Account Menu"}
               >
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center font-black shadow-sm shrink-0 group-hover:scale-105 transition-transform">
-                  ✍️
+                {/* Ambient glow */}
+                <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                {/* 3 Horizontal Lines (Burger Menu) */}
+                <div className="flex flex-col items-center justify-center gap-1 w-5 h-5">
+                  <span className="w-4 h-0.5 bg-white rounded-full transition-all duration-300 group-hover:w-5 shadow-xs" />
+                  <span className="w-5 h-0.5 bg-white rounded-full transition-all duration-300 shadow-xs" />
+                  <span className="w-3.5 h-0.5 bg-white rounded-full transition-all duration-300 group-hover:w-5 shadow-xs" />
                 </div>
-                <div className="text-start">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-black text-foreground block truncate max-w-[110px] sm:max-w-[160px] md:max-w-[190px]">
-                      {authorProfile.fullName}
-                    </span>
-                    {(submissions.some(s => s.adminFeedback) || messages.filter(m => m.sender === "admin" && !m.read).length > 0) && (
-                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping inline-block shrink-0" />
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400">
-                    <span>{authorProfile.authorCode}</span>
-                  </div>
-                </div>
-                <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-amber-600 transition-transform group-data-[state=open]:rotate-180 shrink-0" />
+
+                {/* Notification Ping if review notes or unread messages exist */}
+                {(submissions.some(s => s.adminFeedback) || messages.filter(m => m.sender === "admin" && !m.read).length > 0) && (
+                  <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-rose-500 border-2 border-background animate-pulse" />
+                )}
               </button>
             </DropdownMenuTrigger>
 
@@ -1000,18 +998,11 @@ const NasherDashboard = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <ThemeToggle />
-          <LanguageSelectorDropdown />
+          {/* 2. تغيير اللغة */}
+          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-muted/60 hover:bg-muted border border-border/80 rounded-2xl font-bold" />
 
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            onClick={() => navigate("/nashr")}
-            className="text-xs font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-9 px-2.5 rounded-xl gap-1"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">{isRtl ? "خروج" : "Logout"}</span>
-          </Button>
+          {/* 3. السطوع */}
+          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-muted/60 hover:bg-muted border border-border/80" />
         </div>
       </header>
 

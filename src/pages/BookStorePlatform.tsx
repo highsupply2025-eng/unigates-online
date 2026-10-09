@@ -55,6 +55,35 @@ const BookStorePlatform = () => {
   const [quickBuyBook, setQuickBuyBook] = useState<BookStoreItem | null>(null);
   const [selectedFormat, setSelectedFormat] = useState<"digital" | "print">("digital");
 
+  // Magic Floating Popup for Authors / Nashr Platform (appears periodically, auto-hides after 3s, or closeable)
+  const [showNashrPopup, setShowNashrPopup] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Show first popup after 5 seconds of browsing
+    const initialTimer = setTimeout(() => {
+      setShowNashrPopup(true);
+    }, 5000);
+
+    // Recurring interval to show every 35 seconds
+    const interval = setInterval(() => {
+      setShowNashrPopup(true);
+    }, 35000);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // When popup opens, automatically close it after 3 seconds
+  useEffect(() => {
+    if (!showNashrPopup) return;
+    const hideTimer = setTimeout(() => {
+      setShowNashrPopup(false);
+    }, 3000);
+    return () => clearTimeout(hideTimer);
+  }, [showNashrPopup]);
+
   // Cart count from BookStoreDataStore
   const [cartCount, setCartCount] = useState<number>(() => {
     try {
@@ -915,44 +944,7 @@ const BookStorePlatform = () => {
           </div>
         </section>
 
-        {/* ========================================================================= */}
-        {/* 7. STRICTLY SEPARATED INDEPENDENT PUBLISHING BRIDGE BANNER               */}
-        {/* ========================================================================= */}
-        <section className="py-14 sm:py-18 px-4 sm:px-6 md:px-12 bg-background dark:bg-slate-950 border-b border-border dark:border-slate-800 transition-colors">
-          <div className="max-w-5xl mx-auto rounded-3xl bg-card dark:bg-gradient-to-br dark:from-amber-950/60 dark:via-slate-900 dark:to-orange-950/60 border-2 border-amber-500/30 p-8 sm:p-10 shadow-lg dark:shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 end-0 w-80 h-80 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
-            
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-start">
-              <div className="space-y-3 max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-black">
-                  <PenTool className="w-3.5 h-3.5" />
-                  <span>{isRtl ? "بوابة المؤلفين والباحثين المستقلة (منصة نشر)" : "Authors & Scholars Portal (Nashr)"}</span>
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-foreground dark:text-white leading-tight">
-                  {isRtl ? "هل أنت كاتب أو باحث أو أستاذ جامعي؟" : "Are you an Author or Academic Researcher?"}
-                </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground dark:text-slate-300 leading-relaxed font-medium">
-                  {isRtl
-                    ? "انشر كتابك القادم ورقياً ورقمياً مع دار عبيد عبر منصة نشر المستقلة، واستفد من الترقيم الدولي المعتمد (ISBN)، التحكيم الأكاديمي، الطباعة الفاخرة، والتوزيع في المعارض الدولية مع عوائد أرباح فورية تصل إلى 70%."
-                    : "Publish your manuscript with Dar Obeid via our dedicated Nashr Platform with official ISBN, peer-review, and fair royalties."}
-                </p>
-              </div>
 
-              {/* The Single Connection: Navigates directly to /nashr */}
-              <div className="shrink-0">
-                <Link to="/nashr">
-                  <Button
-                    size="lg"
-                    className="h-13 px-7 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-sm shadow-lg dark:shadow-xl dark:shadow-amber-500/25 gap-2 hover:scale-105 transition-all"
-                  >
-                    <span>{isRtl ? "الانتقال إلى منصة نشر لطلب نشر كتاب" : "Open Nashr Publishing Platform"}</span>
-                    <ArrowIcon className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* ========================================================================= */}
         {/* 8. READER & SHOPPING FAQS                                                 */}
@@ -1053,6 +1045,63 @@ const BookStorePlatform = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+        )}
+
+        {/* ========================================================================= */}
+        {/* MAGIC PERIODIC FLOATING POPUP FOR AUTHORS & RESEARCHERS (DISMISSABLE/3S) */}
+        {/* ========================================================================= */}
+        {showNashrPopup && (
+          <div className="fixed bottom-6 start-4 sm:start-6 z-50 max-w-sm sm:max-w-md w-[calc(100%-2rem)] animate-in fade-in slide-in-from-bottom-6 duration-300">
+            <div className="relative rounded-2xl p-4 sm:p-5 bg-card/95 dark:bg-slate-900/95 backdrop-blur-xl border-2 border-amber-500/60 shadow-2xl shadow-amber-500/10 dark:shadow-amber-500/20 text-start space-y-2.5 overflow-hidden">
+              {/* 3-Second Visual Progress Line */}
+              <div className="absolute top-0 start-0 h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 w-full animate-[shrinkWidth_3s_linear_forwards]" />
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setShowNashrPopup(false)}
+                className="absolute top-3 end-3 p-1 rounded-full text-muted-foreground hover:text-foreground dark:text-slate-400 dark:hover:text-white hover:bg-muted dark:hover:bg-slate-800 transition-colors"
+                aria-label={isRtl ? "إغلاق" : "Close"}
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Header Badge */}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[10px] sm:text-xs font-black">
+                <PenTool className="w-3 h-3 text-amber-500" />
+                <span>{isRtl ? "بوابة المؤلفين والباحثين المستقلة (منصة نشر)" : "Authors & Scholars Portal (Nashr)"}</span>
+              </div>
+
+              {/* Title & Body */}
+              <div>
+                <h4 className="text-xs sm:text-sm font-black text-foreground dark:text-white leading-snug">
+                  {isRtl ? "هل أنت كاتب أو باحث أو أستاذ جامعي؟" : "Are you an Author or Academic Researcher?"}
+                </h4>
+                <p className="text-[11px] sm:text-xs text-muted-foreground dark:text-slate-300 mt-1 leading-relaxed line-clamp-2">
+                  {isRtl
+                    ? "انشر كتابك القادم ورقياً ورقمياً مع دار عبيد عبر منصة نشر المستقلة، واستفد من الترقيم الدولي المعتمد (ISBN) وعوائد أرباح تصل إلى 70%."
+                    : "Publish your book via Nashr Platform with official ISBN and up to 70% royalties."}
+                </p>
+              </div>
+
+              {/* Action Button & Timer Notice */}
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <span className="text-[10px] text-muted-foreground dark:text-slate-400 font-medium">
+                  {isRtl ? "تختفي تلقائياً خلال 3 ثوانٍ ⏱️" : "Closes in 3s ⏱️"}
+                </span>
+
+                <Link to="/nashr" onClick={() => setShowNashrPopup(false)}>
+                  <Button
+                    size="sm"
+                    className="h-8 px-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-xs gap-1.5 shadow-md shadow-amber-500/20"
+                  >
+                    <span>{isRtl ? "الانتقال إلى منصة نشر" : "Open Nashr"}</span>
+                    <ArrowIcon className="w-3 h-3" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Global Footer */}

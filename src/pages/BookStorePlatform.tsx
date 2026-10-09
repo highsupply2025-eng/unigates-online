@@ -855,39 +855,7 @@ const BookStorePlatform = () => {
 
 
 
-        {/* ========================================================================= */}
-        {/* 2.7. JARIR-STYLE STORE PROMO DEALS BANNER                                 */}
-        {/* ========================================================================= */}
-        <section className="py-6 px-4 sm:px-6 md:px-12 bg-muted/30 dark:bg-gradient-to-r dark:from-blue-950/60 dark:via-indigo-950/70 dark:to-slate-950 border-b border-border dark:border-slate-800 transition-colors">
-          <div className="max-w-7xl mx-auto rounded-3xl p-6 sm:p-8 bg-card dark:bg-gradient-to-r dark:from-blue-600/15 dark:via-indigo-600/15 dark:to-cyan-500/15 border border-border dark:border-blue-500/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md dark:shadow-xl">
-            <div className="space-y-2 text-center md:text-start">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 text-xs font-bold border border-blue-400/30">
-                <Sparkles className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-                <span>{isRtl ? "خدمات متميزة للجامعات والمؤسسات والطلاب" : "Institutional & Student Priority Services"}</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-black text-foreground dark:text-white">
-                {isRtl ? "شحن فوري لباب المنزل • توريد كميات مجمعة • حماية DRM متطورة" : "Fast Door Delivery • Bulk Institutional Orders • Advanced DRM"}
-              </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground dark:text-slate-300 max-w-2xl">
-                {isRtl
-                  ? "توفر دار عبيد للمؤسسات والجامعات والباحثين إمكانية طلب النسخ المطبوعة الفاخرة بأسعار خاصة وفواتير ضريبية، أو ترخيص مكاتب رقمية كاملة للطلاب مع دعم فني مستمر."
-                  : "Dar Obeid provides academic institutions with official tax invoices, bulk student licenses, and secure doorstep express book packaging."}
-              </p>
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <Link to="/contact">
-                <Button variant="outline" className="h-11 px-5 rounded-2xl border-border dark:border-slate-700 bg-background dark:bg-slate-900 text-foreground dark:text-white font-bold text-xs hover:bg-muted dark:hover:bg-slate-800">
-                  {isRtl ? "طلب توريد مؤسسي" : "Institutional Inquiry"}
-                </Button>
-              </Link>
-              <Link to="/nashr">
-                <Button className="h-11 px-5 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold text-xs hover:from-blue-700 hover:to-cyan-700 shadow-md">
-                  {isRtl ? "نشر مؤلف جديد" : "Publish With Us"}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
+
 
         {/* ========================================================================= */}
         {/* 3. INTERACTIVE BOOK CATALOG SHOWCASE (REAL BOOKS FROM DATASTORE)          */}

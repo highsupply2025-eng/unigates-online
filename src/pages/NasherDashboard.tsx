@@ -44,7 +44,8 @@ import {
   HelpCircle,
   Banknote,
   QrCode,
-  Loader2
+  Loader2,
+  Edit3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -138,6 +139,22 @@ const NasherDashboard = () => {
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Manuscript Edit & Resubmit Modal states
+  const [editingSubmission, setEditingSubmission] = useState<ManuscriptSubmission | null>(null);
+  const [showEditSubmissionModal, setShowEditSubmissionModal] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editCategory, setEditCategory] = useState("دراسات وأبحاث أكاديمية");
+  const [editPublishType, setEditPublishType] = useState<PublishType>("both");
+  const [editSynopsis, setEditSynopsis] = useState("");
+  const [editPageCount, setEditPageCount] = useState<number | string>(150);
+  const [editLanguage, setEditLanguage] = useState("العربية");
+  const [editCoverFileName, setEditCoverFileName] = useState("");
+  const [editCoverImageUrl, setEditCoverImageUrl] = useState("");
+  const [editManuscriptFileName, setEditManuscriptFileName] = useState("");
+  const [editManuscriptFileUrl, setEditManuscriptFileUrl] = useState("");
+  const [editManuscriptFileSize, setEditManuscriptFileSize] = useState("4.2 MB");
+  const [savingEditSubmission, setSavingEditSubmission] = useState(false);
 
   // Guard: if user has a temporary password, redirect to login to change it
   useEffect(() => {
@@ -281,6 +298,77 @@ const NasherDashboard = () => {
         description: isRtl 
           ? "تم تحويل الملفات لإدارة دار عبيد للمراجعة والتدقيق والاعتماد."
           : "Your files are now under review by Dar Obeid editors."
+      });
+    }, 600);
+  };
+
+  // Open Edit Modal for Manuscript
+  const handleOpenEditSubmission = (sub: ManuscriptSubmission) => {
+    setEditingSubmission(sub);
+    setEditTitle(sub.title || "");
+    setEditCategory(sub.category || "دراسات وأبحاث أكاديمية");
+    setEditPublishType(sub.publishType || "both");
+    setEditSynopsis(sub.synopsis || "");
+    setEditPageCount(sub.pageCount || 150);
+    setEditLanguage(sub.language || "العربية");
+
+    const coverName = sub.coverImageName || (typeof sub.coverImage === "string" && !sub.coverImage.startsWith("data:") ? sub.coverImage : "") || "";
+    const coverUrl = sub.coverImageUrl || (typeof sub.coverImage === "string" && sub.coverImage.startsWith("data:") ? sub.coverImage : "") || "";
+    setEditCoverFileName(coverName);
+    setEditCoverImageUrl(coverUrl);
+
+    setEditManuscriptFileName(sub.manuscriptFile?.name || "");
+    setEditManuscriptFileUrl(sub.manuscriptFile?.url || "");
+    setEditManuscriptFileSize(sub.manuscriptFile?.size || "4.2 MB");
+    setShowEditSubmissionModal(true);
+  };
+
+  // Save Edits and Resubmit Manuscript
+  const handleSaveEditSubmission = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSubmission) return;
+
+    if (!editTitle.trim() || !editSynopsis.trim()) {
+      toast({
+        title: isRtl ? "بيانات ناقصة" : "Missing fields",
+        description: isRtl ? "يرجى كتابة عنوان المؤلف والنبذة التعريفية." : "Please provide title and synopsis.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSavingEditSubmission(true);
+    setTimeout(() => {
+      NashrDataStore.updateSubmission(editingSubmission.id, {
+        title: editTitle.trim(),
+        category: editCategory,
+        publishType: editPublishType,
+        synopsis: editSynopsis.trim(),
+        pageCount: Number(editPageCount) || 150,
+        language: editLanguage,
+        coverImage: editCoverImageUrl || editCoverFileName || editingSubmission.coverImage,
+        coverImageUrl: editCoverImageUrl || editingSubmission.coverImageUrl,
+        coverImageName: editCoverFileName || editingSubmission.coverImageName,
+        manuscriptFile: editManuscriptFileName ? {
+          name: editManuscriptFileName,
+          size: editManuscriptFileSize || "4.2 MB",
+          type: editManuscriptFileName.endsWith(".docx") || editManuscriptFileName.endsWith(".doc") ? "WORD" : "PDF",
+          url: editManuscriptFileUrl || editingSubmission.manuscriptFile?.url
+        } : editingSubmission.manuscriptFile,
+        status: "pending_review",
+        adminFeedback: editingSubmission.adminFeedback
+      });
+
+      refreshData();
+      setSavingEditSubmission(false);
+      setShowEditSubmissionModal(false);
+      setEditingSubmission(null);
+
+      toast({
+        title: isRtl ? "🎉 تم تحديث المخطوطة وإعادة إرسالها للتحكيم بنجاح!" : "Manuscript Updated & Resubmitted!",
+        description: isRtl 
+          ? "تم حفظ التعديلات وإرسال الملفات والبيانات المحدثة لإدارة التحكيم والاعتماد."
+          : "Your changes have been submitted to Dar Obeid editors for re-evaluation."
       });
     }, 600);
   };
@@ -770,7 +858,7 @@ const NasherDashboard = () => {
                       💬 "{sub.adminFeedback}"
                     </div>
                     <span className="text-[10px] text-muted-foreground block">
-                      {isRtl ? "واردة من: إدارة النشر والتحكيم الأكاديمي • يرجى الاطلاع على الملاحظات والتواصل أو تعديل الملفات." : "Sent by: Dar Obeid Editorial Board"}
+                      {isRtl ? "واردة من: إدارة النشر والتحكيم الأكاديمي • يرجى الاطلاع على الملاحظات وتعديل المخطوطة والملفات وإعادة إرسالها للاعتماد." : "Sent by: Dar Obeid Editorial Board • Review notes, edit files & details, and resubmit."}
                     </span>
                   </div>
                 </div>
@@ -778,14 +866,11 @@ const NasherDashboard = () => {
                 <div className="flex items-center gap-2 shrink-0">
                   <Button 
                     size="sm"
-                    onClick={() => {
-                      handleTabChange("chat");
-                      setChatInput(`بخصوص ملاحظات هيئة التدقيق على مؤلف "${sub.title}": `);
-                    }}
-                    className="h-10 px-4 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md gap-1.5"
+                    onClick={() => handleOpenEditSubmission(sub)}
+                    className="h-10 px-4 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md gap-1.5 cursor-pointer hover:scale-105 transition-all"
                   >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>{isRtl ? "الرد على الملاحظات بالمحادثة 💬" : "Reply to Notes"}</span>
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>{isRtl ? "تعديل المخطوطة والملفات وإعادة الإرسال ✏️" : "Edit Manuscript & Resubmit"}</span>
                   </Button>
                 </div>
               </div>
@@ -1178,10 +1263,27 @@ const NasherDashboard = () => {
                           <span className="font-mono">{sub.submissionDate}</span>
                         </div>
                         {sub.adminFeedback && (
-                          <p className="text-[10px] p-2 rounded-xl bg-background/80 border border-border/50 text-muted-foreground leading-relaxed">
-                            {sub.adminFeedback}
-                          </p>
+                          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] leading-relaxed space-y-1">
+                            <span className="font-bold flex items-center gap-1 text-amber-700 dark:text-amber-400">
+                              💬 {isRtl ? "ملاحظات هيئة التحكيم والتدقيق:" : "Editorial Review Notes:"}
+                            </span>
+                            <p className="text-foreground/90 font-medium bg-background/60 p-2 rounded-lg border border-border/40">
+                              {sub.adminFeedback}
+                            </p>
+                          </div>
                         )}
+
+                        <div className="pt-1 flex items-center justify-end">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenEditSubmission(sub)}
+                            className="h-7 px-2.5 rounded-xl text-[10px] font-black border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 gap-1.5 cursor-pointer"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                            <span>{isRtl ? "تعديل الملفات والبيانات وإعادة الإرسال ✏️" : "Edit & Resubmit"}</span>
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </CardContent>
@@ -2385,6 +2487,223 @@ const NasherDashboard = () => {
                   {isRtl ? "إغلاق المعاينة" : "Close"}
                 </Button>
               </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ✏️ نافذة تعديل بيانات وملفات المخطوطة وإعادة إرسالها للتحكيم */}
+      <Dialog open={showEditSubmissionModal} onOpenChange={setShowEditSubmissionModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 space-y-4">
+          {editingSubmission && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
+                  <Edit3 className="w-5 h-5 text-amber-500" />
+                  <span>{isRtl ? "تعديل ملفات وبيانات المخطوطة وإعادة الإرسال" : "Edit & Resubmit Manuscript"}</span>
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  {isRtl 
+                    ? "يمكنكم تعديل النبذة، واستبدال ملف الكتاب والغلاف بناءً على ملاحظات هيئة التدقيق ثم إعادة إرسالها فوراً."
+                    : "Update synopsis, manuscript file, or cover based on review feedback and resubmit."}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Notice of admin feedback if present */}
+              {editingSubmission.adminFeedback && (
+                <div className="p-3.5 rounded-2xl bg-amber-500/15 border-2 border-amber-500/40 text-amber-800 dark:text-amber-300 space-y-1.5 text-xs text-start">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <span>📋 {isRtl ? "ملاحظات هيئة التحكيم والتدقيق المطلوب معالجتها:" : "Editorial Board Notes to Address:"}</span>
+                  </div>
+                  <p className="font-semibold text-foreground/90 bg-card p-2.5 rounded-xl border border-amber-500/20 leading-relaxed shadow-xs">
+                    "{editingSubmission.adminFeedback}"
+                  </p>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveEditSubmission} className="space-y-4 text-start">
+                
+                {/* Title */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold">{isRtl ? "عنوان الكتاب / المؤلف *" : "Title *"}</Label>
+                  <Input 
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    required
+                    className="h-10 rounded-xl text-xs bg-muted/20"
+                  />
+                </div>
+
+                {/* Category & Publish Type */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold">{isRtl ? "التصنيف *" : "Category *"}</Label>
+                    <Select value={editCategory} onValueChange={setEditCategory}>
+                      <SelectTrigger className="h-10 rounded-xl text-xs bg-muted/20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="دراسات وأبحاث أكاديمية">دراسات وأبحاث أكاديمية</SelectItem>
+                        <SelectItem value="أطروحات ورسائل جامعية">أطروحات ورسائل جامعية</SelectItem>
+                        <SelectItem value="كتب جامعية ومناهج">كتب جامعية ومناهج</SelectItem>
+                        <SelectItem value="أدب وروايات">أدب وروايات</SelectItem>
+                        <SelectItem value="فكر وفلسفة">فكر وفلسفة</SelectItem>
+                        <SelectItem value="علوم وتكنولوجيا">علوم وتكنولوجيا</SelectItem>
+                        <SelectItem value="تاريخ وتراث">تاريخ وتراث</SelectItem>
+                        <SelectItem value="إدارة واقتصاد">إدارة واقتصاد</SelectItem>
+                        <SelectItem value="أخرى">أخرى</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold">{isRtl ? "نوع النشر *" : "Publish Type *"}</Label>
+                    <Select value={editPublishType} onValueChange={(v: PublishType) => setEditPublishType(v)}>
+                      <SelectTrigger className="h-10 rounded-xl text-xs bg-muted/20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="both">{isRtl ? "ورقي + رقمي (مزدوج)" : "Print + Digital"}</SelectItem>
+                        <SelectItem value="digital">{isRtl ? "رقمي فقط (E-Book)" : "Digital Only"}</SelectItem>
+                        <SelectItem value="print">{isRtl ? "ورقي فقط (مطبوع)" : "Print Only"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Synopsis */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold">{isRtl ? "نبذة وملخص المؤلف / الفهرس *" : "Synopsis *"}</Label>
+                  <Textarea 
+                    value={editSynopsis}
+                    onChange={(e) => setEditSynopsis(e.target.value)}
+                    required
+                    rows={4}
+                    className="rounded-xl text-xs bg-muted/20 border-border"
+                  />
+                </div>
+
+                {/* Pages & Language */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold">{isRtl ? "عدد الصفحات التقديري" : "Page Count"}</Label>
+                    <Input 
+                      type="number"
+                      value={editPageCount}
+                      onChange={(e) => setEditPageCount(e.target.value)}
+                      className="h-10 rounded-xl text-xs bg-muted/20"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold">{isRtl ? "اللغة" : "Language"}</Label>
+                    <Select value={editLanguage} onValueChange={setEditLanguage}>
+                      <SelectTrigger className="h-10 rounded-xl text-xs bg-muted/20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="العربية">العربية</SelectItem>
+                        <SelectItem value="الإنجليزية">English</SelectItem>
+                        <SelectItem value="الفرنسية">Français</SelectItem>
+                        <SelectItem value="مزدوج (عربي - إنجليزي)">مزدوج (عربي - إنجليزي)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Replace Files Section */}
+                <div className="p-4 rounded-2xl bg-muted/30 border border-border/80 space-y-3">
+                  <span className="text-xs font-black block text-foreground">
+                    📎 {isRtl ? "استبدال أو إعادة رفع الملفات:" : "Replace Attached Files:"}
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    
+                    {/* Cover Upload */}
+                    <div className="p-3.5 rounded-2xl bg-background border border-border/80 space-y-2 text-center">
+                      <ImageIcon className="w-6 h-6 text-amber-500 mx-auto" />
+                      <span className="text-xs font-bold block">{isRtl ? "تحديث صورة الغلاف" : "Update Cover"}</span>
+                      <Input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setEditCoverFileName(file.name);
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              if (typeof reader.result === "string") {
+                                setEditCoverImageUrl(reader.result);
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="text-[10px] h-8 rounded-lg cursor-pointer bg-muted/10"
+                      />
+                      {(editCoverImageUrl || editCoverFileName) && (
+                        <div className="flex items-center justify-center gap-1.5 text-[11px] text-emerald-600 font-bold truncate">
+                          <Check className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{editCoverFileName || (isRtl ? "غلاف معتمد ومحفوظ" : "Cover Loaded")}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Manuscript File Upload */}
+                    <div className="p-3.5 rounded-2xl bg-background border border-border/80 space-y-2 text-center">
+                      <FileText className="w-6 h-6 text-blue-500 mx-auto" />
+                      <span className="text-xs font-bold block">{isRtl ? "استبدال ملف الكتاب (PDF / Word)" : "Update Manuscript (PDF / Word)"}</span>
+                      <Input 
+                        type="file" 
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setEditManuscriptFileName(file.name);
+                            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                            setEditManuscriptFileSize(`${sizeMB} MB`);
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              if (typeof reader.result === "string") {
+                                setEditManuscriptFileUrl(reader.result);
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="text-[10px] h-8 rounded-lg cursor-pointer bg-muted/10"
+                      />
+                      {editManuscriptFileName && (
+                        <div className="flex items-center justify-center gap-1.5 text-[11px] text-emerald-600 font-bold truncate">
+                          <Check className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{editManuscriptFileName} ({editManuscriptFileSize})</span>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
+
+                <DialogFooter className="gap-2 pt-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setShowEditSubmissionModal(false)}
+                    className="rounded-xl text-xs font-bold"
+                  >
+                    {isRtl ? "إلغاء" : "Cancel"}
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={savingEditSubmission}
+                    className="rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md gap-2"
+                  >
+                    {savingEditSubmission ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                    <span>{isRtl ? "حفظ التعديلات وإعادة الإرسال للتحكيم ➔" : "Save & Resubmit to Review ➔"}</span>
+                  </Button>
+                </DialogFooter>
+
+              </form>
             </>
           )}
         </DialogContent>

@@ -435,20 +435,14 @@ export const AdminDashboard = () => {
   const handleUpdateManuscriptStatus = (status: ManuscriptSubmission["status"], feedback?: string) => {
     if (!selectedManuscript) return;
     NashrDataStore.updateSubmissionStatus(selectedManuscript.id, status, feedback);
-    if (feedback && feedback.trim()) {
-      NashrDataStore.sendAdminMessageToAuthor(
-        selectedManuscript.authorId,
-        `📋 ملاحظات وتوجيهات هيئة التحكيم والتدقيق بدار عبيد حول مؤلفكم "${selectedManuscript.title}":\n\n${feedback.trim()}`
-      );
-    }
     loadAllData();
     setShowManuscriptModal(false);
     setAdminFeedback("");
     toast({
-      title: isRtl ? "تم إرسال الملاحظات للمؤلف بنجاح" : "Feedback Sent to Author",
+      title: isRtl ? "تم إرسال الملاحظات للمؤلف بنجاح" : "Feedback Saved Successfully",
       description: isRtl 
-        ? "تم إرسال الملاحظات لحساب المؤلف فورياً وتثبيتها في لوحة تحكمه ومحادثته المباشرة."
-        : "Feedback delivered to author's portal and direct chat.",
+        ? "تم حفظ الملاحظات وتوجيهها لبطاقة المخطوطة في حساب استوديو المؤلف." 
+        : "Feedback attached to author's manuscript review card."
     });
   };
 

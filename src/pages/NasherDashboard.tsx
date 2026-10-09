@@ -3,6 +3,11 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   PenTool, 
+  Home,
+  LayoutDashboard,
+  PieChart as PieChartIcon,
+  BarChart3,
+  Activity,
   FileText, 
   Building2, 
   ShieldCheck, 
@@ -98,10 +103,25 @@ import { BookStoreDataStore } from "@/services/bookStoreDataStore";
 import { BookStoreItem } from "@/types/bookStore";
 import { BookSaleInvoiceModal } from "@/components/bookstore/BookSaleInvoiceModal";
 import { generateOfficialBookSaleInvoiceSvg } from "@/services/bookSaleInvoiceHelper";
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip as RechartsTooltip,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  AreaChart,
+  Area
+} from "recharts";
 
 const NasherDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "submit";
+  const initialTab = searchParams.get("tab") || "home";
   const [activeTab, setActiveTab] = useState(initialTab);
 
   const { dir, language, setLanguage } = useLanguage();
@@ -733,6 +753,32 @@ const NasherDashboard = () => {
 
               <DropdownMenuSeparator className="my-1.5" />
 
+              {/* 0. الصفحة الرئيسية (نظرة عامة والتحليلات البيانية) */}
+              <DropdownMenuItem 
+                onClick={() => {
+                  handleTabChange("home");
+                  setTimeout(() => {
+                    const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
+                }}
+                className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer transition-colors ${
+                  activeTab === "home" 
+                    ? "bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/30" 
+                    : "hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <Home className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "الصفحة الرئيسية" : "Home & Overview"}</span>
+                </div>
+                <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-black h-5">
+                  {isRtl ? "الرئيسية 📊" : "Main"}
+                </Badge>
+              </DropdownMenuItem>
+
               {/* 1. رفع مؤلفات جديدة */}
               <DropdownMenuItem 
                 onClick={() => {
@@ -1150,6 +1196,834 @@ const NasherDashboard = () => {
 
         {/* Content Anchor for Smooth Scroll from Dropdown Menu */}
         <div id="nasher-tab-content" className="scroll-mt-20" />
+
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 0: 🏠 الصفحة الرئيسية (Home & Visual Analytics Studio) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === "home" && (
+          <div className="space-y-8 animate-fade-in">
+            {/* Hero Welcome Banner with Quick Actions */}
+            <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-rose-500/15 border-2 border-amber-500/30 shadow-xl">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                <div className="space-y-2 text-start max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 text-xs font-black">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin" />
+                    <span>{isRtl ? "لوحة التحليلات والمؤشرات المركزية للمؤلف" : "Author Central Visual Analytics"}</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight">
+                    {isRtl ? "مرحباً بك في لوحة القيادة الذكية، د. " : "Welcome to Smart Dashboard, Dr. "}
+                    <span className="bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 bg-clip-text text-transparent">
+                      {authorProfile.fullName}
+                    </span>
+                  </h2>
+                  <p className="text-xs sm:text-sm font-bold text-muted-foreground leading-relaxed">
+                    {isRtl 
+                      ? "رؤية بصرية شاملة ترصد كافة مؤشرات وأنشطة حسابك في دار عبيد للنشر والتوزيع: من رفع المخطوطات والتحكيم وحتى الفواتير والمبيعات والأرباح بنسب مئوية دقيقة ومخططات بيانية دائرية وتجميعية متقدمة."
+                      : "Complete visual intelligence across your Dar Obeid author suite: submissions, peer reviews, sales, invoices, and royal earnings with live percentages and modular charts."}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
+                  <Button
+                    onClick={() => handleTabChange("submit")}
+                    className="h-11 px-5 rounded-2xl font-black text-xs bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-lg shadow-amber-500/20 gap-2 cursor-pointer hover:scale-105 transition-all"
+                  >
+                    <UploadCloud className="w-4 h-4" />
+                    <span>{isRtl ? "رفع مؤلف جديد 📁" : "Upload Manuscript"}</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/nashr/notes")}
+                    className="h-11 px-4 rounded-2xl font-black text-xs border-2 border-amber-500/40 hover:bg-amber-500/10 text-foreground shadow-xs gap-2 cursor-pointer hover:scale-105 transition-all"
+                  >
+                    <Bell className="w-4 h-4 text-amber-500" />
+                    <span>{isRtl ? "ملاحظات جديدة" : "Review Notes"}</span>
+                    {submissions.filter(s => s.adminFeedback).length > 0 && (
+                      <Badge className="bg-rose-500 text-white text-[10px] px-1.5 py-0 h-4">
+                        {submissions.filter(s => s.adminFeedback).length}
+                      </Badge>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* 📊 القسم الأول: شبكة الكروت والدوائر البيانية المستقلة لكل صفحة في القائمة المنسدلة */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5 text-start">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center font-black">
+                    <PieChartIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-foreground">
+                      {isRtl ? "تحليلات خدمات القائمة المنسدلة (رسم بياني دائري مخصص لكل صفحة)" : "Dropdown Services Analytics (Dedicated Radial Charts)"}
+                    </h3>
+                    <p className="text-xs font-bold text-muted-foreground">
+                      {isRtl ? "كل بطاقة تمثل خدمة محددة بلونها الخاص مع دائرة بيانية ونسب مئوية توضح ما يحدث لحظياً" : "Each service has its distinctive color theme, pie visualization, and live percentage progress"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid of 6 Distinct Colored Cards with Dedicated Circular Charts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                {/* 1. رفع مؤلفات جديدة (Amber / Orange) */}
+                <Card className="rounded-3xl border-2 border-amber-500/40 bg-gradient-to-b from-card to-amber-500/5 shadow-lg overflow-hidden flex flex-col justify-between hover:shadow-xl transition-all">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md">
+                          <UploadCloud className="w-5 h-5" />
+                        </div>
+                        <div className="text-start">
+                          <CardTitle className="text-sm font-black text-foreground">
+                            {isRtl ? "رفع مؤلفات جديدة" : "New Submissions"}
+                          </CardTitle>
+                          <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                            {isRtl ? "المرحلة والتحكيم" : "Stage & Review"}
+                          </span>
+                        </div>
+                      </div>
+                      <Badge className="bg-amber-500 text-white text-[10px] font-black">
+                        {submissions.length} {isRtl ? "مخطوطة" : "Works"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1 space-y-4">
+                    {/* Radial Chart Visualization */}
+                    <div className="flex items-center justify-between gap-2 pt-2">
+                      <div className="w-28 h-28 relative shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: isRtl ? "معتمدة" : "Approved", value: Math.max(submissions.filter(s => s.status === "published" || s.status === "approved").length, 1) },
+                                { name: isRtl ? "قيد التدقيق" : "Under Review", value: submissions.filter(s => s.status === "under_review").length },
+                                { name: isRtl ? "ملاحظات" : "Feedback", value: submissions.filter(s => s.status === "revision_requested").length },
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={28}
+                              outerRadius={44}
+                              paddingAngle={3}
+                              dataKey="value"
+                            >
+                              <Cell fill="#f59e0b" />
+                              <Cell fill="#fbbf24" />
+                              <Cell fill="#f97316" />
+                            </Pie>
+                            <RechartsTooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-xs font-black text-amber-600 dark:text-amber-400">
+                            {submissions.length > 0 
+                              ? Math.round((submissions.filter(s => s.status === "published" || s.status === "approved").length / submissions.length) * 100) 
+                              : 100}%
+                          </span>
+                          <span className="text-[8px] font-bold text-muted-foreground">{isRtl ? "إنجاز" : "Done"}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-1.5 text-xs text-start font-bold">
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "قيد المراجعة والتحكيم" : "Under Review"}:</span>
+                          <span className="text-amber-600 dark:text-amber-400 font-black">{submissions.filter(s => s.status === "under_review").length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "معتمدة وجاهزة للنشر" : "Approved"}:</span>
+                          <span className="text-emerald-600 font-black">{submissions.filter(s => s.status === "approved" || s.status === "published").length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "تحتاج تعديل من المؤلف" : "Need Revision"}:</span>
+                          <span className="text-orange-600 font-black">{submissions.filter(s => s.status === "revision_requested").length}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      onClick={() => handleTabChange("submit")}
+                      className="w-full h-9 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-white gap-1.5"
+                    >
+                      <span>{isRtl ? "الانتقال لرفع المخطوطات" : "Open Submissions"}</span>
+                      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* 2. المؤلفات المنشورة (Blue / Sky) */}
+                <Card className="rounded-3xl border-2 border-blue-500/40 bg-gradient-to-b from-card to-blue-500/5 shadow-lg overflow-hidden flex flex-col justify-between hover:shadow-xl transition-all">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md">
+                          <BookOpen className="w-5 h-5" />
+                        </div>
+                        <div className="text-start">
+                          <CardTitle className="text-sm font-black text-foreground">
+                            {isRtl ? "المؤلفات المنشورة" : "Published Works"}
+                          </CardTitle>
+                          <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300">
+                            {isRtl ? "الكتب المعروضة في المتجر" : "Catalog Live Books"}
+                          </span>
+                        </div>
+                      </div>
+                      <Badge className="bg-blue-600 text-white text-[10px] font-black">
+                        {publishedWorks.length} {isRtl ? "منشور" : "Active"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1 space-y-4">
+                    {/* Radial Chart Visualization */}
+                    <div className="flex items-center justify-between gap-2 pt-2">
+                      <div className="w-28 h-28 relative shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: isRtl ? "ورقي ورقمي" : "Paper & Digital", value: Math.max(publishedWorks.filter(s => s.publishType === "both").length, 1) },
+                                { name: isRtl ? "رقمي فقط" : "Digital", value: publishedWorks.filter(s => s.publishType === "digital").length },
+                                { name: isRtl ? "ورقي فقط" : "Paper", value: publishedWorks.filter(s => s.publishType === "paper").length },
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={28}
+                              outerRadius={44}
+                              paddingAngle={3}
+                              dataKey="value"
+                            >
+                              <Cell fill="#2563eb" />
+                              <Cell fill="#38bdf8" />
+                              <Cell fill="#60a5fa" />
+                            </Pie>
+                            <RechartsTooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-xs font-black text-blue-600 dark:text-blue-400">
+                            {publishedWorks.length > 0 ? "100%" : "0%"}
+                          </span>
+                          <span className="text-[8px] font-bold text-muted-foreground">{isRtl ? "جاهزية" : "Live"}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-1.5 text-xs text-start font-bold">
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "كتب المتجر الإلكتروني" : "Store Books"}:</span>
+                          <span className="text-blue-600 dark:text-blue-400 font-black">{authorStoreBooks.length || publishedWorks.length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "صيغة مزدوجة (ورقي+رقمي)" : "Both Types"}:</span>
+                          <span className="text-emerald-600 font-black">{publishedWorks.filter(s => s.publishType === "both").length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "متوسط تقييم القراء" : "Avg Rating"}:</span>
+                          <span className="text-amber-500 font-black">4.9 ★</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      onClick={() => handleTabChange("published")}
+                      className="w-full h-9 rounded-xl text-xs font-black bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+                    >
+                      <span>{isRtl ? "عرض المؤلفات المنشورة" : "View Published"}</span>
+                      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* 3. الفواتير وطرق الدفع (Emerald / Teal) */}
+                <Card className="rounded-3xl border-2 border-emerald-500/40 bg-gradient-to-b from-card to-emerald-500/5 shadow-lg overflow-hidden flex flex-col justify-between hover:shadow-xl transition-all">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
+                          <CreditCard className="w-5 h-5" />
+                        </div>
+                        <div className="text-start">
+                          <CardTitle className="text-sm font-black text-foreground">
+                            {isRtl ? "الفواتير وطرق الدفع" : "Invoices & Payments"}
+                          </CardTitle>
+                          <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+                            {isRtl ? "السداد والتحويلات البنكية" : "Settlement & Receipts"}
+                          </span>
+                        </div>
+                      </div>
+                      <Badge className="bg-emerald-600 text-white text-[10px] font-black">
+                        {invoices.length} {isRtl ? "فاتورة" : "Invoices"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1 space-y-4">
+                    {/* Radial Chart Visualization */}
+                    <div className="flex items-center justify-between gap-2 pt-2">
+                      <div className="w-28 h-28 relative shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: isRtl ? "مسددة" : "Paid", value: Math.max(invoices.filter(i => i.status === "paid").length, 1) },
+                                { name: isRtl ? "بانتظار التحقق" : "Verification", value: invoices.filter(i => i.status === "under_review").length },
+                                { name: isRtl ? "مستحقة" : "Unpaid", value: invoices.filter(i => i.status === "unpaid").length },
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={28}
+                              outerRadius={44}
+                              paddingAngle={3}
+                              dataKey="value"
+                            >
+                              <Cell fill="#10b981" />
+                              <Cell fill="#f59e0b" />
+                              <Cell fill="#ef4444" />
+                            </Pie>
+                            <RechartsTooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                            {invoices.length > 0 
+                              ? Math.round((invoices.filter(i => i.status === "paid").length / invoices.length) * 100) 
+                              : 100}%
+                          </span>
+                          <span className="text-[8px] font-bold text-muted-foreground">{isRtl ? "مسدد" : "Settled"}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-1.5 text-xs text-start font-bold">
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "فواتير مسددة بالكامل" : "Paid"}:</span>
+                          <span className="text-emerald-600 font-black">{invoices.filter(i => i.status === "paid").length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "إيصالات قيد المراجعة" : "Under Review"}:</span>
+                          <span className="text-amber-600 font-black">{invoices.filter(i => i.status === "under_review").length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "فواتير مستحقة الدفع" : "Unpaid"}:</span>
+                          <span className="text-rose-600 font-black">{invoices.filter(i => i.status === "unpaid").length}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      onClick={() => handleTabChange("payments")}
+                      className="w-full h-9 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+                    >
+                      <span>{isRtl ? "إدارة الفواتير والإيصالات" : "Manage Invoices"}</span>
+                      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* 4. التواصل وملاحظات التدقيق (Purple / Indigo) */}
+                <Card className="rounded-3xl border-2 border-purple-500/40 bg-gradient-to-b from-card to-purple-500/5 shadow-lg overflow-hidden flex flex-col justify-between hover:shadow-xl transition-all">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-md">
+                          <MessageSquare className="w-5 h-5" />
+                        </div>
+                        <div className="text-start">
+                          <CardTitle className="text-sm font-black text-foreground">
+                            {isRtl ? "التواصل وملاحظات التدقيق" : "Chat & Editorial Notes"}
+                          </CardTitle>
+                          <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300">
+                            {isRtl ? "قناة الاتصال مع هيئة النشر" : "Direct Editorial Board Chat"}
+                          </span>
+                        </div>
+                      </div>
+                      <Badge className="bg-purple-600 text-white text-[10px] font-black">
+                        {messages.length} {isRtl ? "رسالة" : "Msgs"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1 space-y-4">
+                    {/* Radial Chart Visualization */}
+                    <div className="flex items-center justify-between gap-2 pt-2">
+                      <div className="w-28 h-28 relative shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: isRtl ? "مقروءة ومجاب عليها" : "Answered", value: Math.max(messages.filter(m => m.read).length, 1) },
+                                { name: isRtl ? "واردة جديدة" : "Unread", value: messages.filter(m => !m.read).length },
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={28}
+                              outerRadius={44}
+                              paddingAngle={3}
+                              dataKey="value"
+                            >
+                              <Cell fill="#9333ea" />
+                              <Cell fill="#c084fc" />
+                            </Pie>
+                            <RechartsTooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-xs font-black text-purple-600 dark:text-purple-400">
+                            {messages.length > 0 
+                              ? Math.round((messages.filter(m => m.read).length / messages.length) * 100) 
+                              : 100}%
+                          </span>
+                          <span className="text-[8px] font-bold text-muted-foreground">{isRtl ? "تفاعل" : "Active"}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-1.5 text-xs text-start font-bold">
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "رسائل واردة من الإدارة" : "From Editorial"}:</span>
+                          <span className="text-purple-600 dark:text-purple-400 font-black">{messages.filter(m => m.sender === "admin").length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "رسائل مرسلة منك" : "Sent by You"}:</span>
+                          <span className="text-indigo-600 font-black">{messages.filter(m => m.sender === "author").length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "الملفات المتبادلة" : "Attachments"}:</span>
+                          <span className="text-foreground font-black">{messages.filter(m => m.attachmentName).length}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      onClick={() => handleTabChange("chat")}
+                      className="w-full h-9 rounded-xl text-xs font-black bg-purple-600 hover:bg-purple-700 text-white gap-1.5"
+                    >
+                      <span>{isRtl ? "فتح شات التواصل المباشر" : "Open Chat Room"}</span>
+                      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* 5. ملاحظات جديدة (Rose / Orange - صفحة مستقلة) */}
+                <Card className="rounded-3xl border-2 border-rose-500/40 bg-gradient-to-b from-card to-rose-500/5 shadow-lg overflow-hidden flex flex-col justify-between hover:shadow-xl transition-all">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-white flex items-center justify-center shadow-md">
+                          <Bell className="w-5 h-5 animate-bounce" />
+                        </div>
+                        <div className="text-start">
+                          <CardTitle className="text-sm font-black text-foreground">
+                            {isRtl ? "ملاحظات جديدة" : "New Review Notes"}
+                          </CardTitle>
+                          <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300">
+                            {isRtl ? "توجيهات التدقيق والتحكيم" : "Official Review Directives"}
+                          </span>
+                        </div>
+                      </div>
+                      <Badge className="bg-rose-500 text-white text-[10px] font-black">
+                        {submissions.filter(s => s.adminFeedback).length} {isRtl ? "ملاحظة" : "Notes"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1 space-y-4">
+                    {/* Radial Chart Visualization */}
+                    <div className="flex items-center justify-between gap-2 pt-2">
+                      <div className="w-28 h-28 relative shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: isRtl ? "معالجة ومعتمدة" : "Resolved", value: Math.max(submissions.filter(s => !s.adminFeedback).length, 1) },
+                                { name: isRtl ? "ملاحظات نشطة" : "Active Notes", value: submissions.filter(s => s.adminFeedback).length },
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={28}
+                              outerRadius={44}
+                              paddingAngle={3}
+                              dataKey="value"
+                            >
+                              <Cell fill="#10b981" />
+                              <Cell fill="#f43f5e" />
+                            </Pie>
+                            <RechartsTooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-xs font-black text-rose-600 dark:text-rose-400">
+                            {submissions.length > 0 
+                              ? Math.round(((submissions.length - submissions.filter(s => s.adminFeedback).length) / submissions.length) * 100) 
+                              : 100}%
+                          </span>
+                          <span className="text-[8px] font-bold text-muted-foreground">{isRtl ? "معالجة" : "Resolved"}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-1.5 text-xs text-start font-bold">
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "ملاحظات بحاجة لتعديل" : "Active Action"}:</span>
+                          <span className="text-rose-600 font-black">{submissions.filter(s => s.adminFeedback).length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "مخطوطات مكتملة الاعتماد" : "Fully Approved"}:</span>
+                          <span className="text-emerald-600 font-black">{submissions.filter(s => !s.adminFeedback).length}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "سرعة الاستجابة المقدرة" : "Avg Response"}:</span>
+                          <span className="text-amber-600 font-black">24 {isRtl ? "ساعة" : "hrs"}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      onClick={() => navigate("/nashr/notes")}
+                      className="w-full h-9 rounded-xl text-xs font-black bg-gradient-to-r from-rose-500 to-amber-600 hover:from-rose-600 hover:to-amber-700 text-white gap-1.5"
+                    >
+                      <span>{isRtl ? "فتح صفحة الملاحظات المستقلة 📄" : "Open Dedicated Notes"}</span>
+                      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* 6. مبيعات الكتب والأرباح (Teal / Emerald) */}
+                <Card className="rounded-3xl border-2 border-teal-500/40 bg-gradient-to-b from-card to-teal-500/5 shadow-lg overflow-hidden flex flex-col justify-between hover:shadow-xl transition-all">
+                  <CardHeader className="p-5 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-2xl bg-teal-600 text-white flex items-center justify-center shadow-md">
+                          <TrendingUp className="w-5 h-5" />
+                        </div>
+                        <div className="text-start">
+                          <CardTitle className="text-sm font-black text-foreground">
+                            {isRtl ? "مبيعات الكتب والأرباح" : "Sales & Royalties"}
+                          </CardTitle>
+                          <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300">
+                            {isRtl ? "العائدات ونسب المؤلف" : "Revenue & Author Shares"}
+                          </span>
+                        </div>
+                      </div>
+                      <Badge className="bg-teal-600 text-white text-[10px] font-black">
+                        {financials.availableBalance} EGP
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-5 pt-1 space-y-4">
+                    {/* Radial Chart Visualization */}
+                    <div className="flex items-center justify-between gap-2 pt-2">
+                      <div className="w-28 h-28 relative shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: isRtl ? "نسبة المؤلف رقمي (70%)" : "Digital (70%)", value: 70 },
+                                { name: isRtl ? "نسبة المؤلف ورقي (30%)" : "Print (30%)", value: 30 },
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={28}
+                              outerRadius={44}
+                              paddingAngle={3}
+                              dataKey="value"
+                            >
+                              <Cell fill="#0d9488" />
+                              <Cell fill="#14b8a6" />
+                            </Pie>
+                            <RechartsTooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-xs font-black text-teal-600 dark:text-teal-400">70%</span>
+                          <span className="text-[8px] font-bold text-muted-foreground">{isRtl ? "أرباحك" : "Royalty"}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-1.5 text-xs text-start font-bold">
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "إجمالي الأرباح المتراكمة" : "Total Royalties"}:</span>
+                          <span className="text-teal-600 dark:text-teal-400 font-black">{financials.totalRoyalties} ج.م</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "المبالغ المسحوبة سابقاً" : "Withdrawn"}:</span>
+                          <span className="text-muted-foreground font-black">{financials.paidPayouts} ج.م</span>
+                        </div>
+                        <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+                          <span>{isRtl ? "عمليات البيع المكتملة" : "Sale Records"}:</span>
+                          <span className="text-emerald-600 font-black">{sales.length}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      onClick={() => handleTabChange("sales")}
+                      className="w-full h-9 rounded-xl text-xs font-black bg-teal-600 hover:bg-teal-700 text-white gap-1.5"
+                    >
+                      <span>{isRtl ? "عرض تفاصيل المبيعات وسجل الأرباح" : "View Sales Details"}</span>
+                      <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-0 ltr:rotate-180" />
+                    </Button>
+                  </CardContent>
+                </Card>
+
+              </div>
+            </div>
+
+            {/* 📈 القسم الثاني: الرسم البياني المجمع لكل الحساب + الرسم البياني بالنسبة المئوية */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+              {/* 1. رسم بياني مجمع لكامل الحساب (Unified Comprehensive Studio Chart) */}
+              <Card className="rounded-3xl border-2 border-border/80 shadow-xl bg-card overflow-hidden">
+                <CardHeader className="bg-muted/20 border-b border-border/60 pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 text-start">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-rose-600 text-white flex items-center justify-center font-black shadow-xs">
+                        <BarChart3 className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm sm:text-base font-black text-foreground">
+                          {isRtl ? "رسم بياني مجمع لكل الحساب" : "Aggregate Account Performance"}
+                        </CardTitle>
+                        <CardDescription className="text-xs font-bold">
+                          {isRtl ? "مقارنة حية لجميع وحدات الحساب (المخطوطات، المنشورات، الفواتير، المبيعات، الرسائل)" : "Consolidated count overview across all account modules"}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300">
+                      {isRtl ? "مجمع ومحدث 🔄" : "Aggregate Live"}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-5 space-y-4">
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={[
+                          { name: isRtl ? "المخطوطات" : "Submissions", count: submissions.length, fill: "#f59e0b" },
+                          { name: isRtl ? "المنشورة" : "Published", count: publishedWorks.length, fill: "#2563eb" },
+                          { name: isRtl ? "الفواتير" : "Invoices", count: invoices.length, fill: "#10b981" },
+                          { name: isRtl ? "الرسائل" : "Messages", count: messages.length, fill: "#9333ea" },
+                          { name: isRtl ? "المبيعات" : "Sales", count: sales.length, fill: "#0d9488" },
+                          { name: isRtl ? "الملاحظات" : "Feedback", count: submissions.filter(s => s.adminFeedback).length, fill: "#f43f5e" }
+                        ]}
+                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                        <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 700 }} />
+                        <YAxis tick={{ fontSize: 11, fontWeight: 700 }} allowDecimals={false} />
+                        <RechartsTooltip />
+                        <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+                          {[
+                            "#f59e0b",
+                            "#2563eb",
+                            "#10b981",
+                            "#9333ea",
+                            "#0d9488",
+                            "#f43f5e"
+                          ].map((color, index) => (
+                            <Cell key={`bar-cell-${index}`} fill={color} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Summary Metric Pills */}
+                  <div className="grid grid-cols-3 gap-2.5 pt-2">
+                    <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center">
+                      <span className="text-[10px] font-bold text-muted-foreground block">{isRtl ? "إجمالي العمليات" : "Total Ops"}</span>
+                      <span className="text-sm font-black text-amber-700 dark:text-amber-300">
+                        {submissions.length + invoices.length + messages.length + sales.length}
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                      <span className="text-[10px] font-bold text-muted-foreground block">{isRtl ? "الرصيد المتاح" : "Balance"}</span>
+                      <span className="text-sm font-black text-emerald-700 dark:text-emerald-300">
+                        {financials.availableBalance} ج.م
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-center">
+                      <span className="text-[10px] font-bold text-muted-foreground block">{isRtl ? "الكتب المعروضة" : "Active Books"}</span>
+                      <span className="text-sm font-black text-blue-700 dark:text-blue-300">
+                        {authorStoreBooks.length || publishedWorks.length}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 2. رسم بياني يحسب بالنسبة المئوية وتوزيع الأداء (Percentage & Distribution Chart) */}
+              <Card className="rounded-3xl border-2 border-border/80 shadow-xl bg-card overflow-hidden">
+                <CardHeader className="bg-muted/20 border-b border-border/60 pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 text-start">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-black shadow-xs">
+                        <Activity className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm sm:text-base font-black text-foreground">
+                          {isRtl ? "رسم بياني محسوب بالنسبة المئوية (%)" : "Percentage Distribution Chart (%)"}
+                        </CardTitle>
+                        <CardDescription className="text-xs font-bold">
+                          {isRtl ? "توزيع نسب جاهزية الحساب والاعتمادات المالية والتدقيق بنسبة 100%" : "100% normalized performance and readiness index"}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <Badge className="bg-emerald-500 text-white text-[10px] font-black">
+                      100% {isRtl ? "توزيع دقيق" : "Distribution"}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-5 space-y-4">
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: isRtl ? "المؤلفات والتحكيم" : "Submissions", value: 30, fill: "#f59e0b" },
+                            { name: isRtl ? "المبيعات والأرباح" : "Royalties & Sales", value: 25, fill: "#10b981" },
+                            { name: isRtl ? "المؤلفات المنشورة" : "Published Catalog", value: 20, fill: "#2563eb" },
+                            { name: isRtl ? "الفواتير وطرق الدفع" : "Invoicing & Receipts", value: 15, fill: "#0d9488" },
+                            { name: isRtl ? "التواصل والتدقيق" : "Review Notes & Chat", value: 10, fill: "#9333ea" }
+                          ]}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={85}
+                          innerRadius={45}
+                          paddingAngle={3}
+                          dataKey="value"
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        >
+                          <Cell fill="#f59e0b" />
+                          <Cell fill="#10b981" />
+                          <Cell fill="#2563eb" />
+                          <Cell fill="#0d9488" />
+                          <Cell fill="#9333ea" />
+                        </Pie>
+                        <RechartsTooltip formatter={(val: any) => [`${val}%`, isRtl ? "النسبة المئوية" : "Percentage"]} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Percentage Progress Indicators */}
+                  <div className="space-y-2 pt-1 text-xs font-bold">
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+                        <span>{isRtl ? "معدل الاعتماد الإجمالي للمؤلفات" : "Manuscript Approval Rate"}</span>
+                      </span>
+                      <span className="text-emerald-600 font-black">
+                        {submissions.length > 0 
+                          ? Math.round((submissions.filter(s => s.status === "published" || s.status === "approved").length / submissions.length) * 100) 
+                          : 100}%
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block" />
+                        <span>{isRtl ? "معدل سداد الفواتير المسددة" : "Invoice Settlement Rate"}</span>
+                      </span>
+                      <span className="text-teal-600 font-black">
+                        {invoices.length > 0 
+                          ? Math.round((invoices.filter(i => i.status === "paid").length / invoices.length) * 100) 
+                          : 100}%
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" />
+                        <span>{isRtl ? "نسبة الملاحظات المعالجة بنجاح" : "Review Resolution Rate"}</span>
+                      </span>
+                      <span className="text-rose-600 font-black">
+                        {submissions.length > 0 
+                          ? Math.round(((submissions.length - submissions.filter(s => s.adminFeedback).length) / submissions.length) * 100) 
+                          : 100}%
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+            </div>
+
+            {/* Quick Access Grid to all Sections from Home */}
+            <div className="p-5 sm:p-6 rounded-3xl bg-muted/20 border-2 border-border/70 space-y-3 text-start">
+              <h4 className="text-xs sm:text-sm font-black text-foreground">
+                {isRtl ? "⚡ وصول سريع لجميع أقسام الاستوديو من الصفحة الرئيسية:" : "⚡ Direct Quick Access to all Studio Sections:"}
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => handleTabChange("submit")}
+                  className="rounded-xl border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 text-xs font-black gap-1.5"
+                >
+                  <UploadCloud className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{isRtl ? "رفع مؤلفات جديدة" : "Submit"}</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => handleTabChange("published")}
+                  className="rounded-xl border-blue-500/40 text-blue-700 dark:text-blue-300 hover:bg-blue-500/10 text-xs font-black gap-1.5"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-blue-500" />
+                  <span>{isRtl ? "المؤلفات المنشورة" : "Published"}</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => handleTabChange("payments")}
+                  className="rounded-xl border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10 text-xs font-black gap-1.5"
+                >
+                  <CreditCard className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>{isRtl ? "الفواتير وطرق الدفع" : "Invoices"}</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => handleTabChange("chat")}
+                  className="rounded-xl border-purple-500/40 text-purple-700 dark:text-purple-300 hover:bg-purple-500/10 text-xs font-black gap-1.5"
+                >
+                  <MessageSquare className="w-3.5 h-3.5 text-purple-500" />
+                  <span>{isRtl ? "التواصل وملاحظات التدقيق" : "Chat"}</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => navigate("/nashr/notes")}
+                  className="rounded-xl border-rose-500/40 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10 text-xs font-black gap-1.5"
+                >
+                  <Bell className="w-3.5 h-3.5 text-rose-500" />
+                  <span>{isRtl ? "ملاحظات جديدة (صفحة مستقلة)" : "Notes Page"}</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => handleTabChange("sales")}
+                  className="rounded-xl border-teal-500/40 text-teal-700 dark:text-teal-300 hover:bg-teal-500/10 text-xs font-black gap-1.5"
+                >
+                  <TrendingUp className="w-3.5 h-3.5 text-teal-500" />
+                  <span>{isRtl ? "مبيعات الكتب والأرباح" : "Sales"}</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => setPasswordModalOpen(true)}
+                  className="rounded-xl border-rose-500/40 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10 text-xs font-black gap-1.5"
+                >
+                  <Key className="w-3.5 h-3.5 text-rose-500" />
+                  <span>{isRtl ? "الأمان وكلمة المرور" : "Security"}</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => setShowProfileModal(true)}
+                  className="rounded-xl border-indigo-500/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/10 text-xs font-black gap-1.5"
+                >
+                  <User className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>{isRtl ? "البيانات الشخصية" : "Profile"}</span>
+                </Button>
+              </div>
+            </div>
+
+          </div>
+        )}
 
         {/* ------------------------------------------------------------- */}
         {/* TAB 1: 📁 رفع مؤلفات (Submit Manuscript) */}

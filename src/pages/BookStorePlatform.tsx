@@ -702,46 +702,22 @@ const BookStorePlatform = () => {
         <section id="books-results-grid" className="py-10 sm:py-14 px-4 sm:px-6 md:px-12 bg-background dark:bg-slate-950 border-b border-border dark:border-slate-800/80 transition-colors">
           <div className="max-w-7xl mx-auto space-y-8">
             
-            {/* Section Header with dynamic indicator */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border dark:border-slate-800 pb-4">
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 text-cyan-600 dark:text-cyan-400 text-xs font-black">
-                  {activeMainTab === "bestsellers" && <Flame className="w-4 h-4 text-amber-500 dark:text-amber-400" />}
-                  {activeMainTab === "offers" && <Tag className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
-                  {activeMainTab === "categories" && <Layers className="w-4 h-4 text-blue-500 dark:text-blue-400" />}
-                  {activeMainTab === "new_arrivals" && <Sparkles className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />}
-                  <span>
-                    {activeMainTab === "bestsellers" && (isRtl ? "الكتب الأكثر طلباً واعتماداً في كل قسم" : "Top Ranked Bestsellers per Department")}
-                    {activeMainTab === "offers" && (isRtl ? "العروض والتخفيضات الاستثنائية المتاحة في كل قسم" : "Active Discounts & Special Offers")}
-                    {activeMainTab === "categories" && (isRtl ? "الكتالوج الشامل: جميع الكتب والمراجع بما فيها الجديدة والعروض" : "Comprehensive Department Catalog (All Books & Releases)")}
-                    {activeMainTab === "new_arrivals" && (isRtl ? "الكتب والإصدارات المضافة حديثاً لعام 2026" : "Latest 2026 Releases & Additions")}
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-foreground dark:text-white tracking-tight">
-                  {activeMainTab === "bestsellers" && (isRtl ? "🔥 قائمة الأكثر طلباً ومبيعاً" : "Top Requested Titles")}
-                  {activeMainTab === "offers" && (isRtl ? "🏷️ عروض وتخفيضات الكتب الحصرية" : "Exclusive Book Offers")}
-                  {activeMainTab === "categories" && (isRtl ? "📂 تصفح حسب الأقسام والتخصصات الأكاديمية" : "Browse by Academic Department")}
-                  {activeMainTab === "new_arrivals" && (isRtl ? "✨ جديد دار عبيد للنشر والتوزيع" : "Brand New Additions")}
-                </h2>
-              </div>
-
-              {/* Status and count */}
-              <div className="flex items-center gap-3">
+            {/* Status if subCategory is filtered */}
+            {activeSubCategory !== "all" && (
+              <div className="flex items-center justify-between pb-2">
                 <Badge className="bg-muted/80 dark:bg-slate-900 border border-border dark:border-slate-700 text-foreground dark:text-slate-200 text-xs font-black px-3 py-1">
                   {isRtl ? `${displayedBooks.length} مؤلف معتمد` : `${displayedBooks.length} Books`}
                 </Badge>
-                {activeSubCategory !== "all" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setActiveSubCategory("all")}
-                    className="text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 h-8 px-2"
-                  >
-                    {isRtl ? "إلغاء التصفية ✕" : "Clear Filter ✕"}
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setActiveSubCategory("all")}
+                  className="text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 h-8 px-2"
+                >
+                  {isRtl ? "إلغاء التصفية ✕" : "Clear Filter ✕"}
+                </Button>
               </div>
-            </div>
+            )}
 
             {/* If no books match filters */}
             {displayedBooks.length === 0 ? (

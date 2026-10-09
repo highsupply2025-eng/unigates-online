@@ -675,14 +675,20 @@ const NasherDashboard = () => {
           </div>
         </Link>
 
-        {/* User Badge & Fast Actions (Reordered: Menu -> Language -> Theme) */}
+        {/* User Badge & Fast Actions (Requested Order: السطوع -> تغيير اللغة -> القائمة المنسدلة) */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* 1. القائمة المنسدلة (ثلاث خطوط أفقية كما في لوحة رئيس القسم) */}
+          {/* 1. السطوع (Theme Toggle) */}
+          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-card/90 hover:bg-muted border-2 border-border/80 shadow-xs" />
+
+          {/* 2. تغيير اللغة (Language Selector) */}
+          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-card/90 hover:bg-muted border-2 border-border/80 rounded-2xl font-black text-foreground tracking-wide shadow-xs" />
+
+          {/* 3. القائمة المنسدلة (Dropdown Menu - 3 Horizontal Lines) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="group relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 text-white hover:from-amber-600 hover:via-orange-600 hover:to-rose-600 active:scale-95 transition-all duration-300 shadow-md shadow-amber-500/25 hover:shadow-lg hover:shadow-amber-500/40 border border-white/20 outline-none focus:outline-none cursor-pointer shrink-0"
+                className="group relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 text-white hover:from-amber-600 hover:via-orange-600 hover:to-rose-600 active:scale-95 transition-all duration-300 shadow-md shadow-amber-500/25 hover:shadow-lg hover:shadow-amber-500/40 border-2 border-white/20 outline-none focus:outline-none cursor-pointer shrink-0"
                 aria-label={isRtl ? "قائمة المؤلف والخدمات" : "Author Studio Menu"}
                 title={isRtl ? "القائمة الرئيسية لحساب المؤلف" : "Author Account Menu"}
               >
@@ -705,27 +711,27 @@ const NasherDashboard = () => {
 
             <DropdownMenuContent 
               align={isRtl ? "start" : "end"} 
-              className="w-80 sm:w-88 rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl space-y-1 z-50"
+              className="w-80 sm:w-88 rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl space-y-1 z-50 font-sans"
               dir={dir}
             >
               {/* Account Header in Dropdown */}
-              <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-rose-500/10 border border-amber-500/20 text-start space-y-1">
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-1.5 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-foreground truncate">{authorProfile.fullName}</span>
-                  <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px] font-mono font-bold px-2 py-0">
+                  <span className="text-sm font-black text-foreground truncate tracking-tight">{authorProfile.fullName}</span>
+                  <Badge className="bg-amber-500/25 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-mono font-black px-2 py-0.5 shadow-xs">
                     {authorProfile.authorCode}
                   </Badge>
                 </div>
-                <p className="text-[11px] text-muted-foreground truncate">
+                <p className="text-xs font-bold text-muted-foreground truncate">
                   {authorProfile.academicTitleLabel} • {authorProfile.specialization}
                 </p>
-                <div className="flex items-center gap-1 pt-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
-                  <CheckCircle2 className="w-3 h-3" />
+                <div className="flex items-center gap-1.5 pt-0.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-black">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{isRtl ? "حساب معتمد وموثق رسمياً" : "Verified Author Account"}</span>
                 </div>
               </div>
 
-              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuSeparator className="my-1.5" />
 
               {/* 1. رفع مؤلفات جديدة */}
               <DropdownMenuItem 
@@ -736,7 +742,7 @@ const NasherDashboard = () => {
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }, 50);
                 }}
-                className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
@@ -744,7 +750,7 @@ const NasherDashboard = () => {
                   </div>
                   <span>{isRtl ? "رفع مؤلفات جديدة" : "Submit New Manuscript"}</span>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-600">
+                <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-600 font-bold">
                   {isRtl ? "إرسال 📁" : "Upload"}
                 </Badge>
               </DropdownMenuItem>
@@ -758,7 +764,7 @@ const NasherDashboard = () => {
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }, 50);
                 }}
-                className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-blue-500/10 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-blue-500/10 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-blue-500/15 text-blue-600 flex items-center justify-center shrink-0">
@@ -780,7 +786,7 @@ const NasherDashboard = () => {
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }, 50);
                 }}
-                className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
@@ -793,7 +799,7 @@ const NasherDashboard = () => {
                     {invoices.filter(i => i.status === "unpaid").length} {isRtl ? "مستحقة" : "Unpaid"}
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-600">
+                  <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-600 font-bold">
                     {invoices.length} {isRtl ? "فاتورة" : "Invoices"}
                   </Badge>
                 )}
@@ -808,7 +814,7 @@ const NasherDashboard = () => {
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }, 50);
                 }}
-                className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-purple-500/10 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-purple-500/10 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-600 flex items-center justify-center shrink-0">
@@ -843,7 +849,7 @@ const NasherDashboard = () => {
                       : "Navigated to editorial review notes."
                   });
                 }}
-                className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 transition-colors"
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0">
@@ -867,7 +873,7 @@ const NasherDashboard = () => {
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }, 50);
                 }}
-                className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
@@ -880,12 +886,12 @@ const NasherDashboard = () => {
                 </Badge>
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuSeparator className="my-1.5" />
 
               {/* 7. الأمان وكلمة المرور */}
               <DropdownMenuItem 
                 onClick={() => setPasswordModalOpen(true)}
-                className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-muted transition-colors"
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-muted transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-600 flex items-center justify-center shrink-0">
@@ -893,13 +899,13 @@ const NasherDashboard = () => {
                   </div>
                   <span>{isRtl ? "الأمان وكلمة المرور" : "Security & Password"}</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">{isRtl ? "تغيير" : "Change"}</span>
+                <span className="text-[10px] text-muted-foreground font-bold">{isRtl ? "تغيير" : "Change"}</span>
               </DropdownMenuItem>
 
               {/* 8. البيانات الشخصية */}
               <DropdownMenuItem 
                 onClick={() => setShowProfileModal(true)}
-                className="rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer hover:bg-muted transition-colors"
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-muted transition-colors"
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-600 flex items-center justify-center shrink-0">
@@ -907,22 +913,22 @@ const NasherDashboard = () => {
                   </div>
                   <span>{isRtl ? "البيانات الشخصية" : "Personal Profile"}</span>
                 </div>
-                <Badge variant="outline" className="text-[10px]">
+                <Badge variant="outline" className="text-[10px] font-bold">
                   {isRtl ? "عرض 👤" : "View"}
                 </Badge>
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuSeparator className="my-1.5" />
 
               {/* 9. تغيير اللغة */}
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-bold flex items-center gap-2.5 cursor-pointer">
+                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-black flex items-center gap-2.5 cursor-pointer">
                   <div className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-600 flex items-center justify-center shrink-0">
                     <Globe className="w-4 h-4" />
                   </div>
                   <div className="flex items-center justify-between flex-1">
                     <span>{isRtl ? "تغيير اللغة" : "Change Language"}</span>
-                    <Badge variant="secondary" className="text-[10px] font-bold">
+                    <Badge variant="secondary" className="text-[10px] font-black">
                       {language === "ar" ? "العربية" : "English"}
                     </Badge>
                   </div>
@@ -930,14 +936,14 @@ const NasherDashboard = () => {
                 <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border border-border/80 bg-popover" dir={dir}>
                   <DropdownMenuItem 
                     onClick={() => setLanguage("ar")}
-                    className={`rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer ${language === "ar" ? "bg-amber-500/10 text-amber-600" : ""}`}
+                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${language === "ar" ? "bg-amber-500/10 text-amber-600" : ""}`}
                   >
                     <span>العربية (Arabic)</span>
                     {language === "ar" && <Check className="w-4 h-4 text-amber-500" />}
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setLanguage("en")}
-                    className={`rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer ${language === "en" ? "bg-amber-500/10 text-amber-600" : ""}`}
+                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${language === "en" ? "bg-amber-500/10 text-amber-600" : ""}`}
                   >
                     <span>English (الإنجليزية)</span>
                     {language === "en" && <Check className="w-4 h-4 text-amber-500" />}
@@ -947,13 +953,13 @@ const NasherDashboard = () => {
 
               {/* 10. السطوع */}
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-bold flex items-center gap-2.5 cursor-pointer">
+                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-black flex items-center gap-2.5 cursor-pointer">
                   <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
                     {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                   </div>
                   <div className="flex items-center justify-between flex-1">
                     <span>{isRtl ? "السطوع" : "Appearance & Theme"}</span>
-                    <Badge variant="secondary" className="text-[10px] font-bold">
+                    <Badge variant="secondary" className="text-[10px] font-black">
                       {theme === "dark" ? (isRtl ? "داكن" : "Dark") : (isRtl ? "فاتح" : "Light")}
                     </Badge>
                   </div>
@@ -961,7 +967,7 @@ const NasherDashboard = () => {
                 <DropdownMenuSubContent className="rounded-2xl p-1.5 shadow-xl border border-border/80 bg-popover" dir={dir}>
                   <DropdownMenuItem 
                     onClick={() => setTheme("light")}
-                    className={`rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer ${theme === "light" ? "bg-amber-500/10 text-amber-600" : ""}`}
+                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${theme === "light" ? "bg-amber-500/10 text-amber-600" : ""}`}
                   >
                     <div className="flex items-center gap-2">
                       <Sun className="w-4 h-4 text-amber-500" />
@@ -971,7 +977,7 @@ const NasherDashboard = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setTheme("dark")}
-                    className={`rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer ${theme === "dark" ? "bg-amber-500/10 text-amber-600" : ""}`}
+                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${theme === "dark" ? "bg-amber-500/10 text-amber-600" : ""}`}
                   >
                     <div className="flex items-center gap-2">
                       <Moon className="w-4 h-4 text-blue-500" />
@@ -981,7 +987,7 @@ const NasherDashboard = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setTheme("system")}
-                    className={`rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between cursor-pointer ${theme === "system" ? "bg-amber-500/10 text-amber-600" : ""}`}
+                    className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer ${theme === "system" ? "bg-amber-500/10 text-amber-600" : ""}`}
                   >
                     <div className="flex items-center gap-2">
                       <SunMoon className="w-4 h-4 text-muted-foreground" />
@@ -992,7 +998,7 @@ const NasherDashboard = () => {
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
 
-              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuSeparator className="my-1.5" />
 
               {/* 11. تسجيل الخروج */}
               <DropdownMenuItem 
@@ -1015,12 +1021,6 @@ const NasherDashboard = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* 2. تغيير اللغة */}
-          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-muted/60 hover:bg-muted border border-border/80 rounded-2xl font-bold" />
-
-          {/* 3. السطوع */}
-          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-muted/60 hover:bg-muted border border-border/80" />
         </div>
       </header>
 

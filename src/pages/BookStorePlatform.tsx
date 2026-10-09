@@ -42,6 +42,15 @@ const BookStorePlatform = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
 
+  // User 2-Row Layout Navigation State:
+  // Main Tab: "bestsellers" | "offers" | "categories" | "new_arrivals"
+  const [activeMainTab, setActiveMainTab] = useState<"bestsellers" | "offers" | "categories" | "new_arrivals">("categories");
+  // Sub-Category filter for the active tab (or 'all')
+  const [activeSubCategory, setActiveSubCategory] = useState<string>("all");
+  // Dedicated Row 1 Live Instant Search
+  const [liveSearchQuery, setLiveSearchQuery] = useState<string>("");
+  const [liveSearchCategory, setLiveSearchCategory] = useState<string>("all");
+
   // Buy / Add to cart modal state
   const [quickBuyBook, setQuickBuyBook] = useState<BookStoreItem | null>(null);
   const [selectedFormat, setSelectedFormat] = useState<"digital" | "print">("digital");
@@ -182,6 +191,60 @@ const BookStorePlatform = () => {
     if (selectedCategoryTab === "all") return catalog;
     return catalog.filter((b) => b.category === selectedCategoryTab);
   }, [catalog, selectedCategoryTab]);
+
+  // Dynamic books for the 2-row layout (الأكثر طلبا، العروض، الأقسام، جديدنا) + البحث المباشر
+  const displayedBooks = useMemo(() => {
+    let result = [...catalog];
+
+    // 1. Filter by activeMainTab
+    if (activeMainTab === "bestsellers") {
+      // الأكثر طلبا: الكتب الأكثر مبيعاً أو تقييماً عالياً
+      result = result.filter((b) => b.is_bestseller || (b.rating && b.rating >= 4.7));
+      if (result.length === 0) {
+        result = [...catalog].sort((a, b) => (b.reviews_count || 0) - (a.reviews_count || 0));
+      }
+    } else if (activeMainTab === "offers") {
+      // العروض: الكتب التي يتوفر فيها خصم (وفر وفرق السعر أو مضافة للعروض)
+      result = result.filter(
+        (b) => (b.price_print > b.price_digital) || (b.price_digital < 180) || b.is_bestseller
+      );
+    } else if (activeMainTab === "new_arrivals") {
+      // جديدنا: الكتب المضافة حديثاً
+      result = [...catalog].sort((a, b) => {
+        const da = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return db - da;
+      });
+    } else if (activeMainTab === "categories") {
+      // الأقسام: تشمل جميع الكتب
+      result = [...catalog];
+    }
+
+    // 2. Filter by sub-category if selected
+    if (activeSubCategory !== "all") {
+      result = result.filter((b) => b.category === activeSubCategory);
+    }
+
+    // 3. Filter by Live Instant Search (Row 1)
+    if (liveSearchCategory !== "all") {
+      result = result.filter((b) => b.category === liveSearchCategory);
+    }
+
+    const query = liveSearchQuery.trim().toLowerCase();
+    if (query) {
+      result = result.filter(
+        (b) =>
+          b.title_ar.toLowerCase().includes(query) ||
+          b.title_en.toLowerCase().includes(query) ||
+          b.author_ar.toLowerCase().includes(query) ||
+          b.author_en.toLowerCase().includes(query) ||
+          b.isbn.toLowerCase().includes(query) ||
+          (b.category && b.category.toLowerCase().includes(query))
+      );
+    }
+
+    return result;
+  }, [catalog, activeMainTab, activeSubCategory, liveSearchCategory, liveSearchQuery]);
 
   // Frequently Asked Questions strictly for store shoppers
   const storeFaqs = [
@@ -414,25 +477,418 @@ const BookStorePlatform = () => {
         </header>
 
         {/* ========================================================================= */}
-        {/* 2. WORLD-CLASS STORE HERO (SEARCH, FILTERS & VALUE PROPOSITIONS)          */}
+        {/* ROW 1: DEDICATED LIVE INSTANT SEARCH BAR (STICKY ROW UNDER HEADER)        */}
         {/* ========================================================================= */}
-        <section className="relative overflow-hidden pt-12 sm:pt-16 pb-16 sm:pb-24 px-4 sm:px-6 md:px-12 border-b border-slate-800">
-          {/* Subtle Ambient Lighting Gradients */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(59,130,246,0.22),rgba(255,255,255,0))]" />
-          <div className="absolute top-1/4 start-1/6 w-80 h-80 bg-cyan-500/10 rounded-full blur-[130px]" />
-          <div className="absolute bottom-10 end-1/6 w-96 h-96 bg-indigo-600/15 rounded-full blur-[150px]" />
-
-          <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 sm:space-y-8">
-            
-            {/* Store Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-300 text-xs sm:text-sm font-bold shadow-sm">
-              <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
-              <span>{isRtl ? "المتجر الإلكتروني المعتمد لدار عبيد للنشر والتوزيع" : "Dar Obeid Global E-Bookstore & Distribution"}</span>
+        <div className="sticky top-18 z-40 bg-slate-900/95 backdrop-blur-2xl border-b border-slate-800/90 shadow-md py-2.5 px-4 sm:px-6 md:px-8">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center gap-2.5">
+            {/* Category Dropdown */}
+            <div className="w-full sm:w-auto shrink-0">
+              <select
+                value={liveSearchCategory}
+                onChange={(e) => {
+                  setLiveSearchCategory(e.target.value);
+                  const el = document.getElementById("books-results-grid");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="w-full sm:w-auto h-11 px-3.5 rounded-xl bg-slate-950 border border-slate-700/80 text-xs sm:text-sm font-black text-slate-200 focus:outline-none focus:border-cyan-500 cursor-pointer shadow-inner"
+              >
+                <option value="all" className="bg-slate-900 text-white">{isRtl ? "🌟 كل الأقسام" : "All Genres"}</option>
+                <option value="academic" className="bg-slate-900 text-white">{isRtl ? "🎓 مراجع أكاديمية وجامعية" : "Academic Textbooks"}</option>
+                <option value="programming" className="bg-slate-900 text-white">{isRtl ? "💻 برمجة وذكاء اصطناعي" : "Programming & AI"}</option>
+                <option value="business" className="bg-slate-900 text-white">{isRtl ? "📈 إدارة أعمال و PMP" : "Business & PMP"}</option>
+                <option value="humanities" className="bg-slate-900 text-white">{isRtl ? "📚 علوم إنسانية وتطوير" : "Humanities & Life"}</option>
+                <option value="school" className="bg-slate-900 text-white">{isRtl ? "🎒 مناهج ومذكرات مدرسية" : "K-12 School Guides"}</option>
+                <option value="literature" className="bg-slate-900 text-white">{isRtl ? "📖 روايات وأدب عالمي" : "Literature & Novels"}</option>
+              </select>
             </div>
 
-            {/* Main Headline */}
-            <div className="space-y-4">
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-tight">
+            {/* Instant Search Input */}
+            <div className="relative flex-1 w-full flex items-center">
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 absolute start-3 text-cyan-400" />
+              <input
+                type="text"
+                value={liveSearchQuery}
+                onChange={(e) => setLiveSearchQuery(e.target.value)}
+                placeholder={isRtl ? "بحث مباشر وفوري: اكتب اسم الكتاب، المؤلف، رقم ISBN، أو الكلمة المفتاحية..." : "Instant Live Search: title, author, ISBN, or keywords..."}
+                className="w-full h-11 ps-9 sm:ps-10 pe-10 rounded-xl bg-slate-950 border border-slate-700/80 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 font-semibold shadow-inner transition-colors"
+              />
+              {liveSearchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setLiveSearchQuery("")}
+                  className="absolute end-3 text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Instant Search Counter & Jump Button */}
+            <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 shrink-0">
+              <span className="text-[11px] font-bold text-slate-400 px-2 py-1 rounded-lg bg-slate-950/70 border border-slate-800">
+                {isRtl ? `${displayedBooks.length} كتاب متاح` : `${displayedBooks.length} Books Found`}
+              </span>
+              <Button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById("books-results-grid");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="h-11 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-black text-xs shadow-md gap-1.5"
+              >
+                <Zap className="w-3.5 h-3.5 text-cyan-300" />
+                <span>{isRtl ? "عرض النتائج" : "Show Books"}</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Trending Search Tags */}
+          <div className="max-w-7xl mx-auto flex items-center gap-1.5 pt-2 text-[11px] overflow-x-auto no-scrollbar">
+            <span className="text-slate-400 font-bold shrink-0">{isRtl ? "رائج الآن:" : "Trending:"}</span>
+            {["الذكاء الاصطناعي", "إدارة المشاريع", "الطب البشري", "الثانوية العامة", "البرمجة"].map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => {
+                  setLiveSearchQuery(tag);
+                  const el = document.getElementById("books-results-grid");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="px-2.5 py-0.5 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 shrink-0 font-medium transition-colors"
+              >
+                #{tag}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* ROW 2: 4 HORIZONTAL SECTION TABS (الأكثر طلباً - العروض - الأقسام - جديدنا) */}
+        {/* ========================================================================= */}
+        <div className="sticky top-[138px] z-30 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-lg py-2 px-4 sm:px-6 md:px-8">
+          <div className="max-w-7xl mx-auto flex flex-col gap-2">
+            
+            {/* 4 Main Section Buttons */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              
+              {/* 1. الأكثر طلباً */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMainTab("bestsellers");
+                  const el = document.getElementById("books-results-grid");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm transition-all border ${
+                  activeMainTab === "bestsellers"
+                    ? "bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/80 text-amber-300 shadow-md shadow-amber-500/10"
+                    : "bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800/80"
+                }`}
+              >
+                <Flame className={`w-4 h-4 ${activeMainTab === "bestsellers" ? "text-amber-400 animate-pulse" : "text-amber-400"}`} />
+                <span>{isRtl ? "الأكثر طلباً" : "Bestsellers"}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  {catalog.filter((b) => b.is_bestseller).length || 4}
+                </span>
+              </button>
+
+              {/* 2. العروض */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMainTab("offers");
+                  const el = document.getElementById("books-results-grid");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm transition-all border ${
+                  activeMainTab === "offers"
+                    ? "bg-gradient-to-r from-rose-500/20 to-pink-500/20 border-rose-500/80 text-rose-300 shadow-md shadow-rose-500/10"
+                    : "bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800/80"
+                }`}
+              >
+                <Tag className={`w-4 h-4 ${activeMainTab === "offers" ? "text-rose-400 animate-bounce" : "text-rose-400"}`} />
+                <span>{isRtl ? "العروض والتخفيضات" : "Special Offers"}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  {isRtl ? "وفر حتى 40%" : "Save 40%"}
+                </span>
+              </button>
+
+              {/* 3. الأقسام */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMainTab("categories");
+                  const el = document.getElementById("books-results-grid");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm transition-all border ${
+                  activeMainTab === "categories"
+                    ? "bg-gradient-to-r from-blue-600/25 to-indigo-600/25 border-blue-500/80 text-blue-300 shadow-md shadow-blue-500/10"
+                    : "bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800/80"
+                }`}
+              >
+                <Layers className={`w-4 h-4 ${activeMainTab === "categories" ? "text-cyan-400" : "text-cyan-400"}`} />
+                <span>{isRtl ? "الأقسام والتخصصات" : "All Departments"}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  {storeCategories.length}
+                </span>
+              </button>
+
+              {/* 4. جديدنا */}
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMainTab("new_arrivals");
+                  const el = document.getElementById("books-results-grid");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm transition-all border ${
+                  activeMainTab === "new_arrivals"
+                    ? "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/80 text-emerald-300 shadow-md shadow-emerald-500/10"
+                    : "bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800/80"
+                }`}
+              >
+                <Sparkles className={`w-4 h-4 ${activeMainTab === "new_arrivals" ? "text-emerald-400 animate-spin" : "text-emerald-400"}`} />
+                <span>{isRtl ? "جديدنا (إصدارات حديثة)" : "New Arrivals"}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  2026
+                </span>
+              </button>
+            </div>
+
+            {/* Department Sub-Filter Chips inside the Active Section */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+              <span className="text-xs text-slate-400 font-bold shrink-0">
+                {activeMainTab === "bestsellers" && (isRtl ? "الأكثر طلباً في:" : "Top in:")}
+                {activeMainTab === "offers" && (isRtl ? "عروض قسم:" : "Offers in:")}
+                {activeMainTab === "categories" && (isRtl ? "تصفية القسم:" : "Filter:")}
+                {activeMainTab === "new_arrivals" && (isRtl ? "جديد قسم:" : "New in:")}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setActiveSubCategory("all")}
+                className={`px-3 py-1 rounded-full text-xs font-black shrink-0 transition-all border ${
+                  activeSubCategory === "all"
+                    ? "bg-blue-600 text-white border-blue-400 shadow-sm"
+                    : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:bg-slate-800"
+                }`}
+              >
+                {isRtl ? "الكل" : "All"} ({catalog.length})
+              </button>
+
+              {storeCategories.map((cat) => (
+                <button
+                  key={`sub-${cat.id}`}
+                  type="button"
+                  onClick={() => setActiveSubCategory(cat.id)}
+                  className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-all border ${
+                    activeSubCategory === cat.id
+                      ? "bg-cyan-600 text-white border-cyan-400 shadow-sm"
+                      : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  {isRtl ? cat.titleAr : cat.titleEn}
+                </button>
+              ))}
+            </div>
+
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* DYNAMIC BOOKS RESULTS GRID (INSTANT RESPONSE TO ROW 1 & ROW 2 SELECTIONS) */}
+        {/* ========================================================================= */}
+        <section id="books-results-grid" className="py-10 sm:py-14 px-4 sm:px-6 md:px-12 bg-slate-950 border-b border-slate-800/80">
+          <div className="max-w-7xl mx-auto space-y-8">
+            
+            {/* Section Header with dynamic indicator */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 text-cyan-400 text-xs font-black">
+                  {activeMainTab === "bestsellers" && <Flame className="w-4 h-4 text-amber-400" />}
+                  {activeMainTab === "offers" && <Tag className="w-4 h-4 text-rose-400" />}
+                  {activeMainTab === "categories" && <Layers className="w-4 h-4 text-blue-400" />}
+                  {activeMainTab === "new_arrivals" && <Sparkles className="w-4 h-4 text-emerald-400" />}
+                  <span>
+                    {activeMainTab === "bestsellers" && (isRtl ? "الكتب الأكثر طلباً واعتماداً في كل قسم" : "Top Ranked Bestsellers per Department")}
+                    {activeMainTab === "offers" && (isRtl ? "العروض والتخفيضات الاستثنائية المتاحة في كل قسم" : "Active Discounts & Special Offers")}
+                    {activeMainTab === "categories" && (isRtl ? "الكتالوج الشامل: جميع الكتب والمراجع بما فيها الجديدة والعروض" : "Comprehensive Department Catalog (All Books & Releases)")}
+                    {activeMainTab === "new_arrivals" && (isRtl ? "الكتب والإصدارات المضافة حديثاً لعام 2026" : "Latest 2026 Releases & Additions")}
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  {activeMainTab === "bestsellers" && (isRtl ? "🔥 قائمة الأكثر طلباً ومبيعاً" : "Top Requested Titles")}
+                  {activeMainTab === "offers" && (isRtl ? "🏷️ عروض وتخفيضات الكتب الحصرية" : "Exclusive Book Offers")}
+                  {activeMainTab === "categories" && (isRtl ? "📂 تصفح حسب الأقسام والتخصصات الأكاديمية" : "Browse by Academic Department")}
+                  {activeMainTab === "new_arrivals" && (isRtl ? "✨ جديد دار عبيد للنشر والتوزيع" : "Brand New Additions")}
+                </h2>
+              </div>
+
+              {/* Status and count */}
+              <div className="flex items-center gap-3">
+                <Badge className="bg-slate-900 border border-slate-700 text-slate-200 text-xs font-black px-3 py-1">
+                  {isRtl ? `${displayedBooks.length} مؤلف معتمد` : `${displayedBooks.length} Books`}
+                </Badge>
+                {activeSubCategory !== "all" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setActiveSubCategory("all")}
+                    className="text-xs text-rose-400 hover:text-rose-300 h-8 px-2"
+                  >
+                    {isRtl ? "إلغاء التصفية ✕" : "Clear Filter ✕"}
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* If no books match filters */}
+            {displayedBooks.length === 0 ? (
+              <div className="text-center py-16 bg-slate-900/40 rounded-3xl border border-slate-800 space-y-4">
+                <BookOpen className="w-12 h-12 text-slate-600 mx-auto" />
+                <h3 className="text-lg font-black text-white">
+                  {isRtl ? "لم يتم العثور على كتب مطابقة للبحث أو التصفية" : "No books match your criteria"}
+                </h3>
+                <p className="text-xs text-slate-400 max-w-md mx-auto">
+                  {isRtl
+                    ? "جرّب تغيير كلمات البحث في الصف العلوي أو إزالة تصفية القسم لاستعراض باقي كتب المتجر."
+                    : "Try modifying your search terms in the top bar or clearing sub-department filters."}
+                </p>
+                <Button
+                  onClick={() => {
+                    setLiveSearchQuery("");
+                    setLiveSearchCategory("all");
+                    setActiveSubCategory("all");
+                    setActiveMainTab("categories");
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl"
+                >
+                  {isRtl ? "عرض كل كتب المتجر" : "Reset & View All"}
+                </Button>
+              </div>
+            ) : (
+              /* Books Grid */
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {displayedBooks.map((book, idx) => (
+                  <Card
+                    key={`book-grid-${book.id}-${idx}`}
+                    className="relative bg-slate-900/90 border-2 border-slate-800 hover:border-blue-500/50 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+                  >
+                    {/* Bestseller Rank or Offer Badge */}
+                    {activeMainTab === "bestsellers" && (
+                      <div className="absolute top-3 start-3 z-20">
+                        <div className="w-8 h-8 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow-lg border border-amber-300">
+                          #{idx + 1}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeMainTab === "offers" && book.price_print > book.price_digital && (
+                      <div className="absolute top-3 start-3 z-20">
+                        <Badge className="bg-rose-600 text-white font-black text-[10px] shadow-lg">
+                          {isRtl ? `وفر ${book.price_print - book.price_digital} ج.م` : "Special Offer"}
+                        </Badge>
+                      </div>
+                    )}
+
+                    {/* Book Cover */}
+                    <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-950">
+                      <img
+                        src={book.cover_url}
+                        alt={book.title_ar}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                      
+                      <div className="absolute top-3 end-3 z-10">
+                        <Badge className="bg-emerald-600/90 text-white font-bold text-[10px]">
+                          {isRtl ? "جاهز للشحن" : "In Stock"}
+                        </Badge>
+                      </div>
+
+                      <div className="absolute bottom-2.5 start-2.5 text-[10px] text-slate-400 bg-slate-950/80 px-2 py-0.5 rounded-md font-mono border border-slate-800">
+                        {book.isbn}
+                      </div>
+                    </div>
+
+                    {/* Book Metadata & Pricing */}
+                    <CardContent className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs text-slate-400">
+                          <span className="truncate max-w-[140px]">{isRtl ? book.publisher_ar : book.publisher_en}</span>
+                          <span className="flex items-center gap-1 text-amber-400 font-bold">
+                            <Star className="w-3.5 h-3.5 fill-amber-400" />
+                            <span>{book.rating}</span>
+                          </span>
+                        </div>
+                        <h3 className="font-black text-sm sm:text-base text-white line-clamp-2 leading-snug group-hover:text-blue-400 transition-colors">
+                          {isRtl ? book.title_ar : book.title_en}
+                        </h3>
+                        <p className="text-xs font-semibold text-slate-400 line-clamp-1">
+                          {isRtl ? book.author_ar : book.author_en}
+                        </p>
+                      </div>
+
+                      {/* Pricing and Cart Buttons */}
+                      <div className="pt-2 border-t border-slate-800 space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[11px] text-slate-400 font-semibold">{isRtl ? "السعر:" : "Price:"}</span>
+                          <div className="text-end">
+                            <span className="text-sm font-black text-white">
+                              {book.price_digital} {isRtl ? "ج.م" : book.currency}
+                            </span>
+                            {book.price_print > 0 && (
+                              <span className="text-[10px] text-slate-400 block">
+                                {isRtl ? `ورقي: ${book.price_print} ج.م` : `Print: ${book.price_print}`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-1">
+                          <Button
+                            size="sm"
+                            onClick={() => setQuickBuyBook(book)}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 rounded-xl gap-1 shadow-sm"
+                          >
+                            <ShoppingCart className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "شراء سريع" : "Quick Buy"}</span>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/book-store/browse?code=${book.code}`)}
+                            className="w-full border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-white font-bold text-xs h-9 rounded-xl gap-1"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-cyan-400" />
+                            <span>{isRtl ? "تفاصيل" : "Details"}</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 2. WORLD-CLASS STORE HERO (VALUE PROPOSITIONS & INSTITUTIONAL TRUST)       */}
+        {/* ========================================================================= */}
+        <section className="relative overflow-hidden py-12 sm:py-16 px-4 sm:px-6 md:px-12 border-b border-slate-800">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(59,130,246,0.18),rgba(255,255,255,0))]" />
+          <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6">
+            
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-300 text-xs sm:text-sm font-bold shadow-sm">
+              <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+              <span>{isRtl ? "المتجر الإلكتروني المعتمد لدار عبيد للنشر والتوزيع والطباعة" : "Dar Obeid Global E-Bookstore & Distribution"}</span>
+            </div>
+
+            <div className="space-y-3">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
                 {isRtl ? (
                   <>
                     عالم الكتب والمراجع الأكاديمية <br />
@@ -449,73 +905,15 @@ const BookStorePlatform = () => {
                   </>
                 )}
               </h1>
-
-              <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
+              <p className="text-xs sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium">
                 {isRtl
-                  ? "آلاف المراجع الأكاديمية والكتب العلمية والروايات المعتمدة، مع خيارات القراءة السحابية الفورية المشفرة بنظام DRM أو طلب النسخ الورقية الفاخرة مع شحن سريع وتغليف آمن لباب منزلك."
-                  : "Thousands of verified academic references, textbooks, and literature with DRM instant cloud reading or express doorstep print delivery."}
+                  ? "آلاف المراجع الأكاديمية والكتب العلمية المعتمدة مع القراءة السحابية المشفرة بنظام DRM أو الشحن السريع لباب منزلك وفواتير ضريبية رسمية للمؤسسات والجامعات."
+                  : "Thousands of verified academic references with DRM instant cloud reading or express print delivery."}
               </p>
             </div>
 
-            {/* Global Bookstore Live Search Bar */}
-            <form
-              onSubmit={handleHeroSearch}
-              className="max-w-3xl mx-auto p-2 rounded-2xl sm:rounded-3xl bg-slate-900/90 border-2 border-slate-700/80 shadow-2xl backdrop-blur-2xl flex flex-col sm:flex-row items-center gap-2"
-            >
-              {/* Category selector */}
-              <div className="w-full sm:w-auto shrink-0 px-2 border-b sm:border-b-0 sm:border-e border-slate-800">
-                <select
-                  value={searchCategory}
-                  onChange={(e) => setSearchCategory(e.target.value)}
-                  className="bg-transparent text-slate-300 text-xs sm:text-sm font-bold py-2 px-1 focus:outline-none cursor-pointer w-full sm:w-auto"
-                >
-                  <option value="all" className="bg-slate-900 text-white">{isRtl ? "🌟 كل الأقسام" : "All Genres"}</option>
-                  <option value="academic" className="bg-slate-900 text-white">{isRtl ? "🎓 مراجع أكاديمية" : "Academic"}</option>
-                  <option value="programming" className="bg-slate-900 text-white">{isRtl ? "💻 برمجة وذكاء اصطناعي" : "Tech & AI"}</option>
-                  <option value="business" className="bg-slate-900 text-white">{isRtl ? "📈 إدارة أعمال و PMP" : "Business"}</option>
-                  <option value="humanities" className="bg-slate-900 text-white">{isRtl ? "📚 علوم إنسانية وتطوير" : "Humanities"}</option>
-                </select>
-              </div>
-
-              {/* Keyword input */}
-              <div className="relative flex-1 w-full flex items-center">
-                <Search className="w-5 h-5 absolute start-3 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={isRtl ? "ابحث بعنوان الكتاب، اسم المؤلف، أو الترقيم الدولي (ISBN)..." : "Search title, author, or ISBN..."}
-                  className="w-full h-12 ps-10 pe-4 bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none font-semibold"
-                />
-              </div>
-
-              {/* Submit Search Button */}
-              <Button
-                type="submit"
-                className="w-full sm:w-auto h-12 px-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-black text-sm shadow-lg gap-2"
-              >
-                <span>{isRtl ? "بحث في المتجر" : "Search Store"}</span>
-                <ArrowIcon className="w-4 h-4" />
-              </Button>
-            </form>
-
-            {/* Quick Filter Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs">
-              <span className="text-slate-400 font-bold me-1">{isRtl ? "الأقسام الرائجة:" : "Trending:"}</span>
-              {storeCategories.slice(0, 5).map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => navigate(`/book-store/browse?category=${cat.id}`)}
-                  className="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-medium transition-colors"
-                >
-                  {isRtl ? cat.titleAr : cat.titleEn}
-                </button>
-              ))}
-            </div>
-
             {/* Trust and Value Proposition Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-6 max-w-4xl mx-auto text-start">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-4 max-w-4xl mx-auto text-start">
               <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
                   <Zap className="w-5 h-5" />

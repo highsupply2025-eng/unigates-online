@@ -40,6 +40,7 @@ import {
   Moon,
   SunMoon,
   Monitor,
+  ChevronDown,
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -133,6 +134,8 @@ const NasherProfilePage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [isMenuLanguageOpen, setIsMenuLanguageOpen] = useState(false);
+  const [isMenuThemeOpen, setIsMenuThemeOpen] = useState(false);
 
   // Document preview modal
   const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
@@ -342,7 +345,7 @@ const NasherProfilePage = () => {
 
             <DropdownMenuContent 
               align={isRtl ? "start" : "end"} 
-              className="w-80 sm:w-88 rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl space-y-1 z-50 font-sans"
+              className="w-80 sm:w-88 max-h-[85vh] overflow-y-auto rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl space-y-1 z-50 font-sans"
               dir={dir}
             >
               {/* Account Header in Dropdown */}
@@ -500,167 +503,208 @@ const NasherProfilePage = () => {
 
               <DropdownMenuSeparator className="my-1.5" />
 
-              {/* 8. تغيير اللغة */}
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-cyan-500/10 data-[state=open]:bg-cyan-500/15 transition-colors">
+              {/* 8. تغيير اللغة (Inline Accordion) */}
+              <div className="space-y-1">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsMenuLanguageOpen((prev) => !prev);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setIsMenuLanguageOpen((prev) => !prev);
+                    }
+                  }}
+                  className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer transition-colors select-none ${
+                    isMenuLanguageOpen ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300" : "hover:bg-cyan-500/10 text-foreground"
+                  }`}
+                >
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-600 flex items-center justify-center shrink-0">
                       <Globe className="w-4 h-4" />
                     </div>
                     <span>{isRtl ? "تغيير اللغة" : "Change Language"}</span>
                   </div>
-                  <Badge variant="outline" className="text-[10px] font-black border-cyan-500/40 text-cyan-700 dark:text-cyan-300 bg-cyan-500/10 ms-auto me-2">
-                    {ALL_SUPPORTED_LANGUAGES.find(l => l.code === language)?.nativeName || (language === "ar" ? "العربية" : "English")}
-                  </Badge>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent className="w-56 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 text-foreground">
-                  <div className="flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-black text-cyan-600 uppercase tracking-wider border-b border-border/60 mb-1">
-                    <Globe className="w-3 h-3 text-cyan-600" />
-                    <span>{isRtl ? "اختر لغة المنصة" : "Select Platform Language"}</span>
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant="outline" className="text-[10px] font-black border-cyan-500/40 text-cyan-700 dark:text-cyan-300 bg-cyan-500/10">
+                      {ALL_SUPPORTED_LANGUAGES.find(l => l.code === language)?.nativeName || (language === "ar" ? "العربية" : "English")}
+                    </Badge>
+                    <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 ${isMenuLanguageOpen ? "rotate-180" : ""}`} />
                   </div>
-                  {ALL_SUPPORTED_LANGUAGES.map((lang) => {
-                    const isSelected = language === lang.code;
-                    return (
-                      <DropdownMenuItem
-                        key={lang.code}
-                        onClick={() => {
-                          setLanguage(lang.code as Language);
-                          toast({
-                            title: lang.code === "ar" 
-                              ? "تم تغيير اللغة إلى العربية 🌐" 
-                              : `Language switched to ${lang.nativeName} 🌐`,
-                            description: lang.code === "ar"
-                              ? "تم تحديث واجهة المنصة باللغة العربية."
-                              : `Interface language updated to ${lang.name}.`
-                          });
-                        }}
-                        className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
-                          isSelected
-                            ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-black border border-cyan-500/30 shadow-xs"
-                            : "hover:bg-muted text-foreground"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20 shrink-0 uppercase tracking-wider">
-                            {lang.flag}
-                          </span>
-                          <div className="flex flex-col text-start">
-                            <span className="text-xs font-bold leading-tight text-foreground">{lang.nativeName}</span>
-                            <span className="text-[10px] text-muted-foreground leading-tight">{lang.name}</span>
-                          </div>
-                        </div>
-                        {isSelected && <Check className="w-4 h-4 text-cyan-600 dark:text-cyan-400 ms-2 shrink-0" />}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
+                </div>
 
-              {/* 9. السطوع والمظهر */}
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 data-[state=open]:bg-amber-500/15 transition-colors">
+                {isMenuLanguageOpen && (
+                  <div 
+                    className="p-2 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5 animate-in fade-in-50 duration-150"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-black text-cyan-600 uppercase tracking-wider">
+                      <Globe className="w-3 h-3 text-cyan-600" />
+                      <span>{isRtl ? "اختر لغة المنصة" : "Select Platform Language"}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                      {ALL_SUPPORTED_LANGUAGES.map((lang) => {
+                        const isSelected = language === lang.code;
+                        return (
+                          <button
+                            key={lang.code}
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setLanguage(lang.code as Language);
+                              toast({
+                                title: lang.code === "ar" 
+                                  ? "تم تغيير اللغة إلى العربية 🌐" 
+                                  : `Language switched to ${lang.nativeName} 🌐`,
+                                description: lang.code === "ar"
+                                  ? "تم تحديث واجهة المنصة باللغة العربية."
+                                  : `Interface language updated to ${lang.name}.`
+                              });
+                            }}
+                            className={`flex items-center justify-between p-2 rounded-xl text-start transition-all cursor-pointer ${
+                              isSelected
+                                ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-black border border-cyan-500/40 shadow-xs"
+                                : "hover:bg-background/80 text-foreground border border-transparent"
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="text-xs shrink-0">{lang.flag}</span>
+                              <span className="text-xs font-bold truncate">{lang.nativeName}</span>
+                            </div>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 shrink-0 ms-1" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 9. السطوع والمظهر (Inline Accordion) */}
+              <div className="space-y-1">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsMenuThemeOpen((prev) => !prev);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setIsMenuThemeOpen((prev) => !prev);
+                    }
+                  }}
+                  className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer transition-colors select-none ${
+                    isMenuThemeOpen ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "hover:bg-amber-500/10 text-foreground"
+                  }`}
+                >
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
                       {theme === "dark" ? <Moon className="w-4 h-4" /> : theme === "system" ? <Monitor className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                     </div>
                     <span>{isRtl ? "السطوع والمظهر" : "Appearance & Theme"}</span>
                   </div>
-                  <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10 ms-auto me-2">
-                    {theme === "dark" 
-                      ? (isRtl ? "داكن 🌙" : "Dark 🌙") 
-                      : theme === "system"
-                      ? (isRtl ? "تلقائي 💻" : "Auto 💻")
-                      : (isRtl ? "فاتح ☀️" : "Light ☀️")}
-                  </Badge>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent className="w-52 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 text-foreground">
-                  <div className="flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-black text-amber-600 uppercase tracking-wider border-b border-border/60 mb-1">
-                    <SunMoon className="w-3 h-3 text-amber-600" />
-                    <span>{isRtl ? "اختيار السطوع والمظهر" : "Select Appearance"}</span>
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10">
+                      {theme === "dark" 
+                        ? (isRtl ? "داكن 🌙" : "Dark 🌙") 
+                        : theme === "system"
+                        ? (isRtl ? "تلقائي 💻" : "Auto 💻")
+                        : (isRtl ? "فاتح ☀️" : "Light ☀️")}
+                    </Badge>
+                    <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 ${isMenuThemeOpen ? "rotate-180" : ""}`} />
                   </div>
+                </div>
 
-                  {/* داكن (Dark) */}
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setTheme("dark");
-                      toast({
-                        title: isRtl ? "تم تفعيل الوضع الداكن 🌙" : "Dark Mode Activated 🌙",
-                        description: isRtl ? "مظهر داكن مريح للعين في الإضاءة الخافتة." : "Comfortable dark theme for low light."
-                      });
-                    }}
-                    className={`flex items-center justify-between px-2.5 py-2.5 rounded-xl cursor-pointer transition-all ${
-                      theme === "dark"
-                        ? "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-black border border-indigo-500/30 shadow-xs"
-                        : "hover:bg-muted text-foreground"
-                    }`}
+                {isMenuThemeOpen && (
+                  <div 
+                    className="p-2 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5 animate-in fade-in-50 duration-150"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 flex items-center justify-center">
-                        <Moon className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="flex flex-col text-start">
-                        <span className="text-xs font-bold leading-tight">{isRtl ? "داكن" : "Dark"}</span>
-                        <span className="text-[10px] text-muted-foreground leading-tight">{isRtl ? "مظهر ليلي مريح للعين" : "Night dark theme"}</span>
-                      </div>
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-black text-amber-600 uppercase tracking-wider">
+                      <SunMoon className="w-3 h-3 text-amber-600" />
+                      <span>{isRtl ? "اختيار السطوع والمظهر" : "Select Appearance"}</span>
                     </div>
-                    {theme === "dark" && <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400 ms-2 shrink-0" />}
-                  </DropdownMenuItem>
+                    <div className="grid grid-cols-3 gap-1.5 pt-0.5">
+                      {/* داكن */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setTheme("dark");
+                          toast({
+                            title: isRtl ? "تم تفعيل الوضع الداكن 🌙" : "Dark Mode Activated 🌙",
+                            description: isRtl ? "مظهر داكن مريح للعين في الإضاءة الخافتة." : "Comfortable dark theme for low light."
+                          });
+                        }}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl text-center transition-all cursor-pointer ${
+                          theme === "dark"
+                            ? "bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-black border-2 border-indigo-500/40 shadow-xs"
+                            : "hover:bg-background/80 text-foreground border border-transparent"
+                        }`}
+                      >
+                        <Moon className="w-4 h-4 mb-1 text-indigo-500" />
+                        <span className="text-xs font-bold">{isRtl ? "داكن" : "Dark"}</span>
+                        <span className="text-[9px] text-muted-foreground">{isRtl ? "ليلي 🌙" : "Night"}</span>
+                      </button>
 
-                  {/* فاتح (Light) */}
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setTheme("light");
-                      toast({
-                        title: isRtl ? "تم تفعيل الوضع الفاتح ☀️" : "Light Mode Activated ☀️",
-                        description: isRtl ? "مظهر ناصع ومشرق مناسب للقراءة بوضوح." : "Crisp and bright appearance."
-                      });
-                    }}
-                    className={`flex items-center justify-between px-2.5 py-2.5 rounded-xl cursor-pointer transition-all ${
-                      theme === "light"
-                        ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-black border border-amber-500/30 shadow-xs"
-                        : "hover:bg-muted text-foreground"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                        <Sun className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="flex flex-col text-start">
-                        <span className="text-xs font-bold leading-tight">{isRtl ? "فاتح" : "Light"}</span>
-                        <span className="text-[10px] text-muted-foreground leading-tight">{isRtl ? "مظهر نهاري ساطع وواضح" : "Bright day theme"}</span>
-                      </div>
-                    </div>
-                    {theme === "light" && <Check className="w-4 h-4 text-amber-600 dark:text-amber-400 ms-2 shrink-0" />}
-                  </DropdownMenuItem>
+                      {/* فاتح */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setTheme("light");
+                          toast({
+                            title: isRtl ? "تم تفعيل الوضع الفاتح ☀️" : "Light Mode Activated ☀️",
+                            description: isRtl ? "مظهر ناصع ومشرق مناسب للقراءة بوضوح." : "Crisp and bright appearance."
+                          });
+                        }}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl text-center transition-all cursor-pointer ${
+                          theme === "light"
+                            ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 font-black border-2 border-amber-500/40 shadow-xs"
+                            : "hover:bg-background/80 text-foreground border border-transparent"
+                        }`}
+                      >
+                        <Sun className="w-4 h-4 mb-1 text-amber-500" />
+                        <span className="text-xs font-bold">{isRtl ? "فاتح" : "Light"}</span>
+                        <span className="text-[9px] text-muted-foreground">{isRtl ? "نهاري ☀️" : "Day"}</span>
+                      </button>
 
-                  {/* تلقائي (System) */}
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setTheme("system");
-                      toast({
-                        title: isRtl ? "تم تفعيل الوضع التلقائي 💻" : "System Theme Activated 💻",
-                        description: isRtl ? "يتطابق المظهر تلقائياً مع إعدادات نظام جهازك." : "Matches your device system preference."
-                      });
-                    }}
-                    className={`flex items-center justify-between px-2.5 py-2.5 rounded-xl cursor-pointer transition-all ${
-                      theme === "system"
-                        ? "bg-primary/15 text-primary font-black border border-primary/30 shadow-xs"
-                        : "hover:bg-muted text-foreground"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-6 h-6 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
-                        <Monitor className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="flex flex-col text-start">
-                        <span className="text-xs font-bold leading-tight">{isRtl ? "تلقائي" : "System / Auto"}</span>
-                        <span className="text-[10px] text-muted-foreground leading-tight">{isRtl ? "حسب إعدادات النظام" : "Follows device mode"}</span>
-                      </div>
+                      {/* تلقائي */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setTheme("system");
+                          toast({
+                            title: isRtl ? "تم تفعيل الوضع التلقائي 💻" : "System Theme Activated 💻",
+                            description: isRtl ? "يتطابق المظهر تلقائياً مع إعدادات نظام جهازك." : "Matches your device system preference."
+                          });
+                        }}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl text-center transition-all cursor-pointer ${
+                          theme === "system"
+                            ? "bg-primary/20 text-primary font-black border-2 border-primary/40 shadow-xs"
+                            : "hover:bg-background/80 text-foreground border border-transparent"
+                        }`}
+                      >
+                        <Monitor className="w-4 h-4 mb-1 text-primary" />
+                        <span className="text-xs font-bold">{isRtl ? "تلقائي" : "Auto"}</span>
+                        <span className="text-[9px] text-muted-foreground">{isRtl ? "النظام 💻" : "Device"}</span>
+                      </button>
                     </div>
-                    {theme === "system" && <Check className="w-4 h-4 text-primary ms-2 shrink-0" />}
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
+                  </div>
+                )}
+              </div>
 
               <DropdownMenuSeparator className="my-1.5" />
 

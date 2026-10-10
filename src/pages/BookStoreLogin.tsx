@@ -118,7 +118,7 @@ const BookStoreLogin = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             {/* الرئيسية */}
             <Link to="/book-store">
-              <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-xl gap-1.5 transition-all">
+              <Button size="sm" variant="outline" className="font-bold border-slate-700 bg-slate-900/90 text-slate-200 hover:text-white hover:bg-slate-800 text-xs h-9 px-3.5 rounded-xl gap-1.5 transition-all shadow-sm">
                 <Home className="w-4 h-4 text-cyan-400" />
                 <span>{isRtl ? "الرئيسية" : "Home"}</span>
               </Button>

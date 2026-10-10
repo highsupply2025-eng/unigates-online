@@ -259,6 +259,33 @@ const NasherDashboard = () => {
     setSearchParams({ tab: val });
   };
 
+  // Dynamic Tab & Page Title
+  const getTabTitle = (tabKey: string) => {
+    switch (tabKey) {
+      case "submit":
+        return isRtl ? "رفع مؤلفات جديدة" : "Submit New Manuscript";
+      case "published":
+        return isRtl ? "المؤلفات المنشورة" : "Published Works";
+      case "payments":
+        return isRtl ? "الفواتير وطرق الدفع" : "Invoices & Payments";
+      case "chat":
+        return isRtl ? "التواصل وملاحظات التدقيق" : "Review Notes & Chat";
+      case "sales":
+        return isRtl ? "مبيعات الكتب والأرباح" : "Sales & Royalties";
+      case "settings":
+        return isRtl ? "إعدادات الحساب والأمان" : "Account Settings";
+      case "home":
+      default:
+        return isRtl ? "الصفحة الرئيسية" : "Home & Overview";
+    }
+  };
+
+  // Sync browser document.title with active tab
+  useEffect(() => {
+    const currentName = getTabTitle(activeTab);
+    document.title = `${currentName} | ${isRtl ? "لوحة تحكم المؤلف - منصة نشر UNIGATES" : "Author Dashboard - UNIGATES"}`;
+  }, [activeTab, isRtl]);
+
   const refreshData = () => {
     setAuthorProfile(NashrDataStore.getAuthorProfile());
     setSubmissions(NashrDataStore.getSubmissions());
@@ -690,8 +717,8 @@ const NasherDashboard = () => {
                 {isRtl ? "منصة نشر" : "Nashr Studio"}
               </Badge>
             </div>
-            <span className="text-[10px] block font-bold text-muted-foreground">
-              {isRtl ? "لوحة تحكم المؤلف واستوديو المبيعات" : "Author Dashboard & Publishing Suite"}
+            <span className="text-[10px] block font-bold text-muted-foreground transition-all duration-300">
+              {isRtl ? `لوحة تحكم المؤلف • ${getTabTitle(activeTab)}` : `Author Dashboard • ${getTabTitle(activeTab)}`}
             </span>
           </div>
         </Link>

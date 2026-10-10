@@ -102,7 +102,8 @@ const NasherProfilePage = () => {
     setProfile(NashrDataStore.getAuthorProfile());
     setSubmissions(NashrDataStore.getSubmissions());
     setMessages(NashrDataStore.getMessages());
-  }, []);
+    document.title = isRtl ? "البيانات الشخصية | لوحة تحكم المؤلف - منصة نشر UNIGATES" : "Personal Profile | Author Dashboard - UNIGATES";
+  }, [isRtl]);
 
   // Editable Form states
   const [fullName, setFullName] = useState(profile.fullName || "");
@@ -280,8 +281,8 @@ const NasherProfilePage = () => {
                 {isRtl ? "منصة نشر" : "Nashr Studio"}
               </Badge>
             </div>
-            <span className="text-[10px] block font-bold text-muted-foreground">
-              {isRtl ? "لوحة تحكم المؤلف واستوديو المبيعات" : "Author Dashboard & Publishing Suite"}
+            <span className="text-[10px] block font-bold text-muted-foreground transition-all duration-300">
+              {isRtl ? "لوحة تحكم المؤلف • البيانات الشخصية" : "Author Dashboard • Personal Profile"}
             </span>
           </div>
         </Link>

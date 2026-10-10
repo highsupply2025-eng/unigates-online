@@ -105,7 +105,8 @@ const NasherNewNotesPage = () => {
 
   useEffect(() => {
     refreshData();
-  }, []);
+    document.title = isRtl ? "ملاحظات جديدة | لوحة تحكم المؤلف - منصة نشر UNIGATES" : "New Review Notes | Author Dashboard - UNIGATES";
+  }, [isRtl]);
 
   // Filter submissions that have active editorial feedback
   const feedbackSubmissions = submissions.filter((s) => Boolean(s.adminFeedback));
@@ -233,8 +234,8 @@ const NasherNewNotesPage = () => {
                   {isRtl ? "منصة نشر" : "Nashr"}
                 </Badge>
               </div>
-              <p className="text-[10px] text-muted-foreground font-extrabold truncate max-w-[200px] sm:max-w-none">
-                {isRtl ? "دار عبيد للنشر والتوزيع • صندوق ملاحظات وتوجيهات الإدارة" : "Dar Obeid • Admin Directives & Notes Center"}
+              <p className="text-[10px] text-muted-foreground font-extrabold truncate max-w-[200px] sm:max-w-none transition-all duration-300">
+                {isRtl ? "لوحة تحكم المؤلف • ملاحظات جديدة" : "Author Dashboard • New Review Notes"}
               </p>
             </div>
           </Link>

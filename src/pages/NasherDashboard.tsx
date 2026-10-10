@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useLanguage, ALL_SUPPORTED_LANGUAGES, type Language } from "@/contexts/LanguageContext";
 import { 
@@ -56,7 +56,9 @@ import {
   Sun,
   Moon,
   SunMoon,
-  Monitor
+  Monitor,
+  Paperclip,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -170,6 +172,10 @@ const NasherDashboard = () => {
   // Form states for Chat
   const [chatInput, setChatInput] = useState("");
   const [chatAttachmentName, setChatAttachmentName] = useState("");
+  const [chatAttachmentUrl, setChatAttachmentUrl] = useState("");
+  const [isUploadingChatFile, setIsUploadingChatFile] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const chatFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Form states for Payment Receipt Upload Modal & Dedicated Section
   const [selectedInvoice, setSelectedInvoice] = useState<NashrInvoice | null>(null);
@@ -507,12 +513,47 @@ const NasherDashboard = () => {
   // Send Internal Message
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!chatInput.trim()) return;
+    if (!chatInput.trim() && !chatAttachmentName) return;
 
-    NashrDataStore.sendMessage(chatInput.trim(), chatAttachmentName || undefined);
+    NashrDataStore.sendMessage(
+      chatInput.trim() || (isRtl ? `مرفق: ${chatAttachmentName}` : `Attachment: ${chatAttachmentName}`),
+      chatAttachmentName || undefined,
+      chatAttachmentUrl || undefined
+    );
     setChatInput("");
     setChatAttachmentName("");
+    setChatAttachmentUrl("");
     refreshData();
+    setTimeout(() => {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
+  const handleChatFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingChatFile(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setChatAttachmentName(file.name);
+      setChatAttachmentUrl(result);
+      setIsUploadingChatFile(false);
+      toast({
+        title: isRtl ? "تم إرفاق الملف بنجاح" : "File Attached",
+        description: file.name
+      });
+    };
+    reader.onerror = () => {
+      setIsUploadingChatFile(false);
+      toast({
+        title: isRtl ? "خطأ في قراءة الملف" : "File Read Error",
+        variant: "destructive"
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   // Handle Payment Receipt Upload (Modal)
@@ -2985,121 +3026,256 @@ const NasherDashboard = () => {
         {/* TAB 4: 💬 التواصل الداخلي مع الإدارة (Direct Messages) */}
         {/* ------------------------------------------------------------- */}
         {activeTab === "chat" && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
-                  {isRtl ? "التواصل الداخلي المباشر مع إدارة المنصة" : "Direct Editorial & Admin Messaging"}
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
+                  <span className="p-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                    <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </span>
+                  <span>{isRtl ? "التواصل الداخلي المباشر مع إدارة المنصة" : "Direct Editorial & Admin Messaging"}</span>
                 </h2>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                   {isRtl 
-                    ? "قناة مراسلة مشفرة ومباشرة مع فريق دار عبيد لمناقشة تعديلات الملفات، الغلاف، والتحكيم"
-                    : "Direct chat with Dar Obeid editors regarding files, covers, and reviews"}
+                    ? "قناة مراسلة آمنة ومباشرة مع فريق دار عبيد لمناقشة تعديلات المخطوطات، تصميم الأغلفة، والتدقيق والتحكيم"
+                    : "Secure direct messaging with Dar Obeid editors regarding manuscripts, covers, proofreading, and peer-review."}
                 </p>
+              </div>
+
+              {/* Quick Status Pill */}
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <Badge variant="outline" className="h-8 px-3 rounded-xl border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{isRtl ? "فريق التحرير والتدقيق متصل 🟢" : "Editorial Team Online"}</span>
+                </Badge>
               </div>
             </div>
 
-            <Card className="border-2 border-border/80 shadow-xl bg-card rounded-3xl overflow-hidden flex flex-col h-[600px]">
+            <Card className="border-2 border-border/80 shadow-2xl bg-card rounded-3xl overflow-hidden flex flex-col h-[650px] relative">
               
               {/* Chat Header */}
-              <div className="p-4 bg-muted/30 border-b border-border/60 flex items-center justify-between">
+              <div className="px-5 py-3.5 bg-gradient-to-r from-muted/40 via-muted/20 to-muted/40 border-b border-border/70 flex items-center justify-between backdrop-blur-md">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold text-lg">
-                    🏢
+                  <div className="relative">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center font-black text-lg shadow-sm border border-white/20">
+                      🏢
+                    </div>
+                    <span className="absolute -bottom-0.5 -end-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-background ring-2 ring-emerald-500/20 animate-pulse" />
                   </div>
                   <div>
-                    <span className="font-black text-sm text-foreground block">
-                      {isRtl ? "إدارة دار عبيد للنشر والتوزيع" : "Dar Obeid Publishing Administration"}
-                    </span>
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      {isRtl ? "فريق التحرير والتدقيق متصل الآن" : "Editorial Team Online"}
+                    <div className="flex items-center gap-2">
+                      <span className="font-black text-sm text-foreground">
+                        {isRtl ? "إدارة دار عبيد للنشر والتوزيع" : "Dar Obeid Publishing Administration"}
+                      </span>
+                      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[10px] font-black px-1.5 py-0">
+                        {isRtl ? "المقر الرئيسي" : "Official HQ"}
+                      </Badge>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground flex items-center gap-1 font-medium">
+                      <span>{isRtl ? "قسم التدقيق، التحكيم، والإشراف الفني • الرد خلال دقائق" : "Peer-review, editorial & design desk • Replies within minutes"}</span>
                     </span>
                   </div>
+                </div>
+
+                <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
+                  <Badge variant="outline" className="text-[10px] rounded-lg border-border font-bold">
+                    {messages.length} {isRtl ? "رسالة" : "msgs"}
+                  </Badge>
                 </div>
               </div>
 
               {/* Chat Message List */}
-              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-background/50">
-                {messages.map((msg) => {
-                  const isAuthor = msg.sender === "author";
-                  return (
-                    <div 
-                      key={msg.id} 
-                      className={`flex flex-col ${isAuthor ? "items-end" : "items-start"}`}
-                    >
-                      <div className="flex items-center gap-1.5 mb-1 px-1">
-                        <span className="text-[10px] font-bold text-muted-foreground">
-                          {msg.senderName} ({msg.senderTitle})
-                        </span>
-                        <span className="text-[9px] text-muted-foreground font-mono">{msg.timestamp}</span>
-                      </div>
-                      
-                      <div className={`p-4 rounded-2xl max-w-xl text-xs leading-relaxed shadow-sm ${
-                        isAuthor 
-                          ? "bg-amber-500 text-white rounded-te-xs" 
-                          : "bg-muted/80 text-foreground border border-border/80 rounded-ts-xs"
-                      }`}>
-                        {msg.attachmentName && (
-                          <div 
-                            onClick={() => {
-                              setSelectedAttachment({
-                                fileName: msg.attachmentName,
-                                fileUrl: msg.attachmentUrl,
-                                senderName: msg.senderName,
-                                timestamp: msg.timestamp,
-                                messageText: msg.text
-                              });
-                              setShowAttachmentModal(true);
-                            }}
-                            className={`mt-2 p-2.5 rounded-xl flex items-center justify-between gap-2 text-[10px] font-bold cursor-pointer hover:opacity-90 transition-all ${
-                              isAuthor ? "bg-white/20 text-white" : "bg-background border border-border shadow-xs"
-                            }`}
-                            title={isRtl ? "اضغط لمعاينة وتحميل المرفق" : "Click to view / download"}
-                          >
-                            <div className="flex items-center gap-1.5 truncate">
-                              <FileText className="w-3.5 h-3.5 shrink-0" />
-                              <span className="truncate">{msg.attachmentName}</span>
-                            </div>
-                            <span className="text-[9px] underline shrink-0 font-mono">
-                              {isRtl ? "معاينة وتحميل 📥" : "View 📥"}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-muted/10 selection:bg-amber-500 selection:text-white">
+                {messages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+                    <div className="w-16 h-16 rounded-3xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-3xl shadow-xs">
+                      💬
                     </div>
-                  );
-                })}
+                    <div className="space-y-1 max-w-sm">
+                      <h4 className="text-sm font-black text-foreground">
+                        {isRtl ? "لا توجد رسائل سابقة" : "No messages yet"}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        {isRtl 
+                          ? "يمكنك كتابة أي استفسار أو إرسال ملاحظات أو ملفات مباشرة لفريق دار عبيد عبر الصندوق بالأسفل." 
+                          : "Start the conversation by typing your inquiry or sending an attachment below."}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  messages.map((msg) => {
+                    const isAuthor = msg.sender === "author";
+                    return (
+                      <div 
+                        key={msg.id} 
+                        className={`flex gap-3 items-end ${isAuthor ? "flex-row-reverse" : "flex-row"}`}
+                      >
+                        {/* Avatar */}
+                        <div className="shrink-0 mb-1">
+                          {isAuthor ? (
+                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center text-xs font-bold shadow-xs overflow-hidden border border-white/20">
+                              {avatarUrl ? (
+                                <img src={avatarUrl} alt={authorProfile.fullName} className="w-full h-full object-cover" />
+                              ) : (
+                                <span>✍️</span>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 flex items-center justify-center text-xs font-black shadow-xs border border-border">
+                              🏢
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Message Bubble Container */}
+                        <div className={`flex flex-col max-w-[85%] sm:max-w-xl ${isAuthor ? "items-end" : "items-start"}`}>
+                          
+                          {/* Sender name & time */}
+                          <div className={`flex items-center gap-1.5 mb-1 px-1 text-[11px] font-bold ${isAuthor ? "flex-row-reverse text-amber-600 dark:text-amber-400" : "text-muted-foreground"}`}>
+                            <span>{msg.senderName}</span>
+                            <span className="text-[10px] text-muted-foreground/80 font-normal">({msg.senderTitle})</span>
+                            <span className="text-[10px] text-muted-foreground/60 font-mono">· {msg.timestamp}</span>
+                          </div>
+                          
+                          {/* Main Bubble */}
+                          <div className={`p-4 rounded-3xl text-xs sm:text-[13px] leading-relaxed shadow-sm transition-all border ${
+                            isAuthor 
+                              ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white border-amber-600 rounded-ee-sm" 
+                              : "bg-card text-foreground border-border/90 rounded-es-sm dark:bg-card/90"
+                          }`}>
+                            
+                            {/* Message Text (always clearly visible with proper line-wrapping) */}
+                            <p className="whitespace-pre-wrap font-medium break-words leading-relaxed select-text">
+                              {msg.text}
+                            </p>
+
+                            {/* Attachment Card if present */}
+                            {msg.attachmentName && (
+                              <div 
+                                onClick={() => {
+                                  setSelectedAttachment({
+                                    fileName: msg.attachmentName,
+                                    fileUrl: msg.attachmentUrl,
+                                    senderName: msg.senderName,
+                                    timestamp: msg.timestamp,
+                                    messageText: msg.text
+                                  });
+                                  setShowAttachmentModal(true);
+                                }}
+                                className={`mt-3 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs font-bold cursor-pointer transition-all border ${
+                                  isAuthor 
+                                    ? "bg-white/15 hover:bg-white/25 text-white border-white/20" 
+                                    : "bg-muted/70 hover:bg-muted text-foreground border-border/80 shadow-2xs"
+                                }`}
+                                title={isRtl ? "اضغط لمعاينة وتحميل المرفق" : "Click to view / download"}
+                              >
+                                <div className="flex items-center gap-2 truncate">
+                                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isAuthor ? "bg-white/20 text-white" : "bg-primary/10 text-primary"}`}>
+                                    <FileText className="w-4 h-4" />
+                                  </div>
+                                  <div className="truncate text-start">
+                                    <span className="truncate block font-black text-[11px] sm:text-xs">{msg.attachmentName}</span>
+                                    <span className="text-[10px] opacity-80 font-normal">{isRtl ? "مرفق مستند / ملف" : "Document Attachment"}</span>
+                                  </div>
+                                </div>
+                                <span className={`text-[11px] font-black px-2.5 py-1 rounded-xl shrink-0 flex items-center gap-1 ${
+                                  isAuthor ? "bg-white/20 text-white" : "bg-background border border-border text-foreground"
+                                }`}>
+                                  <Download className="w-3 h-3" />
+                                  <span>{isRtl ? "معاينة وتحميل" : "View"}</span>
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={chatEndRef} />
               </div>
 
               {/* Chat Input Bar */}
-              <div className="p-4 bg-card border-t border-border/60">
-                <form onSubmit={handleSendMessage} className="space-y-2">
-                  {chatAttachmentName && (
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-muted text-xs">
-                      <span className="text-muted-foreground truncate">{chatAttachmentName}</span>
-                      <Button size="sm" variant="ghost" onClick={() => setChatAttachmentName("")} className="h-6 px-2 text-[10px]">
-                        إلغاء
-                      </Button>
+              <div className="p-3 sm:p-4 bg-card/95 border-t border-border/70 backdrop-blur-sm">
+                
+                {/* Active attachment pill preview */}
+                {chatAttachmentName && (
+                  <div className="flex items-center justify-between p-2.5 mb-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs animate-in fade-in">
+                    <div className="flex items-center gap-2 truncate">
+                      <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span className="font-bold text-foreground truncate">{chatAttachmentName}</span>
+                      <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[9px] px-1.5 py-0 font-normal">
+                        {isRtl ? "جاهز للإرسال" : "Ready"}
+                      </Badge>
                     </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <Input 
-                      placeholder={isRtl ? "اكتب استفسارك أو ملاحظتك لإدارة دار عبيد..." : "Type your message to Dar Obeid team..."}
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      className="h-11 rounded-xl text-xs border-border bg-muted/20 flex-1"
-                    />
                     <Button 
-                      type="submit" 
                       size="sm" 
-                      className="h-11 px-5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-md gap-1.5 shrink-0"
+                      variant="ghost" 
+                      onClick={() => {
+                        setChatAttachmentName("");
+                        setChatAttachmentUrl("");
+                      }} 
+                      className="h-7 w-7 p-0 rounded-xl hover:bg-rose-500/10 hover:text-rose-600"
+                      title={isRtl ? "إلغاء المرفق" : "Cancel attachment"}
                     >
-                      <Send className="w-4 h-4" />
-                      <span>{isRtl ? "إرسال" : "Send"}</span>
+                      <X className="w-3.5 h-3.5" />
                     </Button>
                   </div>
+                )}
+
+                {/* Hidden file input */}
+                <input 
+                  type="file" 
+                  ref={chatFileInputRef}
+                  onChange={handleChatFileUpload}
+                  className="hidden" 
+                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip"
+                />
+
+                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                  
+                  {/* File Attachment Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => chatFileInputRef.current?.click()}
+                    disabled={isUploadingChatFile}
+                    className="h-11 w-11 p-0 rounded-2xl border-border hover:bg-muted hover:border-amber-500/40 text-muted-foreground hover:text-foreground shrink-0 transition-all shadow-2xs"
+                    title={isRtl ? "إرفاق ملف أو مستند (PDF / Word / صورة)" : "Attach document or image"}
+                  >
+                    {isUploadingChatFile ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                    ) : (
+                      <Paperclip className="w-4 h-4" />
+                    )}
+                  </Button>
+
+                  {/* Input field */}
+                  <Input 
+                    placeholder={isRtl ? "اكتب استفسارك أو ملاحظتك لإدارة دار عبيد للنشر والتوزيع..." : "Type your message to Dar Obeid team..."}
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    className="h-11 rounded-2xl text-xs sm:text-sm border-border bg-muted/30 focus-visible:ring-amber-500/40 flex-1 px-4 shadow-2xs"
+                  />
+
+                  {/* Send Button */}
+                  <Button 
+                    type="submit" 
+                    size="sm" 
+                    disabled={!chatInput.trim() && !chatAttachmentName}
+                    className="h-11 px-5 sm:px-6 rounded-2xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 via-orange-600 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md gap-2 shrink-0 transition-all disabled:opacity-50"
+                  >
+                    <Send className="w-4 h-4 rtl:-scale-x-100" />
+                    <span>{isRtl ? "إرسال" : "Send"}</span>
+                  </Button>
                 </form>
+
+                {/* Helper hint */}
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 px-1">
+                  <span>{isRtl ? "💡 يمكنك إرفاق مسودات، استفسارات، أو طلبات تعديل الغلاف والتحكيم" : "You can attach drafts, inquiries, or cover design notes"}</span>
+                  <span className="hidden sm:inline font-mono">End-to-End Encrypted 🔒</span>
+                </div>
               </div>
 
             </Card>

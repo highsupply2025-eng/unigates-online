@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
+  Home,
   BookOpen, 
   Loader2, 
   Eye, 
@@ -115,14 +116,25 @@ const BookStoreLogin = () => {
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* الرئيسية */}
+            <Link to="/book-store">
+              <Button variant="ghost" size="sm" className="h-9 px-3 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-xl gap-1.5 transition-all">
+                <Home className="w-4 h-4 text-cyan-400" />
+                <span>{isRtl ? "الرئيسية" : "Home"}</span>
+              </Button>
+            </Link>
+
+            {/* إنشاء حساب قارئ */}
             <Link to="/book-store/signup">
               <Button size="sm" variant="outline" className="font-bold border-slate-700 bg-slate-900 text-white hover:bg-slate-800 text-xs h-9 px-3.5 rounded-xl">
                 <span>{isRtl ? "إنشاء حساب قارئ" : "Sign Up"}</span>
               </Button>
             </Link>
 
-            <LanguageSelectorDropdown className="h-9 px-2.5 rounded-xl border-slate-800 bg-slate-900 text-white" />
+            <div className="h-5 w-px bg-slate-800 hidden sm:block" />
+
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl border-slate-800 bg-slate-900 text-white" />
+            <LanguageSelectorDropdown className="h-9 px-2.5 rounded-xl border-slate-800 bg-slate-900 text-white" />
           </div>
         </div>
       </header>

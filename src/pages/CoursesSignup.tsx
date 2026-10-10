@@ -72,7 +72,7 @@ const COUNTRY_CODES = [
   { code: "+34", country: "🇪🇸 +34" },
 ];
 
-type RoleValue = "personal" | "lecturer" | "teacher" | "training_center" | "language_center";
+type RoleValue = "personal" | "lecturer";
 
 const ROLES: {
   value: RoleValue;
@@ -90,23 +90,8 @@ const ROLES: {
   autoApprove: boolean;
 }[] = [
   {
-    value: "personal",
-    labelAr: "طالب ومتدرب",
-    labelEn: "Student & Learner",
-    descAr: "شاهد الدورات بدقة 4K، حمّل الملحقات، وتسلّم شهادات إتمام رقمية معتمدة برمز QR.",
-    descEn: "Stream in 4K, access lesson resources, and earn verifiable QR completion certificates.",
-    featuresAr: ["تفعيل فوري للحساب", "حلقات تمهيدية مجانية", "شهادات إتمام رقمية"],
-    featuresEn: ["Instant activation", "Free preview episodes", "QR verifiable certificates"],
-    icon: GraduationCap,
-    color: "from-blue-600 via-cyan-600 to-teal-500",
-    glowColor: "shadow-blue-500/25 border-blue-500/40",
-    badgeAr: "تفعيل فوري",
-    badgeEn: "Instant Activation",
-    autoApprove: true,
-  },
-  {
     value: "lecturer",
-    labelAr: "محاضر ومدرب مستقل",
+    labelAr: "محاضر ومدرب",
     labelEn: "Instructor & Lecturer",
     descAr: "أنشئ استوديو دوراتك الخاص، ارفع فيديوهاتك المحمية بنظام DRM، مع باقة 20 مقعداً مجاناً لأول شهر.",
     descEn: "Build your course studio, upload DRM-encrypted video lectures, with 20 free seats for the 1st month.",
@@ -120,49 +105,19 @@ const ROLES: {
     autoApprove: false,
   },
   {
-    value: "teacher",
-    labelAr: "معلّم متميز",
-    labelEn: "Distinguished Teacher",
-    descAr: "قدّم دروس تقوية ومراجعات شاملة للمناهج المدرسية K-12 مع بنوك أسئلة ومساحة 20 طالباً مجاناً.",
-    descEn: "Offer curriculum tutoring and exam prep for K-12 students with 20 free students capacity.",
-    featuresAr: ["🎁 20 كريدت سحابي مجاناً", "متابعة أداء الطلاب وبنوك أسئلة", "بث فصول افتراضية متطورة"],
-    featuresEn: ["🎁 20 Free Welcome Credits", "Student progress tracking", "Live virtual classes"],
-    icon: Users,
-    color: "from-emerald-500 via-teal-600 to-emerald-700",
-    glowColor: "shadow-emerald-500/25 border-emerald-500/40",
-    badgeAr: "موافقة إدارية سريعة",
-    badgeEn: "Admin Review",
-    autoApprove: false,
-  },
-  {
-    value: "training_center",
-    labelAr: "مركز تدريب وأكاديمية",
-    labelEn: "Training Center & Academy",
-    descAr: "أطلق برامج تدريبية ودبلومات مهنية معتمدة متعددة المحاضرين مع إدارة مركزية للمتدربين.",
-    descEn: "Launch accredited multi-instructor diplomas and training programs with central administration.",
-    featuresAr: ["إدارة مدربين متعددين", "إصدار شهادات مجمعة", "لوحة إدارة المتدربين"],
-    featuresEn: ["Multi-instructor control", "Bulk certificates issuance", "Trainee management portal"],
-    icon: Building2,
-    color: "from-amber-500 via-orange-600 to-yellow-600",
-    glowColor: "shadow-amber-500/25 border-amber-500/40",
-    badgeAr: "موافقة إدارية سريعة",
-    badgeEn: "Admin Review",
-    autoApprove: false,
-  },
-  {
-    value: "language_center",
-    labelAr: "مركز لغات وترجمة",
-    labelEn: "Language & Translation Center",
-    descAr: "قدّم برامج ودورات تعليم اللغات الأجنبية والإعداد لاختبارات الكفاءة الدولية (IELTS / TOEFL).",
-    descEn: "Offer foreign language learning programs and international proficiency exam prep (IELTS/TOEFL).",
-    featuresAr: ["برامج لغات متدرجة", "إعداد لاختبارات IELTS/TOEFL", "محادثات تفاعلية حية"],
-    featuresEn: ["Multi-level language tracks", "IELTS / TOEFL prep", "Live interactive speaking"],
-    icon: Languages,
-    color: "from-rose-500 via-pink-600 to-red-600",
-    glowColor: "shadow-rose-500/25 border-rose-500/40",
-    badgeAr: "موافقة إدارية سريعة",
-    badgeEn: "Admin Review",
-    autoApprove: false,
+    value: "personal",
+    labelAr: "طالب ومتدرب",
+    labelEn: "Student & Learner",
+    descAr: "شاهد الدورات بدقة 4K، حمّل الملحقات، وتسلّم شهادات إتمام رقمية معتمدة برمز QR.",
+    descEn: "Stream in 4K, access lesson resources, and earn verifiable QR completion certificates.",
+    featuresAr: ["تفعيل فوري للحساب", "حلقات تمهيدية مجانية", "شهادات إتمام رقمية"],
+    featuresEn: ["Instant activation", "Free preview episodes", "QR verifiable certificates"],
+    icon: GraduationCap,
+    color: "from-blue-600 via-cyan-600 to-teal-500",
+    glowColor: "shadow-blue-500/25 border-blue-500/40",
+    badgeAr: "تفعيل فوري",
+    badgeEn: "Instant Activation",
+    autoApprove: true,
   },
 ];
 
@@ -414,25 +369,18 @@ const CoursesSignup = () => {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 pt-2">
+            <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto pt-2">
               {ROLES.map((r) => {
                 const Icon = r.icon;
-                const isInstitutional = r.value === "training_center" || r.value === "language_center";
                 const handleCardClick = () => {
-                  if (r.value === "training_center") {
-                    navigate("/signup/training-center/admin");
-                  } else if (r.value === "language_center") {
-                    navigate("/signup/language-center/admin");
-                  } else {
-                    setRole(r.value);
-                  }
+                  setRole(r.value);
                 };
 
                 return (
                   <div
                     key={r.value}
                     onClick={handleCardClick}
-                    className={`group cursor-pointer text-start p-6 rounded-3xl border-2 bg-slate-900/70 hover:bg-slate-900/95 backdrop-blur-xl transition-all duration-300 shadow-xl hover:-translate-y-2 flex flex-col justify-between ${r.glowColor}`}
+                    className={`group cursor-pointer text-start p-7 rounded-3xl border-2 bg-slate-900/70 hover:bg-slate-900/95 backdrop-blur-xl transition-all duration-300 shadow-xl hover:-translate-y-2 flex flex-col justify-between ${r.glowColor}`}
                   >
                     <div className="space-y-4">
                       {/* Top Icon Badge */}
@@ -472,7 +420,7 @@ const CoursesSignup = () => {
                         type="button"
                         className={`w-full font-black text-xs h-10 rounded-xl bg-gradient-to-r ${r.color} text-white shadow-md group-hover:opacity-95 transition-opacity flex items-center justify-center gap-1.5`}
                       >
-                        <span>{isInstitutional ? tText("تسجيل إدارة " + r.labelAr, "Register Admin for " + r.labelEn) : tText("تسجيل كـ " + r.labelAr, "Register as " + r.labelEn)}</span>
+                        <span>{tText("تسجيل كـ " + r.labelAr, "Register as " + r.labelEn)}</span>
                         <ArrowIcon className="w-3.5 h-3.5" />
                       </Button>
                     </div>

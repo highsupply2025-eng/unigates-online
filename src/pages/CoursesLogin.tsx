@@ -28,7 +28,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 
-const COURSES_ROLES = ["personal", "student", "lecturer", "teacher", "training_center", "language_center"];
+const COURSES_ROLES = ["personal", "student", "lecturer"];
 
 const CoursesLogin = () => {
   const [email, setEmail] = useState("");
@@ -108,18 +108,6 @@ const CoursesLogin = () => {
         navigate("/lecturer/dashboard");
         return;
       }
-      if (coursesRole.role === "teacher") {
-        navigate("/teacher/dashboard");
-        return;
-      }
-      if (coursesRole.role === "training_center") {
-        navigate("/training-center/dashboard");
-        return;
-      }
-      if (coursesRole.role === "language_center") {
-        navigate("/language-center/dashboard");
-        return;
-      }
       if (coursesRole.role === "personal" || coursesRole.role === "student") {
         navigate("/courses/browse");
         return;
@@ -138,11 +126,8 @@ const CoursesLogin = () => {
   };
 
   const supportedRoles = [
-    { labelAr: "طالب ومتدرب", labelEn: "Student", icon: GraduationCap, color: "text-blue-400 bg-blue-500/10 border-blue-500/30", link: "/courses/signup?role=personal" },
     { labelAr: "محاضر ومدرب", labelEn: "Instructor", icon: BookOpenCheck, color: "text-purple-400 bg-purple-500/10 border-purple-500/30", link: "/courses/signup?role=lecturer" },
-    { labelAr: "معلّم متميز", labelEn: "Teacher", icon: Users, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30", link: "/courses/signup?role=teacher" },
-    { labelAr: "مركز تدريب", labelEn: "Training Center", icon: Building2, color: "text-amber-400 bg-amber-500/10 border-amber-500/30", link: "/courses/signup?role=training_center" },
-    { labelAr: "مركز لغات", labelEn: "Language Center", icon: Languages, color: "text-rose-400 bg-rose-500/10 border-rose-500/30", link: "/courses/signup?role=language_center" },
+    { labelAr: "طالب ومتدرب", labelEn: "Student", icon: GraduationCap, color: "text-blue-400 bg-blue-500/10 border-blue-500/30", link: "/courses/signup?role=personal" },
   ];
 
   return (
@@ -324,14 +309,14 @@ const CoursesLogin = () => {
                 {tText("ليس لديك حساب؟ اختر نوع حسابك وسجّل الآن مجاناً:", "Don't have an account? Choose role & register:")}
               </p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2.5 max-w-sm mx-auto">
                 {supportedRoles.map((roleItem, i) => (
-                  <Link key={i} to={roleItem.link}>
+                  <Link key={i} to={roleItem.link} className="w-full">
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="w-full h-10 px-2 rounded-xl bg-white/5 hover:bg-white/15 border-white/10 hover:border-white/30 text-white font-bold text-xs gap-1.5 justify-start transition-all group"
+                      className="w-full h-10 px-2 rounded-xl bg-white/5 hover:bg-white/15 border-white/10 hover:border-white/30 text-white font-bold text-xs gap-1.5 justify-center transition-all group"
                     >
                       <roleItem.icon className="w-3.5 h-3.5 text-purple-400 group-hover:scale-110 transition-transform shrink-0" />
                       <span className="truncate">{tText(roleItem.labelAr, roleItem.labelEn)}</span>

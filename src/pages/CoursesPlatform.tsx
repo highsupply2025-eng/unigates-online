@@ -37,9 +37,6 @@ const CoursesPlatform = () => {
   const statItems = [
     { icon: User, counter: students, label: isRtl ? "طالب ومتدرب" : "Learners", color: "from-indigo-500 to-blue-500", glow: "shadow-blue-500/20" },
     { icon: BookOpenCheck, counter: lecturers, label: isRtl ? "محاضر ومدرب" : "Instructors", color: "from-violet-500 to-purple-500", glow: "shadow-purple-500/20" },
-    { icon: Users, counter: teachers, label: isRtl ? "معلّم متميز" : "Teachers", color: "from-emerald-500 to-teal-500", glow: "shadow-emerald-500/20" },
-    { icon: Building2, counter: trainingCenters, label: isRtl ? "مركز تدريب" : "Training Centers", color: "from-amber-500 to-orange-500", glow: "shadow-amber-500/20" },
-    { icon: Languages, counter: languageCenters, label: isRtl ? "مركز لغات" : "Language Centers", color: "from-rose-500 to-pink-500", glow: "shadow-rose-500/20" },
   ];
 
   const courseTracks = [
@@ -116,39 +113,6 @@ const CoursesPlatform = () => {
       ctaAr: "انضم كمحاضر",
       ctaEn: "Join as Instructor",
       link: "/courses/signup?role=lecturer",
-    },
-    {
-      roleAr: "المعلمون والمعلمات",
-      roleEn: "School Tutors & Teachers",
-      descAr: "قدّم دورات تقوية ومراجعات شاملة للمناهج المدرسية K-12 مع اختبارات تفاعلية ومتابعة أداء الطلاب.",
-      descEn: "Offer curriculum tutoring and exam prep for K-12 students with auto-graded quizzes.",
-      icon: Users,
-      color: "from-emerald-600 to-teal-700",
-      ctaAr: "انضم كمعلم",
-      ctaEn: "Join as Teacher",
-      link: "/courses/signup?role=teacher",
-    },
-    {
-      roleAr: "مراكز التدريب والأكاديميات",
-      roleEn: "Training Centers & Academies",
-      descAr: "أطلق برامج تدريبية ودبلومات مهنية معتمدة متعددة المحاضرين، مع لوحة إدارة مركزية للمتدربين والشهادات.",
-      descEn: "Launch accredited multi-instructor diplomas and training programs with central administration.",
-      icon: Building2,
-      color: "from-amber-500 to-orange-600",
-      ctaAr: "تسجيل إدارة الأكاديمية",
-      ctaEn: "Register Academy Admin",
-      link: "/signup/training-center/admin",
-    },
-    {
-      roleAr: "مراكز اللغات والترجمة",
-      roleEn: "Language & Translation Centers",
-      descAr: "قدّم برامج ودورات تعليم اللغات الأجنبية واختبارات الكفاءة الدولية (IELTS, TOEFL) مع مدربين معتمدين.",
-      descEn: "Offer foreign language learning programs and international proficiency exam prep (IELTS, TOEFL) with certified coaches.",
-      icon: Languages,
-      color: "from-rose-500 to-pink-600",
-      ctaAr: "تسجيل إدارة المركز",
-      ctaEn: "Register Center Admin",
-      link: "/signup/language-center/admin",
     },
     {
       roleAr: "الطلاب والمتدربون",
@@ -387,50 +351,29 @@ const CoursesPlatform = () => {
             </h1>
             <p className="text-sm sm:text-lg md:text-xl text-slate-200/90 font-medium max-w-3xl mx-auto leading-relaxed">
               {isRtl
-                ? "تعلم من نخبة من كبار المحاضرين والمعلمين والمراكز التدريبية الدولية، بمحاضرات فيديو محمية بنظام DRM، واختبارات تفاعلية، وشهادات معتمدة."
-                : "Learn from top global instructors, verified teachers, and accredited training centers with DRM video, hands-on tasks, and QR-verified certificates."}
+                ? "تعلم من نخبة من كبار المحاضرين، بمحاضرات فيديو محمية بنظام DRM، واختبارات تفاعلية، وشهادات معتمدة."
+                : "Learn from top global instructors with DRM video, hands-on tasks, and QR-verified certificates."}
             </p>
           </div>
 
           {/* Quick Action Launchpad */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link to="/courses/signup?role=lecturer">
-              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-xl shadow-purple-500/30 gap-2 hover:scale-105 transition-all">
+              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-xl shadow-purple-500/30 gap-2 hover:scale-105 transition-all">
                 <BookOpenCheck className="w-5 h-5" />
                 {tText("📖 انضم كمحاضر / مدرب", "Join as Instructor")}
               </Button>
             </Link>
 
-            <Link to="/courses/signup?role=teacher">
-              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 gap-2 hover:scale-105 transition-all">
-                <Users className="w-5 h-5" />
-                {tText("🌟 انضم كمعلم متميز", "Join as Distinguished Teacher")}
-              </Button>
-            </Link>
-
-            <Link to="/training-center-registration">
-              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-amber-500/30 gap-2 hover:scale-105 transition-all">
-                <Building2 className="w-5 h-5" />
-                {tText("🏢 تسجيل مركز تدريب", "Register Training Center")}
-              </Button>
-            </Link>
-
-            <Link to="/language-center-registration">
-              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-xl shadow-rose-500/30 gap-2 hover:scale-105 transition-all">
-                <Languages className="w-5 h-5" />
-                {tText("🌐 تسجيل مركز لغات", "Register Language Center")}
-              </Button>
-            </Link>
-
             <Link to="/courses/signup?role=personal">
-              <Button size="lg" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
+              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
                 <GraduationCap className="w-5 h-5" />
                 {tText("🎓 حساب طالب / متدرب", "Student Signup")}
               </Button>
             </Link>
 
             <Link to="/courses/login">
-              <Button size="lg" variant="outline" className="h-12 px-5 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
+              <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
                 <Users className="w-5 h-5" />
                 {tText("تسجيل الدخول", "Portal Login")}
               </Button>
@@ -438,7 +381,7 @@ const CoursesPlatform = () => {
           </div>
 
           {/* Live Platform Stats Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-6">
+          <div className="grid grid-cols-2 max-w-md mx-auto gap-3 pt-6">
             {statItems.map((item, i) => (
               <div
                 key={i}
@@ -508,25 +451,25 @@ const CoursesPlatform = () => {
       {/* Live Courses Catalogue Section */}
       <TrendingCourses />
 
-      {/* Role Hubs for Instructors, Centers & Learners */}
+      {/* Role Hubs for Instructors & Learners */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/30 border-b border-border/60">
-        <div className="max-w-7xl mx-auto space-y-12">
+        <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-3">
             <div className="inline-flex items-center gap-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold">
               <Sparkles className="w-4 h-4" />
               {isRtl ? "مجتمع أكاديمية الدورات" : "Academy Ecosystem"}
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-foreground">
-              {isRtl ? "منظومة مصممة لتمكين المدربين والمراكز والمتدربين" : "Empowering Instructors, Centers & Learners"}
+              {isRtl ? "منظومة مصممة لتمكين المحاضرين والطلاب" : "Empowering Instructors & Learners"}
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
               {isRtl
-                ? "سواء كنت مدرباً مستقلاً أو مركزاً تدريبياً أو متعلماً شغوفاً، UNIGATES توفر لك المنصة المثالية."
-                : "Whether you are an instructor, training center, or eager learner, UNIGATES provides the ideal tools."}
+                ? "سواء كنت محاضراً أو طالباً شغوفاً بالعلم، UNIGATES توفر لك البيئة التعليمية المتكاملة."
+                : "Whether you are an instructor or an eager learner, UNIGATES provides the ideal tools."}
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {roleHubs.map((hub, i) => (
               <Card key={i} className="group hover:shadow-2xl transition-all duration-300 border-2 border-border/80 rounded-3xl overflow-hidden hover:-translate-y-1.5 flex flex-col">
                 <CardContent className="p-6 space-y-4 flex-1 flex flex-col">

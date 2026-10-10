@@ -15,7 +15,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -296,34 +295,6 @@ const BookStorePlatform = () => {
 
     return result;
   }, [catalog, activeMainTab, activeSubCategory, liveSearchCategory, liveSearchQuery]);
-
-  // Frequently Asked Questions strictly for store shoppers
-  const storeFaqs = [
-    {
-      qAr: "كيف يمكنني شراء كتاب ورقي وتوصيله إلى عنواني؟",
-      qEn: "How can I purchase a print book and get home delivery?",
-      aAr: "اختر أي كتاب في المتجر، وحدد خيار «نسخة ورقية»، ثم أضفه للسلة وأتمم الدفع مع إدخال عنوانك بالتفصيل. يتم شحن وتغليف الكتب في كراتين مقواة فاخرة عبر شركائنا اللوجستيين المعتمدين لجميع محافظات مصر والدول العربية في غضون 48 إلى 72 ساعة.",
-      aEn: "Select any book, choose 'Print Copy', add to cart, and checkout with your shipping address. Books are safely packaged and shipped across Egypt and internationally within 48-72 hours.",
-    },
-    {
-      qAr: "كيف أقرأ الكتب الرقمية (E-Book) بعد شرائها؟",
-      qEn: "How do I access and read purchased digital e-books?",
-      aAr: "بمجرد إتمام الدفع، يتاح الكتاب فوراً في حسابك بتبويب «مكتبتي الرقمية». يمكنك القراءة الفورية عبر قارئ الكتب السحابي المتطور على الهاتف، التابلت، أو الكمبيوتر بدون الحاجة لتحميل أي برامج خارجية، مع تشفير DRM متقدم لحماية المحتوى.",
-      aEn: "Upon checkout, e-books unlock instantly under 'My Library'. You can read seamlessly via our cloud reader on mobile, tablet, or desktop with no additional software required.",
-    },
-    {
-      qAr: "ما هي وسائل الدفع المعتمدة في متجر دار عبيد؟",
-      qEn: "What payment methods are supported in the Book Store?",
-      aAr: "نوفر وسائل دفع إلكترونية آمنة ومشفرة 100%: البطاقات الائتمانية والبنكية (Visa, MasterCard, Meeza)، شبكة التحويل اللحظي إنستاباي (InstaPay)، المحافظ الإلكترونية للهواتف (فودافون كاش، اتصالات، أورنج، وي باي)، بالإضافة لخيار الدفع عند الاستلام للطلبات الورقية.",
-      aEn: "We support Visa, MasterCard, Meeza, InstaPay, mobile cash wallets, and cash on delivery for eligible print orders.",
-    },
-    {
-      qAr: "هل يمكن للمؤسسات والجامعات والمدارس شراء كميات مجمعة؟",
-      qEn: "Can educational institutions place bulk orders?",
-      aAr: "نعم، تتيح دار عبيد للمكتبات الجامعية والمدارس ومراكز التدريب طلب كميات مجمعة بأسعار وخصومات خاصة، مع توفير فواتير ضريبية رسمية وتوصيل للمقرات الأكاديمية مباشرة.",
-      aEn: "Yes, institutions can order bulk quantities with tailored educational discounts and official tax invoices.",
-    },
-  ];
 
   return (
     <PlatformUnderDevelopmentOverlay platform="bookstore">
@@ -920,37 +891,7 @@ const BookStorePlatform = () => {
 
 
         {/* ========================================================================= */}
-        {/* 8. READER & SHOPPING FAQS                                                 */}
-        {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/20 dark:bg-slate-950 border-b border-border dark:border-slate-800 transition-colors">
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center space-y-2">
-              <Badge className="bg-card dark:bg-slate-900 text-muted-foreground dark:text-slate-300 border border-border dark:border-slate-800 text-xs px-3 py-1">
-                <HelpCircle className="w-3.5 h-3.5 me-1 text-cyan-600 dark:text-cyan-400 inline" />
-                {isRtl ? "مركز المساعدة واستفسارات الشراء" : "Shopping & Help Center"}
-              </Badge>
-              <h2 className="text-2xl sm:text-3xl font-black text-foreground dark:text-white">
-                {isRtl ? "الأسئلة الشائعة حول متجر الكتب والتوصيل" : "Frequently Asked Questions"}
-              </h2>
-            </div>
-
-            <Accordion type="single" collapsible className="space-y-3">
-              {storeFaqs.map((faq, idx) => (
-                <AccordionItem key={idx} value={`faq-${idx}`} className="bg-card dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl px-5 shadow-xs transition-colors">
-                  <AccordionTrigger className="font-black text-sm sm:text-base text-foreground dark:text-white hover:no-underline py-4 text-start">
-                    {isRtl ? faq.qAr : faq.qEn}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-xs sm:text-sm text-muted-foreground dark:text-slate-400 leading-relaxed pt-1 pb-4 text-start">
-                    {isRtl ? faq.aAr : faq.aEn}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* 9. FAST PURCHASE / ADD TO CART MODAL                                      */}
+        {/* 8. FAST PURCHASE / ADD TO CART MODAL                                      */}
         {/* ========================================================================= */}
         {quickBuyBook && (
           <Dialog open={!!quickBuyBook} onOpenChange={(open) => !open && setQuickBuyBook(null)}>

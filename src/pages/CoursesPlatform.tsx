@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Video, PlayCircle, User, BookOpenCheck, Languages,
   Code2, Briefcase, Palette, Microscope, HeartPulse,
-  HelpCircle, Lock, Play,
+  Lock, Play,
   Search, Flame, Layers, Sparkles, Star, Zap, X,
   ShieldCheck, Award, GraduationCap, Home, Menu, Volume2
 } from "lucide-react";
@@ -19,7 +19,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAllCourses } from "@/hooks/useCourses";
@@ -451,33 +450,6 @@ const CoursesPlatform = () => {
 
     return result;
   }, [catalog, activeMainTab, activeSubCategory, liveSearchCategory, liveSearchQuery]);
-
-  const faqs = [
-    {
-      qAr: "كيف يمكنني البدء كمحاضر أو مدرب مستقل على أكاديمية UNIGATES؟",
-      qEn: "How can I start as an independent instructor on UNIGATES Academy?",
-      aAr: "يمكنك التسجيل كـ «محاضر» عبر رابط التسجيل المخصص، وإكمال بيانات ملفك الأكاديمي، ثم البدء فوراً في إنشاء دوراتك ورفع المحاضرات وحلقات الفيديو المحمية بنظام DRM، وتحديد خطة التسعير التي تناسبك.",
-      aEn: "You can sign up as an 'Instructor' via the dedicated portal, complete your profile, and start uploading DRM-protected lectures and setting course prices immediately.",
-    },
-    {
-      qAr: "هل الشهادات الصادرة من منصة الدورات معتمدة وقابلة للتحقق؟",
-      qEn: "Are completion certificates verified and authentic?",
-      aAr: "نعم، تصدر المنصة شهادات إتمام رقمية مشفرة تحمل رمز استجابة سريعة (QR Code) فريداً ورقم اعتماد يتيح لأي جهة توظيف أو مؤسسة التحقق من صحة الشهادة وسجل إنجاز المتدرب فورياً.",
-      aEn: "Yes, UNIGATES issues cryptographically verified certificates with unique QR codes allowing employers and institutions to verify authenticity instantly.",
-    },
-    {
-      qAr: "كيف تضمن المنصة حماية فيديوهاتي التدريبية من السرقة والتسجيل؟",
-      qEn: "How does the platform protect video lectures from screen recording and piracy?",
-      aAr: "تعتمد المنصة أعلى معايير التشفير والحماية السحابية الرقمية (DRM) التي تمنع برامج تسجيل الشاشة وتحظر تنزيل ملفات الفيديو الخام لحماية كامل حقوق المحاضرين والمراكز.",
-      aEn: "The platform integrates enterprise-grade DRM encryption that blocks screen recording utilities and raw video scraping, fully protecting instructor copyright.",
-    },
-    {
-      qAr: "هل تتوفر عينات أو حلقات مجانية لمشاهدتها قبل الشراء؟",
-      qEn: "Can I watch free preview episodes before subscribing?",
-      aAr: "نعم، توفر المنصة حلقة تمهيدية مجانية بالكامل في كل دورة حتى يتمكن الطالب من الاطلاع على محتوى الدورة وجودة الشرح وأسلوب المدرب قبل إتمام الاشتراك.",
-      aEn: "Yes, every course offers a full free preview episode so learners can evaluate the curriculum, audio-visual quality, and instructor teaching style.",
-    },
-  ];
 
   return (
     <PlatformUnderDevelopmentOverlay platform="courses">
@@ -1104,36 +1076,6 @@ const CoursesPlatform = () => {
             )}
           </DialogContent>
         </Dialog>
-
-        {/* ========================================================================= */}
-        {/* ACADEMY FAQS ACCORDION                                                    */}
-        {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/20 dark:bg-slate-950 border-b border-border dark:border-slate-800 transition-colors">
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center space-y-3">
-              <div className="inline-flex items-center gap-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 px-4 py-1 rounded-full text-xs font-bold">
-                <HelpCircle className="w-4 h-4" />
-                {isRtl ? "الأسئلة الشائعة لأكاديمية الدورات" : "Academy FAQs"}
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-foreground">
-                {isRtl ? "إجابات على استفسارات المتدربين والمدربين" : "Frequently Asked Questions"}
-              </h2>
-            </div>
-
-            <Accordion type="single" collapsible className="space-y-3">
-              {faqs.map((faq, idx) => (
-                <AccordionItem key={idx} value={`faq-${idx}`} className="bg-card dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl px-5 shadow-xs transition-colors">
-                  <AccordionTrigger className="font-black text-sm sm:text-base text-foreground dark:text-white hover:no-underline py-4 text-start">
-                    {isRtl ? faq.qAr : faq.qEn}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-xs sm:text-sm text-muted-foreground dark:text-slate-400 leading-relaxed pt-1 pb-4 text-start">
-                    {isRtl ? faq.aAr : faq.aEn}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </section>
 
         {/* Global Footer */}
         <SiteFooter />

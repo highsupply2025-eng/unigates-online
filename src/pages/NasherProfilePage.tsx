@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import {
   User,
@@ -26,7 +27,18 @@ import {
   Download,
   ExternalLink,
   Sparkles,
-  AlertTriangle
+  AlertTriangle,
+  PenTool,
+  Home,
+  BookOpen,
+  CreditCard,
+  MessageSquare,
+  Bell,
+  TrendingUp,
+  Globe,
+  Sun,
+  Moon,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +48,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { AuthorProfile, AcademicTitle } from "@/types/nashr";
 import { NashrDataStore } from "@/services/nashrDataStore";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -66,13 +86,23 @@ const SPECIALIZATIONS = [
 ];
 
 const NasherProfilePage = () => {
-  const { dir, isRtl } = useLanguage();
+  const { dir, language, setLanguage } = useLanguage();
+  const isRtl = dir === "rtl";
+  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   // Load live profile from NashrDataStore
   const [profile, setProfile] = useState<AuthorProfile>(NashrDataStore.getAuthorProfile());
+  const [submissions, setSubmissions] = useState(() => NashrDataStore.getSubmissions());
+  const [messages, setMessages] = useState(() => NashrDataStore.getMessages());
   const isUnderReview = profile.verificationStatus === "pending_review";
+
+  useEffect(() => {
+    setProfile(NashrDataStore.getAuthorProfile());
+    setSubmissions(NashrDataStore.getSubmissions());
+    setMessages(NashrDataStore.getMessages());
+  }, []);
 
   // Editable Form states
   const [fullName, setFullName] = useState(profile.fullName || "");
@@ -237,37 +267,291 @@ const NasherProfilePage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       
-      {/* Top Navbar Header */}
-      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/80 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/nashr/dashboard")}
-            className="h-10 px-3.5 rounded-2xl border-2 border-border/80 hover:bg-muted font-black text-xs gap-1.5 shadow-xs"
-          >
-            <ArrowRight className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" />
-            <span>{isRtl ? "العودة للوحة المؤلف" : "Back to Dashboard"}</span>
-          </Button>
-
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-muted-foreground">/</span>
-            <span className="text-xs font-black text-foreground">{isRtl ? "البيانات الشخصية وإعدادات الأمان" : "Profile & Security"}</span>
+      {/* Top Header Navbar */}
+      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between">
+        <Link to="/nashr/dashboard" className="flex items-center gap-2.5 group">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md flex items-center justify-center text-white group-hover:scale-105 transition-all">
+            <PenTool className="w-5 h-5" />
           </div>
-        </div>
+          <div className="text-start">
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-black text-foreground">UNIGATES</span>
+              <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px] font-bold px-1.5 py-0">
+                {isRtl ? "منصة نشر" : "Nashr Studio"}
+              </Badge>
+            </div>
+            <span className="text-[10px] block font-bold text-muted-foreground">
+              {isRtl ? "لوحة تحكم المؤلف واستوديو المبيعات" : "Author Dashboard & Publishing Suite"}
+            </span>
+          </div>
+        </Link>
 
+        {/* User Badge & Fast Actions (Order: القائمة المنسدلة -> تغيير اللغة -> السطوع) */}
         <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* 1. القائمة المنسدلة (Dropdown Menu - 3 Horizontal Lines) */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="group relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 text-white hover:from-amber-600 hover:via-orange-600 hover:to-rose-600 active:scale-95 transition-all duration-300 shadow-md shadow-amber-500/25 hover:shadow-lg hover:shadow-amber-500/40 border-2 border-white/20 outline-none focus:outline-none cursor-pointer shrink-0"
+                aria-label={isRtl ? "قائمة المؤلف والخدمات" : "Author Studio Menu"}
+                title={isRtl ? "القائمة الرئيسية لحساب المؤلف" : "Author Account Menu"}
+              >
+                {/* Ambient glow */}
+                <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                {/* 3 Horizontal Lines (Burger Menu) */}
+                <div className="flex flex-col items-center justify-center gap-1 w-5 h-5">
+                  <span className="w-4 h-0.5 bg-white rounded-full transition-all duration-300 group-hover:w-5 shadow-xs" />
+                  <span className="w-5 h-0.5 bg-white rounded-full transition-all duration-300 shadow-xs" />
+                  <span className="w-3.5 h-0.5 bg-white rounded-full transition-all duration-300 group-hover:w-5 shadow-xs" />
+                </div>
+
+                {/* Notification Ping if review notes or unread messages exist */}
+                {(submissions.some(s => s.adminFeedback) || messages.filter(m => m.sender === "admin" && !m.read).length > 0) && (
+                  <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-rose-500 border-2 border-background animate-pulse" />
+                )}
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent 
+              align={isRtl ? "start" : "end"} 
+              className="w-80 sm:w-88 rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl space-y-1 z-50 font-sans"
+              dir={dir}
+            >
+              {/* Account Header in Dropdown */}
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-1.5 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-black text-foreground truncate tracking-tight">{profile.fullName}</span>
+                  <Badge className="bg-amber-500/25 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-mono font-black px-2 py-0.5 shadow-xs">
+                    {profile.authorCode}
+                  </Badge>
+                </div>
+                <p className="text-xs font-bold text-muted-foreground truncate">
+                  {profile.academicTitleLabel} • {profile.specialization}
+                </p>
+                <div className="flex items-center gap-1.5 pt-0.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-black">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{isRtl ? "حساب معتمد وموثق رسمياً" : "Verified Author Account"}</span>
+                </div>
+              </div>
+
+              <DropdownMenuSeparator className="my-1.5" />
+
+              {/* 0. الصفحة الرئيسية (نظرة عامة والتحليلات البيانية) */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=home")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <Home className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "الصفحة الرئيسية" : "Home & Overview"}</span>
+                </div>
+                <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-black h-5">
+                  {isRtl ? "الرئيسية 📊" : "Main"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 1. رفع مؤلفات جديدة */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=submit")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                    <UploadCloud className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "رفع مؤلفات جديدة" : "Submit New Manuscript"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-600 font-bold">
+                  {isRtl ? "إرسال 📁" : "Upload"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 2. المؤلفات المنشورة */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=published")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-blue-500/10 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/15 text-blue-600 flex items-center justify-center shrink-0">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "المؤلفات المنشورة" : "Published Works"}</span>
+                </div>
+                <Badge className="bg-blue-500 text-white text-[10px] h-5 px-1.5 font-bold">
+                  {submissions.filter(s => s.status === "published").length}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 3. الفواتير وطرق الدفع */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=payments")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
+                    <CreditCard className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "الفواتير وطرق الدفع" : "Invoices & Payments"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-600 font-bold">
+                  {isRtl ? "سداد 💳" : "Pay"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 4. التواصل وملاحظات التدقيق */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=chat")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-purple-500/10 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-600 flex items-center justify-center shrink-0">
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "التواصل وملاحظات التدقيق" : "Review Notes & Chat"}</span>
+                </div>
+                {messages.filter(m => m.sender === "admin" && !m.read).length > 0 && (
+                  <Badge className="bg-purple-500 text-white text-[10px] h-5 px-1.5 font-bold">
+                    {messages.filter(m => m.sender === "admin" && !m.read).length}
+                  </Badge>
+                )}
+              </DropdownMenuItem>
+
+              {/* 5. ملاحظات جديدة */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/notes")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0">
+                    <Bell className="w-4 h-4 animate-bounce" />
+                  </div>
+                  <span>{isRtl ? "ملاحظات جديدة" : "New Review Notes"}</span>
+                </div>
+                <Badge className="bg-gradient-to-r from-amber-500 to-rose-600 text-white text-[10px] h-5 px-2 font-black shadow-xs">
+                  {submissions.filter(s => s.adminFeedback).length > 0 
+                    ? (isRtl ? "واردة 🔥" : "Active 🔥") 
+                    : (isRtl ? "محدثة" : "Updated")}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 6. مبيعات الكتب والأرباح */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=sales")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "مبيعات الكتب والأرباح" : "Sales & Royalties"}</span>
+                </div>
+                <Badge variant="secondary" className="text-[10px] font-black">
+                  {isRtl ? "أرباح 📈" : "Sales"}
+                </Badge>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-1.5" />
+
+              {/* 7. البيانات الشخصية وإعدادات الأمان (الصفحة الحالية) */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/profile")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 font-black"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-500 text-white flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "البيانات الشخصية" : "Personal Profile"}</span>
+                </div>
+                <Badge className="bg-indigo-500 text-white text-[10px] font-bold">
+                  {isRtl ? "الحالية 👤" : "Current"}
+                </Badge>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-1.5" />
+
+              {/* 8. تغيير اللغة */}
+              <DropdownMenuItem 
+                onClick={() => {
+                  const nextLang = language === "ar" ? "en" : "ar";
+                  setLanguage(nextLang);
+                  toast({
+                    title: nextLang === "ar" ? "تم تغيير اللغة إلى العربية 🌐" : "Language switched to English 🌐",
+                    description: nextLang === "ar" ? "تم تحديث واجهة المنصة باللغة العربية." : "Interface updated to English."
+                  });
+                }}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-cyan-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-600 flex items-center justify-center shrink-0">
+                    <Globe className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "تغيير اللغة" : "Change Language"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-black border-cyan-500/40 text-cyan-700 dark:text-cyan-300 bg-cyan-500/10">
+                  {language === "ar" ? "العربية ⟳" : "English ⟳"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 9. السطوع */}
+              <DropdownMenuItem 
+                onClick={() => {
+                  const nextTheme = theme === "dark" ? "light" : "dark";
+                  setTheme(nextTheme);
+                  toast({
+                    title: nextTheme === "dark" 
+                      ? (isRtl ? "تم تفعيل الوضع الداكن 🌙" : "Dark Mode Activated 🌙") 
+                      : (isRtl ? "تم تفعيل الوضع الفاتح ☀️" : "Light Mode Activated ☀️"),
+                    description: nextTheme === "dark"
+                      ? (isRtl ? "مظهر داكن مريح للعين." : "Comfortable dark theme.")
+                      : (isRtl ? "مظهر ساطع وواضح." : "Bright and clear appearance.")
+                  });
+                }}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                    {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                  </div>
+                  <span>{isRtl ? "السطوع والمظهر" : "Appearance & Theme"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10">
+                  {theme === "dark" ? (isRtl ? "داكن 🌙 ⟳" : "Dark 🌙 ⟳") : (isRtl ? "فاتح ☀️ ⟳" : "Light ☀️ ⟳")}
+                </Badge>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-1.5" />
+
+              {/* 10. تسجيل الخروج */}
+              <DropdownMenuItem 
+                onClick={() => {
+                  toast({
+                    title: isRtl ? "تم تسجيل الخروج بنجاح" : "Logged Out Successfully",
+                    description: isRtl ? "نتمنى لكم يوماً سعيداً في دار عبيد وUNIGATES." : "See you soon."
+                  });
+                  navigate("/nashr");
+                }}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-start cursor-pointer text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-destructive/15 text-destructive flex items-center justify-center shrink-0">
+                    <LogOut className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "تسجيل الخروج" : "Logout"}</span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* 2. تغيير اللغة (Language Selector) */}
+          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-card/90 hover:bg-muted border-2 border-border/80 rounded-2xl font-black text-foreground tracking-wide shadow-xs" />
+
+          {/* 3. السطوع (Theme Toggle) */}
           <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-card/90 hover:bg-muted border-2 border-border/80 shadow-xs" />
-          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-card/90 hover:bg-muted border-2 border-border/80 rounded-2xl font-black text-foreground shadow-xs" />
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/nashr/dashboard")}
-            className="h-10 px-3 rounded-2xl text-xs font-black text-muted-foreground hover:text-foreground"
-          >
-            UNIGATES
-          </Button>
         </div>
       </header>
 

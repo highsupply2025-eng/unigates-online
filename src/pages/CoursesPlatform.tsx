@@ -907,8 +907,10 @@ const CoursesPlatform = () => {
                       <img
                         src={course.thumbnail_url}
                         alt={course.title_ar}
+                        loading={idx < 4 ? "eager" : "lazy"}
+                        decoding="async"
+                        fetchPriority={idx < 2 ? "high" : "auto"}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 dark:from-slate-950 dark:via-slate-950/30 to-transparent" />
                       
@@ -1028,6 +1030,8 @@ const CoursesPlatform = () => {
                   <img
                     src={previewCourse.thumbnail_url}
                     alt={previewCourse.title_ar}
+                    loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover opacity-35"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />

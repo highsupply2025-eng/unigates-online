@@ -354,9 +354,15 @@ const NasherProfilePage = () => {
           </div>
         </Link>
 
-        {/* User Badge & Fast Actions (Order: القائمة المنسدلة -> تغيير اللغة -> السطوع) */}
+        {/* User Badge & Fast Actions (Requested Order: السطوع -> تغيير اللغة -> القائمة المنسدلة) */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* 1. القائمة المنسدلة (Dropdown Menu - 3 Horizontal Lines) */}
+          {/* 1. السطوع (Theme Toggle) */}
+          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-card/90 hover:bg-muted border-2 border-border/80 shadow-xs" />
+
+          {/* 2. تغيير اللغة (Language Selector) */}
+          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-card/90 hover:bg-muted border-2 border-border/80 rounded-2xl font-black text-foreground tracking-wide shadow-xs" />
+
+          {/* 3. القائمة المنسدلة (Dropdown Menu - 3 Horizontal Lines) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -778,12 +784,6 @@ const NasherProfilePage = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* 2. تغيير اللغة (Language Selector) */}
-          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-card/90 hover:bg-muted border-2 border-border/80 rounded-2xl font-black text-foreground tracking-wide shadow-xs" />
-
-          {/* 3. السطوع (Theme Toggle) */}
-          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-card/90 hover:bg-muted border-2 border-border/80 shadow-xs" />
         </div>
       </header>
 

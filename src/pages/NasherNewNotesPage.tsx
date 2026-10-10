@@ -234,78 +234,92 @@ const NasherNewNotesPage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       
-      {/* Top Navbar */}
-      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/80 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between">
+      {/* Top Header Navbar */}
+      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between">
         
         {/* Right side in RTL: UNIGATES Branding & Dar Obeid Notes subtitle */}
-        <div className="flex items-center gap-3">
-          <Link to="/nashr/dashboard" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center font-black shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-all">
-              <PenTool className="w-5 h-5" />
+        <Link to="/nashr/dashboard" className="flex items-center gap-2.5 group">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-md flex items-center justify-center text-white group-hover:scale-105 transition-all">
+            <PenTool className="w-5 h-5" />
+          </div>
+          <div className="text-start">
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-black text-foreground">UNIGATES</span>
+              <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px] font-bold px-1.5 py-0">
+                {isRtl ? "منصة نشر" : "Nashr Studio"}
+              </Badge>
             </div>
-            <div className="text-start">
-              <div className="flex items-center gap-2">
-                <span className="text-base font-black tracking-tight bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 bg-clip-text text-transparent">
-                  UNIGATES
-                </span>
-                <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[9px] font-black px-1.5 py-0">
-                  {isRtl ? "منصة نشر" : "Nashr"}
-                </Badge>
-              </div>
-              <p className="text-[10px] text-muted-foreground font-extrabold truncate max-w-[200px] sm:max-w-none transition-all duration-300">
-                {isRtl ? "لوحة تحكم المؤلف • ملاحظات جديدة" : "Author Dashboard • New Review Notes"}
-              </p>
-            </div>
-          </Link>
-        </div>
+            <span className="text-[10px] block font-bold text-muted-foreground transition-all duration-300">
+              {isRtl ? "لوحة تحكم المؤلف • ملاحظات جديدة" : "Author Dashboard • New Review Notes"}
+            </span>
+          </div>
+        </Link>
 
-        {/* Left side in RTL: Studio Hamburger Dropdown Menu + Language Toggle + Theme Toggle */}
-        <div className="flex items-center gap-2">
-          
-          {/* Studio Full Dropdown Navigation Menu */}
+        {/* User Badge & Fast Actions (Requested Order: السطوع -> تغيير اللغة -> القائمة المنسدلة) */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* 1. السطوع (Theme Toggle) */}
+          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-card/90 hover:bg-muted border-2 border-border/80 shadow-xs" />
+
+          {/* 2. تغيير اللغة (Language Selector) */}
+          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-card/90 hover:bg-muted border-2 border-border/80 rounded-2xl font-black text-foreground tracking-wide shadow-xs" />
+
+          {/* 3. القائمة المنسدلة (Dropdown Menu - 3 Horizontal Lines) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 px-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-xs gap-2 border-none shadow-md shadow-amber-500/20 cursor-pointer hover:scale-105 transition-all"
+              <button
+                type="button"
+                className="group relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 text-white hover:from-amber-600 hover:via-orange-600 hover:to-rose-600 active:scale-95 transition-all duration-300 shadow-md shadow-amber-500/25 hover:shadow-lg hover:shadow-amber-500/40 border-2 border-white/20 outline-none focus:outline-none cursor-pointer shrink-0"
+                aria-label={isRtl ? "قائمة المؤلف والخدمات" : "Author Studio Menu"}
+                title={isRtl ? "القائمة الرئيسية لحساب المؤلف" : "Author Account Menu"}
               >
-                <div className="flex flex-col gap-1 items-center justify-center">
-                  <span className="w-4 h-0.5 bg-white rounded-full"></span>
-                  <span className="w-4 h-0.5 bg-white rounded-full"></span>
-                  <span className="w-4 h-0.5 bg-white rounded-full"></span>
+                {/* Ambient glow */}
+                <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                {/* 3 Horizontal Lines (Burger Menu) */}
+                <div className="flex flex-col items-center justify-center gap-1 w-5 h-5">
+                  <span className="w-4 h-0.5 bg-white rounded-full transition-all duration-300 group-hover:w-5 shadow-xs" />
+                  <span className="w-5 h-0.5 bg-white rounded-full transition-all duration-300 shadow-xs" />
+                  <span className="w-3.5 h-0.5 bg-white rounded-full transition-all duration-300 group-hover:w-5 shadow-xs" />
                 </div>
-                <span className="hidden sm:inline">{isRtl ? "قائمة الاستوديو" : "Studio Menu"}</span>
-              </Button>
+
+                {/* Notification Ping if review notes or unread messages exist */}
+                {(submissions.some(s => s.adminFeedback) || messages.filter(m => m.sender === "admin" && !m.read).length > 0) && (
+                  <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-rose-500 border-2 border-background animate-pulse" />
+                )}
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align={isRtl ? "start" : "end"} 
-              className="w-80 sm:w-88 max-h-[85vh] overflow-y-auto rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl z-50 animate-in fade-in-50 zoom-in-95"
+              className="w-80 sm:w-88 max-h-[85vh] overflow-y-auto rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl space-y-1 z-50 font-sans"
               dir={dir}
             >
-              {/* Profile Card Header */}
-              <DropdownMenuLabel className="p-3 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 rounded-2xl border border-amber-500/20 mb-2">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-md overflow-hidden border border-white/20">
+              {/* Account Header in Dropdown */}
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-2 shadow-xs mb-1">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center shrink-0 overflow-hidden border border-white/30 shadow-sm">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt={authorProfile.fullName} className="w-full h-full object-cover" />
                     ) : (
-                      <span>✍️</span>
+                      <span className="text-lg">👤</span>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0 text-start">
-                    <p className="text-xs font-black text-foreground truncate">
-                      {authorProfile.fullName}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground font-bold truncate">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="text-sm font-black text-foreground truncate tracking-tight">{authorProfile.fullName}</span>
+                      <Badge className="bg-amber-500/25 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-mono font-black px-1.5 py-0 shadow-xs">
+                        {authorProfile.authorCode}
+                      </Badge>
+                    </div>
+                    <p className="text-xs font-bold text-muted-foreground truncate">
                       {authorProfile.academicTitleLabel} • {authorProfile.specialization}
                     </p>
                   </div>
-                  <Badge variant="outline" className="text-[9px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10 shrink-0">
-                    {authorProfile.authorCode}
-                  </Badge>
                 </div>
-              </DropdownMenuLabel>
+                <div className="flex items-center gap-1.5 pt-0.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-black">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{isRtl ? "حساب معتمد وموثق رسمياً" : "Verified Author Account"}</span>
+                </div>
+              </div>
 
               <DropdownMenuSeparator className="my-1" />
 
@@ -664,12 +678,6 @@ const NasherNewNotesPage = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* Language Selector */}
-          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-card/90 hover:bg-muted border-2 border-border/80 rounded-2xl font-black text-foreground tracking-wide shadow-xs" />
-
-          {/* Theme Toggle (Dark / Light / System) */}
-          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-card/90 hover:bg-muted border-2 border-border/80 shadow-xs" />
         </div>
       </header>
 

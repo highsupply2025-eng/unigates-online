@@ -5184,7 +5184,7 @@ ${exams.map((s: any, i: number) => `<tr>
                                       <CartesianGrid strokeDasharray="3 3" />
                                       <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                                       <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                                      <Tooltip />
+                                      <Tooltip cursor={false} />
                                       <Bar dataKey="count" name={isRtl ? "العدد" : "Count"}>
                                         {distData.map((entry, index) => (
                                           <Cell key={index} fill={entry.color} />

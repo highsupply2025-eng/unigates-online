@@ -920,6 +920,7 @@ export const AssignmentResultsRosterView: React.FC<AssignmentResultsRosterViewPr
                               <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                               <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
                               <Tooltip
+                                cursor={false}
                                 contentStyle={{ borderRadius: 8, fontSize: 12 }}
                                 formatter={(val: number) => [val, isRtl ? "عدد الطلاب" : "Students"]}
                               />

@@ -3681,6 +3681,7 @@ const LeadershipDashboard = () => {
                                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                                   <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                                   <Tooltip
+                                    cursor={false}
                                     contentStyle={{ borderRadius: 8, fontSize: 12 }}
                                     formatter={(value: number) => [value, isRtl ? "عدد الطلاب" : "Students"]}
                                   />

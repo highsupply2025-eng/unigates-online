@@ -80,6 +80,7 @@ export const SectionsActivityChart = ({ sections, title, days = 7, className = "
             />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
             <Tooltip
+              cursor={false}
               contentStyle={{ borderRadius: 8, fontSize: 12 }}
               formatter={(value: number) => [value, isRtl ? "النشاط (آخر 7 أيام)" : "Activity (last 7 days)"]}
             />

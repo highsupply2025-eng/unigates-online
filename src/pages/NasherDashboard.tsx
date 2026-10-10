@@ -1225,6 +1225,7 @@ const NasherDashboard = () => {
                             opacity={0.8}
                           />
                           <RechartsTooltip 
+                            cursor={false}
                             content={({ active, payload }) => {
                               if (active && payload && payload.length) {
                                 const data = payload[0].payload;

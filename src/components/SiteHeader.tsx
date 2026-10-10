@@ -81,7 +81,7 @@ const SiteHeader = () => {
     },
     {
       to: "/career",
-      label: t.careerPlatform || translate("منصة Career", "Career Platform"),
+      label: t.careerPlatform || translate("منصة CAREER", "Career Platform"),
       icon: Briefcase,
       badge: t.header?.careerBadge || translate("توظيف وكفاءات", "Careers & Talent"),
       activeColor: "from-cyan-600 to-teal-600",

@@ -76,7 +76,7 @@ const SiteFooter = () => {
         { label: t.nasherPlatform || translate("منصة نشر", "Nashr Platform"), href: "/nashr" },
         { label: t.bookStore, href: "/book-store" },
         { label: t.exploreCourses, href: "/courses" },
-        { label: t.careerPlatform || translate("منصة Career", "Career Platform"), href: "/career" },
+        { label: t.careerPlatform || translate("منصة CAREER", "Career Platform"), href: "/career" },
         { label: translate("برنامج الأفيليت", "Affiliate Program"), href: "/affiliate" },
       ],
     },

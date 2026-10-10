@@ -87,7 +87,7 @@ const HeroSection = () => {
     },
     {
       to: "/career",
-      label: t.careerPlatform || translate("منصة Career", "Career Portal"),
+      label: t.careerPlatform || translate("منصة CAREER", "Career Portal"),
       badge: t.header?.careerBadge || translate("توظيف وكفاءات", "Careers & Talent"),
       icon: Briefcase,
       color: "from-cyan-600 to-teal-700",

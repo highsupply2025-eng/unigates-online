@@ -3,12 +3,12 @@ import { describe, it, expect } from "vitest";
 describe("SiteHeader Modernization & Platform Navigation Tests", () => {
   it("should have all 6 platforms in header navigation in the correct order", () => {
     const platforms = [
-      { to: "/university-platform", label: "المنصة الجامعية", color: "blue" },
-      { to: "/school-platform", label: "المنصة المدرسية", color: "emerald" },
+      { to: "/university-platform", label: "منصة جامعية", color: "blue" },
+      { to: "/school-platform", label: "منصة مدرسة", color: "emerald" },
       { to: "/nashr", label: "منصة نشر", color: "rose" },
-      { to: "/book-store", label: "متجر الكتب", color: "amber" },
+      { to: "/book-store", label: "منصة متجر الكتب", color: "amber" },
       { to: "/courses", label: "منصة دورات تعليمية", color: "purple" },
-      { to: "/career", label: "منصة Career", color: "cyan" },
+      { to: "/career", label: "منصة CAREER", color: "cyan" },
     ];
 
     expect(platforms).toHaveLength(6);

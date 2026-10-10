@@ -7,7 +7,7 @@ import {
   Code2, Briefcase, Palette, Microscope, HeartPulse,
   Lock, Play,
   Search, Flame, Layers, Sparkles, Star, Zap, X,
-  ShieldCheck, Award, GraduationCap, Home, Menu, Volume2
+  ShieldCheck, Award, GraduationCap, Home, Menu, Volume2, BadgePercent
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -804,9 +804,46 @@ const CoursesPlatform = () => {
         {/* ========================================================================= */}
         {/* DYNAMIC COURSES RESULTS GRID (INSTANT RESPONSE TO ROW 1 & 2 SELECTIONS)    */}
         {/* ========================================================================= */}
-        <section id="courses-results-grid" className="py-10 sm:py-14 px-4 sm:px-6 md:px-12 bg-background dark:bg-slate-950 border-b border-border dark:border-slate-800/80 transition-colors">
-          <div className="max-w-7xl mx-auto space-y-8">
-            
+        <section id="courses-results-grid" className="py-8 sm:py-12 px-4 sm:px-6 md:px-12 bg-background dark:bg-slate-950 border-b border-border dark:border-slate-800/80 transition-colors">
+          <div className="max-w-7xl mx-auto space-y-6">
+
+            {/* 💰 شريط سياسة أرباح المحاضرين والمدربين */}
+            <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-card to-indigo-950/40 dark:from-purple-950/50 dark:via-slate-900/80 dark:to-indigo-950/50 backdrop-blur-md p-3.5 sm:p-4 shadow-sm">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div className="flex items-start sm:items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-400/30 flex items-center justify-center shrink-0 shadow-inner">
+                    <BadgePercent className="w-5 h-5 text-purple-300" />
+                  </div>
+                  <p className="text-xs sm:text-[13px] text-foreground leading-relaxed">
+                    <strong className="text-purple-600 dark:text-purple-300 font-black">
+                      {isRtl ? "نظام أرباح المحاضرين:" : "Instructor Revenue Policy:"}
+                    </strong>{" "}
+                    {isRtl ? (
+                      <>
+                        يحصل المحاضر على <span className="text-emerald-600 dark:text-emerald-400 font-black">80%</span> من قيمة دورته للطلاب المسجلين عبر رابط دعوته الخاص (20% للمنصة)، و<span className="text-cyan-600 dark:text-cyan-400 font-black">70%</span> للطلاب المنضمين عبر تسويق المنصة أو التحاقهم بدورات محاضرين آخرين (30% للمنصة)، مع تحمّل المحاضر رسوم بوابات الدفع في الحالتين.
+                      </>
+                    ) : (
+                      <>
+                        Instructors receive <span className="text-emerald-600 dark:text-emerald-400 font-black">80%</span> revenue for students enrolled via their direct invite link (20% platform fee), and <span className="text-cyan-600 dark:text-cyan-400 font-black">70%</span> for students joining via platform marketing or enrolling in other instructors' courses (30% platform fee), with payment gateway processing fees borne by the instructor in both cases.
+                      </>
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-start lg:self-center">
+                  <Badge variant="outline" className="text-[11px] font-black border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 px-2.5 py-1 rounded-lg">
+                    {isRtl ? "80% دعوة المحاضر" : "80% Direct Invite"}
+                  </Badge>
+                  <Badge variant="outline" className="text-[11px] font-black border-cyan-500/40 bg-cyan-500/10 text-cyan-600 dark:text-cyan-300 px-2.5 py-1 rounded-lg">
+                    {isRtl ? "70% تسويق المنصة" : "70% Platform Marketing"}
+                  </Badge>
+                  <Badge variant="outline" className="text-[11px] font-bold border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-300 px-2.5 py-1 rounded-lg">
+                    {isRtl ? "رسوم الدفع على المحاضر" : "Gateway Fees on Instructor"}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
             {/* Status bar if filtered */}
             {activeSubCategory !== "all" && (
               <div className="flex items-center justify-between pb-2">

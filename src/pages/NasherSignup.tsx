@@ -419,6 +419,7 @@ const NasherSignup = () => {
     try {
       const selectedTitleObj = ACADEMIC_TITLES.find(t => t.value === academicTitle);
       const titleLabel = isRtl ? (selectedTitleObj?.labelAr || "مؤلف") : (selectedTitleObj?.labelEn || "Author");
+      const titlePrefix = (titleLabel || "").split("/")[0].trim() || (isRtl ? "مؤلف" : "Author");
       const finalSpec = specialization === "other" ? customSpecialization : specialization;
       const authorCode = generateAuthorCode();
       const tempPassword = generateTempPassword();
@@ -426,7 +427,7 @@ const NasherSignup = () => {
       const newProfile: AuthorProfile = {
         id: `auth-${Date.now()}`,
         authorCode,
-        fullName: `${titleLabel.split("/")[0].trim()} ${fullName.trim()}`,
+        fullName: `${titlePrefix} ${fullName.trim()}`,
         academicTitle,
         academicTitleLabel: titleLabel,
         specialization: finalSpec || "علوم وأبحاث عامة",
@@ -465,8 +466,12 @@ const NasherSignup = () => {
         console.warn("[NasherSignup] IndexedDB saveFiles warning:", fErr);
       }
 
-      // Save to store
-      NashrDataStore.saveAuthorProfile(newProfile);
+      // Save to store safely
+      try {
+        NashrDataStore.saveAuthorProfile(newProfile);
+      } catch (sErr) {
+        console.warn("[NasherSignup] saveAuthorProfile non-fatal warning:", sErr);
+      }
 
       setGeneratedAccount({
         profile: newProfile,
@@ -482,8 +487,8 @@ const NasherSignup = () => {
     } catch (err: any) {
       console.error("[NasherSignup] Signup error:", err);
       toast({
-        title: isRtl ? "حدث خطأ" : "Error",
-        description: isRtl ? (err?.message || "يرجى المحاولة مرة أخرى.") : "Please try again.",
+        title: isRtl ? "حدث خطأ أثناء التسجيل" : "Registration Error",
+        description: isRtl ? (err?.message || "يرجى التحقق من صحة الملفات والمحاولة مرة أخرى.") : "Please check your files and try again.",
         variant: "destructive"
       });
     } finally {

@@ -893,6 +893,71 @@ export function generateSampleCertificateSvg(
 }
 
 // ─────────────────────────────────────────────────────────────
+// Official Registered Seed Authors (Persisted across all devices)
+// ─────────────────────────────────────────────────────────────
+export const OFFICIAL_SEED_AUTHORS: AuthorProfile[] = [
+  {
+    id: "auth-4714",
+    authorCode: "AUT-4714",
+    fullName: "د. ايمن احمد محمد الدلوع",
+    academicTitle: "dr",
+    academicTitleLabel: "دكتور (د.)",
+    specialization: "القانون والتشريعات والشريعة",
+    institution: "جامعة الأزهر - كلية الشريعة والقانون",
+    email: "dr.aymaneldlloa@gmail.com",
+    phone: "+20 100 000 0000",
+    bio: "دكتور وباحث في القانون والشريعة والتشريعات المقارنة وحقوق الملكية الفكرية، حاصل على الدكتوراه في الدراسات الفقهية والقانونية وله مؤلفات وأبحاث محكمة.",
+    avatarUrl: generateSampleAuthorAvatarSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)"),
+    avatarName: "د. أيمن أحمد الدلوع.jpg",
+    nationalIdUrl: generateSampleNationalIdCardSvg("د. ايمن احمد محمد الدلوع", "AUT-4714", "القانون والتشريعات والشريعة"),
+    nationalIdName: "بطاقة الرقم القومي - د. ايمن احمد محمد الدلوع.pdf",
+    nationalIdSize: "1.4 MB",
+    qualificationDocuments: [
+      {
+        id: "qual-4714-phd",
+        name: "شهادة الدكتوراه في الشريعة والقانون.pdf",
+        url: generateSampleCertificateSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)", "القانون والتشريعات والشريعة", "جامعة الأزهر", "شهادة درجة الدكتوراه في الشريعة والقانون"),
+        size: "2.5 MB",
+        type: "PDF"
+      },
+      {
+        id: "qual-4714-master",
+        name: "شهادة الماجستير في التشريعات القانونية المقارنة.pdf",
+        url: generateSampleCertificateSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)", "التشريعات القانونية المقارنة", "كلية الحقوق", "شهادة درجة الماجستير في القانون المقارن"),
+        size: "1.8 MB",
+        type: "PDF"
+      },
+      {
+        id: "qual-4714-licence",
+        name: "شهادة الليسانس في الشريعة والقانون.pdf",
+        url: generateSampleCertificateSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)", "الشريعة والقانون", "كلية الشريعة والقانون", "شهادة الليسانس في الشريعة والقانون بتقدير ممتاز"),
+        size: "1.2 MB",
+        type: "PDF"
+      },
+      {
+        id: "qual-4714-license",
+        name: "كارنيه العضوية والترخيص الأكاديمي والمهني.pdf",
+        url: generateSampleCertificateSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)", "الترخيص الأكاديمي والمهني", "النقابة العامة", "وثيقة القيد والترخيص الأكاديمي والمهني"),
+        size: "850 KB",
+        type: "PDF"
+      }
+    ],
+    qualificationUrls: [
+      generateSampleCertificateSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)", "القانون والتشريعات والشريعة", "جامعة الأزهر", "شهادة درجة الدكتوراه في الشريعة والقانون"),
+      generateSampleCertificateSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)", "التشريعات القانونية المقارنة", "كلية الحقوق", "شهادة درجة الماجستير في القانون المقارن"),
+      generateSampleCertificateSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)", "الشريعة والقانون", "كلية الشريعة والقانون", "شهادة الليسانس في الشريعة والقانون بتقدير ممتاز"),
+      generateSampleCertificateSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)", "الترخيص الأكاديمي والمهني", "النقابة العامة", "وثيقة القيد والترخيص الأكاديمي والمهني")
+    ],
+    agreedToTerms: true,
+    isTemporaryPassword: false,
+    tempPassword: "NSR-9MT9QW",
+    permanentPassword: "NSR-9MT9QW",
+    verificationStatus: "pending_review",
+    joinedDate: "2026-10-10"
+  }
+];
+
+// ─────────────────────────────────────────────────────────────
 // Author Document Self-Healing Function
 // ─────────────────────────────────────────────────────────────
 
@@ -1070,9 +1135,26 @@ export class NashrDataStore {
         return author;
       });
 
+      // Ensure official registered authors (such as Dr. Ayman AUT-4714) are ALWAYS present
+      OFFICIAL_SEED_AUTHORS.forEach(seed => {
+        const exists = healedList.some(a => 
+          (a.authorCode && a.authorCode.trim().toUpperCase() === seed.authorCode.toUpperCase()) ||
+          a.id === seed.id ||
+          (a.email && seed.email && a.email.trim().toLowerCase() === seed.email.toLowerCase())
+        );
+        if (!exists) {
+          healedList.unshift(seed);
+          healedAny = true;
+        }
+      });
+
       // Synchronize back to storage if items were pruned or healed
       if (saved && (list.length !== filtered.length || healedAny)) {
-        localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(healedList));
+        try {
+          localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(healedList));
+        } catch (storageErr) {
+          console.warn("[getAllAuthors] Storage sync warning:", storageErr);
+        }
       }
 
       return healedList;
@@ -1140,7 +1222,7 @@ export class NashrDataStore {
 
   static pruneAuthorForStorage(author: AuthorProfile): AuthorProfile {
     if (!author) return author;
-    const isLarge = (str?: string) => Boolean(str && (str.length > 5000 || str.startsWith("data:application") || str.startsWith("data:image")));
+    const isLarge = (str?: string) => Boolean(str && (str.length > 500 || str.startsWith("data:")));
     
     const qualDocs = (author.qualificationDocuments || []).map((doc, idx) => {
       const docId = doc.id || `qual-${author.id}-${idx}`;
@@ -1161,17 +1243,19 @@ export class NashrDataStore {
   }
 
   static saveAuthorProfile(profile: AuthorProfile): void {
+    if (!profile || !profile.id) return;
+
     // 1. Asynchronously persist all document and image files into IndexedDB
     try {
       const itemsToSave: { id: string; url: string }[] = [];
-      if (profile.avatarUrl && profile.avatarUrl.length > 500) {
+      if (profile.avatarUrl && profile.avatarUrl.length > 100) {
         itemsToSave.push({ id: `av-${profile.id}`, url: profile.avatarUrl });
       }
-      if (profile.nationalIdUrl && profile.nationalIdUrl.length > 500) {
+      if (profile.nationalIdUrl && profile.nationalIdUrl.length > 100) {
         itemsToSave.push({ id: `id-${profile.id}`, url: profile.nationalIdUrl });
       }
       profile.qualificationDocuments?.forEach(doc => {
-        if (doc.id && doc.url && doc.url.length > 500) {
+        if (doc.id && doc.url && doc.url.length > 100) {
           itemsToSave.push({ id: doc.id, url: doc.url });
         }
       });
@@ -1182,28 +1266,24 @@ export class NashrDataStore {
       console.warn("[saveAuthorProfile] file persistence warning:", e);
     }
 
-    // 2. Safely store CURRENT_AUTHOR (fallback to pruned if quota exceeded)
+    // Always prune before writing to localStorage to prevent QuotaExceededError and RangeError
+    const pruned = this.pruneAuthorForStorage(profile);
+
+    // 2. Safely store CURRENT_AUTHOR (compact pruned version)
     try {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(profile));
+      localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(pruned));
     } catch (e) {
-      console.warn("[saveAuthorProfile] Quota exceeded on CURRENT_AUTHOR, falling back to pruned:", e);
-      try {
-        const pruned = this.pruneAuthorForStorage(profile);
-        localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(pruned));
-      } catch (err2) {
-        console.error("[saveAuthorProfile] Fallback save failed:", err2);
-      }
+      console.warn("[saveAuthorProfile] Quota exceeded on CURRENT_AUTHOR:", e);
     }
 
-    // 3. Save to ALL_AUTHORS (always pruned so ALL_AUTHORS stays compact and never hits quota)
+    // 3. Save to ALL_AUTHORS (compact pruned version)
     try {
       const all = this.getAllAuthors();
-      const prunedForList = this.pruneAuthorForStorage(profile);
-      const idx = all.findIndex(a => a.id === profile.id);
+      const idx = all.findIndex(a => a.id === profile.id || a.authorCode === profile.authorCode);
       if (idx !== -1) {
-        all[idx] = prunedForList;
+        all[idx] = pruned;
       } else {
-        all.unshift(prunedForList);
+        all.unshift(pruned);
       }
       const prunedAll = all.map(a => this.pruneAuthorForStorage(a));
       try {
@@ -1211,10 +1291,14 @@ export class NashrDataStore {
       } catch (quotaErr) {
         console.warn("[saveAuthorProfile] Quota exceeded on ALL_AUTHORS, keeping recent authors:", quotaErr);
         const compactAll = prunedAll.slice(0, 10);
-        localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(compactAll));
+        try {
+          localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(compactAll));
+        } catch (innerErr) {
+          console.warn("[saveAuthorProfile] Secondary quota error:", innerErr);
+        }
       }
     } catch (e) {
-      console.error(e);
+      console.error("[saveAuthorProfile] ALL_AUTHORS error:", e);
     }
   }
 

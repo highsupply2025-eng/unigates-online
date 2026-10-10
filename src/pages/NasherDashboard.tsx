@@ -1345,7 +1345,7 @@ const NasherDashboard = () => {
                           </Badge>
                         </div>
                         <CardDescription className="text-xs font-bold text-muted-foreground mt-0.5">
-                          {isRtl ? "مقارنة حية وشاملة لجميع وحدات الاستوديو (المخطوطات، المنشورات، الفواتير، الرسائل، المبيعات، وملاحظات التحكيم)" : "Real-time count overview across all author studio operations and modules"}
+                          {isRtl ? "مقارنة حية وشاملة لجميع وحدات الاستوديو (المرفقات، المنشورات، الفواتير، الرسائل، المبيعات، وملاحظات التحكيم)" : "Real-time count overview across all author studio operations and modules"}
                         </CardDescription>
                       </div>
                     </div>
@@ -1386,7 +1386,7 @@ const NasherDashboard = () => {
                       {analyticsChartType === "bar" ? (
                         <BarChart
                           data={[
-                            { name: isRtl ? "المخطوطات" : "Submissions", count: submissions.length, fill: "#f59e0b", icon: "📁", category: isRtl ? "المخطوطات" : "Submissions" },
+                            { name: isRtl ? "المرفقات" : "Attachments", count: submissions.length, fill: "#f59e0b", icon: "📁", category: isRtl ? "المرفقات" : "Attachments" },
                             { name: isRtl ? "المنشورة" : "Published", count: publishedWorks.length, fill: "#2563eb", icon: "📖", category: isRtl ? "الكتب المعروضة" : "Published" },
                             { name: isRtl ? "الفواتير" : "Invoices", count: invoices.length, fill: "#10b981", icon: "💳", category: isRtl ? "الفواتير" : "Invoices" },
                             { name: isRtl ? "الرسائل" : "Messages", count: messages.length, fill: "#9333ea", icon: "💬", category: isRtl ? "الرسائل" : "Messages" },
@@ -1444,7 +1444,7 @@ const NasherDashboard = () => {
                       ) : (
                         <AreaChart
                           data={[
-                            { name: isRtl ? "المخطوطات" : "Submissions", count: submissions.length },
+                            { name: isRtl ? "المرفقات" : "Attachments", count: submissions.length },
                             { name: isRtl ? "المنشورة" : "Published", count: publishedWorks.length },
                             { name: isRtl ? "الفواتير" : "Invoices", count: invoices.length },
                             { name: isRtl ? "الرسائل" : "Messages", count: messages.length },

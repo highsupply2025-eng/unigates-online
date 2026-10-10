@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import {
   User,
+  Camera,
   Key,
   ShieldCheck,
   CheckCircle2,
@@ -63,7 +64,7 @@ import {
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { AuthorProfile, AcademicTitle } from "@/types/nashr";
-import { NashrDataStore } from "@/services/nashrDataStore";
+import { NashrDataStore, generateSampleAuthorAvatarSvg } from "@/services/nashrDataStore";
 import { NashrFileStore } from "@/services/nashrFileStore";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
@@ -101,15 +102,22 @@ const NasherProfilePage = () => {
 
   // Load live profile from NashrDataStore
   const [profile, setProfile] = useState<AuthorProfile>(NashrDataStore.getAuthorProfile());
+  const [avatarUrl, setAvatarUrl] = useState<string>(profile.avatarUrl || "");
   const [submissions, setSubmissions] = useState(() => NashrDataStore.getSubmissions());
   const [messages, setMessages] = useState(() => NashrDataStore.getMessages());
   const isUnderReview = profile.verificationStatus === "pending_review";
 
   useEffect(() => {
-    setProfile(NashrDataStore.getAuthorProfile());
+    const current = NashrDataStore.getAuthorProfile();
+    setProfile(current);
     setSubmissions(NashrDataStore.getSubmissions());
     setMessages(NashrDataStore.getMessages());
     document.title = isRtl ? "البيانات الشخصية | لوحة تحكم المؤلف - منصة نشر UNIGATES" : "Personal Profile | Author Dashboard - UNIGATES";
+
+    // Asynchronously resolve avatar from IndexedDB, direct URL, or fallback
+    NashrDataStore.resolveAuthorAvatar(current).then((resolved) => {
+      if (resolved) setAvatarUrl(resolved);
+    });
   }, [isRtl]);
 
   // Editable Form states
@@ -141,6 +149,7 @@ const NasherProfilePage = () => {
   const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
 
   // File input refs for uploading replacement / additional verification documents
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const nationalIdInputRef = useRef<HTMLInputElement>(null);
   const qualInputRef = useRef<HTMLInputElement>(null);
 
@@ -293,6 +302,36 @@ const NasherProfilePage = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      setAvatarUrl(dataUrl);
+
+      // Persist to IndexedDB
+      await NashrFileStore.saveFile(`av-${profile.id}`, dataUrl);
+
+      const updated: AuthorProfile = {
+        ...profile,
+        avatarUrl: dataUrl,
+        avatarName: file.name
+      };
+
+      NashrDataStore.saveAuthorProfile(updated);
+      setProfile(updated);
+
+      toast({
+        title: isRtl ? "✅ تم تحديث الصورة الشخصية بنجاح" : "Profile Photo Updated",
+        description: isRtl ? "تم حفظ صورتك الشخصية واعتمادها في ملفك الأكاديمي." : "Your profile image is updated successfully."
+      });
+      if (e.target) e.target.value = "";
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       
@@ -349,16 +388,27 @@ const NasherProfilePage = () => {
               dir={dir}
             >
               {/* Account Header in Dropdown */}
-              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-1.5 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-black text-foreground truncate tracking-tight">{profile.fullName}</span>
-                  <Badge className="bg-amber-500/25 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-mono font-black px-2 py-0.5 shadow-xs">
-                    {profile.authorCode}
-                  </Badge>
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-2 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-rose-600 text-white flex items-center justify-center shrink-0 overflow-hidden border border-white/30 shadow-sm">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={profile.fullName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-lg">👤</span>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="text-sm font-black text-foreground truncate tracking-tight">{profile.fullName}</span>
+                      <Badge className="bg-amber-500/25 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-mono font-black px-1.5 py-0 shadow-xs">
+                        {profile.authorCode}
+                      </Badge>
+                    </div>
+                    <p className="text-xs font-bold text-muted-foreground truncate">
+                      {profile.academicTitleLabel} • {profile.specialization}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs font-bold text-muted-foreground truncate">
-                  {profile.academicTitleLabel} • {profile.specialization}
-                </p>
                 <div className="flex items-center gap-1.5 pt-0.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-black">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{isRtl ? "حساب معتمد وموثق رسمياً" : "Verified Author Account"}</span>
@@ -744,8 +794,35 @@ const NasherProfilePage = () => {
         <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-indigo-500/15 via-purple-500/15 to-rose-500/15 border-2 border-indigo-500/30 shadow-xl">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
             <div className="flex items-start sm:items-center gap-4">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-rose-600 text-white shadow-xl shadow-indigo-500/25 flex items-center justify-center text-3xl font-black shrink-0 border-2 border-white/20">
-                👤
+              <div className="relative group shrink-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-rose-600 text-white shadow-xl shadow-indigo-500/25 flex items-center justify-center text-3xl font-black shrink-0 border-2 border-white/20 overflow-hidden">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={profile.fullName}
+                      className="w-full h-full object-cover rounded-3xl transition-transform duration-300 group-hover:scale-105"
+                      onError={() => setAvatarUrl(generateSampleAuthorAvatarSvg(profile.fullName, profile.academicTitleLabel))}
+                    />
+                  ) : (
+                    <span className="text-3xl">👤</span>
+                  )}
+                </div>
+                {/* Quick Camera button to change profile photo */}
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  className="absolute -bottom-1 -end-1 w-7 h-7 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-lg border-2 border-background cursor-pointer hover:scale-110 active:scale-95 transition-all"
+                  title={isRtl ? "تغيير الصورة الشخصية" : "Change profile photo"}
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
               </div>
               <div className="space-y-1.5 text-start">
                 <div className="flex flex-wrap items-center gap-2">
@@ -989,6 +1066,56 @@ const NasherProfilePage = () => {
 
               <CardContent className="p-6 space-y-5">
                 
+                {/* 0. Official Profile Photo */}
+                <div className="p-4 rounded-2xl bg-muted/20 border-2 border-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-500/15 text-indigo-600 flex items-center justify-center font-black text-xl shrink-0 overflow-hidden border border-indigo-500/30">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={profile.fullName} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>👤</span>
+                      )}
+                    </div>
+                    <div className="space-y-0.5 text-start">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs sm:text-sm font-black text-foreground">
+                          {isRtl ? "الصورة الشخصية الرسمية للمؤلف:" : "Official Author Profile Photo:"}
+                        </h4>
+                        <Badge variant="outline" className="text-[10px] border-indigo-500/40 text-indigo-600 font-bold">
+                          {isRtl ? "مرفقة ومعتمدة" : "Verified"}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground font-mono">
+                        {profile.avatarName || "Author_Profile_Photo.jpg"} • {isRtl ? "صورة الملف الأكاديمي" : "Academic Avatar"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {avatarUrl && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        type="button"
+                        onClick={() => setPreviewDoc({ url: avatarUrl, title: isRtl ? "معاينة الصورة الشخصية" : "Profile Photo Preview" })}
+                        className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-indigo-500" />
+                        <span>{isRtl ? "معاينة" : "View"}</span>
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      type="button"
+                      onClick={() => avatarInputRef.current?.click()}
+                      className="h-9 px-3 rounded-xl text-xs font-bold bg-muted hover:bg-muted/80 text-foreground gap-1.5"
+                    >
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      <span>{isRtl ? "تحديث الصورة" : "Replace Photo"}</span>
+                    </Button>
+                  </div>
+                </div>
+
                 {/* 1. National ID Card */}
                 <div className="p-4 rounded-2xl bg-muted/20 border-2 border-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-3.5">

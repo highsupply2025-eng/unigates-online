@@ -136,6 +136,7 @@ const NasherDashboard = () => {
 
   // State from DataStore
   const [authorProfile, setAuthorProfile] = useState<AuthorProfile>(NashrDataStore.getAuthorProfile());
+  const [avatarUrl, setAvatarUrl] = useState<string>(authorProfile.avatarUrl || "");
   const isUnderReview = authorProfile.verificationStatus === "pending_review";
 
   const [submissions, setSubmissions] = useState<ManuscriptSubmission[]>(NashrDataStore.getSubmissions());
@@ -250,6 +251,13 @@ const NasherDashboard = () => {
     }
   }, [authorProfile, navigate, isRtl, toast]);
 
+  // Asynchronously resolve author avatar from IndexedDB, direct URL, or fallback
+  useEffect(() => {
+    NashrDataStore.resolveAuthorAvatar(authorProfile).then((resolved) => {
+      if (resolved) setAvatarUrl(resolved);
+    });
+  }, [authorProfile]);
+
   // Sync tab with URL
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab");
@@ -291,7 +299,11 @@ const NasherDashboard = () => {
   }, [activeTab, isRtl]);
 
   const refreshData = () => {
-    setAuthorProfile(NashrDataStore.getAuthorProfile());
+    const fresh = NashrDataStore.getAuthorProfile();
+    setAuthorProfile(fresh);
+    NashrDataStore.resolveAuthorAvatar(fresh).then((resolved) => {
+      if (resolved) setAvatarUrl(resolved);
+    });
     setSubmissions(NashrDataStore.getSubmissions());
     setInvoices(NashrDataStore.getInvoices());
     setMessages(NashrDataStore.getMessages());
@@ -767,16 +779,27 @@ const NasherDashboard = () => {
               dir={dir}
             >
               {/* Account Header in Dropdown */}
-              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-1.5 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-black text-foreground truncate tracking-tight">{authorProfile.fullName}</span>
-                  <Badge className="bg-amber-500/25 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-mono font-black px-2 py-0.5 shadow-xs">
-                    {authorProfile.authorCode}
-                  </Badge>
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-2 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center shrink-0 overflow-hidden border border-white/30 shadow-sm">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={authorProfile.fullName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-lg">👤</span>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="text-sm font-black text-foreground truncate tracking-tight">{authorProfile.fullName}</span>
+                      <Badge className="bg-amber-500/25 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-mono font-black px-1.5 py-0 shadow-xs">
+                        {authorProfile.authorCode}
+                      </Badge>
+                    </div>
+                    <p className="text-xs font-bold text-muted-foreground truncate">
+                      {authorProfile.academicTitleLabel} • {authorProfile.specialization}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs font-bold text-muted-foreground truncate">
-                  {authorProfile.academicTitleLabel} • {authorProfile.specialization}
-                </p>
                 <div className="flex items-center gap-1.5 pt-0.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-black">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{isRtl ? "حساب معتمد وموثق رسمياً" : "Verified Author Account"}</span>
@@ -1281,22 +1304,31 @@ const NasherDashboard = () => {
             {/* Hero Welcome Banner with Quick Actions */}
             <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-rose-500/15 border-2 border-amber-500/30 shadow-xl">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                <div className="space-y-2 text-start max-w-2xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 text-xs font-black">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin" />
-                    <span>{isRtl ? "لوحة التحليلات والمؤشرات المركزية للمؤلف" : "Author Central Visual Analytics"}</span>
+                <div className="flex items-start gap-4 max-w-2xl">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 p-0.5 shadow-lg shadow-amber-500/25 shrink-0 overflow-hidden border-2 border-white/20">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={authorProfile.fullName} className="w-full h-full object-cover rounded-2xl" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-2xl font-black text-white">👤</div>
+                    )}
                   </div>
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight">
-                    {isRtl ? "مرحباً بك في لوحة القيادة الذكية، د. " : "Welcome to Smart Dashboard, Dr. "}
-                    <span className="bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 bg-clip-text text-transparent">
-                      {authorProfile.fullName}
-                    </span>
-                  </h2>
-                  <p className="text-xs sm:text-sm font-bold text-muted-foreground leading-relaxed">
-                    {isRtl 
-                      ? "رؤية بصرية شاملة ترصد كافة مؤشرات وأنشطة حسابك في دار عبيد للنشر والتوزيع: من رفع المخطوطات والتحكيم وحتى الفواتير والمبيعات والأرباح بنسب مئوية دقيقة ومخططات بيانية دائرية وتجميعية متقدمة."
-                      : "Complete visual intelligence across your Dar Obeid author suite: submissions, peer reviews, sales, invoices, and royal earnings with live percentages and modular charts."}
-                  </p>
+                  <div className="space-y-2 text-start flex-1 min-w-0">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 text-xs font-black">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin" />
+                      <span>{isRtl ? "لوحة التحليلات والمؤشرات المركزية للمؤلف" : "Author Central Visual Analytics"}</span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight">
+                      {isRtl ? "مرحباً بك في لوحة القيادة الذكية، د. " : "Welcome to Smart Dashboard, Dr. "}
+                      <span className="bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 bg-clip-text text-transparent">
+                        {authorProfile.fullName}
+                      </span>
+                    </h2>
+                    <p className="text-xs sm:text-sm font-bold text-muted-foreground leading-relaxed">
+                      {isRtl 
+                        ? "رؤية بصرية شاملة ترصد كافة مؤشرات وأنشطة حسابك في دار عبيد للنشر والتوزيع: من رفع المخطوطات والتحكيم وحتى الفواتير والمبيعات والأرباح بنسب مئوية دقيقة ومخططات بيانية دائرية وتجميعية متقدمة."
+                        : "Complete visual intelligence across your Dar Obeid author suite: submissions, peer reviews, sales, invoices, and royal earnings with live percentages and modular charts."}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
@@ -3979,8 +4011,12 @@ const NasherDashboard = () => {
 
           {/* Profile Hero Block */}
           <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-rose-500/10 border-2 border-amber-500/30 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-start">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center text-3xl font-black shadow-lg shadow-amber-500/20 shrink-0">
-              ✍️
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center text-3xl font-black shadow-lg shadow-amber-500/20 shrink-0 overflow-hidden border-2 border-white/20">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={authorProfile.fullName} className="w-full h-full object-cover rounded-2xl" />
+              ) : (
+                <span>✍️</span>
+              )}
             </div>
             <div className="space-y-1.5 flex-1">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">

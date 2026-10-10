@@ -82,6 +82,7 @@ const NasherNewNotesPage = () => {
   const { toast } = useToast();
 
   const [authorProfile, setAuthorProfile] = useState<NashrAuthorProfile>(() => NashrDataStore.getAuthorProfile());
+  const [avatarUrl, setAvatarUrl] = useState<string>(authorProfile.avatarUrl || "");
   const [submissions, setSubmissions] = useState<NashrSubmission[]>(() => NashrDataStore.getSubmissions());
   const [messages, setMessages] = useState<NashrMessage[]>(() => NashrDataStore.getMessages());
   const [invoices, setInvoices] = useState<NashrInvoice[]>(() => NashrDataStore.getInvoices());
@@ -107,7 +108,11 @@ const NasherNewNotesPage = () => {
   const [savingEdit, setSavingEdit] = useState(false);
 
   const refreshData = () => {
-    setAuthorProfile(NashrDataStore.getAuthorProfile());
+    const fresh = NashrDataStore.getAuthorProfile();
+    setAuthorProfile(fresh);
+    NashrDataStore.resolveAuthorAvatar(fresh).then((res) => {
+      if (res) setAvatarUrl(res);
+    });
     setSubmissions(NashrDataStore.getSubmissions());
     setMessages(NashrDataStore.getMessages());
     setInvoices(NashrDataStore.getInvoices());
@@ -115,6 +120,9 @@ const NasherNewNotesPage = () => {
 
   useEffect(() => {
     refreshData();
+    NashrDataStore.resolveAuthorAvatar(authorProfile).then((res) => {
+      if (res) setAvatarUrl(res);
+    });
     document.title = isRtl ? "ملاحظات جديدة | لوحة تحكم المؤلف - منصة نشر UNIGATES" : "New Review Notes | Author Dashboard - UNIGATES";
   }, [isRtl]);
 
@@ -278,8 +286,12 @@ const NasherNewNotesPage = () => {
               {/* Profile Card Header */}
               <DropdownMenuLabel className="p-3 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 rounded-2xl border border-amber-500/20 mb-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-md">
-                    ✍️
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-md overflow-hidden border border-white/20">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={authorProfile.fullName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>✍️</span>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0 text-start">
                     <p className="text-xs font-black text-foreground truncate">

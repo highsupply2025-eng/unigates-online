@@ -766,7 +766,43 @@ export function healAuthorDocuments(a: AuthorProfile): { healed: boolean; author
   return { healed, author };
 }
 
+// Helper to asynchronously resolve and hydrate author avatar (from memory, IndexedDB, or permanent generator)
+export async function resolveAuthorAvatar(author?: AuthorProfile | null): Promise<string> {
+  if (!author) return "";
+
+  // 1. If explicit idb: reference
+  if (author.avatarUrl && author.avatarUrl.startsWith("idb:")) {
+    const fileId = author.avatarUrl.replace("idb:", "");
+    try {
+      const fromStore = await NashrFileStore.getFile(fileId);
+      if (fromStore) return fromStore;
+    } catch (e) {
+      console.warn("[resolveAuthorAvatar] idb fetch warning:", e);
+    }
+  }
+
+  // 2. Check IndexedDB by author id (where signup saves av-${author.id})
+  if (author.id) {
+    try {
+      const fromStore = await NashrFileStore.getFile(`av-${author.id}`);
+      if (fromStore) return fromStore;
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // 3. Direct valid image data URL or web URL
+  if (author.avatarUrl && !author.avatarUrl.startsWith("blob:") && !author.avatarUrl.startsWith("idb:")) {
+    return author.avatarUrl;
+  }
+
+  // 4. Default fallback generator
+  return generateSampleAuthorAvatarSvg(author.fullName, author.academicTitleLabel);
+}
+
 export class NashrDataStore {
+  static resolveAuthorAvatar = resolveAuthorAvatar;
+
   // Author Profile
   static getAuthorProfile(): AuthorProfile {
     try {

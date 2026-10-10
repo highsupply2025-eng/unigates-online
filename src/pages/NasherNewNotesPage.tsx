@@ -1,11 +1,46 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "next-themes";
 import {
-  ArrowRight, ArrowLeft, Bell, BookOpen, Clock, Edit3, MessageSquare,
-  UploadCloud, FileText, CheckCircle2, ShieldCheck, AlertCircle, RefreshCw,
-  Sparkles, Send, Paperclip, ChevronLeft, ChevronRight, PenTool, ExternalLink,
-  Info, Eye, Download, Layers
+  ArrowRight,
+  ArrowLeft,
+  Bell,
+  BookOpen,
+  Clock,
+  Edit3,
+  MessageSquare,
+  UploadCloud,
+  FileText,
+  CheckCircle2,
+  ShieldCheck,
+  AlertCircle,
+  RefreshCw,
+  Sparkles,
+  Send,
+  Paperclip,
+  ChevronLeft,
+  ChevronRight,
+  PenTool,
+  ExternalLink,
+  Info,
+  Eye,
+  Download,
+  Layers,
+  Globe,
+  Sun,
+  Moon,
+  LogOut,
+  Check,
+  Search,
+  Filter,
+  FileCheck,
+  Calendar,
+  Stamp,
+  User,
+  CreditCard,
+  TrendingUp,
+  Home
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,21 +50,37 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
-import ThemeToggle from "@/components/ThemeToggle";
-import { NashrDataStore, NashrSubmission, NashrAuthorProfile } from "@/services/nashrDataStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { 
+  NashrDataStore, 
+  NashrSubmission, 
+  NashrAuthorProfile, 
+  NashrMessage, 
+  NashrInvoice 
+} from "@/services/nashrDataStore";
 
 const NasherNewNotesPage = () => {
   const navigate = useNavigate();
-  const { dir, language } = useLanguage();
+  const { dir, language, setLanguage } = useLanguage();
   const isRtl = dir === "rtl";
+  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
-  const ArrowIcon = isRtl ? ArrowRight : ArrowLeft;
-  const BackIcon = isRtl ? ArrowRight : ArrowLeft;
 
   const [authorProfile, setAuthorProfile] = useState<NashrAuthorProfile>(() => NashrDataStore.getAuthorProfile());
   const [submissions, setSubmissions] = useState<NashrSubmission[]>(() => NashrDataStore.getSubmissions());
-  const [selectedSubmission, setSelectedSubmission] = useState<NashrSubmission | null>(null);
+  const [messages, setMessages] = useState<NashrMessage[]>(() => NashrDataStore.getMessages());
+  const [invoices, setInvoices] = useState<NashrInvoice[]>(() => NashrDataStore.getInvoices());
+
+  // Filter & Search states
+  const [filterType, setFilterType] = useState<"all" | "manuscripts" | "admin_messages" | "action_needed">("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Edit Submission Modal
   const [showEditModal, setShowEditModal] = useState(false);
@@ -42,11 +93,14 @@ const NasherNewNotesPage = () => {
   const [editCoverImageUrl, setEditCoverImageUrl] = useState("");
   const [editManuscriptFileName, setEditManuscriptFileName] = useState("");
   const [editManuscriptFileUrl, setEditManuscriptFileUrl] = useState("");
+  const [authorNoteReply, setAuthorNoteReply] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
   const refreshData = () => {
     setAuthorProfile(NashrDataStore.getAuthorProfile());
     setSubmissions(NashrDataStore.getSubmissions());
+    setMessages(NashrDataStore.getMessages());
+    setInvoices(NashrDataStore.getInvoices());
   };
 
   useEffect(() => {
@@ -55,18 +109,47 @@ const NasherNewNotesPage = () => {
 
   // Filter submissions that have active editorial feedback
   const feedbackSubmissions = submissions.filter((s) => Boolean(s.adminFeedback));
+  // Messages from admin
+  const adminMessages = messages.filter((m) => m.sender === "admin");
+  // Invoices with admin notices
+  const invoiceNotices = invoices.filter((inv) => Boolean(inv.adminNotes || inv.rejectionReason));
+
+  // Combined notes filtered by search and filter type
+  const filteredFeedbackSubmissions = feedbackSubmissions.filter((sub) => {
+    if (filterType === "admin_messages") return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchTitle = sub.title?.toLowerCase().includes(q);
+      const matchFeedback = sub.adminFeedback?.toLowerCase().includes(q);
+      const matchCat = sub.category?.toLowerCase().includes(q);
+      if (!matchTitle && !matchFeedback && !matchCat) return false;
+    }
+    return true;
+  });
+
+  const filteredAdminMessages = adminMessages.filter((msg) => {
+    if (filterType === "manuscripts") return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchText = msg.text?.toLowerCase().includes(q);
+      const matchSender = msg.senderName?.toLowerCase().includes(q);
+      if (!matchText && !matchSender) return false;
+    }
+    return true;
+  });
 
   // Open Edit Modal for a specific submission
   const handleOpenEdit = (sub: NashrSubmission) => {
     setEditingSub(sub);
     setEditTitle(sub.title || "");
-    setEditCategory(sub.category || "أكاديمي");
+    setEditCategory(sub.category || "مراجع أكاديمية");
     setEditSynopsis(sub.synopsis || "");
     setEditPageCount(sub.pageCount || 150);
     setEditCoverFileName(sub.coverImageName || "");
     setEditCoverImageUrl(sub.coverImageUrl || (typeof sub.coverImage === "string" ? sub.coverImage : "") || "");
     setEditManuscriptFileName(sub.manuscriptFile?.name || "");
     setEditManuscriptFileUrl(sub.manuscriptFile?.url || "");
+    setAuthorNoteReply("");
     setShowEditModal(true);
   };
 
@@ -86,6 +169,17 @@ const NasherNewNotesPage = () => {
 
     setSavingEdit(true);
     setTimeout(() => {
+      // If author added a reply, send it to the chat as well
+      if (authorNoteReply.trim()) {
+        NashrDataStore.addMessage({
+          sender: "author",
+          senderName: authorProfile.fullName,
+          text: `[بخصوص ملاحظة ${editingSub.title}]: ${authorNoteReply.trim()}`,
+          timestamp: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }),
+          read: true
+        });
+      }
+
       NashrDataStore.updateSubmission(editingSub.id, {
         title: editTitle.trim(),
         category: editCategory,
@@ -122,81 +216,360 @@ const NasherNewNotesPage = () => {
     <div className="min-h-screen bg-background flex flex-col selection:bg-amber-500 selection:text-white" dir={dir}>
       
       {/* Top Navbar */}
-      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/70 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between">
+      <header className="border-b border-border/40 px-4 sm:px-8 py-3.5 bg-card/80 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between">
+        
+        {/* Right side in RTL: UNIGATES Branding & Dar Obeid Notes subtitle */}
         <div className="flex items-center gap-3">
-          <Link to="/nashr/dashboard" className="flex items-center gap-2 group">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 px-3.5 rounded-2xl border-2 border-border/80 bg-card hover:bg-muted font-black text-xs gap-2 shadow-xs group-hover:border-amber-500/50 transition-all"
-            >
-              <BackIcon className="w-4 h-4 text-amber-500 group-hover:-translate-x-0.5 rtl:group-hover:translate-x-0.5 transition-transform" />
-              <span>{isRtl ? "العودة للوحة المؤلف" : "Back to Dashboard"}</span>
-            </Button>
-          </Link>
-
-          <div className="h-6 w-px bg-border/60 hidden sm:block" />
-
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 text-white flex items-center justify-center font-black shadow-sm">
-              <Bell className="w-4 h-4 animate-bounce" />
+          <Link to="/nashr/dashboard" className="flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center font-black shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-all">
+              <PenTool className="w-5 h-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm sm:text-base font-black text-foreground">
-                  {isRtl ? "ملاحظات جديدة وتوجيهات التحكيم" : "Editorial Review Notes"}
+            <div className="text-start">
+              <div className="flex items-center gap-2">
+                <span className="text-base font-black tracking-tight bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 bg-clip-text text-transparent">
+                  UNIGATES
                 </span>
-                <Badge className="bg-gradient-to-r from-amber-500 to-rose-600 text-white text-[10px] font-black px-2 py-0.2 shadow-xs">
-                  {feedbackSubmissions.length > 0 ? (isRtl ? `${feedbackSubmissions.length} ملاحظات واردة` : `${feedbackSubmissions.length} Active`) : (isRtl ? "محدثة" : "Updated")}
+                <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[9px] font-black px-1.5 py-0">
+                  {isRtl ? "منصة نشر" : "Nashr"}
                 </Badge>
               </div>
-              <span className="text-[10px] block font-bold text-muted-foreground">
-                {isRtl ? "مركز توجيهات دار عبيد وهيئة التدقيق الأكاديمي" : "Dar Obeid Editorial Directives"}
-              </span>
+              <p className="text-[10px] text-muted-foreground font-extrabold truncate max-w-[200px] sm:max-w-none">
+                {isRtl ? "دار عبيد للنشر والتوزيع • صندوق ملاحظات وتوجيهات الإدارة" : "Dar Obeid • Admin Directives & Notes Center"}
+              </p>
             </div>
-          </div>
+          </Link>
         </div>
 
-        {/* Right Actions */}
+        {/* Left side in RTL: Studio Hamburger Dropdown Menu + Language Toggle + Theme Toggle */}
         <div className="flex items-center gap-2">
-          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-card/90 hover:bg-muted border-2 border-border/80 shadow-xs" />
-          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-card/90 hover:bg-muted border-2 border-border/80 rounded-2xl font-black text-foreground shadow-xs" />
+          
+          {/* Studio Full Dropdown Navigation Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-10 px-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-xs gap-2 border-none shadow-md shadow-amber-500/20 cursor-pointer hover:scale-105 transition-all"
+              >
+                <div className="flex flex-col gap-1 items-center justify-center">
+                  <span className="w-4 h-0.5 bg-white rounded-full"></span>
+                  <span className="w-4 h-0.5 bg-white rounded-full"></span>
+                  <span className="w-4 h-0.5 bg-white rounded-full"></span>
+                </div>
+                <span className="hidden sm:inline">{isRtl ? "قائمة الاستوديو" : "Studio Menu"}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align={isRtl ? "start" : "end"} 
+              className="w-72 rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl z-50 animate-in fade-in-50 zoom-in-95"
+              dir={dir}
+            >
+              {/* Profile Card Header */}
+              <DropdownMenuLabel className="p-3 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 rounded-2xl border border-amber-500/20 mb-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-md">
+                    ✍️
+                  </div>
+                  <div className="flex-1 min-w-0 text-start">
+                    <p className="text-xs font-black text-foreground truncate">
+                      {authorProfile.fullName}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground font-bold truncate">
+                      {authorProfile.academicTitleLabel} • {authorProfile.specialization}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="text-[9px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10 shrink-0">
+                    {authorProfile.authorCode}
+                  </Badge>
+                </div>
+              </DropdownMenuLabel>
+
+              <DropdownMenuSeparator className="my-1" />
+
+              {/* 1. الصفحة الرئيسية */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=home")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                    <Home className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "الصفحة الرئيسية" : "Main Dashboard"}</span>
+                </div>
+                <Badge variant="secondary" className="text-[10px] font-black">
+                  {isRtl ? "الرئيسية 🏠" : "Home"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 2. رفع مؤلفات جديدة */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=submit")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                    <UploadCloud className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "رفع مؤلفات جديدة" : "New Submissions"}</span>
+                </div>
+                <Badge variant="secondary" className="text-[10px] font-black">
+                  {submissions.length} {isRtl ? "مؤلف" : "Works"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 3. المؤلفات المنشورة */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=published")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-blue-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/15 text-blue-600 flex items-center justify-center shrink-0">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "المؤلفات المنشورة" : "Published Works"}</span>
+                </div>
+                <Badge variant="secondary" className="text-[10px] font-black">
+                  {submissions.filter(s => s.status === "published").length} {isRtl ? "منشور" : "Live"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 4. الفواتير وطرق الدفع */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=payments")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-emerald-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
+                    <CreditCard className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "الفواتير وطرق الدفع" : "Invoices & Payments"}</span>
+                </div>
+                <Badge variant="secondary" className="text-[10px] font-black">
+                  {isRtl ? "سداد 💳" : "Pay"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 5. التواصل وملاحظات التدقيق */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=chat")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-purple-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-600 flex items-center justify-center shrink-0">
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "التواصل وملاحظات التدقيق" : "Review Notes & Chat"}</span>
+                </div>
+                <Badge variant="secondary" className="text-[10px] font-black">
+                  {isRtl ? "محادثة 💬" : "Chat"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 6. ملاحظات جديدة (الصفحة الحالية) */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/notes")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer bg-rose-500/15 text-rose-600 dark:text-rose-400 font-black border border-rose-500/30"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-600 flex items-center justify-center shrink-0">
+                    <Bell className="w-4 h-4 animate-bounce" />
+                  </div>
+                  <span>{isRtl ? "ملاحظات جديدة" : "New Review Notes"}</span>
+                </div>
+                <Badge className="bg-rose-500 text-white text-[10px] font-black">
+                  {feedbackSubmissions.length} {isRtl ? "واردة" : "Active"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 7. مبيعات الكتب والأرباح */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=sales")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-teal-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-teal-500/15 text-teal-600 flex items-center justify-center shrink-0">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "مبيعات الكتب والأرباح" : "Sales & Royalties"}</span>
+                </div>
+                <Badge variant="secondary" className="text-[10px] font-black">
+                  {isRtl ? "أرباح 📈" : "Sales"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 8. البيانات الشخصية وكلمة المرور */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/profile")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-indigo-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-600 flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "البيانات الشخصية وكلمة المرور" : "Profile & Security"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-bold border-indigo-500/30 text-indigo-600">
+                  {isRtl ? "عرض وإدارة 👤" : "Manage"}
+                </Badge>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-1.5" />
+
+              {/* 9. تغيير اللغة */}
+              <DropdownMenuItem 
+                onClick={() => {
+                  const nextLang = language === "ar" ? "en" : "ar";
+                  setLanguage(nextLang);
+                  toast({
+                    title: nextLang === "ar" ? "تم تغيير اللغة إلى العربية 🌐" : "Language switched to English 🌐",
+                    description: nextLang === "ar" ? "تم تحديث واجهة المنصة باللغة العربية." : "Interface updated to English."
+                  });
+                }}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-cyan-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-600 flex items-center justify-center shrink-0">
+                    <Globe className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "تغيير اللغة" : "Change Language"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-black border-cyan-500/40 text-cyan-700 dark:text-cyan-300 bg-cyan-500/10">
+                  {language === "ar" ? "العربية ⟳" : "English ⟳"}
+                </Badge>
+              </DropdownMenuItem>
+
+              {/* 10. السطوع */}
+              <DropdownMenuItem 
+                onClick={() => {
+                  const nextTheme = theme === "dark" ? "light" : "dark";
+                  setTheme(nextTheme);
+                  toast({
+                    title: nextTheme === "dark" 
+                      ? (isRtl ? "تم تفعيل الوضع الداكن 🌙" : "Dark Mode Activated 🌙") 
+                      : (isRtl ? "تم تفعيل الوضع الفاتح ☀️" : "Light Mode Activated ☀️")
+                  });
+                }}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                    {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                  </div>
+                  <span>{isRtl ? "السطوع والمظهر" : "Appearance & Theme"}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10">
+                  {theme === "dark" ? (isRtl ? "داكن 🌙 ⟳" : "Dark 🌙 ⟳") : (isRtl ? "فاتح ☀️ ⟳" : "Light ☀️ ⟳")}
+                </Badge>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-1.5" />
+
+              {/* 11. تسجيل الخروج */}
+              <DropdownMenuItem 
+                onClick={() => {
+                  toast({
+                    title: isRtl ? "تم تسجيل الخروج بنجاح" : "Logged Out Successfully",
+                    description: isRtl ? "نتمنى لكم يوماً سعيداً في دار عبيد وUNIGATES." : "See you soon."
+                  });
+                  navigate("/nashr");
+                }}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-start cursor-pointer text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-destructive/15 text-destructive flex items-center justify-center shrink-0">
+                    <LogOut className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "تسجيل الخروج" : "Logout"}</span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Quick Language Toggle Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const nextLang = language === "ar" ? "en" : "ar";
+              setLanguage(nextLang);
+              toast({
+                title: nextLang === "ar" ? "تم تغيير اللغة إلى العربية 🌐" : "Language switched to English 🌐"
+              });
+            }}
+            className="h-10 px-3 rounded-2xl border-2 border-border/80 bg-card hover:bg-muted font-black text-xs gap-1.5 shadow-xs cursor-pointer"
+          >
+            <Globe className="w-4 h-4 text-cyan-600" />
+            <span>{language === "ar" ? "English" : "العربية"}</span>
+          </Button>
+
+          {/* Quick Theme Toggle Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const nextTheme = theme === "dark" ? "light" : "dark";
+              setTheme(nextTheme);
+              toast({
+                title: nextTheme === "dark" 
+                  ? (isRtl ? "تم تفعيل الوضع الداكن 🌙" : "Dark Mode Activated 🌙") 
+                  : (isRtl ? "تم تفعيل الوضع الفاتح ☀️" : "Light Mode Activated ☀️")
+              });
+            }}
+            className="h-10 w-10 p-0 rounded-2xl border-2 border-border/80 bg-card hover:bg-muted shadow-xs flex items-center justify-center cursor-pointer"
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-blue-500" />}
+          </Button>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 pb-20 space-y-6">
+      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 pb-20 space-y-8 animate-fade-in">
         
         {/* Header Hero Banner */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 text-start">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-black">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>{isRtl ? "التواصل الأكاديمي والتحكيم الفوري" : "Academic Editorial Board"}</span>
+              <span>{isRtl ? "مركز التواصل الأكاديمي والتحكيم الفوري" : "Academic Editorial Board & Directives"}</span>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight">
-              {isRtl ? "صندوق ملاحظات التدقيق والتوجيهات الواردة" : "Editorial Notes & Review Directives"}
+              {isRtl ? "صندوق ملاحظات التدقيق والتوجيهات الواردة من الإدارة" : "Editorial Notes & Administrative Directives"}
             </h1>
             <p className="text-xs sm:text-sm font-semibold text-muted-foreground max-w-2xl leading-relaxed">
               {isRtl
-                ? "هنا تجد كافة الملاحظات الفنية، التعديلات المطلوبة على المخطوطة، وتوجيهات لجان التحكيم بدار عبيد. يمكنك تعديل المرفقات وإعادة إرسالها مباشرة من هذا المكان للاعتماد النهائي."
-                : "Review all editorial feedback, formatting requirements, and review notes directly from Dar Obeid publishers. Update and resubmit your manuscripts with ease."}
+                ? "هنا تجد كافة الملاحظات الفنية، التعديلات المطلوبة على المخطوطة، وتوجيهات لجان التحكيم وإدارة دار عبيد. يمكنك مراجعة الملاحظات، استبدال المرفقات، والرد الفوري عليها للاعتماد النهائي."
+                : "Review all editorial notes, formatting directives, and official administrative notices directly from Dar Obeid publishers. Update files and reply instantly."}
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
+            <Button
+              onClick={() => {
+                refreshData();
+                toast({
+                  title: isRtl ? "تم تحديث الملاحظات 🔄" : "Notes Refreshed 🔄",
+                  description: isRtl ? "تمت مزامنة كافة الملاحظات والتوجيهات من خوادم دار عبيد." : "Synced all directives from publisher servers."
+                });
+              }}
+              variant="outline"
+              className="h-11 px-4 rounded-2xl border-2 border-border/80 bg-card hover:bg-muted font-black text-xs gap-1.5 shadow-xs cursor-pointer hover:scale-105 transition-all"
+            >
+              <RefreshCw className="w-4 h-4 text-amber-500" />
+              <span>{isRtl ? "تحديث" : "Refresh"}</span>
+            </Button>
             <Link to="/nashr/dashboard?tab=chat">
               <Button
                 variant="outline"
-                className="h-11 px-4 rounded-2xl border-2 border-border/80 bg-card hover:bg-muted font-black text-xs gap-2 shadow-xs"
+                className="h-11 px-4 rounded-2xl border-2 border-border/80 bg-card hover:bg-muted font-black text-xs gap-2 shadow-xs cursor-pointer hover:scale-105 transition-all"
               >
                 <MessageSquare className="w-4 h-4 text-purple-500" />
-                <span>{isRtl ? "المحادثة مع الإدارة" : "Direct Chat"}</span>
+                <span>{isRtl ? "محادثة الإدارة" : "Direct Chat"}</span>
               </Button>
             </Link>
             <Link to="/nashr/dashboard?tab=submit">
               <Button
-                className="h-11 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-xs gap-2 shadow-md"
+                className="h-11 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-xs gap-2 shadow-md cursor-pointer hover:scale-105 transition-all"
               >
                 <UploadCloud className="w-4 h-4" />
                 <span>{isRtl ? "رفع مؤلف جديد" : "New Manuscript"}</span>
@@ -205,53 +578,152 @@ const NasherNewNotesPage = () => {
           </div>
         </div>
 
-        {/* Notes Content */}
-        {feedbackSubmissions.length === 0 ? (
-          <Card className="border-2 border-border/80 shadow-md bg-card rounded-3xl p-12 text-center space-y-4">
-            <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center mx-auto text-2xl shadow-inner">
-              ✨
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-lg sm:text-xl font-black text-foreground">
-                {isRtl ? "لا توجد ملاحظات تدقيق معلقة حالياً" : "No Pending Review Notes"}
-              </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium max-w-md mx-auto">
-                {isRtl
-                  ? "جميع مؤلفاتك قيد الإجراء أو تم اعتمادها بنجاح دون أي تعديلات مطلوبة. فور إرسال أي توجيه من هيئة التحكيم ستظهر هنا فوراً."
-                  : "All your manuscripts are either approved or in regular review pipeline without pending revisions."}
-              </p>
-            </div>
-            <div className="pt-2">
-              <Link to="/nashr/dashboard">
-                <Button className="h-10 px-6 rounded-xl font-black text-xs bg-amber-600 hover:bg-amber-700 text-white shadow-sm">
-                  {isRtl ? "العودة للوحة التحكم الرئيسية" : "Return to Dashboard"}
-                </Button>
-              </Link>
-            </div>
-          </Card>
-        ) : (
+        {/* 4 Summary Metric Pillars */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+          <div className="p-4 rounded-2xl bg-card border-2 border-amber-500/30 shadow-md text-start space-y-1">
+            <span className="text-[11px] font-black text-muted-foreground block">
+              {isRtl ? "إجمالي التوجيهات والملاحظات" : "Total Directives"}
+            </span>
+            <span className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 block">
+              {feedbackSubmissions.length + adminMessages.length}
+            </span>
+            <span className="text-[10px] font-bold text-muted-foreground block">
+              {isRtl ? "ملاحظات تحكيم ورسائل إدارة" : "Editorial & Admin"}
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-card border-2 border-rose-500/30 shadow-md text-start space-y-1">
+            <span className="text-[11px] font-black text-muted-foreground block">
+              {isRtl ? "ملاحظات تتطلب إجراء" : "Action Required"}
+            </span>
+            <span className="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400 block">
+              {feedbackSubmissions.length}
+            </span>
+            <span className="text-[10px] font-bold text-muted-foreground block">
+              {isRtl ? "تعديل مرفقات أو بيانات" : "Pending revision"}
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-card border-2 border-purple-500/30 shadow-md text-start space-y-1">
+            <span className="text-[11px] font-black text-muted-foreground block">
+              {isRtl ? "توجيهات إدارية رسمية" : "Admin Messages"}
+            </span>
+            <span className="text-xl sm:text-2xl font-black text-purple-600 dark:text-purple-400 block">
+              {adminMessages.length}
+            </span>
+            <span className="text-[10px] font-bold text-muted-foreground block">
+              {isRtl ? "رسائل توجيه من هيئة النشر" : "Official Directives"}
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-card border-2 border-emerald-500/30 shadow-md text-start space-y-1">
+            <span className="text-[11px] font-black text-muted-foreground block">
+              {isRtl ? "متوسط سرعة الاستجابة" : "Avg Response"}
+            </span>
+            <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 block">
+              24 {isRtl ? "ساعة" : "hrs"}
+            </span>
+            <span className="text-[10px] font-bold text-muted-foreground block">
+              {isRtl ? "تدقيق أكاديمي فوري" : "Fast academic audit"}
+            </span>
+          </div>
+        </div>
+
+        {/* Filter Bar & Search Input */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 p-3 rounded-2xl bg-card border-2 border-border/80 shadow-md">
+          {/* Filter Pills */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Button
+              size="sm"
+              variant={filterType === "all" ? "default" : "outline"}
+              onClick={() => setFilterType("all")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-black transition-all ${
+                filterType === "all"
+                  ? "bg-amber-600 text-white shadow-xs"
+                  : "border-border/80 hover:bg-muted text-foreground"
+              }`}
+            >
+              <span>{isRtl ? "جميع التوجيهات" : "All Directives"}</span>
+              <Badge variant="secondary" className="text-[10px] font-black px-1.5 py-0">
+                {feedbackSubmissions.length + adminMessages.length}
+              </Badge>
+            </Button>
+
+            <Button
+              size="sm"
+              variant={filterType === "manuscripts" ? "default" : "outline"}
+              onClick={() => setFilterType("manuscripts")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-black transition-all ${
+                filterType === "manuscripts"
+                  ? "bg-amber-600 text-white shadow-xs"
+                  : "border-border/80 hover:bg-muted text-foreground"
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>{isRtl ? "ملاحظات المخطوطات والتحكيم" : "Manuscript Notes"}</span>
+              <Badge variant="secondary" className="text-[10px] font-black px-1.5 py-0">
+                {feedbackSubmissions.length}
+              </Badge>
+            </Button>
+
+            <Button
+              size="sm"
+              variant={filterType === "admin_messages" ? "default" : "outline"}
+              onClick={() => setFilterType("admin_messages")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-black transition-all ${
+                filterType === "admin_messages"
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "border-border/80 hover:bg-muted text-foreground"
+              }`}
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>{isRtl ? "رسائل وتوجيهات الإدارة" : "Admin Messages"}</span>
+              <Badge variant="secondary" className="text-[10px] font-black px-1.5 py-0">
+                {adminMessages.length}
+              </Badge>
+            </Button>
+          </div>
+
+          {/* Search Box */}
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-muted-foreground absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={isRtl ? "ابحث في الملاحظات أو عنوان العمل..." : "Search directives or title..."}
+              className="h-9 ps-9 pe-3 rounded-xl bg-background border-border text-xs font-bold"
+            />
+          </div>
+        </div>
+
+        {/* Section 1: Manuscript Feedback Directives */}
+        {filteredFeedbackSubmissions.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-500" />
-                <h2 className="text-sm sm:text-base font-black text-foreground">
-                  {isRtl ? `المؤلفات التي وردت عليها ملاحظات تدقيق (${feedbackSubmissions.length})` : `Manuscripts with Feedback (${feedbackSubmissions.length})`}
-                </h2>
+              <div className="flex items-center gap-2 text-start">
+                <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center font-black">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-black text-foreground">
+                    {isRtl ? `ملاحظات التحكيم على المخطوطات (${filteredFeedbackSubmissions.length})` : `Manuscripts Directives (${filteredFeedbackSubmissions.length})`}
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground font-bold">
+                    {isRtl ? "انقر على «تعديل المرفقات وإعادة الإرسال» لحسم الملاحظة فورياً" : "Click Edit & Resubmit to resolve the directive"}
+                  </p>
+                </div>
               </div>
-              <span className="text-xs font-bold text-muted-foreground">
-                {isRtl ? "انقر على «تعديل المرفقات» لإعادة الإرسال" : "Click Edit to update files"}
-              </span>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              {feedbackSubmissions.map((sub, idx) => (
+            <div className="grid grid-cols-1 gap-5">
+              {filteredFeedbackSubmissions.map((sub) => (
                 <Card
                   key={sub.id}
-                  className="border-2 border-amber-500/40 hover:border-amber-500/70 shadow-lg bg-card rounded-3xl overflow-hidden transition-all duration-200"
+                  className="border-2 border-amber-500/40 hover:border-amber-500/80 shadow-lg bg-card rounded-3xl overflow-hidden transition-all duration-200"
                 >
                   <CardHeader className="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent border-b border-border/60 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-start sm:items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white font-black text-lg flex items-center justify-center shadow-md shrink-0">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-rose-600 text-white font-black text-xl flex items-center justify-center shadow-md shrink-0">
                         📬
                       </div>
                       <div className="space-y-0.5 text-start">
@@ -262,8 +734,8 @@ const NasherNewNotesPage = () => {
                           <Badge variant="outline" className="text-xs font-bold border-amber-500/40 text-amber-700 dark:text-amber-300">
                             {sub.category}
                           </Badge>
-                          <Badge className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 shadow-xs">
-                            {isRtl ? "ملاحظة واردة 🔥" : "Action Required"}
+                          <Badge className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 shadow-xs animate-pulse">
+                            {isRtl ? "ملاحظة واردة تتطلب تعديلاً 🔥" : "Action Required"}
                           </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground font-semibold">
@@ -272,11 +744,21 @@ const NasherNewNotesPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex flex-wrap items-center gap-2 shrink-0">
+                      <Link to="/nashr/dashboard?tab=chat">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-10 px-3 rounded-xl font-black text-xs border-2 border-border/80 hover:bg-muted text-foreground gap-1.5"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-purple-500" />
+                          <span>{isRtl ? "استفسار للإدارة" : "Chat Admin"}</span>
+                        </Button>
+                      </Link>
                       <Button
                         size="sm"
                         onClick={() => handleOpenEdit(sub)}
-                        className="h-10 px-4 rounded-xl font-black text-xs bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md gap-1.5 hover:scale-105 transition-all"
+                        className="h-10 px-4 rounded-xl font-black text-xs bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md gap-1.5 hover:scale-105 transition-all cursor-pointer"
                       >
                         <Edit3 className="w-4 h-4" />
                         <span>{isRtl ? "تعديل المرفقات وإعادة الإرسال ✏️" : "Edit & Resubmit"}</span>
@@ -286,31 +768,35 @@ const NasherNewNotesPage = () => {
 
                   <CardContent className="p-4 sm:p-6 space-y-4 text-start">
                     {/* The Direct Quote Box */}
-                    <div className="p-4 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 text-foreground space-y-2 shadow-xs">
+                    <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 text-foreground space-y-2.5 shadow-xs">
                       <div className="flex items-center justify-between text-xs font-black text-amber-800 dark:text-amber-300">
                         <span className="flex items-center gap-1.5">
                           <Info className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                           <span>{isRtl ? "نص توجيه وملاحظة هيئة التحكيم والتدقيق (دار عبيد):" : "Dar Obeid Editorial Note:"}</span>
                         </span>
-                        <span className="text-[11px] font-bold text-muted-foreground">
-                          {isRtl ? "توجيه رسمي معتمد" : "Official Editorial Directive"}
-                        </span>
+                        <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10">
+                          {isRtl ? "توجيه رسمي معتمد" : "Official Directive"}
+                        </Badge>
                       </div>
-                      <p className="text-sm sm:text-base font-bold leading-relaxed bg-card/80 p-3.5 rounded-xl border border-amber-500/20 text-foreground">
-                        💬 "{sub.adminFeedback}"
-                      </p>
+                      
+                      <div className="p-4 rounded-xl bg-card/90 border border-amber-500/20 shadow-xs">
+                        <p className="text-sm sm:text-base font-bold leading-relaxed text-foreground">
+                          💬 "{sub.adminFeedback}"
+                        </p>
+                      </div>
+
                       <div className="text-[11px] text-muted-foreground font-medium flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                         <span>
                           {isRtl
-                            ? "المطلوب: مراجعة الملاحظة أعلاه، وتعديل المخطوطة أو الغلاف أو البيانات المطلوبة، والضغط على زر «تعديل المرفقات» لإعادة الإرسال."
+                            ? "المطلوب: مراجعة الملاحظة أعلاه، وتعديل المخطوطة أو الغلاف أو البيانات المطلوبة، والضغط على زر «تعديل المرفقات وإعادة الإرسال» لإتمام المراجعة."
                             : "Action: Review note, update manuscript or cover, and click 'Edit & Resubmit'."}
                         </span>
                       </div>
                     </div>
 
                     {/* Manuscript Meta Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
                       <div className="p-3 rounded-xl bg-muted/40 border border-border/80 space-y-1">
                         <span className="text-[10px] text-muted-foreground font-bold block">{isRtl ? "الملف المرفق الحالي" : "Current Manuscript"}</span>
                         <span className="font-black text-foreground truncate block">{sub.manuscriptFile?.name || "المخطوطة.pdf"}</span>
@@ -332,6 +818,121 @@ const NasherNewNotesPage = () => {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Section 2: Direct Administrative Directives & Chat Messages */}
+        {filteredAdminMessages.length > 0 && (
+          <div className="space-y-4 pt-4">
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2 text-start">
+                <div className="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-600 flex items-center justify-center font-black">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-black text-foreground">
+                    {isRtl ? `توجيهات ورسائل الإدارة الرسمية (${filteredAdminMessages.length})` : `Official Admin Messages (${filteredAdminMessages.length})`}
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground font-bold">
+                    {isRtl ? "رسائل وتوجيهات معتمدة واردة من مسؤولي دار عبيد للنشر" : "Direct publishing messages sent to your account"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {filteredAdminMessages.map((msg) => (
+                <Card
+                  key={msg.id}
+                  className="border-2 border-purple-500/30 hover:border-purple-500/60 shadow-md bg-card rounded-3xl overflow-hidden transition-all duration-200"
+                >
+                  <CardHeader className="p-4 sm:p-5 bg-gradient-to-r from-purple-500/10 via-purple-500/5 to-transparent border-b border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white font-black text-lg flex items-center justify-center shadow-md shrink-0">
+                        🏛️
+                      </div>
+                      <div className="space-y-0.5 text-start">
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-sm sm:text-base font-black text-foreground">
+                            {msg.senderName || (isRtl ? "إدارة النشر والتدقيق الأكاديمي (دار عبيد)" : "Dar Obeid Editorial Board")}
+                          </CardTitle>
+                          <Badge className="bg-purple-600 text-white text-[10px] font-black px-2 py-0.5">
+                            {isRtl ? "توجيه إداري 🏛️" : "Official Notice"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span>{msg.timestamp || (isRtl ? "اليوم" : "Today")}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Link to="/nashr/dashboard?tab=chat">
+                        <Button
+                          size="sm"
+                          className="h-9 px-3.5 rounded-xl text-xs font-black bg-purple-600 hover:bg-purple-700 text-white gap-1.5"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "فتح المحادثة والرد" : "Reply in Chat"}</span>
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="p-4 sm:p-6 text-start space-y-3">
+                    <div className="p-4 rounded-2xl bg-muted/30 border border-border/80 shadow-xs">
+                      <p className="text-sm font-bold leading-relaxed text-foreground whitespace-pre-line">
+                        {msg.text}
+                      </p>
+                    </div>
+
+                    {msg.attachmentName && (
+                      <div className="inline-flex items-center gap-2 p-2.5 px-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-700 dark:text-purple-300">
+                        <Paperclip className="w-4 h-4 text-purple-500" />
+                        <span>{isRtl ? "مرفق إداري:" : "Attachment:"} {msg.attachmentName}</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Fallback Empty State */}
+        {filteredFeedbackSubmissions.length === 0 && filteredAdminMessages.length === 0 && (
+          <Card className="border-2 border-border/80 shadow-lg bg-card rounded-3xl p-12 text-center space-y-4">
+            <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center mx-auto text-3xl shadow-inner">
+              ✨
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg sm:text-xl font-black text-foreground">
+                {isRtl ? "لا توجد ملاحظات أو توجيهات تطابق البحث" : "No Directives Match Your Query"}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium max-w-md mx-auto">
+                {isRtl
+                  ? "جميع مؤلفاتك قيد الإجراء أو تم اعتمادها بنجاح دون أي تعديلات مطلوبة. فور إرسال أي توجيه من هيئة التحكيم ستظهر هنا فوراً."
+                  : "All your manuscripts are either approved or in regular review pipeline without pending revisions."}
+              </p>
+            </div>
+            <div className="pt-2 flex justify-center gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setFilterType("all");
+                  setSearchQuery("");
+                }}
+                className="h-10 px-5 rounded-xl font-black text-xs"
+              >
+                {isRtl ? "إعادة ضبط الفلاتر" : "Reset Filters"}
+              </Button>
+              <Link to="/nashr/dashboard">
+                <Button className="h-10 px-6 rounded-xl font-black text-xs bg-amber-600 hover:bg-amber-700 text-white shadow-sm">
+                  {isRtl ? "العودة للوحة الاستوديو" : "Return to Studio"}
+                </Button>
+              </Link>
+            </div>
+          </Card>
         )}
 
       </main>
@@ -456,6 +1057,20 @@ const NasherNewNotesPage = () => {
                     ✓ {isRtl ? "الغلاف المحدد:" : "Selected Cover:"} {editCoverFileName}
                   </p>
                 )}
+              </div>
+
+              {/* Author Reply Note to Admin */}
+              <div className="space-y-1.5 p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/20">
+                <Label className="text-xs font-black text-foreground block">
+                  {isRtl ? "ملاحظة أو رد موجه للإدارة وهيئة التحكيم (اختياري)" : "Reply Note to Admin (Optional)"}
+                </Label>
+                <Textarea 
+                  value={authorNoteReply}
+                  onChange={(e) => setAuthorNoteReply(e.target.value)}
+                  placeholder={isRtl ? "أضف توضيحاً أو رداً على الملاحظة الواردة..." : "Add a clarification or reply..."}
+                  rows={2}
+                  className="rounded-xl bg-background border-border font-bold text-xs"
+                />
               </div>
 
               <DialogFooter className="pt-2 gap-2">

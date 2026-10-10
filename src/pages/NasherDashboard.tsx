@@ -146,6 +146,7 @@ const NasherDashboard = () => {
   const [bookStoreCatalog, setBookStoreCatalog] = useState<BookStoreItem[]>(BookStoreDataStore.getCatalog());
   const [selectedSaleForInvoice, setSelectedSaleForInvoice] = useState<BookSaleRecord | null>(null);
   const [showSaleInvoiceModal, setShowSaleInvoiceModal] = useState<boolean>(false);
+  const [analyticsChartType, setAnalyticsChartType] = useState<"bar" | "area">("bar");
 
   // Form states for New Submission
   const [newTitle, setNewTitle] = useState("");
@@ -1139,176 +1140,403 @@ const NasherDashboard = () => {
               </div>
             </div>
 
-            {/* 📈 القسم الثاني: الرسم البياني المجمع لكل الحساب + الرسم البياني بالنسبة المئوية */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 📈 الرسوم البيانية التحليلية المجمعة والمحسوبة بالنسبة المئوية */}
+            <div className="space-y-8">
 
-              {/* 1. رسم بياني مجمع لكامل الحساب (Unified Comprehensive Studio Chart) */}
-              <Card className="rounded-3xl border-2 border-border/80 shadow-xl bg-card overflow-hidden">
-                <CardHeader className="bg-muted/20 border-b border-border/60 pb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5 text-start">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-rose-600 text-white flex items-center justify-center font-black shadow-xs">
+              {/* 1. رسم بياني مجمع لكل الحساب (من أعلى الصفحة) */}
+              <Card className="rounded-3xl border-2 border-border/80 shadow-2xl bg-card overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 border-b border-border/60 p-5 sm:p-6 pb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 text-start">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white flex items-center justify-center font-black shadow-lg shadow-amber-500/20">
                         <BarChart3 className="w-5 h-5" />
                       </div>
                       <div>
-                        <CardTitle className="text-sm sm:text-base font-black text-foreground">
-                          {isRtl ? "رسم بياني مجمع لكل الحساب" : "Aggregate Account Performance"}
-                        </CardTitle>
-                        <CardDescription className="text-xs font-bold">
-                          {isRtl ? "مقارنة حية لجميع وحدات الحساب (المخطوطات، المنشورات، الفواتير، المبيعات، الرسائل)" : "Consolidated count overview across all account modules"}
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-base sm:text-lg font-black text-foreground">
+                            {isRtl ? "رسم بياني مجمع لكل الحساب" : "Aggregate Account Performance"}
+                          </CardTitle>
+                          <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10">
+                            {isRtl ? "مجمع ومحدث 🔄" : "Live Aggregate"}
+                          </Badge>
+                        </div>
+                        <CardDescription className="text-xs font-bold text-muted-foreground mt-0.5">
+                          {isRtl ? "مقارنة حية وشاملة لجميع وحدات الاستوديو (المخطوطات، المنشورات، الفواتير، الرسائل، المبيعات، وملاحظات التحكيم)" : "Real-time count overview across all author studio operations and modules"}
                         </CardDescription>
                       </div>
                     </div>
-                    <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300">
-                      {isRtl ? "مجمع ومحدث 🔄" : "Aggregate Live"}
-                    </Badge>
+
+                    {/* View Switcher: Bar Chart vs Area Chart */}
+                    <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-muted/60 border border-border/80 self-start sm:self-auto shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setAnalyticsChartType("bar")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                          analyticsChartType === "bar"
+                            ? "bg-amber-500 text-white shadow-md shadow-amber-500/30 scale-102"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <BarChart3 className="w-3.5 h-3.5" />
+                        <span>{isRtl ? "أعمدة بيانية" : "Bar Chart"}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAnalyticsChartType("area")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                          analyticsChartType === "area"
+                            ? "bg-gradient-to-r from-orange-500 to-rose-600 text-white shadow-md shadow-rose-500/30 scale-102"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <TrendingUp className="w-3.5 h-3.5" />
+                        <span>{isRtl ? "مخطط مساحي انسيابي" : "Area Chart"}</span>
+                      </button>
+                    </div>
                   </div>
                 </CardHeader>
-                <CardContent className="p-5 space-y-4">
-                  <div className="h-64 w-full">
+                <CardContent className="p-5 sm:p-6 space-y-6">
+                  {/* Chart Render Area */}
+                  <div className="h-72 sm:h-80 w-full pt-2">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={[
-                          { name: isRtl ? "المخطوطات" : "Submissions", count: submissions.length, fill: "#f59e0b" },
-                          { name: isRtl ? "المنشورة" : "Published", count: publishedWorks.length, fill: "#2563eb" },
-                          { name: isRtl ? "الفواتير" : "Invoices", count: invoices.length, fill: "#10b981" },
-                          { name: isRtl ? "الرسائل" : "Messages", count: messages.length, fill: "#9333ea" },
-                          { name: isRtl ? "المبيعات" : "Sales", count: sales.length, fill: "#0d9488" },
-                          { name: isRtl ? "الملاحظات" : "Feedback", count: submissions.filter(s => s.adminFeedback).length, fill: "#f43f5e" }
-                        ]}
-                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                        <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 700 }} />
-                        <YAxis tick={{ fontSize: 11, fontWeight: 700 }} allowDecimals={false} />
-                        <RechartsTooltip />
-                        <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                          {[
-                            "#f59e0b",
-                            "#2563eb",
-                            "#10b981",
-                            "#9333ea",
-                            "#0d9488",
-                            "#f43f5e"
-                          ].map((color, index) => (
-                            <Cell key={`bar-cell-${index}`} fill={color} />
-                          ))}
-                        </Bar>
-                      </BarChart>
+                      {analyticsChartType === "bar" ? (
+                        <BarChart
+                          data={[
+                            { name: isRtl ? "المخطوطات" : "Submissions", count: submissions.length, fill: "#f59e0b", icon: "📁", category: isRtl ? "المخطوطات" : "Submissions" },
+                            { name: isRtl ? "المنشورة" : "Published", count: publishedWorks.length, fill: "#2563eb", icon: "📖", category: isRtl ? "الكتب المعروضة" : "Published" },
+                            { name: isRtl ? "الفواتير" : "Invoices", count: invoices.length, fill: "#10b981", icon: "💳", category: isRtl ? "الفواتير" : "Invoices" },
+                            { name: isRtl ? "الرسائل" : "Messages", count: messages.length, fill: "#9333ea", icon: "💬", category: isRtl ? "الرسائل" : "Messages" },
+                            { name: isRtl ? "المبيعات" : "Sales", count: sales.length, fill: "#0d9488", icon: "📈", category: isRtl ? "عمليات البيع" : "Sales" },
+                            { name: isRtl ? "الملاحظات" : "Feedback", count: submissions.filter(s => s.adminFeedback).length, fill: "#f43f5e", icon: "🔔", category: isRtl ? "ملاحظات التحكيم" : "Feedback" }
+                          ]}
+                          margin={{ top: 20, right: 15, left: -15, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
+                          <XAxis 
+                            dataKey="name" 
+                            tick={{ fontSize: 12, fontWeight: 800 }} 
+                            stroke="currentColor" 
+                            opacity={0.8}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 12, fontWeight: 700 }} 
+                            allowDecimals={false} 
+                            stroke="currentColor" 
+                            opacity={0.8}
+                          />
+                          <RechartsTooltip 
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div className="rounded-2xl p-3 bg-popover/95 backdrop-blur-md border-2 border-border shadow-xl text-xs font-black space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <span>{data.icon}</span>
+                                      <span className="text-foreground">{data.category}</span>
+                                    </div>
+                                    <div className="text-base text-primary font-black">
+                                      {data.count} {isRtl ? "عنصر / عملية" : "Records"}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Bar dataKey="count" radius={[10, 10, 0, 0]}>
+                            {[
+                              "#f59e0b",
+                              "#2563eb",
+                              "#10b981",
+                              "#9333ea",
+                              "#0d9488",
+                              "#f43f5e"
+                            ].map((color, index) => (
+                              <Cell key={`bar-cell-${index}`} fill={color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      ) : (
+                        <AreaChart
+                          data={[
+                            { name: isRtl ? "المخطوطات" : "Submissions", count: submissions.length },
+                            { name: isRtl ? "المنشورة" : "Published", count: publishedWorks.length },
+                            { name: isRtl ? "الفواتير" : "Invoices", count: invoices.length },
+                            { name: isRtl ? "الرسائل" : "Messages", count: messages.length },
+                            { name: isRtl ? "المبيعات" : "Sales", count: sales.length },
+                            { name: isRtl ? "الملاحظات" : "Feedback", count: submissions.filter(s => s.adminFeedback).length }
+                          ]}
+                          margin={{ top: 20, right: 15, left: -15, bottom: 5 }}
+                        >
+                          <defs>
+                            <linearGradient id="areaColorGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
+                              <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.05}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
+                          <XAxis 
+                            dataKey="name" 
+                            tick={{ fontSize: 12, fontWeight: 800 }} 
+                            stroke="currentColor" 
+                            opacity={0.8}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 12, fontWeight: 700 }} 
+                            allowDecimals={false} 
+                            stroke="currentColor" 
+                            opacity={0.8}
+                          />
+                          <RechartsTooltip />
+                          <Area 
+                            type="monotone" 
+                            dataKey="count" 
+                            stroke="#f59e0b" 
+                            strokeWidth={3} 
+                            fillOpacity={1} 
+                            fill="url(#areaColorGradient)" 
+                          />
+                        </AreaChart>
+                      )}
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Summary Metric Pills */}
-                  <div className="grid grid-cols-3 gap-2.5 pt-2">
-                    <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center">
-                      <span className="text-[10px] font-bold text-muted-foreground block">{isRtl ? "إجمالي العمليات" : "Total Ops"}</span>
-                      <span className="text-sm font-black text-amber-700 dark:text-amber-300">
+                  {/* Summary Metric Pillars Matrix (5 KPI Cards) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-2">
+                    <div className="p-3 rounded-2xl bg-amber-500/10 border-2 border-amber-500/20 text-start space-y-1">
+                      <span className="text-[10px] font-black text-muted-foreground block">{isRtl ? "إجمالي العمليات المسجلة" : "Total Operations"}</span>
+                      <span className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 block">
                         {submissions.length + invoices.length + messages.length + sales.length}
                       </span>
+                      <span className="text-[9px] font-bold text-muted-foreground block">{isRtl ? "أنشطة استوديو المؤلف" : "Studio records"}</span>
                     </div>
-                    <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-                      <span className="text-[10px] font-bold text-muted-foreground block">{isRtl ? "الرصيد المتاح" : "Balance"}</span>
-                      <span className="text-sm font-black text-emerald-700 dark:text-emerald-300">
+
+                    <div className="p-3 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/20 text-start space-y-1">
+                      <span className="text-[10px] font-black text-muted-foreground block">{isRtl ? "الرصيد المتاح للسحب" : "Available Balance"}</span>
+                      <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 block">
                         {financials.availableBalance} ج.م
                       </span>
+                      <span className="text-[9px] font-bold text-muted-foreground block">{isRtl ? "جاهز للسحب المباشر" : "Ready for payout"}</span>
                     </div>
-                    <div className="p-2.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-center">
-                      <span className="text-[10px] font-bold text-muted-foreground block">{isRtl ? "الكتب المعروضة" : "Active Books"}</span>
-                      <span className="text-sm font-black text-blue-700 dark:text-blue-300">
+
+                    <div className="p-3 rounded-2xl bg-blue-500/10 border-2 border-blue-500/20 text-start space-y-1">
+                      <span className="text-[10px] font-black text-muted-foreground block">{isRtl ? "الكتب المعروضة بالمتجر" : "Catalog Live Books"}</span>
+                      <span className="text-base sm:text-lg font-black text-blue-600 dark:text-blue-400 block">
                         {authorStoreBooks.length || publishedWorks.length}
                       </span>
+                      <span className="text-[9px] font-bold text-muted-foreground block">{isRtl ? "مؤلفات جاهزة للبيع" : "Published in store"}</span>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-teal-500/10 border-2 border-teal-500/20 text-start space-y-1">
+                      <span className="text-[10px] font-black text-muted-foreground block">{isRtl ? "إجمالي عوائد المبيعات" : "Total Royalties"}</span>
+                      <span className="text-base sm:text-lg font-black text-teal-600 dark:text-teal-400 block">
+                        {financials.totalRoyalties} ج.م
+                      </span>
+                      <span className="text-[9px] font-bold text-muted-foreground block">{isRtl ? "أرباح تراكمية موثقة" : "Cumulative earnings"}</span>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-rose-500/10 border-2 border-rose-500/20 text-start space-y-1 col-span-2 sm:col-span-1">
+                      <span className="text-[10px] font-black text-muted-foreground block">{isRtl ? "ملاحظات التحكيم النشطة" : "Active Notes"}</span>
+                      <span className="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400 block">
+                        {submissions.filter(s => s.adminFeedback).length}
+                      </span>
+                      <span className="text-[9px] font-bold text-muted-foreground block">{isRtl ? "توجيهات تتطلب مراجعة" : "Action directives"}</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* 2. رسم بياني يحسب بالنسبة المئوية وتوزيع الأداء (Percentage & Distribution Chart) */}
-              <Card className="rounded-3xl border-2 border-border/80 shadow-xl bg-card overflow-hidden">
-                <CardHeader className="bg-muted/20 border-b border-border/60 pb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5 text-start">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-black shadow-xs">
+              {/* 2. رسم بياني محسوب بالنسبة المئوية (%) (أسفله) */}
+              <Card className="rounded-3xl border-2 border-border/80 shadow-2xl bg-card overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border-b border-border/60 p-5 sm:p-6 pb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 text-start">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-black shadow-lg shadow-emerald-500/20">
                         <Activity className="w-5 h-5" />
                       </div>
                       <div>
-                        <CardTitle className="text-sm sm:text-base font-black text-foreground">
-                          {isRtl ? "رسم بياني محسوب بالنسبة المئوية (%)" : "Percentage Distribution Chart (%)"}
-                        </CardTitle>
-                        <CardDescription className="text-xs font-bold">
-                          {isRtl ? "توزيع نسب جاهزية الحساب والاعتمادات المالية والتدقيق بنسبة 100%" : "100% normalized performance and readiness index"}
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-base sm:text-lg font-black text-foreground">
+                            {isRtl ? "رسم بياني محسوب بالنسبة المئوية (%)" : "Percentage Distribution & Readiness Index (%)"}
+                          </CardTitle>
+                          <Badge className="bg-emerald-600 text-white text-[10px] font-black shadow-xs">
+                            100% {isRtl ? "توزيع نسبي دقيق" : "Normalized 100%"}
+                          </Badge>
+                        </div>
+                        <CardDescription className="text-xs font-bold text-muted-foreground mt-0.5">
+                          {isRtl ? "توزيع نسب جاهزية الحساب، الاعتمادات المالية، ومؤشرات الأداء التشغيلي للمؤلف بنسبة 100%" : "Comprehensive proportional distribution across readiness, royalties, and clearances"}
                         </CardDescription>
                       </div>
                     </div>
-                    <Badge className="bg-emerald-500 text-white text-[10px] font-black">
-                      100% {isRtl ? "توزيع دقيق" : "Distribution"}
-                    </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="p-5 space-y-4">
-                  <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={[
-                            { name: isRtl ? "المؤلفات والتحكيم" : "Submissions", value: 30, fill: "#f59e0b" },
-                            { name: isRtl ? "المبيعات والأرباح" : "Royalties & Sales", value: 25, fill: "#10b981" },
-                            { name: isRtl ? "المؤلفات المنشورة" : "Published Catalog", value: 20, fill: "#2563eb" },
-                            { name: isRtl ? "الفواتير وطرق الدفع" : "Invoicing & Receipts", value: 15, fill: "#0d9488" },
-                            { name: isRtl ? "التواصل والتدقيق" : "Review Notes & Chat", value: 10, fill: "#9333ea" }
-                          ]}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={85}
-                          innerRadius={45}
-                          paddingAngle={3}
-                          dataKey="value"
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        >
-                          <Cell fill="#f59e0b" />
-                          <Cell fill="#10b981" />
-                          <Cell fill="#2563eb" />
-                          <Cell fill="#0d9488" />
-                          <Cell fill="#9333ea" />
-                        </Pie>
-                        <RechartsTooltip formatter={(val: any) => [`${val}%`, isRtl ? "النسبة المئوية" : "Percentage"]} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
+                <CardContent className="p-5 sm:p-6 space-y-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    {/* Left Column: Upgraded Donut Pie Chart with Centered Gauge */}
+                    <div className="lg:col-span-5 flex flex-col items-center justify-center">
+                      <div className="h-72 w-full relative">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: isRtl ? "المؤلفات والتحكيم" : "Submissions", value: 30, fill: "#f59e0b" },
+                                { name: isRtl ? "المبيعات والأرباح" : "Royalties & Sales", value: 25, fill: "#10b981" },
+                                { name: isRtl ? "المؤلفات المنشورة" : "Published Catalog", value: 20, fill: "#2563eb" },
+                                { name: isRtl ? "الفواتير وطرق الدفع" : "Invoicing & Receipts", value: 15, fill: "#0d9488" },
+                                { name: isRtl ? "التواصل والتدقيق" : "Review Notes & Chat", value: 10, fill: "#9333ea" }
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={95}
+                              innerRadius={60}
+                              paddingAngle={4}
+                              dataKey="value"
+                            >
+                              <Cell fill="#f59e0b" />
+                              <Cell fill="#10b981" />
+                              <Cell fill="#2563eb" />
+                              <Cell fill="#0d9488" />
+                              <Cell fill="#9333ea" />
+                            </Pie>
+                            <RechartsTooltip formatter={(val: any) => [`${val}%`, isRtl ? "النسبة المئوية" : "Percentage"]} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-2xl font-black text-foreground">100%</span>
+                          <span className="text-[10px] font-bold text-muted-foreground">{isRtl ? "توزيع نسبي شامل" : "Normalized"}</span>
+                        </div>
+                      </div>
 
-                  {/* Percentage Progress Indicators */}
-                  <div className="space-y-2 pt-1 text-xs font-bold">
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
-                        <span>{isRtl ? "معدل الاعتماد الإجمالي للمؤلفات" : "Manuscript Approval Rate"}</span>
-                      </span>
-                      <span className="text-emerald-600 font-black">
-                        {submissions.length > 0 
-                          ? Math.round((submissions.filter(s => s.status === "published" || s.status === "approved").length / submissions.length) * 100) 
-                          : 100}%
-                      </span>
+                      {/* Donut Legend Pills */}
+                      <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs font-bold">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 text-[11px]">
+                          <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
+                          <span>{isRtl ? "المؤلفات (30%)" : "Submissions (30%)"}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-[11px]">
+                          <span className="w-2 h-2 rounded-full bg-[#10b981]" />
+                          <span>{isRtl ? "المبيعات (25%)" : "Sales (25%)"}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 text-[11px]">
+                          <span className="w-2 h-2 rounded-full bg-[#2563eb]" />
+                          <span>{isRtl ? "المنشورات (20%)" : "Catalog (20%)"}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 text-[11px]">
+                          <span className="w-2 h-2 rounded-full bg-[#0d9488]" />
+                          <span>{isRtl ? "الفواتير (15%)" : "Invoices (15%)"}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20 text-[11px]">
+                          <span className="w-2 h-2 rounded-full bg-[#9333ea]" />
+                          <span>{isRtl ? "التدقيق (10%)" : "Audit (10%)"}</span>
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block" />
-                        <span>{isRtl ? "معدل سداد الفواتير المسددة" : "Invoice Settlement Rate"}</span>
-                      </span>
-                      <span className="text-teal-600 font-black">
-                        {invoices.length > 0 
-                          ? Math.round((invoices.filter(i => i.status === "paid").length / invoices.length) * 100) 
-                          : 100}%
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" />
-                        <span>{isRtl ? "نسبة الملاحظات المعالجة بنجاح" : "Review Resolution Rate"}</span>
-                      </span>
-                      <span className="text-rose-600 font-black">
-                        {submissions.length > 0 
-                          ? Math.round(((submissions.length - submissions.filter(s => s.adminFeedback).length) / submissions.length) * 100) 
-                          : 100}%
-                      </span>
+
+                    {/* Right Column: Executive Percentage Progress Bars & Readiness Gauges */}
+                    <div className="lg:col-span-7 space-y-4">
+                      {/* Metric 1 */}
+                      <div className="p-3.5 rounded-2xl bg-muted/30 border border-border/80 space-y-2 text-start">
+                        <div className="flex items-center justify-between text-xs font-black">
+                          <span className="flex items-center gap-2 text-foreground">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                            <span>{isRtl ? "معدل الاعتماد الإجمالي للمؤلفات" : "Manuscript Approval Rate"}</span>
+                          </span>
+                          <span className="text-emerald-600 dark:text-emerald-400 text-sm">
+                            {submissions.length > 0 
+                              ? Math.round((submissions.filter(s => s.status === "published" || s.status === "approved").length / submissions.length) * 100) 
+                              : 100}%
+                          </span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full bg-muted overflow-hidden">
+                          <div 
+                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                            style={{ 
+                              width: `${submissions.length > 0 
+                                ? Math.round((submissions.filter(s => s.status === "published" || s.status === "approved").length / submissions.length) * 100) 
+                                : 100}%` 
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground">
+                          <span>{isRtl ? "المؤلفات المجازة للنشر مقارنة بالمرفوعة" : "Approved vs Total submissions"}</span>
+                          <span>{submissions.filter(s => s.status === "published" || s.status === "approved").length} / {submissions.length}</span>
+                        </div>
+                      </div>
+
+                      {/* Metric 2 */}
+                      <div className="p-3.5 rounded-2xl bg-muted/30 border border-border/80 space-y-2 text-start">
+                        <div className="flex items-center justify-between text-xs font-black">
+                          <span className="flex items-center gap-2 text-foreground">
+                            <span className="w-2.5 h-2.5 rounded-full bg-teal-500" />
+                            <span>{isRtl ? "معدل سداد الفواتير المسددة بالكامل" : "Invoice Settlement Rate"}</span>
+                          </span>
+                          <span className="text-teal-600 dark:text-teal-400 text-sm">
+                            {invoices.length > 0 
+                              ? Math.round((invoices.filter(i => i.status === "paid").length / invoices.length) * 100) 
+                              : 100}%
+                          </span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full bg-muted overflow-hidden">
+                          <div 
+                            className="h-full rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 transition-all duration-500"
+                            style={{ 
+                              width: `${invoices.length > 0 
+                                ? Math.round((invoices.filter(i => i.status === "paid").length / invoices.length) * 100) 
+                                : 100}%` 
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground">
+                          <span>{isRtl ? "الفواتير المكتملة الدفع والإيصال" : "Settled vs Total invoices"}</span>
+                          <span>{invoices.filter(i => i.status === "paid").length} / {invoices.length}</span>
+                        </div>
+                      </div>
+
+                      {/* Metric 3 */}
+                      <div className="p-3.5 rounded-2xl bg-muted/30 border border-border/80 space-y-2 text-start">
+                        <div className="flex items-center justify-between text-xs font-black">
+                          <span className="flex items-center gap-2 text-foreground">
+                            <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                            <span>{isRtl ? "نسبة الملاحظات المعالجة بنجاح" : "Review Resolution Rate"}</span>
+                          </span>
+                          <span className="text-rose-600 dark:text-rose-400 text-sm">
+                            {submissions.length > 0 
+                              ? Math.round(((submissions.length - submissions.filter(s => s.adminFeedback).length) / submissions.length) * 100) 
+                              : 100}%
+                          </span>
+                        </div>
+                        <div className="w-full h-2.5 rounded-full bg-muted overflow-hidden">
+                          <div 
+                            className="h-full rounded-full bg-gradient-to-r from-rose-500 to-amber-500 transition-all duration-500"
+                            style={{ 
+                              width: `${submissions.length > 0 
+                                ? Math.round(((submissions.length - submissions.filter(s => s.adminFeedback).length) / submissions.length) * 100) 
+                                : 100}%` 
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground">
+                          <span>{isRtl ? "مخطوطات خالية من الملاحظات المعلقة" : "Resolved peer-review notes"}</span>
+                          <span>{submissions.length - submissions.filter(s => s.adminFeedback).length} / {submissions.length}</span>
+                        </div>
+                      </div>
+
+                      {/* Metric 4: Royalties Split & Readiness */}
+                      <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border-2 border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-start">
+                        <div className="space-y-0.5">
+                          <span className="text-[10px] font-black text-muted-foreground block">
+                            {isRtl ? "نسبة أرباح المؤلف المعتمدة:" : "Official Royalty Share:"}
+                          </span>
+                          <span className="text-xs sm:text-sm font-black text-foreground block">
+                            {isRtl ? "70% للنسخ الرقمية • 30% للنسخ الورقية المطبوعة" : "70% Digital eBooks • 30% Print Editions"}
+                          </span>
+                        </div>
+                        <Badge className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs px-3 py-1 self-start sm:self-auto shrink-0 shadow-md">
+                          {isRtl ? "أرباح مضمونة 100%" : "Guaranteed Royalties"}
+                        </Badge>
+                      </div>
+
                     </div>
                   </div>
                 </CardContent>

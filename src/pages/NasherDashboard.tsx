@@ -710,11 +710,8 @@ const NasherDashboard = () => {
   const authorStoreBooks = bookStoreCatalog.filter(
     (b) =>
       b &&
-      (b.author_id === authorProfile.id ||
-        b.author_code === authorProfile.authorCode ||
-        b.author_code === "AUT-7890" ||
-        b.author_code === "AUTH-2026-001" ||
-        (b.author_ar && b.author_ar.includes("المنشاوي")))
+      ((authorProfile.id && b.author_id === authorProfile.id) ||
+        (authorProfile.authorCode && b.author_code === authorProfile.authorCode))
   );
 
   return (
@@ -3308,76 +3305,92 @@ const NasherDashboard = () => {
                 </span>
               </CardHeader>
               <CardContent className="p-0 overflow-x-auto">
-                <table className="w-full text-xs text-start">
-                  <thead className="bg-muted/40 border-b border-border/60 text-muted-foreground font-black">
-                    <tr>
-                      <th className="p-3.5 text-start">{isRtl ? "الكتاب / الكود" : "Book / Code"}</th>
-                      <th className="p-3.5 text-start">{isRtl ? "صيغة البيع" : "Format"}</th>
-                      <th className="p-3.5 text-start">{isRtl ? "سعر البيع" : "Sale Price"}</th>
-                      <th className="p-3.5 text-start">{isRtl ? "نسبة وربح المؤلف" : "Author Royalty"}</th>
-                      <th className="p-3.5 text-start">{isRtl ? "المشتري / رقم الطلب" : "Buyer / Order"}</th>
-                      <th className="p-3.5 text-start">{isRtl ? "التاريخ" : "Date"}</th>
-                      <th className="p-3.5 text-start">{isRtl ? "الإجراءات / فاتورة البيع" : "Actions / Invoice"}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/60">
-                    {sales.map((s) => (
-                      <tr key={s.id} className="hover:bg-muted/20 transition-colors">
-                        <td className="p-3.5">
-                          <span className="font-bold text-foreground block truncate max-w-xs">{s.bookTitle}</span>
-                          <span className="font-mono text-[10px] text-muted-foreground">{s.bookCode}</span>
-                        </td>
-                        <td className="p-3.5">
-                          <Badge variant="outline" className="text-[10px] font-bold">
-                            {s.format === "digital" ? "رقمي 📱 (70%)" : "ورقي 📖 (30%)"}
-                          </Badge>
-                        </td>
-                        <td className="p-3.5 font-mono font-bold text-foreground">
-                          {s.salePrice} ج.م
-                        </td>
-                        <td className="p-3.5 font-mono font-black text-emerald-600 dark:text-emerald-400">
-                          +{s.authorEarnings} ج.م ({s.authorRoyaltyPercentage}%)
-                        </td>
-                        <td className="p-3.5">
-                          <span className="text-foreground font-semibold block truncate max-w-[150px]">{s.buyerName}</span>
-                          <span className="text-[10px] font-mono text-muted-foreground">{s.orderNumber}</span>
-                        </td>
-                        <td className="p-3.5 text-muted-foreground font-mono">
-                          {s.date}
-                        </td>
-                        <td className="p-3.5">
-                          <div className="flex items-center gap-1.5">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedSaleForInvoice(s);
-                                setShowSaleInvoiceModal(true);
-                              }}
-                              className="h-7 px-2.5 rounded-xl font-bold text-[11px] gap-1 border-border hover:bg-muted"
-                              title={isRtl ? "معاينة الفاتورة الرسمية" : "View Invoice"}
-                            >
-                              <FileText className="w-3 h-3 text-blue-500" />
-                              <span>{isRtl ? "عرض الفاتورة" : "Invoice"}</span>
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                const invoiceSvg = generateOfficialBookSaleInvoiceSvg(s);
-                                downloadFileOrDataUrl(invoiceSvg, `فاتورة_${s.orderNumber}_${s.bookCode}.svg`);
-                              }}
-                              className="h-7 w-7 p-0 rounded-xl text-muted-foreground hover:text-foreground"
-                              title={isRtl ? "تحميل الفاتورة" : "Download"}
-                            >
-                              <Download className="w-3.5 h-3.5 text-amber-500" />
-                            </Button>
-                          </div>
-                        </td>
+                {sales.length === 0 ? (
+                  <div className="p-10 text-center space-y-2">
+                    <div className="w-12 h-12 rounded-2xl bg-muted/60 text-muted-foreground flex items-center justify-center mx-auto text-xl">
+                      📊
+                    </div>
+                    <p className="text-sm font-black text-foreground">
+                      {isRtl ? "لا توجد مبيعات مسجلة حتى الآن" : "No sales records yet"}
+                    </p>
+                    <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                      {isRtl 
+                        ? "فور شراء القراء لكتبكم المعتمدة عبر متجر الكتب (سواءً بنسخ رقمية أو ورقية)، ستظهر العمليات وفواتير البيع ونسب أرباحكم هنا لحظياً."
+                        : "Once readers purchase your published books from the store, sales records, invoices, and your author royalties will appear here in real-time."}
+                    </p>
+                  </div>
+                ) : (
+                  <table className="w-full text-xs text-start">
+                    <thead className="bg-muted/40 border-b border-border/60 text-muted-foreground font-black">
+                      <tr>
+                        <th className="p-3.5 text-start">{isRtl ? "الكتاب / الكود" : "Book / Code"}</th>
+                        <th className="p-3.5 text-start">{isRtl ? "صيغة البيع" : "Format"}</th>
+                        <th className="p-3.5 text-start">{isRtl ? "سعر البيع" : "Sale Price"}</th>
+                        <th className="p-3.5 text-start">{isRtl ? "نسبة وربح المؤلف" : "Author Royalty"}</th>
+                        <th className="p-3.5 text-start">{isRtl ? "المشتري / رقم الطلب" : "Buyer / Order"}</th>
+                        <th className="p-3.5 text-start">{isRtl ? "التاريخ" : "Date"}</th>
+                        <th className="p-3.5 text-start">{isRtl ? "الإجراءات / فاتورة البيع" : "Actions / Invoice"}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-border/60">
+                      {sales.map((s) => (
+                        <tr key={s.id} className="hover:bg-muted/20 transition-colors">
+                          <td className="p-3.5">
+                            <span className="font-bold text-foreground block truncate max-w-xs">{s.bookTitle}</span>
+                            <span className="font-mono text-[10px] text-muted-foreground">{s.bookCode}</span>
+                          </td>
+                          <td className="p-3.5">
+                            <Badge variant="outline" className="text-[10px] font-bold">
+                              {s.format === "digital" ? "رقمي 📱 (70%)" : "ورقي 📖 (30%)"}
+                            </Badge>
+                          </td>
+                          <td className="p-3.5 font-mono font-bold text-foreground">
+                            {s.salePrice} ج.م
+                          </td>
+                          <td className="p-3.5 font-mono font-black text-emerald-600 dark:text-emerald-400">
+                            +{s.authorEarnings} ج.م ({s.authorRoyaltyPercentage}%)
+                          </td>
+                          <td className="p-3.5">
+                            <span className="text-foreground font-semibold block truncate max-w-[150px]">{s.buyerName}</span>
+                            <span className="text-[10px] font-mono text-muted-foreground">{s.orderNumber}</span>
+                          </td>
+                          <td className="p-3.5 text-muted-foreground font-mono">
+                            {s.date}
+                          </td>
+                          <td className="p-3.5">
+                            <div className="flex items-center gap-1.5">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedSaleForInvoice(s);
+                                  setShowSaleInvoiceModal(true);
+                                }}
+                                className="h-7 px-2.5 rounded-xl font-bold text-[11px] gap-1 border-border hover:bg-muted"
+                                title={isRtl ? "معاينة الفاتورة الرسمية" : "View Invoice"}
+                              >
+                                <FileText className="w-3 h-3 text-blue-500" />
+                                <span>{isRtl ? "عرض الفاتورة" : "Invoice"}</span>
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  const invoiceSvg = generateOfficialBookSaleInvoiceSvg(s);
+                                  downloadFileOrDataUrl(invoiceSvg, `فاتورة_${s.orderNumber}_${s.bookCode}.svg`);
+                                }}
+                                className="h-7 w-7 p-0 rounded-xl text-muted-foreground hover:text-foreground"
+                                title={isRtl ? "تحميل الفاتورة" : "Download"}
+                              >
+                                <Download className="w-3.5 h-3.5 text-amber-500" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </CardContent>
             </Card>
 
@@ -3390,28 +3403,36 @@ const NasherDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 space-y-3">
-                {payouts.map((pay) => (
-                  <div key={pay.id} className="p-4 rounded-2xl bg-muted/30 border border-border/70 flex flex-wrap items-center justify-between gap-3 text-xs">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-black text-sm text-foreground">{pay.amount} {pay.currency}</span>
-                        <Badge className={
-                          pay.status === "completed" 
-                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]"
-                            : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
-                        }>
-                          {pay.status === "completed" ? (isRtl ? "تم التحويل بنجاح ✅" : "Completed") : (isRtl ? "قيد المعالجة ⏳" : "Pending")}
-                        </Badge>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">{pay.accountDetails}</p>
-                    </div>
-
-                    <div className="text-end text-[11px] text-muted-foreground">
-                      <span className="block font-mono">{pay.requestDate}</span>
-                      {pay.transactionRef && <span className="text-[10px] font-mono text-primary">{pay.transactionRef}</span>}
-                    </div>
+                {payouts.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-muted-foreground font-semibold">
+                    {isRtl 
+                      ? "لا توجد طلبات سحب سابقة. يمكنك تقديم طلب سحب فور توفر رصيد أرباح متاح."
+                      : "No past payout requests. You can submit a payout request once balance is available."}
                   </div>
-                ))}
+                ) : (
+                  payouts.map((pay) => (
+                    <div key={pay.id} className="p-4 rounded-2xl bg-muted/30 border border-border/70 flex flex-wrap items-center justify-between gap-3 text-xs">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-sm text-foreground">{pay.amount} {pay.currency}</span>
+                          <Badge className={
+                            pay.status === "completed" 
+                              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[10px]"
+                              : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[10px]"
+                          }>
+                            {pay.status === "completed" ? (isRtl ? "تم التحويل بنجاح ✅" : "Completed") : (isRtl ? "قيد المعالجة ⏳" : "Pending")}
+                          </Badge>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">{pay.accountDetails}</p>
+                      </div>
+
+                      <div className="text-end text-[11px] text-muted-foreground">
+                        <span className="block font-mono">{pay.requestDate}</span>
+                        {pay.transactionRef && <span className="text-[10px] font-mono text-primary">{pay.transactionRef}</span>}
+                      </div>
+                    </div>
+                  ))
+                )}
               </CardContent>
             </Card>
 

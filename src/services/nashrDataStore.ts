@@ -173,167 +173,11 @@ const INITIAL_MESSAGES: NashrMessage[] = [
   }
 ];
 
-// Default Sales (70% Author Royalty for Digital, 30% for Print)
-const INITIAL_SALES: BookSaleRecord[] = [
-  {
-    id: "sale-901",
-    bookCode: "BK-DAR-4491",
-    bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
-    format: "print",
-    salePrice: 220,
-    authorRoyaltyPercentage: 30,
-    authorEarnings: 66,
-    buyerName: "مكتبة كلية الاقتصاد - جامعة القاهرة",
-    buyerEmail: "library@feps.cu.edu.eg",
-    buyerCity: "الجيزة، جامعة القاهرة",
-    orderNumber: "ORD-2026-9921",
-    invoiceNumber: "INV-SALE-2026-9921",
-    paymentMethod: "تحويل بنكي - البنك الأهلي",
-    quantity: 1,
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    date: "2026-09-28",
-    status: "completed"
-  },
-  {
-    id: "sale-902",
-    bookCode: "BK-DAR-4491",
-    bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
-    format: "print",
-    salePrice: 220,
-    authorRoyaltyPercentage: 30,
-    authorEarnings: 66,
-    buyerName: "د. خالد السعيد - الرياض",
-    buyerEmail: "dr.khaled@ksu.edu.sa",
-    buyerCity: "الرياض، الدرعية",
-    orderNumber: "ORD-2026-9915",
-    invoiceNumber: "INV-SALE-2026-9915",
-    paymentMethod: "بطاقة ائتمانية دولية",
-    quantity: 1,
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    date: "2026-09-27",
-    status: "completed"
-  },
-  {
-    id: "sale-903",
-    bookCode: "BK-DAR-8821",
-    bookTitle: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
-    format: "digital",
-    salePrice: 85,
-    authorRoyaltyPercentage: 70,
-    authorEarnings: 60,
-    buyerName: "أحمد ممدوح (باحث ماجستير)",
-    buyerEmail: "ahmed.mamdouh@gmail.com",
-    buyerCity: "القاهرة، مصر",
-    orderNumber: "ORD-2026-9918",
-    invoiceNumber: "INV-SALE-2026-9918",
-    paymentMethod: "إنستاباي (InstaPay)",
-    quantity: 1,
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    date: "2026-09-27",
-    status: "completed"
-  },
-  {
-    id: "sale-904",
-    bookCode: "BK-DAR-8821",
-    bookTitle: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
-    format: "digital",
-    salePrice: 85,
-    authorRoyaltyPercentage: 70,
-    authorEarnings: 60,
-    buyerName: "سارة عبد العزيز (جامعة الملك سعود)",
-    buyerEmail: "sara.abdelaziz@ksu.edu.sa",
-    buyerCity: "الرياض، المملكة العربية السعودية",
-    orderNumber: "ORD-2026-9916",
-    invoiceNumber: "INV-SALE-2026-9916",
-    paymentMethod: "Apple Pay",
-    quantity: 1,
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    date: "2026-09-26",
-    status: "completed"
-  },
-  {
-    id: "sale-905",
-    bookCode: "BK-DAR-4491",
-    bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
-    format: "print",
-    salePrice: 440,
-    authorRoyaltyPercentage: 30,
-    authorEarnings: 132,
-    buyerName: "معهد الدلتا العالي للهندسة والتكنولوجيا",
-    buyerEmail: "procurement@delta.edu.eg",
-    buyerCity: "المنصورة، الدقهلية",
-    orderNumber: "ORD-2026-9905",
-    invoiceNumber: "INV-SALE-2026-9905",
-    paymentMethod: "تحويل بنكي - البنك الأهلي",
-    quantity: 2,
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    date: "2026-09-24",
-    status: "completed"
-  },
-  {
-    id: "sale-906",
-    bookCode: "BK-DAR-8821",
-    bookTitle: "دليل الباحث الأكاديمي للنشر الدولي المحكم",
-    format: "digital",
-    salePrice: 85,
-    authorRoyaltyPercentage: 70,
-    authorEarnings: 60,
-    buyerName: "م. إبراهيم يوسف (باحث مستقل)",
-    buyerEmail: "ibrahim.youssef@aucegypt.edu",
-    buyerCity: "القاهرة، المعادي",
-    orderNumber: "ORD-2026-9892",
-    invoiceNumber: "INV-SALE-2026-9892",
-    paymentMethod: "إنستاباي (InstaPay)",
-    quantity: 1,
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    date: "2026-09-22",
-    status: "completed"
-  },
-  {
-    id: "sale-907",
-    bookCode: "BK-DAR-4491",
-    bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
-    format: "print",
-    salePrice: 220,
-    authorRoyaltyPercentage: 30,
-    authorEarnings: 66,
-    buyerName: "مركز بحوث الشرق الأوسط والدراسات المستقبلية",
-    buyerEmail: "library@merc-center.org",
-    buyerCity: "القاهرة، مدينة نصر",
-    orderNumber: "ORD-2026-9884",
-    invoiceNumber: "INV-SALE-2026-9884",
-    paymentMethod: "فودافون كاش",
-    quantity: 1,
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    date: "2026-09-20",
-    status: "completed"
-  }
-];
+// Default Sales (70% Author Royalty for Digital, 30% for Print) - clean slate for live orders
+const INITIAL_SALES: BookSaleRecord[] = [];
 
-// Default Payout History
-const INITIAL_PAYOUTS: PayoutRequest[] = [
-  {
-    id: "pay-01",
-    authorId: "auth-2026-001",
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    amount: 350,
-    currency: "EGP",
-    payoutMethod: "bank_transfer",
-    accountDetails: "البنك الأهلي المصري - حساب رقم 12345678901",
-    status: "completed",
-    requestDate: "2026-08-30",
-    transactionRef: "TRX-NBE-889102",
-    notes: "تم التحويل بنجاح لحساب المؤلف البنكي."
-  }
-];
+// Default Payout History - clean slate for author payout requests
+const INITIAL_PAYOUTS: PayoutRequest[] = [];
 
 export const OLD_TEST_AUTHOR_CODES = [
   "AUT-7890",
@@ -1502,7 +1346,7 @@ export class NashrDataStore {
   static getSales(authorId?: string): BookSaleRecord[] {
     const author = this.getAuthorProfile();
     const targetId = authorId || author?.id;
-    const targetCode = author?.authorCode || "AUT-7890";
+    const targetCode = author?.authorCode || "";
 
     // 1. Fetch saved direct sales for this author
     let savedDirectSales: BookSaleRecord[] = [];
@@ -1511,13 +1355,50 @@ export class NashrDataStore {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         savedDirectSales = JSON.parse(saved);
-      } else if (targetId === "auth-2026-001") {
-        localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(INITIAL_SALES));
-        savedDirectSales = [...INITIAL_SALES];
+        // Purge test sales
+        const filtered = savedDirectSales.filter(s => {
+          const bCode = s.bookCode || "";
+          const oNum = s.orderNumber || "";
+          const aCode = s.authorCode || "";
+          const bName = s.buyerName || "";
+          if (bCode === "BK-DAR-4491" || bCode === "BK-DAR-8821") return false;
+          if (oNum.startsWith("ORD-2026-99") || oNum.startsWith("ORD-2026-98")) return false;
+          if (aCode === "AUT-7890" || aCode === "auth-2026-001") return false;
+          if (bName.includes("المنشاوي") || bName.includes("جامعة القاهرة") || bName.includes("معهد الدلتا")) return false;
+          return true;
+        });
+        if (filtered.length !== savedDirectSales.length) {
+          localStorage.setItem(storageKey, JSON.stringify(filtered));
+          savedDirectSales = filtered;
+        }
       }
     } catch (e) {
       console.error(e);
-      if (targetId === "auth-2026-001") savedDirectSales = [...INITIAL_SALES];
+      savedDirectSales = [];
+    }
+
+    // Also purge global sales storage if it contains test entries
+    try {
+      const globalSaved = localStorage.getItem(STORAGE_KEYS.SALES);
+      if (globalSaved) {
+        const parsed: BookSaleRecord[] = JSON.parse(globalSaved);
+        const filtered = parsed.filter(s => {
+          const bCode = s.bookCode || "";
+          const oNum = s.orderNumber || "";
+          const aCode = s.authorCode || "";
+          const bName = s.buyerName || "";
+          if (bCode === "BK-DAR-4491" || bCode === "BK-DAR-8821") return false;
+          if (oNum.startsWith("ORD-2026-99") || oNum.startsWith("ORD-2026-98")) return false;
+          if (aCode === "AUT-7890" || aCode === "auth-2026-001") return false;
+          if (bName.includes("المنشاوي") || bName.includes("جامعة القاهرة") || bName.includes("معهد الدلتا")) return false;
+          return true;
+        });
+        if (filtered.length !== parsed.length) {
+          localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify(filtered));
+        }
+      }
+    } catch (e) {
+      console.error(e);
     }
 
     // 2. Fetch live Bookstore orders from BookStoreDataStore (stored in "unigates_bookstore_orders")
@@ -1529,15 +1410,22 @@ export class NashrDataStore {
         if (Array.isArray(parsedOrders)) {
           parsedOrders.forEach((ord) => {
             if (!ord || !Array.isArray(ord.items)) return;
+            // Ignore mock demo orders
+            const ordNum = ord.orderNumber || "";
+            if (ordNum.startsWith("ORD-2026-99") || ordNum.startsWith("ORD-2026-98")) return;
+
             ord.items.forEach((item: any, idx: number) => {
               const itemAuthorCode = item.authorCode || "";
               const itemBookCode = item.bookCode || "";
-              const isMatch =
-                itemAuthorCode === targetCode ||
-                itemAuthorCode === "AUT-7890" ||
-                itemAuthorCode === "AUTH-2026-001" ||
-                itemAuthorCode === targetId ||
-                (targetId === "auth-2026-001" && (itemBookCode === "BK-DAR-4491" || itemBookCode === "BK-DAR-8821"));
+              
+              // Skip demo books
+              if (itemBookCode === "BK-DAR-4491" || itemBookCode === "BK-DAR-8821") return;
+              if (itemAuthorCode === "AUT-7890" || itemAuthorCode === "auth-2026-001") return;
+
+              const isMatch = Boolean(
+                (targetCode && itemAuthorCode === targetCode) ||
+                (targetId && itemAuthorCode === targetId)
+              );
 
               if (isMatch) {
                 const royaltyRate = item.format === "digital" ? 70 : 30;
@@ -1630,12 +1518,26 @@ export class NashrDataStore {
   static getAllPayouts(): PayoutRequest[] {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PAYOUTS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed: PayoutRequest[] = JSON.parse(saved);
+        const filtered = parsed.filter(p => {
+          if (!p) return false;
+          const aId = p.authorId || "";
+          const aCode = p.authorCode || "";
+          const aName = p.authorName || "";
+          if (aId === "auth-2026-001" || aCode === "AUT-7890" || aName.includes("المنشاوي")) return false;
+          if (p.id === "pay-01") return false;
+          return true;
+        });
+        if (filtered.length !== parsed.length) {
+          localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(filtered));
+        }
+        return filtered;
+      }
     } catch (e) {
       console.error(e);
     }
-    localStorage.setItem(STORAGE_KEYS.PAYOUTS, JSON.stringify(INITIAL_PAYOUTS));
-    return INITIAL_PAYOUTS;
+    return [];
   }
 
   static getPayouts(authorId?: string): PayoutRequest[] {

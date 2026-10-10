@@ -73,9 +73,9 @@ const SiteFooter = () => {
       links: [
         { label: t.universityPlatform, href: "/university-platform" },
         { label: t.schoolPlatform, href: "/school-platform" },
-        { label: t.exploreCourses, href: "/courses" },
-        { label: t.bookStore, href: "/book-store" },
         { label: t.nasherPlatform || translate("منصة نشر", "Nashr Platform"), href: "/nashr" },
+        { label: t.bookStore, href: "/book-store" },
+        { label: t.exploreCourses, href: "/courses" },
         { label: t.careerPlatform || translate("منصة Career", "Career Platform"), href: "/career" },
         { label: translate("برنامج الأفيليت", "Affiliate Program"), href: "/affiliate" },
       ],

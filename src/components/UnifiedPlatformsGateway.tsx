@@ -78,30 +78,6 @@ export const UnifiedPlatformsGateway = ({
       loginLink: "/login",
     },
     {
-      id: "courses",
-      to: "/courses",
-      badge: isRtl ? "أكاديمية التدريب والتطوير المهني" : "Skills & Courses Academy",
-      badgeColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-      title: isRtl ? "أكاديمية الدورات والشهادات العالمية" : "Global Courses & Certificates Academy",
-      desc: isRtl
-        ? "منصة تعليمية عالمية مستقلة للمحاضرين والمدربين ومراكز التدريب لتقديم دورات احترافية بمحاضرات فيديو محمية بنظام DRM، حلقات تمهيدية مجانية، وشهادات إتمام برمز QR."
-        : "Autonomous e-learning academy for instructors, tutors, and training centers with DRM video, free previews, and QR certificates.",
-      icon: BookOpen,
-      gradient: "from-purple-600 via-fuchsia-600 to-pink-700",
-      accentBorder: "border-purple-500/30 hover:border-purple-500/80",
-      glowColor: "group-hover:shadow-purple-500/20",
-      rolesList: isRtl
-        ? ["المحاضرون والمدربون المستقلون", "معلمو التقوية والمراجعات", "مراكز التدريب المهني", "مراكز اللغات والترجمة", "الطلاب والمتدربون"]
-        : ["Instructors", "Tutors", "Training Centers", "Language Centers", "Learners"],
-      features: [
-        { icon: Lock, text: isRtl ? "حماية الفيديو السحابية المتقدمة بنظام DRM لمنع التسجيل" : "Advanced DRM video encryption against recording" },
-        { icon: Award, text: isRtl ? "شهادات إتمام رقمية معتمدة قابلة للتحقق الفوري" : "Verifiable QR completion certificates" },
-        { icon: Sparkles, text: isRtl ? "استوديو متكامل للمدربين لرفع الدورات وإدارة الأرباح" : "Instructor studio with revenue management" },
-      ],
-      signupLink: "/courses/signup?role=lecturer",
-      loginLink: "/courses/login",
-    },
-    {
       id: "books",
       to: "/book-store",
       badge: isRtl ? "متجر الكتب ودار النشر الأكاديمي" : "Book Store & Publishing House",
@@ -121,6 +97,30 @@ export const UnifiedPlatformsGateway = ({
         { icon: PackageCheck, text: isRtl ? "بيع وشحن وتوصيل الكتب الورقية المطبوعة دولياً ومحلياً" : "Physical book shipping & global delivery" },
         { icon: Lock, text: isRtl ? "قارئ إلكتروني سحابي محمي بنظام DRM للكتب الرقمية" : "DRM protected cloud reader for e-books" },
         { icon: PenTool, text: isRtl ? "خدمات دار عبيد: ترقيم ISBN، تحكيم، وطباعة حسب الطلب" : "Dar Obeid: ISBN, peer-review, and POD printing" },
+      ],
+      signupLink: "/courses/signup?role=lecturer",
+      loginLink: "/courses/login",
+    },
+    {
+      id: "courses",
+      to: "/courses",
+      badge: isRtl ? "أكاديمية التدريب والتطوير المهني" : "Skills & Courses Academy",
+      badgeColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+      title: isRtl ? "أكاديمية الدورات والشهادات العالمية" : "Global Courses & Certificates Academy",
+      desc: isRtl
+        ? "منصة تعليمية عالمية مستقلة للمحاضرين والمدربين ومراكز التدريب لتقديم دورات احترافية بمحاضرات فيديو محمية بنظام DRM، حلقات تمهيدية مجانية، وشهادات إتمام برمز QR."
+        : "Autonomous e-learning academy for instructors, tutors, and training centers with DRM video, free previews, and QR certificates.",
+      icon: BookOpen,
+      gradient: "from-purple-600 via-fuchsia-600 to-pink-700",
+      accentBorder: "border-purple-500/30 hover:border-purple-500/80",
+      glowColor: "group-hover:shadow-purple-500/20",
+      rolesList: isRtl
+        ? ["المحاضرون والمدربون المستقلون", "معلمو التقوية والمراجعات", "مراكز التدريب المهني", "مراكز اللغات والترجمة", "الطلاب والمتدربون"]
+        : ["Instructors", "Tutors", "Training Centers", "Language Centers", "Learners"],
+      features: [
+        { icon: Lock, text: isRtl ? "حماية الفيديو السحابية المتقدمة بنظام DRM لمنع التسجيل" : "Advanced DRM video encryption against recording" },
+        { icon: Award, text: isRtl ? "شهادات إتمام رقمية معتمدة قابلة للتحقق الفوري" : "Verifiable QR completion certificates" },
+        { icon: Sparkles, text: isRtl ? "استوديو متكامل للمدربين لرفع الدورات وإدارة الأرباح" : "Instructor studio with revenue management" },
       ],
       signupLink: "/courses/signup?role=lecturer",
       loginLink: "/courses/login",

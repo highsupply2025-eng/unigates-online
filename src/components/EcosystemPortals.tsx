@@ -555,30 +555,30 @@ const EcosystemPortals = () => {
       roles: schoolContent.roles,
     },
     {
-      id: "courses",
-      to: "/courses",
-      badge: isCoursesDev
+      id: "nasher",
+      to: "/nashr",
+      badge: isNasherDev
         ? translate("قريباً • قيد التطوير", "Coming Soon • In Dev")
-        : translate("التطوير المهني والمهارات", "Professional Skills"),
-      badgeColor: isCoursesDev
+        : translate("نشر ومؤلفات", "Publishing & Works"),
+      badgeColor: isNasherDev
         ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
-        : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-      title: coursesContent.title,
-      subtitle: coursesContent.subtitle,
-      icon: BookOpen,
-      gradient: "from-purple-600 via-fuchsia-600 to-pink-700",
-      accentBorder: "border-purple-500/30 hover:border-purple-500/80",
-      glowColor: "group-hover:shadow-purple-500/20",
+        : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+      title: nasherContent.title,
+      subtitle: nasherContent.subtitle,
+      icon: BookCopy,
+      gradient: "from-rose-600 via-pink-600 to-amber-600",
+      accentBorder: "border-rose-500/30 hover:border-rose-500/80",
+      glowColor: "group-hover:shadow-rose-500/20",
       features: [
-        { icon: MonitorCheck, text: coursesContent.f1 },
-        { icon: Award, text: coursesContent.f2 },
-        { icon: TrendingUp, text: coursesContent.f3 },
-        { icon: Sparkles, text: coursesContent.f4 },
+        { icon: TrendingUp, text: nasherContent.f1 },
+        { icon: ShieldCheck, text: nasherContent.f2 },
+        { icon: Sparkles, text: nasherContent.f3 },
+        { icon: Users, text: nasherContent.f4 },
       ],
-      ctaText: isCoursesDev
-        ? translate("قريباً — تصفح الدورات", "Coming Soon — View Courses")
-        : translate("تصفح الدورات والمسارات", "Browse All Courses"),
-      roles: coursesContent.roles,
+      ctaText: isNasherDev
+        ? translate("قريباً — استكشف منصة نشر", "Coming Soon — Explore Nashr")
+        : translate("دخول منصة نشر", "Explore Nashr Platform"),
+      roles: nasherContent.roles,
     },
     {
       id: "books",
@@ -607,30 +607,30 @@ const EcosystemPortals = () => {
       roles: booksContent.roles,
     },
     {
-      id: "nasher",
-      to: "/nashr",
-      badge: isNasherDev
+      id: "courses",
+      to: "/courses",
+      badge: isCoursesDev
         ? translate("قريباً • قيد التطوير", "Coming Soon • In Dev")
-        : translate("نشر ومؤلفات", "Publishing & Works"),
-      badgeColor: isNasherDev
+        : translate("التطوير المهني والمهارات", "Professional Skills"),
+      badgeColor: isCoursesDev
         ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
-        : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
-      title: nasherContent.title,
-      subtitle: nasherContent.subtitle,
-      icon: BookCopy,
-      gradient: "from-rose-600 via-pink-600 to-amber-600",
-      accentBorder: "border-rose-500/30 hover:border-rose-500/80",
-      glowColor: "group-hover:shadow-rose-500/20",
+        : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+      title: coursesContent.title,
+      subtitle: coursesContent.subtitle,
+      icon: BookOpen,
+      gradient: "from-purple-600 via-fuchsia-600 to-pink-700",
+      accentBorder: "border-purple-500/30 hover:border-purple-500/80",
+      glowColor: "group-hover:shadow-purple-500/20",
       features: [
-        { icon: TrendingUp, text: nasherContent.f1 },
-        { icon: ShieldCheck, text: nasherContent.f2 },
-        { icon: Sparkles, text: nasherContent.f3 },
-        { icon: Users, text: nasherContent.f4 },
+        { icon: MonitorCheck, text: coursesContent.f1 },
+        { icon: Award, text: coursesContent.f2 },
+        { icon: TrendingUp, text: coursesContent.f3 },
+        { icon: Sparkles, text: coursesContent.f4 },
       ],
-      ctaText: isNasherDev
-        ? translate("قريباً — استكشف منصة نشر", "Coming Soon — Explore Nashr")
-        : translate("دخول منصة نشر", "Explore Nashr Platform"),
-      roles: nasherContent.roles,
+      ctaText: isCoursesDev
+        ? translate("قريباً — تصفح الدورات", "Coming Soon — View Courses")
+        : translate("تصفح الدورات والمسارات", "Browse All Courses"),
+      roles: coursesContent.roles,
     },
     {
       id: "career",

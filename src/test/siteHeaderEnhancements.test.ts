@@ -1,19 +1,23 @@
 import { describe, it, expect } from "vitest";
 
 describe("SiteHeader Modernization & Platform Navigation Tests", () => {
-  it("should have all 4 platforms in header navigation with distinct color themes", () => {
+  it("should have all 6 platforms in header navigation in the correct order", () => {
     const platforms = [
       { to: "/university-platform", label: "المنصة الجامعية", color: "blue" },
       { to: "/school-platform", label: "المنصة المدرسية", color: "emerald" },
-      { to: "/courses", label: "أكاديمية الدورات", color: "purple" },
+      { to: "/nashr", label: "منصة نشر", color: "rose" },
       { to: "/book-store", label: "متجر الكتب", color: "amber" },
+      { to: "/courses", label: "منصة دورات تعليمية", color: "purple" },
+      { to: "/career", label: "منصة Career", color: "cyan" },
     ];
 
-    expect(platforms).toHaveLength(4);
+    expect(platforms).toHaveLength(6);
     expect(platforms[0].to).toBe("/university-platform");
     expect(platforms[1].to).toBe("/school-platform");
-    expect(platforms[2].to).toBe("/courses");
+    expect(platforms[2].to).toBe("/nashr");
     expect(platforms[3].to).toBe("/book-store");
+    expect(platforms[4].to).toBe("/courses");
+    expect(platforms[5].to).toBe("/career");
   });
 
   it("should support quick authentication and onboarding routes", () => {

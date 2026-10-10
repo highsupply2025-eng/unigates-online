@@ -58,7 +58,9 @@ import {
   SunMoon,
   Monitor,
   Paperclip,
-  X
+  X,
+  FileSignature,
+  Scroll
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -68,6 +70,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -91,9 +94,10 @@ import {
   NashrMessage, 
   BookSaleRecord, 
   PayoutRequest, 
-  PublishType 
+  PublishType,
+  AuthorContract
 } from "@/types/nashr";
-import { NashrDataStore } from "@/services/nashrDataStore";
+import { NashrDataStore, generateSampleContractSvg, dataUrlToBlob } from "@/services/nashrDataStore";
 import { ReceiptAuditModal } from "@/components/nashr/ReceiptAuditModal";
 import { AttachmentViewerModal } from "@/components/nashr/AttachmentViewerModal";
 import { 
@@ -152,6 +156,17 @@ const NasherDashboard = () => {
   const [showSaleInvoiceModal, setShowSaleInvoiceModal] = useState<boolean>(false);
   const [analyticsChartType, setAnalyticsChartType] = useState<"bar" | "area">("bar");
   const [statsChartMode, setStatsChartMode] = useState<"operations" | "financial">("operations");
+
+  // Publishing Contracts States
+  const [contracts, setContracts] = useState<AuthorContract[]>(NashrDataStore.getContracts());
+  const [selectedContractForReview, setSelectedContractForReview] = useState<AuthorContract | null>(null);
+  const [showContractReviewModal, setShowContractReviewModal] = useState<boolean>(false);
+  const [authorAgreedTerms1, setAuthorAgreedTerms1] = useState<boolean>(false);
+  const [authorAgreedTerms2, setAuthorAgreedTerms2] = useState<boolean>(false);
+  const [authorSignatureInput, setAuthorSignatureInput] = useState<string>(authorProfile.fullName);
+  const [signingContract, setSigningContract] = useState<boolean>(false);
+  const [selectedContractForView, setSelectedContractForView] = useState<AuthorContract | null>(null);
+  const [showContractViewModal, setShowContractViewModal] = useState<boolean>(false);
 
   // Form states for New Submission
   const [newTitle, setNewTitle] = useState("");
@@ -280,6 +295,8 @@ const NasherDashboard = () => {
   // Dynamic Tab & Page Title
   const getTabTitle = (tabKey: string) => {
     switch (tabKey) {
+      case "contracts":
+        return isRtl ? "العقود الرسمية" : "Official Contracts";
       case "submit":
         return isRtl ? "رفع مؤلفات جديدة" : "Submit New Manuscript";
       case "published":
@@ -317,6 +334,7 @@ const NasherDashboard = () => {
     setPayouts(NashrDataStore.getPayouts());
     setFinancials(NashrDataStore.getFinancialSummary());
     setBookStoreCatalog(BookStoreDataStore.getCatalog());
+    setContracts(NashrDataStore.getContracts(fresh.id));
   };
 
   // Real-time synchronization for internal chat & Bookstore live sales/prices
@@ -325,7 +343,7 @@ const NasherDashboard = () => {
       if (e.key && e.key.includes("messages")) {
         setMessages(NashrDataStore.getMessages());
       }
-      if (e.key && (e.key.includes("bookstore") || e.key.includes("sales") || e.key.includes("orders"))) {
+      if (e.key && (e.key.includes("bookstore") || e.key.includes("sales") || e.key.includes("orders") || e.key.includes("contracts"))) {
         refreshData();
       }
     };
@@ -747,6 +765,108 @@ const NasherDashboard = () => {
     });
   };
 
+  // Contracts Actions
+  const handleOpenContractReview = (contract: AuthorContract) => {
+    setSelectedContractForReview(contract);
+    setAuthorAgreedTerms1(false);
+    setAuthorAgreedTerms2(false);
+    setAuthorSignatureInput(authorProfile.fullName);
+    setShowContractReviewModal(true);
+  };
+
+  const handleSignContractSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedContractForReview) return;
+    if (!authorAgreedTerms1 || !authorAgreedTerms2) {
+      toast({
+        title: isRtl ? "الموافقة على البنود مطلوبة" : "Agreement Required",
+        description: isRtl ? "يرجى تأكيد الموافقة على إقرارات بنود العقد والتوقيع الرقمي." : "Please check the terms checkboxes.",
+        variant: "destructive"
+      });
+      return;
+    }
+    if (!authorSignatureInput.trim()) {
+      toast({
+        title: isRtl ? "الاسم مطلوب للتوقيع" : "Name Required",
+        description: isRtl ? "يرجى كتابة الاسم الكامل لاعتماد التوقيع الرقمي." : "Please enter your name.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSigningContract(true);
+    setTimeout(() => {
+      const signed = NashrDataStore.signContract(selectedContractForReview.id, authorSignatureInput.trim());
+      refreshData();
+      setSigningContract(false);
+      setShowContractReviewModal(false);
+      if (signed) {
+        toast({
+          title: isRtl ? "🎉 تم توثيق وتوقيع العقد بنجاح!" : "Contract Signed Successfully!",
+          description: isRtl 
+            ? `أصبح عقد النشر والتوزيع رقم (${signed.contractNumber}) سارياً ومعتمداً الآن. يمكنك تحميل نسختك الرسمية المعتمدة فوراً.`
+            : "Contract is now officially binding and verified."
+        });
+      }
+    }, 600);
+  };
+
+  const handleDownloadAuthorContract = (contract: AuthorContract) => {
+    try {
+      const svgDataUrl = generateSampleContractSvg(contract);
+      const blob = dataUrlToBlob(svgDataUrl);
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `Official_Contract_${contract.contractNumber}_${contract.bookTitle}.svg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+      toast({
+        title: isRtl ? "📥 تم بدء تحميل العقد الرسمي" : "Download Started",
+        description: `Official_Contract_${contract.contractNumber}.svg`
+      });
+    } catch (e) {
+      console.error(e);
+      toast({
+        title: isRtl ? "تعذر تحميل العقد" : "Download Failed",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePrintAuthorContract = (contract: AuthorContract) => {
+    try {
+      const svgDataUrl = generateSampleContractSvg(contract);
+      const win = window.open("", "_blank");
+      if (win) {
+        win.document.write(`
+          <!DOCTYPE html>
+          <html dir="rtl">
+          <head>
+            <title>عقد نشر وتوزيع رسمي - ${contract.contractNumber}</title>
+            <style>
+              body { margin: 0; padding: 20px; display: flex; justify-content: center; background: #fff; font-family: sans-serif; }
+              img { max-width: 100%; height: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+              @media print {
+                body { padding: 0; }
+                img { width: 100%; box-shadow: none; }
+              }
+            </style>
+          </head>
+          <body>
+            <img src="${svgDataUrl}" onload="window.print();" />
+          </body>
+          </html>
+        `);
+        win.document.close();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const publishedWorks = submissions.filter(s => s.status === "published");
   const authorStoreBooks = bookStoreCatalog.filter(
     (b) =>
@@ -804,8 +924,11 @@ const NasherDashboard = () => {
                   <span className="w-3.5 h-0.5 bg-white rounded-full transition-all duration-300 group-hover:w-5 shadow-xs" />
                 </div>
 
-                {/* Notification Ping if review notes or unread messages exist */}
-                {(submissions.some(s => s.adminFeedback) || messages.filter(m => m.sender === "admin" && !m.read).length > 0) && (
+                {/* Notification Ping if review notes, unread messages, or pending contracts exist */}
+                {(submissions.some(s => s.adminFeedback) || 
+                  messages.filter(m => m.sender === "admin" && !m.read).length > 0 ||
+                  contracts.some(c => c.status === "pending_signature")
+                ) && (
                   <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-rose-500 border-2 border-background animate-pulse" />
                 )}
               </button>
@@ -1010,9 +1133,41 @@ const NasherDashboard = () => {
                 </Badge>
               </DropdownMenuItem>
 
+              {/* 7. العقود الرسمية */}
+              <DropdownMenuItem 
+                onClick={() => {
+                  handleTabChange("contracts");
+                  setTimeout(() => {
+                    const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
+                }}
+                className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer transition-colors ${
+                  activeTab === "contracts"
+                    ? "bg-gradient-to-r from-indigo-500/20 to-blue-500/20 text-indigo-900 dark:text-indigo-200 border border-indigo-500/30"
+                    : "hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <FileSignature className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "العقود الرسمية" : "Official Contracts"}</span>
+                </div>
+                {contracts.filter(c => c.status === "pending_signature").length > 0 ? (
+                  <Badge className="bg-amber-500 text-white text-[10px] h-5 px-1.5 font-bold animate-pulse">
+                    {contracts.filter(c => c.status === "pending_signature").length} {isRtl ? "بانتظار توقيعك ✍️" : "Pending Sign"}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-600 font-bold">
+                    {contracts.length} {isRtl ? "عقود 📜" : "Contracts"}
+                  </Badge>
+                )}
+              </DropdownMenuItem>
+
               <DropdownMenuSeparator className="my-1.5" />
 
-              {/* 7. البيانات الشخصية وإعدادات الأمان (صفحة مستقلة مدمجة) */}
+              {/* 8. البيانات الشخصية وإعدادات الأمان (صفحة مستقلة مدمجة) */}
               <DropdownMenuItem 
                 onClick={() => {
                   navigate("/nashr/profile");
@@ -3616,6 +3771,251 @@ const NasherDashboard = () => {
         )}
 
         {/* ------------------------------------------------------------- */}
+        {/* TAB 7: 📜 العقود الرسمية واتفاقيات النشر والتوزيع (Contracts) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === "contracts" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Header Banner */}
+            <Card className="border-2 border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 via-blue-500/5 to-purple-500/10 rounded-3xl p-6 shadow-md relative overflow-hidden">
+              <div className="absolute top-0 end-0 p-8 opacity-10 pointer-events-none">
+                <FileSignature className="w-48 h-48 text-indigo-600" />
+              </div>
+              <div className="space-y-2 relative z-10 max-w-3xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="bg-indigo-600 text-white font-black text-xs px-2.5 py-0.5 shadow-sm">
+                    {isRtl ? "اتفاقيات معتمدة 📜" : "Official Contracts"}
+                  </Badge>
+                  <Badge variant="outline" className="border-indigo-500/40 text-indigo-700 dark:text-indigo-300 font-bold text-xs">
+                    {isRtl ? "عوائد 70% للرقمي و 30% للمطبوع 💰" : "70% Digital / 30% Print Royalty"}
+                  </Badge>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  {isRtl ? "العقود الرسمية واتفاقيات النشر والتوزيع" : "Official Publishing & Distribution Agreements"}
+                </h2>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {isRtl 
+                    ? "عقود واتفاقيات النشر والطباعة المحررة رسمياً بينكم وبين دار عبيد للنشر والتوزيع لحفظ كافة حقوق الملكية الفكرية، توزيع العوائد المالية، وتوثيق الاعتماد الرقمي الملزم للطرفين."
+                    : "Official publishing and distribution agreements between you and Dar Obeid Publishing to safeguard intellectual property rights and royalty shares."}
+                </p>
+              </div>
+            </Card>
+
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between shadow-xs">
+                <div>
+                  <p className="text-xs text-muted-foreground font-bold">{isRtl ? "إجمالي العقود" : "Total Contracts"}</p>
+                  <p className="text-2xl font-black text-foreground mt-1">{contracts.length}</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+                  <FileSignature className="w-5 h-5" />
+                </div>
+              </Card>
+
+              <Card className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between shadow-xs">
+                <div>
+                  <p className="text-xs text-muted-foreground font-bold">{isRtl ? "عقود موثقة وسارية" : "Signed & Active"}</p>
+                  <p className="text-2xl font-black text-emerald-600 mt-1">
+                    {contracts.filter(c => c.status === "signed").length}
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+              </Card>
+
+              <Card className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between shadow-xs">
+                <div>
+                  <p className="text-xs text-muted-foreground font-bold">{isRtl ? "بانتظار توقيعكم واعتمادكم" : "Pending Your Signature"}</p>
+                  <p className="text-2xl font-black text-amber-600 mt-1">
+                    {contracts.filter(c => c.status === "pending_signature").length}
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+                  <Clock className="w-5 h-5" />
+                </div>
+              </Card>
+
+              <Card className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between shadow-xs">
+                <div>
+                  <p className="text-xs text-muted-foreground font-bold">{isRtl ? "نسبة الأرباح المقررة" : "Your Royalties"}</p>
+                  <p className="text-sm font-black text-foreground mt-1">70% رقمي • 30% ورقي</p>
+                  <p className="text-[10px] text-muted-foreground">{isRtl ? "قيد فوري مع كل عملية بيع" : "Instant Wallet Credit"}</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
+                  <Scroll className="w-5 h-5" />
+                </div>
+              </Card>
+            </div>
+
+            {/* Contracts List */}
+            {contracts.length === 0 ? (
+              <Card className="rounded-3xl border-dashed border-2 border-border/80 bg-card p-12 text-center space-y-3">
+                <FileSignature className="w-12 h-12 mx-auto text-muted-foreground/40" />
+                <h3 className="font-bold text-base text-foreground">
+                  {isRtl ? "لا توجد عقود صادرة حالياً" : "No contracts issued yet"}
+                </h3>
+                <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                  {isRtl 
+                    ? "فور مراجعة مخطوطاتكم واعتمادها من قبل لجان التحكيم بدار عبيد للنشر والتوزيع، سيتم إصدار عقد النشر وإرساله هنا للاطلاع عليه وتوقيعه رقمياً."
+                    : "Once your manuscript is reviewed and accepted by Dar Obeid, your publishing agreement will appear here for review and digital signature."}
+                </p>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {contracts.map((cnt) => {
+                  const isPending = cnt.status === "pending_signature";
+                  const isSigned = cnt.status === "signed";
+
+                  return (
+                    <Card 
+                      key={cnt.id} 
+                      className={`rounded-3xl border-2 transition-all p-5 space-y-4 ${
+                        isPending 
+                          ? "border-amber-500/50 bg-gradient-to-br from-amber-500/5 via-card to-background shadow-lg shadow-amber-500/5" 
+                          : "border-border/80 bg-card hover:border-indigo-500/40 shadow-md"
+                      }`}
+                    >
+                      {/* Top Badges & Contract Number */}
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-indigo-600 text-white font-mono text-xs font-black shadow-xs">
+                              {cnt.contractNumber}
+                            </Badge>
+                            <Badge className={
+                              isSigned 
+                                ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[10px] font-bold"
+                                : isPending
+                                ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-black animate-pulse"
+                                : "bg-destructive/15 text-destructive text-[10px] font-bold"
+                            }>
+                              {isSigned 
+                                ? (isRtl ? "عقد موثق وموقع رسمياً ✅" : "Signed & Official")
+                                : isPending
+                                ? (isRtl ? "بانتظار توقيعك واعتمادك الرقمي ⏳" : "Awaiting Your Signature")
+                                : (isRtl ? "مرفوض ❌" : "Rejected")}
+                            </Badge>
+                          </div>
+                          <h3 className="font-black text-base text-foreground line-clamp-1 mt-1">
+                            {cnt.bookTitle}
+                          </h3>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
+                            <span>🏷️ {cnt.category}</span>
+                            <span>•</span>
+                            <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                              {cnt.publishType === "both" ? (isRtl ? "ورقي ورقمي" : "Print & Digital") : cnt.publishType === "digital" ? (isRtl ? "رقمي فقط" : "Digital") : (isRtl ? "ورقي فقط" : "Print")}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-[11px] text-muted-foreground text-end">
+                          <span className="block font-mono">📅 {cnt.issueDate}</span>
+                          <span className="text-[10px] text-muted-foreground">{isRtl ? "تاريخ الإصدار" : "Issue Date"}</span>
+                        </div>
+                      </div>
+
+                      {/* Financial & Terms Breakdown */}
+                      <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-muted/40 border border-border/60 text-center text-xs">
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block font-bold">{isRtl ? "عائد الرقمي E-Book" : "Digital"}</span>
+                          <span className="font-black text-indigo-600 text-sm">{cnt.digitalRoyaltyRate}%</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block font-bold">{isRtl ? "عائد الورقي المطبوع" : "Print"}</span>
+                          <span className="font-black text-amber-600 text-sm">{cnt.printRoyaltyRate}%</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block font-bold">{isRtl ? "مدة العقد" : "Duration"}</span>
+                          <span className="font-black text-foreground text-sm">{cnt.rightsDurationYears} {isRtl ? "سنوات" : "Years"}</span>
+                        </div>
+                      </div>
+
+                      {/* Status Notice Box */}
+                      {isPending ? (
+                        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-300 space-y-2">
+                          <div className="flex items-start gap-2">
+                            <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                            <p className="leading-relaxed font-semibold">
+                              {isRtl 
+                                ? "أصدرت إدارة دار عبيد للنشر والتوزيع هذا العقد لمؤلفكم. يرجى قراءة بنود الاتفاقية والموافقة عليها والتوقيع الرقمي لاعتماد العقد والحصول على نسختكم الموثقة فورياً."
+                                : "Dar Obeid has issued this contract. Please review terms and apply your digital signature."}
+                            </p>
+                          </div>
+                          <Button
+                            onClick={() => handleOpenContractReview(cnt)}
+                            className="w-full h-10 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md gap-2 active:scale-98 transition-all"
+                          >
+                            <FileSignature className="w-4 h-4" />
+                            <span>{isRtl ? "قراءة بنود الاتفاقية والتوقيع الرقمي ✍️" : "Review Terms & Sign Digitally"}</span>
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-800 dark:text-emerald-300 space-y-1">
+                          <div className="flex items-center justify-between text-[11px] font-bold">
+                            <span className="flex items-center gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>{isRtl ? "عقد سارٍ وموثق رقمياً بين الطرفين" : "Active & Verified Agreement"}</span>
+                            </span>
+                            <span className="font-mono text-[10px] text-muted-foreground">{cnt.signedDate}</span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground">
+                            {isRtl ? "الموقع المعتمد: " : "Signed by: "}
+                            <span className="font-bold text-foreground">{cnt.authorSignature?.signatureText || cnt.authorName}</span>
+                            {cnt.authorSignature?.ipOrRef && (
+                              <span className="font-mono ms-2 text-[10px]">({cnt.authorSignature.ipOrRef})</span>
+                            )}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Action Buttons for Signed Contract */}
+                      {isSigned && (
+                        <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/60 flex-wrap">
+                          <div className="flex items-center gap-2 flex-wrap w-full">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedContractForView(cnt);
+                                setShowContractViewModal(true);
+                              }}
+                              className="h-8 px-3 rounded-xl text-xs font-bold gap-1.5 flex-1 bg-card hover:bg-muted"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-blue-500" />
+                              <span>{isRtl ? "معاينة العقد" : "View"}</span>
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              onClick={() => handleDownloadAuthorContract(cnt)}
+                              className="h-8 px-3 rounded-xl text-xs font-bold gap-1.5 flex-1 bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>{isRtl ? "تحميل النسخة (SVG)" : "Download"}</span>
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handlePrintAuthorContract(cnt)}
+                              className="h-8 px-3 rounded-xl text-xs font-bold gap-1.5 flex-1 bg-card hover:bg-muted"
+                            >
+                              <Printer className="w-3.5 h-3.5 text-amber-500" />
+                              <span>{isRtl ? "طباعة" : "Print"}</span>
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------- */}
         {/* TAB 6: 🔐 إدارة الحساب والأمان (Security & Password) */}
         {/* ------------------------------------------------------------- */}
         {activeTab === "settings" && (
@@ -4348,6 +4748,283 @@ const NasherDashboard = () => {
               {isRtl ? "إغلاق النافذة" : "Close"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog: Review and Digitally Sign Publishing Contract ── */}
+      <Dialog open={showContractReviewModal} onOpenChange={setShowContractReviewModal}>
+        <DialogContent className="max-w-2xl rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+          {selectedContractForReview && (
+            <form onSubmit={handleSignContractSubmit} className="space-y-4">
+              <DialogHeader>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <DialogTitle className="text-base font-black flex items-center gap-2 text-foreground">
+                    <FileSignature className="w-5 h-5 text-indigo-600" />
+                    <span>{isRtl ? `عقد طبع ونشر وتوزيع مصنف فكري: ${selectedContractForReview.contractNumber}` : `Publishing Agreement: ${selectedContractForReview.contractNumber}`}</span>
+                  </DialogTitle>
+                  <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 font-mono text-xs font-bold">
+                    {selectedContractForReview.contractNumber}
+                  </Badge>
+                </div>
+                <DialogDescription className="text-xs">
+                  {isRtl 
+                    ? "يرجى قراءة بنود العقد الرسمي المعتمد من دار عبيد للنشر والتوزيع والموافقة عليها والتوقيع رقمياً."
+                    : "Please read the official agreement terms and sign digitally."}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Parties and Subject Information */}
+              <div className="p-4 rounded-2xl bg-muted/40 border border-border/80 text-xs space-y-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pb-2 border-b border-border/60">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-bold">{isRtl ? "الطرف الأول (الناشر):" : "Party 1 (Publisher):"}</span>
+                    <span className="font-black text-foreground">دار عبيد للنشر والتوزيع (ش.ذ.م.م)</span>
+                    <span className="text-[10px] text-muted-foreground block">سجل تجاري 104928 • القاهرة، مصر</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block font-bold">{isRtl ? "الطرف الثاني (المؤلف):" : "Party 2 (Author):"}</span>
+                    <span className="font-black text-foreground">{selectedContractForReview.authorName}</span>
+                    <span className="text-[10px] text-muted-foreground block font-mono">الكود: {selectedContractForReview.authorCode}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[10px] text-muted-foreground block font-bold">{isRtl ? "المصنف الفكري موضوع العقد:" : "Work Title:"}</span>
+                  <span className="font-black text-sm text-indigo-600 block">"{selectedContractForReview.bookTitle}"</span>
+                  <span className="text-[11px] text-muted-foreground">التصنيف الأكاديمي: {selectedContractForReview.category}</span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 p-2 rounded-xl bg-card border border-border/60 text-center">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block">{isRtl ? "عائد الرقمي E-Book" : "Digital"}</span>
+                    <span className="font-black text-indigo-600">{selectedContractForReview.digitalRoyaltyRate}%</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block">{isRtl ? "عائد المطبوع الورقي" : "Print"}</span>
+                    <span className="font-black text-amber-600">{selectedContractForReview.printRoyaltyRate}%</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block">{isRtl ? "مدة العقد" : "Duration"}</span>
+                    <span className="font-black text-foreground">{selectedContractForReview.rightsDurationYears} {isRtl ? "سنوات" : "Years"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Full Legal Clauses Reader */}
+              <div className="p-4 rounded-2xl bg-background border border-border/80 max-h-56 overflow-y-auto space-y-3 text-xs leading-relaxed text-muted-foreground font-medium">
+                <div>
+                  <h4 className="font-black text-foreground text-xs mb-1">
+                    {isRtl ? "البند الأول (حقوق النشر والتوزيع الحصري):" : "Clause 1 (Exclusive Rights):"}
+                  </h4>
+                  <p>
+                    {isRtl 
+                      ? `يمنح الطرف الثاني الطرف الأول الحق الحصري في طباعة ونشر وترجمة وتوزيع المصنف ورقياً وإلكترونياً في جميع أنحاء العالم لمدة (${selectedContractForReview.rightsDurationYears} سنوات) قابلة للتجديد التلقائي لمدد مماثلة.`
+                      : "Author grants publisher exclusive distribution rights."}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-black text-foreground text-xs mb-1">
+                    {isRtl ? "البند الثاني (عوائد المؤلف ونسب الأرباح):" : "Clause 2 (Royalties):"}
+                  </h4>
+                  <p>
+                    {isRtl 
+                      ? `يستحق الطرف الثاني نسبة عوائد قدرها (${selectedContractForReview.digitalRoyaltyRate}%) من سعر بيع النسخ الرقمية، ونسبة قدرها (${selectedContractForReview.printRoyaltyRate}%) من سعر بيع النسخ الورقية. وتضاف الأرباح لمحفظة المؤلف مباشرة وفورياً مع كل عملية شراء.`
+                      : "Author earns royalties instantly upon completed orders."}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-black text-foreground text-xs mb-1">
+                    {isRtl ? "البند الثالث (التزامات دار النشر):" : "Clause 3 (Publisher Duties):"}
+                  </h4>
+                  <p>
+                    {isRtl 
+                      ? "تلتزم دار عبيد بالتدقيق اللغوي الأكاديمي، تنسيق الكتاب، إخراج الغلاف، استخراج الترقيم الدولي (ISBN)، الإيداع القانوني، وإدارة الحملات التسويقية."
+                      : "Publisher is responsible for editing, design, ISBN, and marketing."}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-black text-foreground text-xs mb-1">
+                    {isRtl ? "البند الرابع (الملكية الفكرية والأصالة العلمية):" : "Clause 4 (IP & Authorship):"}
+                  </h4>
+                  <p>
+                    {isRtl 
+                      ? "يقر الطرف الثاني بأنه صاحب الحق الفكري الحصري والوحيد للمصنف، وأنه عمل أصيل لا يتضمن أي انتهاك لحقوق الغير، ويتحمل كامل المسؤولية الأدبية والقانونية."
+                      : "Author warrants that the work is original."}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-black text-foreground text-xs mb-1">
+                    {isRtl ? "البند الخامس (الاعتماد الرقمي وحجية العقد):" : "Clause 5 (Digital Validity):"}
+                  </h4>
+                  <p>
+                    {isRtl 
+                      ? "يُعد التوقيع الرقمي للمؤلف عبر حسابه المعتمد في منصة UNIGATES إقراراً صريحاً وموافقة نهائية وملزمة ونافذة قانوناً لكافة بنود هذا العقد، ويحق لكلا الطرفين تحميل النسخة الرسمية فور الاعتماد."
+                      : "Digital signature is legally binding."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Publisher Seal & Signature Box */}
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 font-bold flex items-center justify-center shrink-0">
+                    📜
+                  </span>
+                  <div>
+                    <span className="font-black text-emerald-800 dark:text-emerald-300 block">
+                      {isRtl ? "اعتماد وخاتم دار عبيد للنشر والتوزيع (مفعل)" : "Publisher Seal Verified"}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {selectedContractForReview.adminSignature.signedByName} • {selectedContractForReview.adminSignature.sealNumber}
+                    </span>
+                  </div>
+                </div>
+                <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
+                  {isRtl ? "موقع ومختوم ✓" : "Sealed"}
+                </Badge>
+              </div>
+
+              {/* Author Signature & Declarations */}
+              <div className="space-y-3 p-4 rounded-2xl bg-card border-2 border-indigo-500/40 text-xs">
+                <h4 className="font-black text-foreground flex items-center gap-1.5 text-xs">
+                  <span>✍️</span>
+                  <span>{isRtl ? "إقرار واعتماد التوقيع الرقمي للمؤلف:" : "Author Digital Signature:"}</span>
+                </h4>
+
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2.5">
+                    <Checkbox 
+                      id="contract-agree-1" 
+                      checked={authorAgreedTerms1} 
+                      onCheckedChange={(c) => setAuthorAgreedTerms1(Boolean(c))}
+                      className="mt-0.5 rounded-md"
+                    />
+                    <label htmlFor="contract-agree-1" className="cursor-pointer text-muted-foreground leading-relaxed select-none font-semibold">
+                      {isRtl 
+                        ? "أقر بأنني صاحب المصنف الأصلي وأوافق بالكامل على كافة بنود النشر والتوزيع ونسب الأرباح الواردة في هذا العقد."
+                        : "I confirm authorship and agree to all terms and royalty percentages."}
+                    </label>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <Checkbox 
+                      id="contract-agree-2" 
+                      checked={authorAgreedTerms2} 
+                      onCheckedChange={(c) => setAuthorAgreedTerms2(Boolean(c))}
+                      className="mt-0.5 rounded-md"
+                    />
+                    <label htmlFor="contract-agree-2" className="cursor-pointer text-muted-foreground leading-relaxed select-none font-semibold">
+                      {isRtl 
+                        ? "أوافق على اعتماد توقيعي الرقمي الصادر من حسابي الموثق كإقرار نهائي وملزم قانوناً بموجب لوائح النشر المعتمدة."
+                        : "I agree that my digital signature constitutes a binding agreement."}
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-1 pt-1">
+                  <Label className="font-bold text-foreground">{isRtl ? "الاسم الكامل للاعتماد والتوقيع الرقمي: *" : "Full Legal Name: *"}</Label>
+                  <Input 
+                    value={authorSignatureInput}
+                    onChange={(e) => setAuthorSignatureInput(e.target.value)}
+                    required
+                    placeholder={authorProfile.fullName}
+                    className="h-10 rounded-xl text-xs font-bold border-indigo-500/30"
+                  />
+                  <span className="text-[10px] text-muted-foreground block">
+                    {isRtl ? `سيتم تسجيل التوقيع وتاريخ اليوم (${new Date().toLocaleDateString("ar-EG")}) والرقم المرجعي على النسخة الرسمية.` : "Signature stamp will be applied."}
+                  </span>
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2 pt-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowContractReviewModal(false)}
+                  className="rounded-xl text-xs font-bold"
+                >
+                  {isRtl ? "إلغاء" : "Cancel"}
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={!authorAgreedTerms1 || !authorAgreedTerms2 || !authorSignatureInput.trim() || signingContract}
+                  className="rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-5 gap-2 shadow-md cursor-pointer"
+                >
+                  {signingContract ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{isRtl ? "جارٍ التوثيق الرقمي..." : "Signing..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileSignature className="w-4 h-4" />
+                      <span>{isRtl ? "أوافق وأوقع رقمياً على العقد ➔" : "Sign & Accept Contract"}</span>
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Dialog: Author View Official Contract Modal ── */}
+      <Dialog open={showContractViewModal} onOpenChange={setShowContractViewModal}>
+        <DialogContent className="max-w-3xl rounded-3xl p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+          {selectedContractForView && (
+            <div className="space-y-4">
+              <DialogHeader>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <DialogTitle className="text-base font-black flex items-center gap-2">
+                    <FileSignature className="w-5 h-5 text-indigo-600" />
+                    <span>{isRtl ? `معاينة العقد الرسمي: ${selectedContractForView.contractNumber}` : `Contract ${selectedContractForView.contractNumber}`}</span>
+                  </DialogTitle>
+                  <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 font-bold text-xs">
+                    {isRtl ? "عقد معتمد وموقع رسمياً ✅" : "Signed"}
+                  </Badge>
+                </div>
+                <DialogDescription className="text-xs">
+                  {isRtl ? "النسخة الرسمية المعتمدة والمختومة من دار عبيد للنشر والتوزيع ومنصة UNIGATES." : "Official agreement document."}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* High-Resolution SVG Contract Preview */}
+              <div className="rounded-2xl border-2 border-border/80 p-2 bg-muted/20 overflow-hidden shadow-inner flex justify-center">
+                <img 
+                  src={generateSampleContractSvg(selectedContractForView)} 
+                  alt="Official Contract" 
+                  className="w-full max-h-[60vh] object-contain rounded-xl shadow-lg border border-border/60 bg-white"
+                />
+              </div>
+
+              <DialogFooter className="gap-2 pt-2 flex items-center justify-between flex-wrap">
+                <Button variant="outline" onClick={() => setShowContractViewModal(false)} className="rounded-xl text-xs font-bold">
+                  {isRtl ? "إغلاق" : "Close"}
+                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => handlePrintAuthorContract(selectedContractForView)}
+                    className="rounded-xl text-xs font-bold gap-1.5"
+                  >
+                    <Printer className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{isRtl ? "طباعة العقد" : "Print"}</span>
+                  </Button>
+                  <Button
+                    onClick={() => handleDownloadAuthorContract(selectedContractForView)}
+                    className="rounded-xl text-xs font-black bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>{isRtl ? "تحميل النسخة المعتمدة (SVG)" : "Download Copy"}</span>
+                  </Button>
+                </div>
+              </DialogFooter>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

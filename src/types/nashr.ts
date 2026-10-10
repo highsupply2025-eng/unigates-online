@@ -161,3 +161,40 @@ export interface PayoutRequest {
   transactionRef?: string;
   notes?: string;
 }
+
+export interface AuthorContract {
+  id: string;
+  contractNumber: string; // e.g. "CNT-2026-0842"
+  submissionId: string;
+  bookTitle: string;
+  category?: string;
+  publishType: PublishType;
+  authorId: string;
+  authorName: string;
+  authorCode: string;
+  authorNationalId?: string;
+  authorEmail?: string;
+  authorPhone?: string;
+  digitalRoyaltyRate: number; // default 70
+  printRoyaltyRate: number; // default 30
+  rightsDurationYears: number; // default 5
+  exclusiveRights: boolean;
+  advancePayment?: number;
+  retailPriceEstimate?: number;
+  status: "pending_signature" | "signed" | "rejected";
+  issueDate: string;
+  signedDate?: string;
+  adminSignature: {
+    signedByName: string;
+    role: string;
+    signedAt: string;
+    sealNumber: string;
+  };
+  authorSignature?: {
+    signatureText: string;
+    signedAt: string;
+    ipOrRef?: string;
+  };
+  specialConditions?: string;
+  contractSvgUrl?: string;
+}

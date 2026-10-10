@@ -4,7 +4,9 @@ import {
   NashrInvoice, 
   NashrMessage, 
   BookSaleRecord, 
-  PayoutRequest 
+  PayoutRequest,
+  AuthorContract,
+  PublishType
 } from "@/types/nashr";
 import { NashrFileStore } from "./nashrFileStore";
 
@@ -15,7 +17,8 @@ const STORAGE_KEYS = {
   INVOICES: "nashr_invoices",
   MESSAGES: "nashr_messages",
   SALES: "nashr_book_sales",
-  PAYOUTS: "nashr_payouts"
+  PAYOUTS: "nashr_payouts",
+  CONTRACTS: "nashr_author_contracts"
 };
 
 // Default Demo Author
@@ -178,6 +181,370 @@ const INITIAL_SALES: BookSaleRecord[] = [];
 
 // Default Payout History - clean slate for author payout requests
 const INITIAL_PAYOUTS: PayoutRequest[] = [];
+
+// Default Initial Official Publishing Contracts
+export const INITIAL_CONTRACTS: AuthorContract[] = [
+  {
+    id: "cnt-101",
+    contractNumber: "CNT-2026-0482",
+    submissionId: "sub-101",
+    bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
+    category: "دراسات إدارية وأكاديمية",
+    publishType: "both",
+    authorId: "auth-2026-001",
+    authorName: "أ.د. عبد الرحمن المنشاوي",
+    authorCode: "AUT-7890",
+    digitalRoyaltyRate: 70,
+    printRoyaltyRate: 30,
+    rightsDurationYears: 5,
+    exclusiveRights: true,
+    retailPriceEstimate: 140,
+    status: "signed",
+    issueDate: "2026-02-12",
+    signedDate: "2026-02-14",
+    adminSignature: {
+      signedByName: "د. عبيد بن عيسى",
+      role: "المدير التنفيذي لدار عبيد للنشر والتوزيع",
+      signedAt: "2026-02-12",
+      sealNumber: "SEAL-DO-2026-01"
+    },
+    authorSignature: {
+      signatureText: "أ.د. عبد الرحمن المنشاوي",
+      signedAt: "2026-02-14 11:30 ص",
+      ipOrRef: "DIGI-SIGN-9921"
+    },
+    specialConditions: "يشمل العقد الإدراج التلقائي في المنصة الرقمية ومتجر UNIGATES مع أولوية العرض في معارض الكتاب الدولية السنوية."
+  },
+  {
+    id: "cnt-103",
+    contractNumber: "CNT-2026-0915",
+    submissionId: "sub-103",
+    bookTitle: "الذكاء الاصطناعي والقانون الدولي الإنساني: تحديات السيادة والمسؤولية",
+    category: "قانون وعلوم سياسية",
+    publishType: "both",
+    authorId: "auth-2026-001",
+    authorName: "أ.د. عبد الرحمن المنشاوي",
+    authorCode: "AUT-7890",
+    digitalRoyaltyRate: 70,
+    printRoyaltyRate: 30,
+    rightsDurationYears: 5,
+    exclusiveRights: true,
+    retailPriceEstimate: 160,
+    status: "pending_signature",
+    issueDate: "2026-10-10",
+    adminSignature: {
+      signedByName: "د. عبيد بن عيسى",
+      role: "المدير التنفيذي لدار عبيد للنشر والتوزيع",
+      signedAt: "2026-10-10",
+      sealNumber: "SEAL-DO-2026-09"
+    },
+    specialConditions: "يحق للناشر البدء في تجهيز المخطوطة للطباعة الفاخرة فور توقيع المؤلف على هذا العقد."
+  }
+];
+
+export function dataUrlToBlob(dataUrl: string): Blob {
+  try {
+    const parts = dataUrl.split(",");
+    const meta = parts[0];
+    const data = parts[1] || "";
+    const mimeMatch = meta.match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : "image/svg+xml";
+
+    if (meta.includes(";base64")) {
+      const byteCharacters = atob(data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      return new Blob([byteArray], { type: mime });
+    } else {
+      const decodedData = decodeURIComponent(data);
+      return new Blob([decodedData], { type: mime });
+    }
+  } catch (err) {
+    console.error("[nashrDataStore] dataUrlToBlob error:", err);
+    return new Blob([dataUrl], { type: "image/svg+xml" });
+  }
+}
+
+export function generateSampleContractSvg(contract: AuthorContract): string {
+  const contractNum = contract.contractNumber || "CNT-2026-0001";
+  const authorName = contract.authorName || "المؤلف الكريم";
+  const authorCode = contract.authorCode || "AUT-XXXX";
+  const bookTitle = contract.bookTitle || "مصنف أكاديمي";
+  const category = contract.category || "دراسات وأبحاث أكاديمية";
+  const issueDate = contract.issueDate || "2026-10-10";
+  const duration = contract.rightsDurationYears || 5;
+  const digiRate = contract.digitalRoyaltyRate ?? 70;
+  const printRate = contract.printRoyaltyRate ?? 30;
+  const isSigned = contract.status === "signed";
+  const signedDate = contract.signedDate || contract.authorSignature?.signedAt || "2026-10-10";
+  const authorSignText = contract.authorSignature?.signatureText || authorName;
+  const sealNum = contract.adminSignature?.sealNumber || "SEAL-DO-2026";
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1320" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#fafbfd"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" stroke-width="0.5" opacity="0.6"/>
+    </pattern>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <style>
+    .t-title { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 900; }
+    .t-bold { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 800; }
+    .t-semi { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 600; }
+    .t-regular { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 400; }
+    .t-mono { font-family: 'Consolas', 'Courier New', monospace; font-weight: 700; }
+  </style>
+
+  <!-- Page Background & Borders -->
+  <rect x="0" y="0" width="900" height="1320" fill="url(#bgGrad)"/>
+  <rect x="15" y="15" width="870" height="1290" fill="none" stroke="#d97706" stroke-width="2.5" opacity="0.6" rx="16"/>
+  <rect x="25" y="25" width="850" height="1270" fill="none" stroke="#0f172a" stroke-width="1.5" rx="12"/>
+  <rect x="26" y="26" width="848" height="1268" fill="url(#gridPattern)" rx="12"/>
+
+  <!-- Official Header Band -->
+  <g transform="translate(45, 45)">
+    <text x="810" y="32" class="t-title" font-size="22" fill="#0f172a" text-anchor="end" direction="rtl">دار عبيد للنشر والتوزيع</text>
+    <text x="810" y="54" class="t-semi" font-size="12" fill="#d97706" text-anchor="end" direction="rtl">مؤسسة نشر وطباعة وتوزيع معتمدة • عضو اتحاد الناشرين</text>
+    <text x="810" y="72" class="t-regular" font-size="10.5" fill="#64748b" text-anchor="end" direction="rtl">بالشراكة مع منصة UNIGATES الأكاديمية الدولية</text>
+
+    <!-- Center: Crest / Seal Icon -->
+    <g transform="translate(405, 40)">
+      <circle cx="0" cy="0" r="32" fill="#0f172a" stroke="url(#goldGrad)" stroke-width="2.5" filter="url(#shadow)"/>
+      <path d="M -14 10 L 0 -18 L 14 10 L 0 5 Z" fill="url(#goldGrad)"/>
+      <circle cx="0" cy="-2" r="5" fill="#ffffff"/>
+    </g>
+
+    <!-- Left: Contract Number & Date -->
+    <rect x="0" y="10" width="220" height="66" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" filter="url(#shadow)"/>
+    <text x="15" y="32" class="t-mono" font-size="11" fill="#64748b">CONTRACT REF:</text>
+    <text x="15" y="49" class="t-mono" font-size="13" font-weight="900" fill="#0f172a">${contractNum}</text>
+    <text x="15" y="66" class="t-regular" font-size="10.5" fill="#64748b">تاريخ التحرير: ${issueDate}</text>
+  </g>
+
+  <!-- Horizontal Divider Line -->
+  <line x1="45" y1="140" x2="855" y2="140" stroke="#0f172a" stroke-width="2"/>
+  <line x1="45" y1="144" x2="855" y2="144" stroke="#d97706" stroke-width="1"/>
+
+  <!-- Main Document Title Banner -->
+  <g transform="translate(450, 185)">
+    <rect x="-350" y="-24" width="700" height="48" rx="12" fill="url(#headerGrad)" filter="url(#shadow)"/>
+    <text x="0" y="7" class="t-title" font-size="20" fill="#fbbf24" text-anchor="middle" direction="rtl">
+      عقد طبع ونشر وتوزيع مصنّف فكري وأكاديمي
+    </text>
+  </g>
+  <text x="450" y="224" class="t-mono" font-size="10" fill="#64748b" text-anchor="middle" letter-spacing="2">
+    OFFICIAL PUBLISHING &amp; DISTRIBUTION AGREEMENT • DAR OBEID
+  </text>
+
+  <!-- Preamble -->
+  <g transform="translate(855, 255)">
+    <text x="0" y="0" class="t-semi" font-size="12" fill="#334155" text-anchor="end" direction="rtl">
+      إنه في يوم المذكور أعلاه، تم الاتفاق بالتراضي التام والإيجاب والقبول بين كل من:
+    </text>
+  </g>
+
+  <!-- Parties Box -->
+  <g transform="translate(45, 275)">
+    <rect x="0" y="0" width="810" height="135" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" filter="url(#shadow)"/>
+    
+    <!-- First Party -->
+    <g transform="translate(790, 25)">
+      <circle cx="0" cy="0" r="12" fill="#0f172a"/>
+      <text x="0" y="4" class="t-bold" font-size="11" fill="#ffffff" text-anchor="middle">١</text>
+      <text x="-20" y="4" class="t-bold" font-size="13" fill="#0f172a" text-anchor="end" direction="rtl">الطرف الأول (الناشر): دار عبيد للنشر والتوزيع (ش.ذ.م.م)</text>
+      <text x="-20" y="24" class="t-regular" font-size="11" fill="#475569" text-anchor="end" direction="rtl">
+        سجل تجاري: 104928 • يمثلها في هذا العقد: د. عبيد بن عيسى (المدير التنفيذي) • القاهرة، مصر.
+      </text>
+    </g>
+
+    <line x1="20" y1="68" x2="790" y2="68" stroke="#f1f5f9" stroke-width="1.5"/>
+
+    <!-- Second Party -->
+    <g transform="translate(790, 92)">
+      <circle cx="0" cy="0" r="12" fill="#d97706"/>
+      <text x="0" y="4" class="t-bold" font-size="11" fill="#ffffff" text-anchor="middle">٢</text>
+      <text x="-20" y="4" class="t-bold" font-size="13" fill="#0f172a" text-anchor="end" direction="rtl">الطرف الثاني (المؤلف): ${authorName}</text>
+      <text x="-20" y="24" class="t-regular" font-size="11" fill="#475569" text-anchor="end" direction="rtl">
+        كود المؤلف المعتمد: [${authorCode}] • صاحب ومؤلف المصنف موضوع هذا العقد والمتحمل لمسؤوليته الأدبية والعلمية.
+      </text>
+    </g>
+  </g>
+
+  <!-- Book Details Box -->
+  <g transform="translate(45, 425)">
+    <rect x="0" y="0" width="810" height="75" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="790" y="28" class="t-bold" font-size="12" fill="#0f172a" text-anchor="end" direction="rtl">عنوان المصنف المعتمد:</text>
+    <text x="790" y="52" class="t-title" font-size="15" fill="#d97706" text-anchor="end" direction="rtl">"${bookTitle}"</text>
+    
+    <text x="350" y="28" class="t-semi" font-size="11" fill="#64748b" text-anchor="end" direction="rtl">التصنيف الأكاديمي: ${category}</text>
+    <text x="350" y="52" class="t-semi" font-size="11" fill="#047857" text-anchor="end" direction="rtl">طبيعة الإصدار: نشر رقمي وورقي معتمد (متجر الكتب والمعارض)</text>
+  </g>
+
+  <!-- Contract Clauses -->
+  <g transform="translate(855, 530)">
+    <text x="0" y="0" class="t-title" font-size="14" fill="#0f172a" text-anchor="end" direction="rtl">بنود وشروط الاتفاقية الملزمة:</text>
+
+    <!-- Clause 1 -->
+    <g transform="translate(0, 30)">
+      <text x="0" y="0" class="t-bold" font-size="12" fill="#0f172a" text-anchor="end" direction="rtl">البند الأول (حقوق النشر والتوزيع الحصري):</text>
+      <text x="0" y="20" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        يمنح الطرف الثاني الطرف الأول الحق الحصري في طباعة ونشر وترجمة وتوزيع المصنف ورقياً وإلكترونياً في جميع أنحاء العالم لمدة (${duration} سنوات)
+      </text>
+      <text x="0" y="38" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        تبدأ من تاريخ توقيع هذا العقد، وتتجدد تلقائياً لمدد مماثلة ما لم يخطر أحد الطرفين الآخر كتابياً قبل الانتهاء بثلاثة أشهر.
+      </text>
+    </g>
+
+    <!-- Clause 2 -->
+    <g transform="translate(0, 95)">
+      <text x="0" y="0" class="t-bold" font-size="12" fill="#0f172a" text-anchor="end" direction="rtl">البند الثاني (عوائد المؤلف ونسب الأرباح):</text>
+      <text x="0" y="20" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        يستحق الطرف الثاني (المؤلف) نسبة عوائد قدرها (${digiRate}%) من سعر بيع النسخ الرقمية الإلكترونية (E-Book) المباعة عبر المنصة،
+      </text>
+      <text x="0" y="38" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        ونسبة قدرها (${printRate}%) من سعر بيع النسخ الورقية المطبوعة. وتضاف حصة الأرباح لمحفظة المؤلف مباشرة وفورياً مع كل عملية بيع مؤكدة.
+      </text>
+    </g>
+
+    <!-- Clause 3 -->
+    <g transform="translate(0, 160)">
+      <text x="0" y="0" class="t-bold" font-size="12" fill="#0f172a" text-anchor="end" direction="rtl">البند الثالث (التزامات دار النشر - الطرف الأول):</text>
+      <text x="0" y="20" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        تلتزم الدار بتقديم أعلى معايير الجودة للتدقيق اللغوي، التنسيق الداخلي الأكاديمي، إخراج الغلاف الرسمي، استخراج الرقم المعياري الدولي (ISBN)،
+      </text>
+      <text x="0" y="38" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        والإيداع القانوني المعتمد، والتسويق الإلكتروني عبر متجر UNIGATES والمشاركة في معارض الكتاب الدولية.
+      </text>
+    </g>
+
+    <!-- Clause 4 -->
+    <g transform="translate(0, 225)">
+      <text x="0" y="0" class="t-bold" font-size="12" fill="#0f172a" text-anchor="end" direction="rtl">البند الرابع (الملكية الفكرية والأصالة العلمية):</text>
+      <text x="0" y="20" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        يقر الطرف الثاني بأنه صاحب الحق الفكري الحصري والوحيد للمصنف، وأنه عمل أصيل لا يتضمن أي انتهاك لحقوق ملكية فكرية لأي طرف ثالث،
+      </text>
+      <text x="0" y="38" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        ويتحمل الطرف الثاني كامل المسؤولية العلمية والأدبية والقانونية عن محتوى مؤلفه أمام كافة الجهات الرسمية والقضائية.
+      </text>
+    </g>
+
+    <!-- Clause 5 -->
+    <g transform="translate(0, 290)">
+      <text x="0" y="0" class="t-bold" font-size="12" fill="#0f172a" text-anchor="end" direction="rtl">البند الخامس (الاعتماد الرقمي وحجية العقد):</text>
+      <text x="0" y="20" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        يُعد توقيع المؤلف الرقمي عبر حسابه المعتمد في منصة UNIGATES إقراراً صريحاً وموافقة نهائية وملزمة ونافذة قانوناً لكافة بنود هذا العقد،
+      </text>
+      <text x="0" y="38" class="t-regular" font-size="11" fill="#334155" text-anchor="end" direction="rtl">
+        وتحرر هذا العقد من نسختين إلكترونيتين موثقتين رقمياً ومختومتين يحصل كلا الطرفين على نسخته الرسمية فور الاعتماد.
+      </text>
+    </g>
+  </g>
+
+  <!-- Signatures & Seals Section -->
+  <g transform="translate(45, 915)">
+    <rect x="0" y="0" width="810" height="260" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+    
+    <!-- Left Box: Admin Signature & Seal (Party 1) -->
+    <g transform="translate(210, 35)">
+      <text x="0" y="0" class="t-bold" font-size="14" fill="#0f172a" text-anchor="middle" direction="rtl">الطرف الأول: دار عبيد للنشر والتوزيع</text>
+      <text x="0" y="20" class="t-regular" font-size="11" fill="#64748b" text-anchor="middle" direction="rtl">د. عبيد بن عيسى - المدير التنفيذي</text>
+
+      <!-- Official Gold & Green Seal -->
+      <g transform="translate(0, 95)">
+        <circle cx="0" cy="0" r="50" fill="#f8fafc" stroke="url(#goldGrad)" stroke-width="3" stroke-dasharray="6 3"/>
+        <circle cx="0" cy="0" r="42" fill="none" stroke="#047857" stroke-width="1.8"/>
+        <text x="0" y="-22" class="t-bold" font-size="9" fill="#047857" text-anchor="middle">DAR OBEID PUBLISHING</text>
+        <path d="M -12 0 L 0 -14 L 12 0 L 0 14 Z" fill="url(#goldGrad)"/>
+        <text x="0" y="20" class="t-bold" font-size="9.5" fill="#0f172a" text-anchor="middle">خاتم الاعتماد الرسمي</text>
+        <text x="0" y="32" class="t-mono" font-size="7.5" fill="#64748b" text-anchor="middle">${sealNum}</text>
+      </g>
+
+      <path d="M -60 185 Q -20 165, 10 180 T 60 175" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+      <text x="0" y="205" class="t-mono" font-size="9" fill="#16a34a" text-anchor="middle">OFFICIALLY SIGNED &amp; SEALED</text>
+    </g>
+
+    <!-- Center Separator -->
+    <line x1="405" y1="20" x2="405" y2="240" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+    <!-- Right Box: Author Signature (Party 2) -->
+    <g transform="translate(600, 35)">
+      <text x="0" y="0" class="t-bold" font-size="14" fill="#0f172a" text-anchor="middle" direction="rtl">الطرف الثاني: المؤلف الأكاديمي</text>
+      <text x="0" y="20" class="t-regular" font-size="11" fill="#64748b" text-anchor="middle" direction="rtl">${authorName}</text>
+
+      ${isSigned ? `
+      <!-- Author Verified Digital Signature Box -->
+      <g transform="translate(0, 90)">
+        <rect x="-140" y="-35" width="280" height="70" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+        <text x="0" y="-12" class="t-bold" font-size="12" fill="#047857" text-anchor="middle" direction="rtl">
+          ✓ تم التوقيع والموافقة الرقمية
+        </text>
+        <text x="0" y="8" class="t-title" font-size="14" fill="#0f172a" text-anchor="middle" direction="rtl">
+          ${authorSignText}
+        </text>
+        <text x="0" y="25" class="t-mono" font-size="9" fill="#059669" text-anchor="middle">
+          DATE: ${signedDate}
+        </text>
+      </g>
+
+      <g transform="translate(0, 185)">
+        <rect x="-110" y="-12" width="220" height="24" rx="6" fill="#f1f5f9"/>
+        <text x="0" y="4" class="t-mono" font-size="9.5" fill="#475569" text-anchor="middle">
+          DIGITAL VERIFY: UNIGATES-AUTH-OK
+        </text>
+      </g>
+      ` : `
+      <!-- Pending Signature Box -->
+      <g transform="translate(0, 95)">
+        <rect x="-140" y="-40" width="280" height="80" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="0" y="-10" class="t-bold" font-size="13" fill="#b45309" text-anchor="middle" direction="rtl">
+          بانتظار توقيع واعتماد المؤلف ⏳
+        </text>
+        <text x="0" y="14" class="t-regular" font-size="10.5" fill="#78350f" text-anchor="middle" direction="rtl">
+          يتم التوقيع والموافقة إلكترونياً عبر المنصة
+        </text>
+      </g>
+      <text x="0" y="195" class="t-semi" font-size="10" fill="#94a3b8" text-anchor="middle" direction="rtl">
+        توقيع خطي / رقمي معتمد
+      </text>
+      `}
+    </g>
+  </g>
+
+  <!-- Legal Footer Bar -->
+  <g transform="translate(450, 1220)">
+    <line x1="-405" y1="0" x2="405" y2="0" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="0" y="20" class="t-regular" font-size="9.5" fill="#64748b" text-anchor="middle" direction="rtl">
+      دار عبيد للنشر والتوزيع • جمهورية مصر العربية • منصة UNIGATES • كافة الحقوق القانونية محفوظة • مستند رسمي ملزم
+    </text>
+    <text x="0" y="36" class="t-mono" font-size="8.5" fill="#94a3b8" text-anchor="middle">
+      SECURE HASH: SHA256-${contractNum}-VERIFIED-DOC-AUTH
+    </text>
+  </g>
+</svg>`;
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
 
 export const OLD_TEST_AUTHOR_CODES = [
   "AUT-7890",
@@ -1648,5 +2015,159 @@ export class NashrDataStore {
     }
 
     return newRecord;
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Contracts API (دار عبيد للنشر والتوزيع - عقود النشر المعتمدة)
+  // ─────────────────────────────────────────────────────────────
+
+  static getAllContracts(): AuthorContract[] {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.CONTRACTS);
+      if (saved) {
+        const parsed: AuthorContract[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    try {
+      localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(INITIAL_CONTRACTS));
+    } catch (e) {}
+    return [...INITIAL_CONTRACTS];
+  }
+
+  static getContracts(authorId?: string): AuthorContract[] {
+    const all = this.getAllContracts();
+    const currentAuthor = this.getAuthorProfile();
+    const targetId = authorId || currentAuthor.id;
+    return all.filter(c => c.authorId === targetId || (currentAuthor.authorCode && c.authorCode === currentAuthor.authorCode));
+  }
+
+  static getContractById(contractId: string): AuthorContract | undefined {
+    const all = this.getAllContracts();
+    return all.find(c => c.id === contractId);
+  }
+
+  static issueContract(data: {
+    submissionId: string;
+    bookTitle: string;
+    category?: string;
+    publishType: PublishType;
+    authorId: string;
+    authorName: string;
+    authorCode: string;
+    authorNationalId?: string;
+    authorEmail?: string;
+    authorPhone?: string;
+    digitalRoyaltyRate?: number;
+    printRoyaltyRate?: number;
+    rightsDurationYears?: number;
+    retailPriceEstimate?: number;
+    specialConditions?: string;
+  }): AuthorContract {
+    const all = this.getAllContracts();
+    const contractNumber = `CNT-2026-${String(Math.floor(1000 + Math.random() * 9000))}`;
+    const today = new Date().toISOString().split("T")[0];
+
+    const newContract: AuthorContract = {
+      id: `cnt-${Date.now()}`,
+      contractNumber,
+      submissionId: data.submissionId,
+      bookTitle: data.bookTitle,
+      category: data.category || "دراسات وأبحاث أكاديمية",
+      publishType: data.publishType,
+      authorId: data.authorId,
+      authorName: data.authorName,
+      authorCode: data.authorCode,
+      authorNationalId: data.authorNationalId,
+      authorEmail: data.authorEmail,
+      authorPhone: data.authorPhone,
+      digitalRoyaltyRate: data.digitalRoyaltyRate ?? 70,
+      printRoyaltyRate: data.printRoyaltyRate ?? 30,
+      rightsDurationYears: data.rightsDurationYears ?? 5,
+      exclusiveRights: true,
+      retailPriceEstimate: data.retailPriceEstimate ?? 150,
+      status: "pending_signature",
+      issueDate: today,
+      adminSignature: {
+        signedByName: "د. عبيد بن عيسى",
+        role: "المدير التنفيذي لدار عبيد للنشر والتوزيع",
+        signedAt: today,
+        sealNumber: `SEAL-DO-2026-${Math.floor(10 + Math.random() * 89)}`
+      },
+      specialConditions: data.specialConditions || "تم إعداد العقد وفق لائحة النشر والطباعة المعتمدة بدار عبيد للنشر والتوزيع."
+    };
+
+    all.unshift(newContract);
+    localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(all));
+
+    // Send direct notification message to the author
+    try {
+      this.sendAdminMessageToAuthor(
+        data.authorId,
+        `📜 تم إصدار عقد النشر والتوزيع الرسمي لمصنفكم "${data.bookTitle}" (رقم العقد: ${contractNumber}). يرجى الاطلاع على بنود العقد واعتماده بالتوقيع الرقمي من صفحة "العقود" في حسابكم.`
+      );
+    } catch (e) {
+      console.error(e);
+    }
+
+    return newContract;
+  }
+
+  static signContract(contractId: string, authorSignatureText: string): AuthorContract | null {
+    const all = this.getAllContracts();
+    const idx = all.findIndex(c => c.id === contractId);
+    if (idx === -1) return null;
+
+    const todayStr = new Date().toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+    const signedDateIso = new Date().toISOString().split("T")[0];
+
+    all[idx] = {
+      ...all[idx],
+      status: "signed",
+      signedDate: signedDateIso,
+      authorSignature: {
+        signatureText: authorSignatureText.trim(),
+        signedAt: `${todayStr} - ${new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })}`,
+        ipOrRef: `DIGI-SIGN-${Math.floor(1000 + Math.random() * 9000)}`
+      }
+    };
+
+    localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(all));
+
+    // Send confirmation message to author
+    try {
+      this.sendAdminMessageToAuthor(
+        all[idx].authorId,
+        `🎉 تم توثيق وتوقيع عقد النشر والتوزيع رقم (${all[idx].contractNumber}) بنجاح! أصبح بإمكانكم الآن تحميل وطباعة النسخة الرسمية المعتمدة والمختومة من حسابكم في أي وقت.`
+      );
+    } catch (e) {
+      console.error(e);
+    }
+
+    return all[idx];
+  }
+
+  static rejectContract(contractId: string, reason?: string): AuthorContract | null {
+    const all = this.getAllContracts();
+    const idx = all.findIndex(c => c.id === contractId);
+    if (idx === -1) return null;
+
+    all[idx] = {
+      ...all[idx],
+      status: "rejected",
+      specialConditions: `${all[idx].specialConditions || ""}\n(تم رفض العقد: ${reason || "بناء على طلب المؤلف"})`
+    };
+
+    localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(all));
+    return all[idx];
+  }
+
+  static deleteContract(contractId: string): boolean {
+    const all = this.getAllContracts();
+    const filtered = all.filter(c => c.id !== contractId);
+    localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(filtered));
+    return true;
   }
 }

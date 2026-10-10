@@ -42,7 +42,8 @@ import {
   SunMoon,
   Monitor,
   ChevronDown,
-  LogOut
+  LogOut,
+  FileSignature
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +64,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { AuthorProfile, AcademicTitle } from "@/types/nashr";
+import { AuthorProfile, AcademicTitle, AuthorContract } from "@/types/nashr";
 import { NashrDataStore, generateSampleAuthorAvatarSvg } from "@/services/nashrDataStore";
 import { NashrFileStore } from "@/services/nashrFileStore";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -105,6 +106,7 @@ const NasherProfilePage = () => {
   const [avatarUrl, setAvatarUrl] = useState<string>(profile.avatarUrl || "");
   const [submissions, setSubmissions] = useState(() => NashrDataStore.getSubmissions());
   const [messages, setMessages] = useState(() => NashrDataStore.getMessages());
+  const [contracts, setContracts] = useState<AuthorContract[]>(() => NashrDataStore.getContracts("auth-current"));
   const isUnderReview = profile.verificationStatus === "pending_review";
 
   useEffect(() => {
@@ -112,6 +114,7 @@ const NasherProfilePage = () => {
     setProfile(current);
     setSubmissions(NashrDataStore.getSubmissions());
     setMessages(NashrDataStore.getMessages());
+    setContracts(NashrDataStore.getContracts("auth-current"));
     document.title = isRtl ? "البيانات الشخصية | لوحة تحكم المؤلف - منصة نشر UNIGATES" : "Personal Profile | Author Dashboard - UNIGATES";
 
     // Asynchronously resolve avatar from IndexedDB, direct URL, or fallback
@@ -537,6 +540,28 @@ const NasherProfilePage = () => {
                 <Badge variant="secondary" className="text-[10px] font-black">
                   {isRtl ? "أرباح 📈" : "Sales"}
                 </Badge>
+              </DropdownMenuItem>
+
+              {/* 7. العقود الرسمية */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=contracts")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <FileSignature className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "العقود الرسمية" : "Official Contracts"}</span>
+                </div>
+                {contracts.filter(c => c.status === "pending_signature").length > 0 ? (
+                  <Badge className="bg-amber-500 text-white text-[10px] h-5 px-1.5 font-bold animate-pulse">
+                    {contracts.filter(c => c.status === "pending_signature").length} {isRtl ? "بانتظار توقيعك ✍️" : "Pending Sign"}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-600 font-bold">
+                    {contracts.length} {isRtl ? "عقود 📜" : "Contracts"}
+                  </Badge>
+                )}
               </DropdownMenuItem>
 
               <DropdownMenuSeparator className="my-1.5" />

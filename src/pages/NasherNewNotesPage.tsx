@@ -43,7 +43,8 @@ import {
   User,
   CreditCard,
   TrendingUp,
-  Home
+  Home,
+  FileSignature
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,6 +72,7 @@ import {
   NashrMessage, 
   NashrInvoice 
 } from "@/services/nashrDataStore";
+import { AuthorContract } from "@/types/nashr";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 
@@ -86,6 +88,7 @@ const NasherNewNotesPage = () => {
   const [submissions, setSubmissions] = useState<NashrSubmission[]>(() => NashrDataStore.getSubmissions());
   const [messages, setMessages] = useState<NashrMessage[]>(() => NashrDataStore.getMessages());
   const [invoices, setInvoices] = useState<NashrInvoice[]>(() => NashrDataStore.getInvoices());
+  const [contracts, setContracts] = useState<AuthorContract[]>(() => NashrDataStore.getContracts("auth-current"));
 
   // Filter & Search states
   const [filterType, setFilterType] = useState<"all" | "manuscripts" | "admin_messages" | "action_needed">("all");
@@ -116,6 +119,7 @@ const NasherNewNotesPage = () => {
     setSubmissions(NashrDataStore.getSubmissions());
     setMessages(NashrDataStore.getMessages());
     setInvoices(NashrDataStore.getInvoices());
+    setContracts(NashrDataStore.getContracts("auth-current"));
   };
 
   useEffect(() => {
@@ -435,7 +439,29 @@ const NasherNewNotesPage = () => {
                 </Badge>
               </DropdownMenuItem>
 
-              {/* 8. البيانات الشخصية وكلمة المرور */}
+              {/* 8. العقود الرسمية */}
+              <DropdownMenuItem 
+                onClick={() => navigate("/nashr/dashboard?tab=contracts")}
+                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <FileSignature className="w-4 h-4" />
+                  </div>
+                  <span>{isRtl ? "العقود الرسمية" : "Official Contracts"}</span>
+                </div>
+                {contracts.filter(c => c.status === "pending_signature").length > 0 ? (
+                  <Badge className="bg-amber-500 text-white text-[10px] h-5 px-1.5 font-bold animate-pulse">
+                    {contracts.filter(c => c.status === "pending_signature").length} {isRtl ? "بانتظار توقيعك ✍️" : "Pending Sign"}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-600 font-bold">
+                    {contracts.length} {isRtl ? "عقود 📜" : "Contracts"}
+                  </Badge>
+                )}
+              </DropdownMenuItem>
+
+              {/* 9. البيانات الشخصية وكلمة المرور */}
               <DropdownMenuItem 
                 onClick={() => navigate("/nashr/profile")}
                 className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-indigo-500/10 transition-colors"

@@ -19,6 +19,7 @@ import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
+import { useAllCourses } from "@/hooks/useCourses";
 import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
 
 const CoursesPlatform = () => {
@@ -28,15 +29,15 @@ const CoursesPlatform = () => {
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
   const { data: stats } = usePlatformStats("courses");
+  const { data: allCourses = [] } = useAllCourses();
   const lecturers = useCountUp(Math.max(stats?.lecturers ?? 0, 12));
-  const teachers = useCountUp(Math.max(stats?.teachers ?? 0, 8));
   const students = useCountUp(Math.max(stats?.students ?? 0, 150));
-  const trainingCenters = useCountUp(Math.max(stats?.trainingCenters ?? 0, 3));
-  const languageCenters = useCountUp(Math.max(stats?.languageCenters ?? 0, 2));
+  const coursesCount = useCountUp(Math.max(allCourses.length, 36));
 
   const statItems = [
-    { icon: User, counter: students, label: isRtl ? "طالب ومتدرب" : "Learners", color: "from-indigo-500 to-blue-500", glow: "shadow-blue-500/20" },
-    { icon: BookOpenCheck, counter: lecturers, label: isRtl ? "محاضر ومدرب" : "Instructors", color: "from-violet-500 to-purple-500", glow: "shadow-purple-500/20" },
+    { icon: BookOpenCheck, counter: lecturers, label: isRtl ? "محاضر" : "Instructors", color: "from-violet-500 to-purple-500", glow: "shadow-purple-500/20" },
+    { icon: GraduationCap, counter: students, label: isRtl ? "طالب" : "Students", color: "from-indigo-500 to-blue-500", glow: "shadow-blue-500/20" },
+    { icon: Video, counter: coursesCount, label: isRtl ? "دورة" : "Courses", color: "from-emerald-500 to-teal-500", glow: "shadow-emerald-500/20" },
   ];
 
   const courseTracks = [
@@ -381,20 +382,20 @@ const CoursesPlatform = () => {
           </div>
 
           {/* Live Platform Stats Cards */}
-          <div className="grid grid-cols-2 max-w-md mx-auto gap-3 pt-6">
+          <div className="grid grid-cols-3 max-w-xl mx-auto gap-3 sm:gap-4 pt-6">
             {statItems.map((item, i) => (
               <div
                 key={i}
                 ref={item.counter.ref}
-                className={`p-4 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 backdrop-blur-xl border border-white/20 transition-all duration-300 shadow-xl ${item.glow} flex flex-col items-center gap-2 group hover:-translate-y-1`}
+                className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 backdrop-blur-xl border border-white/20 transition-all duration-300 shadow-xl ${item.glow} flex flex-col items-center gap-2 group hover:-translate-y-1`}
               >
-                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
-                  <item.icon className="w-5 h-5" />
+                <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+                  <item.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <span className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md">
                   {item.counter.count}
                 </span>
-                <span className="text-[11px] sm:text-xs font-bold text-slate-200/90 leading-tight text-center">
+                <span className="text-xs sm:text-sm font-bold text-slate-200/90 leading-tight text-center">
                   {item.label}
                 </span>
               </div>

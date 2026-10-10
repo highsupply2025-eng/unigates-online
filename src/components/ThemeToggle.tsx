@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Sun, Moon, SunMoon, Monitor, Check } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -21,13 +21,24 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   className = "",
   showLabel = false,
 }) => {
+  const [mounted, setMounted] = useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { dir, translate } = useLanguage();
   const isRtl = dir === "rtl";
 
-  const currentTheme = theme === "system" ? resolvedTheme : (theme || "light");
-  const isDark = currentTheme === "dark";
-  const isLight = currentTheme === "light";
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isSelectedLight = theme === "light";
+  const isSelectedDark = theme === "dark";
+  const isSelectedSystem = theme === "system";
+
+  // Effective applied theme for rendering the proper sun/moon icon
+  const effectiveTheme = isSelectedSystem
+    ? (resolvedTheme || "light")
+    : (theme || "light");
+  const isEffectivelyDark = effectiveTheme === "dark";
 
   const lightLabel = translate("فاتح", "Light");
   const darkLabel = translate("داكن", "Dark");
@@ -41,16 +52,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         type="button"
         variant="outline"
         size="sm"
-        onClick={() => setTheme(isDark ? "light" : "dark")}
+        onClick={() => setTheme(isEffectivelyDark ? "light" : "dark")}
         className={`relative h-9 px-3 rounded-xl font-bold text-xs gap-2 border-white/20 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all shadow-xs ${className}`}
         title={
-          isDark
+          isEffectivelyDark
             ? translate("التبديل إلى الوضع الفاتح", "Switch to Light Mode")
             : translate("التبديل إلى الوضع الداكن", "Switch to Dark Mode")
         }
       >
         <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-amber-400 via-orange-500 to-yellow-500 flex items-center justify-center text-white shadow-xs">
-          {isDark ? (
+          {isEffectivelyDark ? (
             <Moon className="w-3.5 h-3.5" />
           ) : (
             <Sun className="w-3.5 h-3.5" />
@@ -58,16 +69,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         </div>
         {showLabel && (
           <span>
-            {isDark ? darkLabel : lightLabel}
+            {isEffectivelyDark ? darkLabel : lightLabel}
           </span>
         )}
       </Button>
     );
   }
 
-  // Default: Dropdown Menu with Quick Selection
+  // Default: Dropdown Menu with Quick Selection (modal={false} prevents layout jitter/scroll locking)
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           type="button"
@@ -77,21 +88,21 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
           title={translate("السطوع والمظهر", "Toggle theme and brightness")}
         >
           <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-amber-400 via-orange-500 to-yellow-500 flex items-center justify-center text-white shadow-xs">
-            {isLight ? (
-              <Sun className="w-3.5 h-3.5" />
-            ) : isDark ? (
+            {mounted && isSelectedSystem ? (
+              <SunMoon className="w-3.5 h-3.5" />
+            ) : mounted && isEffectivelyDark ? (
               <Moon className="w-3.5 h-3.5" />
             ) : (
-              <SunMoon className="w-3.5 h-3.5" />
+              <Sun className="w-3.5 h-3.5" />
             )}
           </div>
           {showLabel && (
             <span className="hidden md:inline-block font-black">
-              {isLight
-                ? lightLabel
-                : isDark
+              {mounted && isSelectedSystem
+                ? autoLabel
+                : isEffectivelyDark
                 ? darkLabel
-                : autoLabel}
+                : lightLabel}
             </span>
           )}
         </Button>
@@ -108,9 +119,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         {/* Light Mode */}
         <DropdownMenuItem
           onSelect={() => setTheme("light")}
-          onClick={() => setTheme("light")}
           className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-colors ${
-            isLight
+            isSelectedLight
               ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-black border border-amber-500/30"
               : "hover:bg-muted/80 text-foreground"
           }`}
@@ -123,15 +133,14 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               {lightLabel}
             </span>
           </div>
-          {isLight && <Check className="w-4 h-4 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
+          {isSelectedLight && <Check className="w-4 h-4 text-amber-600 dark:text-amber-400 ms-1 shrink-0" />}
         </DropdownMenuItem>
 
         {/* Dark Mode */}
         <DropdownMenuItem
           onSelect={() => setTheme("dark")}
-          onClick={() => setTheme("dark")}
           className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-colors ${
-            isDark
+            isSelectedDark
               ? "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-black border border-indigo-500/30"
               : "hover:bg-muted/80 text-foreground"
           }`}
@@ -144,15 +153,14 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               {darkLabel}
             </span>
           </div>
-          {isDark && <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400 ms-1 shrink-0" />}
+          {isSelectedDark && <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400 ms-1 shrink-0" />}
         </DropdownMenuItem>
 
         {/* System Mode */}
         <DropdownMenuItem
           onSelect={() => setTheme("system")}
-          onClick={() => setTheme("system")}
           className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-colors ${
-            theme === "system"
+            isSelectedSystem
               ? "bg-primary/15 text-primary font-black border border-primary/30"
               : "hover:bg-muted/80 text-foreground"
           }`}
@@ -165,7 +173,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
               {autoLabel}
             </span>
           </div>
-          {theme === "system" && <Check className="w-4 h-4 text-primary ms-1 shrink-0" />}
+          {isSelectedSystem && <Check className="w-4 h-4 text-primary ms-1 shrink-0" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -250,13 +250,13 @@ const NasherPlatform = () => {
               </Button>
             </Link>
             <div className="h-5 w-px bg-white/20 mx-1 hidden sm:block" />
-            <ThemeToggle />
+            <ThemeToggle className="h-10 w-10 p-0 rounded-xl bg-white/10 hover:bg-white/20 border-white/20 text-white" />
             <LanguageSelectorDropdown />
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center gap-2">
-            <ThemeToggle />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl bg-white/10 hover:bg-white/20 border-white/20 text-white" />
             <LanguageSelectorDropdown />
             <Button
               variant="ghost"

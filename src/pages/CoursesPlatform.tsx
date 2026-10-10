@@ -3,13 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  BookOpen, Users, GraduationCap, Globe, Home,
-  Video, FileText, Award, ShieldCheck, MessageSquare, Layers,
-  Sparkles, Trophy, Zap, Check, ArrowLeft, ArrowRight, Menu, X,
-  PlayCircle, User, BookOpenCheck, Languages,
-  Code2, Briefcase, Palette, Microscope, HeartPulse, Laptop,
-  HelpCircle, Lock, CheckCircle2, ChevronDown, Play, ExternalLink,
-  Search, Flame, Tag, Star, Clock, Eye, Volume2, CheckCircle
+  Video, PlayCircle, User, BookOpenCheck, Languages,
+  Code2, Briefcase, Palette, Microscope, HeartPulse,
+  HelpCircle, Lock, Play,
+  Search, Flame, Layers, Sparkles, Star, Zap, X,
+  ShieldCheck, Award, GraduationCap, Home, Menu, Volume2
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,8 +22,6 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
-import { usePlatformStats } from "@/hooks/usePlatformStats";
-import { useCountUp } from "@/hooks/useCountUp";
 import { useAllCourses } from "@/hooks/useCourses";
 import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
 
@@ -289,11 +285,9 @@ const DEFAULT_COURSES_CATALOG: CourseCatalogItem[] = [
 const CoursesPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { t, dir, toggleLanguage, language, tText } = useLanguage();
+  const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
-  const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
-  const { data: stats } = usePlatformStats("courses");
   const { data: allCourses = [] } = useAllCourses();
 
   // Combine real database courses with rich catalog
@@ -335,17 +329,6 @@ const CoursesPlatform = () => {
     const uniqueDefaults = DEFAULT_COURSES_CATALOG.filter((d) => !existingIds.has(d.id));
     return [...dbItems, ...uniqueDefaults];
   }, [allCourses]);
-
-  const lecturers = useCountUp(Math.max(stats?.lecturers ?? 0, 18));
-  const students = useCountUp(Math.max(stats?.students ?? 0, 2450));
-  const coursesCount = useCountUp(Math.max(catalog.length, 36));
-
-  // Strictly 3 stats as committed
-  const statItems = [
-    { icon: BookOpenCheck, counter: lecturers, label: isRtl ? "محاضر" : "Instructors", color: "from-violet-500 to-purple-500", glow: "shadow-purple-500/20" },
-    { icon: GraduationCap, counter: students, label: isRtl ? "طالب" : "Students", color: "from-indigo-500 to-blue-500", glow: "shadow-blue-500/20" },
-    { icon: Video, counter: coursesCount, label: isRtl ? "دورة" : "Courses", color: "from-emerald-500 to-teal-500", glow: "shadow-emerald-500/20" },
-  ];
 
   // 2-Row Layout State (Exact match to Bookstore Platform layout)
   const [activeMainTab, setActiveMainTab] = useState<"bestsellers" | "accredited" | "categories" | "new_arrivals">("categories");
@@ -468,116 +451,6 @@ const CoursesPlatform = () => {
 
     return result;
   }, [catalog, activeMainTab, activeSubCategory, liveSearchCategory, liveSearchQuery]);
-
-  // Strictly 2 Roles: Lecturer & Student
-  const roleHubs = [
-    {
-      roleAr: "المحاضرون والمدربون المستقلون",
-      roleEn: "Instructors & Lecturers",
-      descAr: "أنشئ استوديو دوراتك الخاصة، ارفع محاضرات الفيديو المحمية بنظام DRM، حدد أسعار الاشتراكات، واجنِ أرباحك مباشرة.",
-      descEn: "Create your course studio, upload DRM-protected video lectures, set subscription pricing, and earn revenue.",
-      icon: BookOpenCheck,
-      color: "from-purple-600 to-indigo-700",
-      ctaAr: "انضم كمحاضر",
-      ctaEn: "Join as Instructor",
-      link: "/courses/signup?role=lecturer",
-    },
-    {
-      roleAr: "الطلاب والمتدربون",
-      roleEn: "Students & Learners",
-      descAr: "شاهد الحلقات المجانية، تعلّم من أفضل المدربين بجودة 4K على أي جهاز، واحصل على شهادات إتمام رقمية معتمدة.",
-      descEn: "Watch free preview episodes, learn on any device with 4K streaming, and earn verifiable completion certificates.",
-      icon: GraduationCap,
-      color: "from-blue-600 to-cyan-600",
-      ctaAr: "إنشاء حساب طالب",
-      ctaEn: "Signup as Student",
-      link: "/courses/signup?role=personal",
-    },
-  ];
-
-  const features = [
-    {
-      icon: ShieldCheck,
-      title: isRtl ? "حماية الفيديو المتطورة بنظام DRM" : "Enterprise DRM Video Protection",
-      desc: isRtl
-        ? "بث سحابي مشفر يمنع تصوير الشاشة وإعادة النشر بنسبة 100% لحماية حقوق الملكية الفكرية للمحاضرين والمراكز التدريبية."
-        : "Encrypted DRM streaming preventing screen recording and unauthorized downloads to protect instructor copyright.",
-      iconBg: "bg-gradient-to-br from-indigo-500 to-purple-600",
-      borderAccent: "hover:border-indigo-500/40",
-    },
-    {
-      icon: PlayCircle,
-      title: isRtl ? "حلقة تمهيدية مجانية لكل دورة" : "Free Preview Episode for Every Course",
-      desc: isRtl
-        ? "يستطيع المتدرب مشاهدة الحلقة الأولى مجاناً لتجربة جودة الشرح وأسلوب المدرب قبل الاشتراك."
-        : "Learners can stream the first lecture completely free to evaluate teaching style and quality before purchase.",
-      iconBg: "bg-gradient-to-br from-amber-500 to-orange-600",
-      borderAccent: "hover:border-amber-500/40",
-    },
-    {
-      icon: Award,
-      title: isRtl ? "شهادات إتمام رقمية معتمدة برمز QR" : "Verifiable QR Completion Certificates",
-      desc: isRtl
-        ? "إصدار شهادات إتمام معتمدة بكود تحقق رقمي مشفر يمكن مشاركته على LinkedIn وإضافته للسيرة الذاتية."
-        : "Instant generation of verifiable completion certificates with cryptographic QR code verification for resumes and LinkedIn.",
-      iconBg: "bg-gradient-to-br from-emerald-500 to-teal-600",
-      borderAccent: "hover:border-emerald-500/40",
-    },
-    {
-      icon: FileText,
-      title: isRtl ? "اختبارات وتطبيقات عملية بعد كل وحدة" : "Interactive Unit Quizzes & Practical Tasks",
-      desc: isRtl
-        ? "بنك أسئلة واختبارات تفاعلية لقياس مدى استيعاب المتدرب مع تصحيح فوري وتحليل نقاط القوة والضعف."
-        : "Interactive module tests and assignments measuring comprehension with instant scoring and actionable feedback.",
-      iconBg: "bg-gradient-to-br from-blue-500 to-cyan-600",
-      borderAccent: "hover:border-blue-500/40",
-    },
-    {
-      icon: MessageSquare,
-      title: isRtl ? "مجتمع تفاعلي وسؤال وجواب مباشر" : "Direct Q&A and Discussion Community",
-      desc: isRtl
-        ? "مساحة مخصصة لكل دورة لطرح الأسئلة والنقاش المباشر مع المحاضر والزملاء لتعزيز الاستيعاب."
-        : "Dedicated Q&A channels inside every course for direct interaction between instructors and students.",
-      iconBg: "bg-gradient-to-br from-purple-500 to-pink-600",
-      borderAccent: "hover:border-purple-500/40",
-    },
-    {
-      icon: Laptop,
-      title: isRtl ? "تعلم من أي جهاز وفي أي وقت" : "Learn Anywhere on Any Device",
-      desc: isRtl
-        ? "تجربة مشاهدة متطورة تتكيف مع سرعة الإنترنت وتعمل على الكمبيوتر، التابلت، وتطبيقات الهواتف الذكية."
-        : "Adaptive bitrate streaming optimized for desktop, tablet, and mobile apps with offline playback support.",
-      iconBg: "bg-gradient-to-br from-rose-500 to-red-600",
-      borderAccent: "hover:border-rose-500/40",
-    },
-  ];
-
-  const steps = [
-    {
-      step: "1",
-      icon: GraduationCap,
-      title: isRtl ? "أنشئ حسابك كطالب ومتدرب" : "Create Student Account",
-      desc: isRtl ? "سجّل حسابك كطالب ومتدرب في أقل من دقيقة لتتمكن من مشاهدة الدورات وحفظ تقدمك." : "Sign up as a student/learner in under a minute to start streaming courses.",
-      cta: isRtl ? "إنشاء حساب طالب" : "Signup as Student",
-      link: "/courses/signup?role=personal",
-    },
-    {
-      step: "2",
-      icon: PlayCircle,
-      title: isRtl ? "استكشف الدورات وشاهد العرض" : "Explore & Watch Free Preview",
-      desc: isRtl ? "تصفح الدورات في تخصصك، شاهد الحلقة المجانية الأولى، واختر الدورة المناسبة." : "Browse professional tracks, watch free preview episodes, and choose your course.",
-      cta: isRtl ? "تصفح الدورات" : "Browse Courses",
-      link: "#courses-results-grid",
-    },
-    {
-      step: "3",
-      icon: Trophy,
-      title: isRtl ? "انطلق في التعلم ونل الشهادة" : "Learn & Earn Certificate",
-      desc: isRtl ? "تابع المحاضرات، اجتز الاختبارات التطبيقية، واحصل على شهادة إتمام معتمدة." : "Complete the modules, pass hands-on assessments, and receive your verified certificate.",
-      cta: isRtl ? "تسجيل الدخول" : "Login to Learn",
-      link: "/courses/login",
-    },
-  ];
 
   const faqs = [
     {
@@ -1229,256 +1102,9 @@ const CoursesPlatform = () => {
         </Dialog>
 
         {/* ========================================================================= */}
-        {/* HERO LAUNCHPAD SECTION (RETAINING STATS COUNTERS & 2 ACCOUNT ROLES)       */}
-        {/* ========================================================================= */}
-        <section className="relative overflow-hidden border-b border-border/40">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950/90 to-indigo-950/95" />
-          <div className="absolute inset-0">
-            <div className="absolute top-0 start-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[140px]" />
-            <div className="absolute bottom-0 end-10 w-[500px] h-[500px] bg-pink-600/20 rounded-full blur-[160px]" />
-            <div className="absolute top-1/3 end-1/3 w-80 h-80 bg-blue-500/15 rounded-full blur-[120px]" />
-          </div>
-
-          <div className="relative z-10 pt-12 sm:pt-16 pb-16 sm:pb-20 px-4 sm:px-6 md:px-12 text-center max-w-5xl mx-auto space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm font-bold shadow-lg shadow-black/10">
-              <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-              <span>{isRtl ? "منصة الدورات المهنية والمهارات العالمية الأكثر تطوراً" : "Global Professional Courses & Skills Academy"}</span>
-            </div>
-
-            <div className="space-y-4">
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-tight sm:leading-none drop-shadow-lg tracking-tight">
-                {isRtl ? "أكاديمية الدورات والشهادات العالمية" : "Global Courses & Certificates Academy"}
-              </h1>
-              <p className="text-sm sm:text-lg md:text-xl text-slate-200/90 font-medium max-w-3xl mx-auto leading-relaxed">
-                {isRtl
-                  ? "تعلم من نخبة من كبار المحاضرين، بمحاضرات فيديو محمية بنظام DRM، واختبارات تفاعلية، وشهادات معتمدة."
-                  : "Learn from top global instructors with DRM video, hands-on tasks, and QR-verified certificates."}
-              </p>
-            </div>
-
-            {/* Quick Action Launchpad */}
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              <Link to="/courses/signup?role=lecturer">
-                <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-xl shadow-purple-500/30 gap-2 hover:scale-105 transition-all">
-                  <BookOpenCheck className="w-5 h-5" />
-                  {tText("📖 انضم كمحاضر / مدرب", "Join as Instructor")}
-                </Button>
-              </Link>
-
-              <Link to="/courses/signup?role=personal">
-                <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-xl shadow-blue-500/30 gap-2 hover:scale-105 transition-all">
-                  <GraduationCap className="w-5 h-5" />
-                  {tText("🎓 حساب طالب / متدرب", "Student Signup")}
-                </Button>
-              </Link>
-
-              <Link to="/courses/login">
-                <Button size="lg" variant="outline" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/30 shadow-lg backdrop-blur-md gap-2">
-                  <Users className="w-5 h-5" />
-                  {tText("تسجيل الدخول", "Portal Login")}
-                </Button>
-              </Link>
-            </div>
-
-            {/* Live Platform Stats Cards: Strictly 3 items (محاضر، طالب، دورة) */}
-            <div className="grid grid-cols-3 max-w-xl mx-auto gap-3 sm:gap-4 pt-6">
-              {statItems.map((item, i) => (
-                <div
-                  key={i}
-                  ref={item.counter.ref}
-                  className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 backdrop-blur-xl border border-white/20 transition-all duration-300 shadow-xl ${item.glow} flex flex-col items-center gap-2 group hover:-translate-y-1`}
-                >
-                  <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
-                    <item.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </div>
-                  <span className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md">
-                    {item.counter.count}
-                  </span>
-                  <span className="text-xs sm:text-sm font-bold text-slate-200/90 leading-tight text-center">
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* GLOBAL LEARNING TRACKS OVERVIEW                                           */}
-        {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-card/40 border-b border-border/60">
-          <div className="max-w-7xl mx-auto space-y-10">
-            <div className="text-center space-y-3">
-              <div className="inline-flex items-center gap-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 px-4 py-1 rounded-full text-xs font-bold">
-                <Award className="w-4 h-4" />
-                {isRtl ? "تخصصات ومسارات التعلم العالمية" : "Global Learning Tracks"}
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight">
-                {isRtl ? "مسارات مهنية وأكاديمية متكاملة" : "Comprehensive Career & Academic Tracks"}
-              </h2>
-              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-                {isRtl
-                  ? "اختر مسارك التعليمي وانطلق من المبتدئ إلى الاحتراف مع مدربين خبراء ومشاريع تطبيقية حقيقية."
-                  : "Choose your learning path and advance from beginner to expert with hands-on projects."}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {courseCategories.map((track, idx) => (
-                <Card
-                  key={idx}
-                  onClick={() => {
-                    setActiveSubCategory(track.id);
-                    const el = document.getElementById("courses-results-grid");
-                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                  className="border-2 border-border/70 hover:border-purple-500/40 hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden group hover:-translate-y-1 cursor-pointer"
-                >
-                  <CardContent className="p-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${track.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
-                        <track.icon className="w-6 h-6" />
-                      </div>
-                      <Badge variant="outline" className="text-xs font-bold px-3 py-1 rounded-xl bg-muted">
-                        {track.badge}
-                      </Badge>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-black text-foreground mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                        {isRtl ? track.titleAr : track.titleEn}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                        {isRtl ? track.descAr : track.descEn}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* ROLE HUBS FOR INSTRUCTORS & LEARNERS (STRICTLY 2 ROLES)                    */}
-        {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/30 border-b border-border/60">
-          <div className="max-w-5xl mx-auto space-y-12">
-            <div className="text-center space-y-3">
-              <div className="inline-flex items-center gap-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold">
-                <Sparkles className="w-4 h-4" />
-                {isRtl ? "مجتمع أكاديمية الدورات" : "Academy Ecosystem"}
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-foreground">
-                {isRtl ? "منظومة مصممة لتمكين المحاضرين والطلاب" : "Empowering Instructors & Learners"}
-              </h2>
-              <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
-                {isRtl
-                  ? "سواء كنت محاضراً أو طالباً شغوفاً بالعلم، UNIGATES توفر لك البيئة التعليمية المتكاملة."
-                  : "Whether you are an instructor or an eager learner, UNIGATES provides the ideal tools."}
-              </p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {roleHubs.map((hub, i) => (
-                <Card key={i} className="group hover:shadow-2xl transition-all duration-300 border-2 border-border/80 rounded-3xl overflow-hidden hover:-translate-y-1.5 flex flex-col">
-                  <CardContent className="p-6 space-y-4 flex-1 flex flex-col">
-                    <div className={`w-13 h-13 rounded-2xl bg-gradient-to-br ${hub.color} flex items-center justify-center text-white shadow-xl shadow-purple-500/20 group-hover:scale-110 transition-transform duration-300`}>
-                      <hub.icon className="w-6 h-6" />
-                    </div>
-                    <h3 className="font-black text-foreground text-base sm:text-lg">
-                      {isRtl ? hub.roleAr : hub.roleEn}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed flex-1">
-                      {isRtl ? hub.descAr : hub.descEn}
-                    </p>
-                    <Link to={hub.link} className="pt-2">
-                      <Button variant="outline" className="w-full font-bold text-xs rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                        {isRtl ? hub.ctaAr : hub.ctaEn}
-                        <ArrowIcon className="w-3.5 h-3.5 ms-1" />
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* WORLD-CLASS DRM & LEARNING FEATURES                                       */}
-        {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-background border-b border-border/60">
-          <div className="max-w-7xl mx-auto space-y-12">
-            <div className="text-center space-y-3">
-              <div className="inline-flex items-center gap-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 px-4 py-1 rounded-full text-xs font-bold">
-                <Zap className="w-4 h-4" />
-                {isRtl ? "المعايير التقنية والأكاديمية" : "World-Class Standards"}
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-foreground">
-                {isRtl ? "تقنيات عالمية لتجربة تعليمية فائقة الأمان" : "Cutting-Edge Technologies for Premium E-Learning"}
-              </h2>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {features.map((f, i) => (
-                <Card key={i} className={`group hover:shadow-2xl transition-all duration-300 border-2 border-border/80 ${f.borderAccent} rounded-3xl overflow-hidden hover:-translate-y-1.5`}>
-                  <CardContent className="p-6 sm:p-7 space-y-4">
-                    <div className={`w-14 h-14 rounded-2xl ${f.iconBg} flex items-center justify-center text-white shadow-xl shadow-purple-500/20 group-hover:scale-110 transition-transform duration-300`}>
-                      <f.icon className="w-7 h-7" />
-                    </div>
-                    <h3 className="font-black text-foreground text-lg">{f.title}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* ONBOARDING ROADMAP                                                        */}
-        {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/20 border-b border-border/60">
-          <div className="max-w-5xl mx-auto space-y-12 text-center">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 px-4 py-1 rounded-full text-xs font-bold">
-                <Zap className="w-4 h-4" />
-                {isRtl ? "خطوات البدء والتعلم" : "How to Get Started"}
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-foreground">
-                {isRtl ? "ابدأ رحلتك التدريبية في 3 خطوات" : "Launch Your Learning Journey in 3 Steps"}
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
-              {steps.map((item, i) => (
-                <div key={i} className="flex flex-col items-center text-center p-6 rounded-3xl bg-card border-2 border-border/70 shadow-lg hover:shadow-xl transition-all group">
-                  <Link to={item.link} className="relative mb-5 block group-hover:scale-105 transition-transform">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-xl shadow-purple-500/25">
-                      <item.icon className="w-8 h-8" />
-                    </div>
-                    <div className="absolute -top-2 -end-2 w-7 h-7 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-black shadow-md">
-                      {item.step}
-                    </div>
-                  </Link>
-                  <h3 className="font-black text-foreground mb-2 text-lg">{item.title}</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground mb-5 leading-relaxed">{item.desc}</p>
-                  <Link to={item.link} className="mt-auto w-full">
-                    <Button variant="outline" className="w-full font-bold text-xs rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                      {item.cta}
-                      <ArrowIcon className="w-3.5 h-3.5 ms-1.5" />
-                    </Button>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
         {/* ACADEMY FAQS ACCORDION                                                    */}
         {/* ========================================================================= */}
-        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-background border-b border-border/60">
+        <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/20 dark:bg-slate-950 border-b border-border dark:border-slate-800 transition-colors">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center space-y-3">
               <div className="inline-flex items-center gap-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 px-4 py-1 rounded-full text-xs font-bold">
@@ -1492,51 +1118,16 @@ const CoursesPlatform = () => {
 
             <Accordion type="single" collapsible className="space-y-3">
               {faqs.map((faq, idx) => (
-                <AccordionItem key={idx} value={`faq-${idx}`} className="bg-card border-2 border-border/80 rounded-2xl px-5 shadow-xs">
-                  <AccordionTrigger className="font-black text-sm sm:text-base text-foreground hover:no-underline py-4 text-start">
+                <AccordionItem key={idx} value={`faq-${idx}`} className="bg-card dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl px-5 shadow-xs transition-colors">
+                  <AccordionTrigger className="font-black text-sm sm:text-base text-foreground dark:text-white hover:no-underline py-4 text-start">
                     {isRtl ? faq.qAr : faq.qEn}
                   </AccordionTrigger>
-                  <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pt-1 pb-4 text-start">
+                  <AccordionContent className="text-xs sm:text-sm text-muted-foreground dark:text-slate-400 leading-relaxed pt-1 pb-4 text-start">
                     {isRtl ? faq.aAr : faq.aEn}
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* INSPIRING CALL TO ACTION BANNER                                           */}
-        {/* ========================================================================= */}
-        <section className="py-16 sm:py-24 px-4 sm:px-6 md:px-12 relative overflow-hidden bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 text-white text-center">
-          <div className="absolute inset-0">
-            <div className="absolute top-0 end-0 w-80 h-80 bg-purple-500/20 rounded-full blur-[140px]" />
-            <div className="absolute bottom-0 start-0 w-80 h-80 bg-pink-600/20 rounded-full blur-[140px]" />
-          </div>
-          <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-            <Badge className="bg-white/15 text-white border-white/20 text-xs px-3 py-1">
-              🚀 {isRtl ? "انضم الآن إلى أكاديمية الدورات العالمية" : "Join Global Courses Academy"}
-            </Badge>
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-              {isRtl ? "طوّر مهاراتك وانطلق نحو مستقبلك المهني" : "Empower Your Skills and Career"}
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-              {isRtl
-                ? "سواء كنت ترغب في اكتساب مهارات جديدة أو نشر وتدريس خبراتك للآلاف، UNIGATES تمنحك الأفق الكامل."
-                : "Whether you want to learn in-demand skills or teach thousands of students worldwide, UNIGATES is your platform."}
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              <Link to="/courses/signup?role=lecturer">
-                <Button size="lg" className="h-13 px-8 font-black text-sm sm:text-base rounded-2xl bg-purple-600 hover:bg-purple-700 text-white shadow-xl shadow-purple-600/30">
-                  {isRtl ? "انضم كمحاضر / مدرب" : "Join as Instructor"}
-                </Button>
-              </Link>
-              <Link to="/courses/signup?role=personal">
-                <Button size="lg" className="h-13 px-8 font-black text-sm sm:text-base rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md">
-                  {isRtl ? "إنشاء حساب طالب" : "Signup as Student"}
-                </Button>
-              </Link>
-            </div>
           </div>
         </section>
 

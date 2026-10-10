@@ -1081,75 +1081,7 @@ const NasherDashboard = () => {
       {/* Main Studio Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 pb-16 space-y-6">
 
-        {/* Author Executive Header Card */}
-        <Card className="border-2 border-border/80 shadow-xl bg-card rounded-3xl overflow-hidden">
-          <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 p-6 sm:p-8 border-b border-border/60">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              
-              {/* Profile Block */}
-              <div className="flex items-start gap-4">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 text-white shadow-xl shadow-amber-500/20 flex items-center justify-center text-2xl sm:text-3xl font-black shrink-0">
-                  ✍️
-                </div>
-                <div className="space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-foreground">
-                      {authorProfile.fullName}
-                    </h1>
-                    <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-black text-xs px-2.5 py-0.5">
-                      {isRtl ? "كود المؤلف:" : "Code:"} {authorProfile.authorCode}
-                    </Badge>
-                    {isUnderReview ? (
-                      <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 font-black text-xs px-2.5 py-0.5 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-amber-500 animate-pulse" />
-                        <span>{isRtl ? "الحساب تحت المراجعة والتدقيق" : "Under Review"}</span>
-                      </Badge>
-                    ) : (
-                      <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-black text-xs px-2.5 py-0.5 flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                        <span>{isRtl ? "حساب معتمد وموثق رسمياً" : "Verified Author"}</span>
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-xs sm:text-sm font-bold text-muted-foreground">
-                    {authorProfile.specialization} {authorProfile.institution ? `• ${authorProfile.institution}` : ""}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-1">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-amber-500" />
-                      {isRtl ? "تاريخ الانضمام:" : "Joined:"} {authorProfile.joinedDate}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Stamp className="w-3.5 h-3.5 text-rose-500" />
-                      {isRtl ? "الناشر الرسمي:" : "Publisher:"} دار عبيد للنشر والتوزيع
-                    </span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Quick Wallet Stats Pill */}
-              <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 p-3 rounded-2xl bg-card border border-border/80 shadow-md">
-                <div className="p-3 rounded-xl bg-amber-500/10 text-start">
-                  <span className="text-[10px] font-extrabold text-muted-foreground block">{isRtl ? "الرصيد المتاح للسحب" : "Available Balance"}</span>
-                  <span className="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400">{financials.availableBalance} ج.م</span>
-                </div>
-                <div className="p-3 rounded-xl bg-emerald-500/10 text-start">
-                  <span className="text-[10px] font-extrabold text-muted-foreground block">{isRtl ? "نسبة المؤلف (أرباحك)" : "Author Royalty"}</span>
-                  <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400">{isRtl ? "70% رقمي • 30% ورقي" : "70% Digital • 30% Print"}</span>
-                </div>
-                <Button 
-                  onClick={() => setPayoutModalOpen(true)}
-                  disabled={financials.availableBalance <= 0}
-                  className="h-12 px-4 rounded-xl font-black text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/20 gap-1.5"
-                >
-                  <Wallet className="w-4 h-4" />
-                  <span>{isRtl ? "طلب سحب الأرباح" : "Payout"}</span>
-                </Button>
-              </div>
-
-            </div>
-          </div>
-        </Card>
 
 
 

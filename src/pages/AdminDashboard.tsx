@@ -461,14 +461,23 @@ export const AdminDashboard = () => {
   const handleUpdateManuscriptStatus = (status: ManuscriptSubmission["status"], feedback?: string) => {
     if (!selectedManuscript) return;
     NashrDataStore.updateSubmissionStatus(selectedManuscript.id, status, feedback);
+
+    // If feedback is provided, also send an official administrative notice into author's chat & new notes
+    if (feedback && feedback.trim()) {
+      NashrDataStore.sendAdminMessageToAuthor(
+        selectedManuscript.authorId,
+        `📝 توجيه وملاحظات هيئة النشر والتحكيم بدار عبيد بخصوص مؤلفكم "${selectedManuscript.title}":\n"${feedback.trim()}"`
+      );
+    }
+
     loadAllData();
     setShowManuscriptModal(false);
     setAdminFeedback("");
     toast({
       title: isRtl ? "تم إرسال الملاحظات للمؤلف بنجاح" : "Feedback Saved Successfully",
       description: isRtl 
-        ? "تم حفظ الملاحظات وتوجيهها لبطاقة المخطوطة في حساب استوديو المؤلف." 
-        : "Feedback attached to author's manuscript review card."
+        ? "تم حفظ الملاحظات وتوجيهها لبطاقة المخطوطة في حساب استوديو المؤلف وصندوق ملاحظات الإدارة." 
+        : "Feedback attached to author's manuscript review card and directives center."
     });
   };
 

@@ -55,6 +55,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { NashrDataStore } from "@/services/nashrDataStore";
+import { NashrFileStore } from "@/services/nashrFileStore";
 import { AuthorProfile, ManuscriptSubmission, NashrInvoice, NashrMessage } from "@/types/nashr";
 import { ReceiptAuditModal } from "@/components/nashr/ReceiptAuditModal";
 import { AttachmentViewerModal } from "@/components/nashr/AttachmentViewerModal";
@@ -203,15 +204,28 @@ export const AdminDashboard = () => {
   } | null>(null);
   const [showDocPreviewModal, setShowDocPreviewModal] = useState(false);
 
-  const handleOpenDocPreview = (title: string, url: string, name?: string, size?: string) => {
-    setPreviewDoc({ title, url, name, size });
+  const handleOpenDocPreview = async (title: string, url: string, name?: string, size?: string) => {
+    let resolvedUrl = url;
+    if (url && url.startsWith("idb:")) {
+      const id = url.replace("idb:", "");
+      const fromStore = await NashrFileStore.getFile(id);
+      if (fromStore) resolvedUrl = fromStore;
+    }
+    setPreviewDoc({ title, url: resolvedUrl, name, size });
     setShowDocPreviewModal(true);
   };
 
-  const handleDownloadDoc = (url: string, filename: string) => {
+  const handleDownloadDoc = async (url: string, filename: string) => {
     try {
-      if (url.startsWith("data:")) {
-        const blob = dataUrlToBlob(url);
+      let resolvedUrl = url;
+      if (url && url.startsWith("idb:")) {
+        const id = url.replace("idb:", "");
+        const fromStore = await NashrFileStore.getFile(id);
+        if (fromStore) resolvedUrl = fromStore;
+      }
+
+      if (resolvedUrl.startsWith("data:")) {
+        const blob = dataUrlToBlob(resolvedUrl);
         const blobUrl = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = blobUrl;
@@ -228,7 +242,7 @@ export const AdminDashboard = () => {
       }
 
       const a = document.createElement("a");
-      a.href = url;
+      a.href = resolvedUrl;
       a.download = filename || "document";
       document.body.appendChild(a);
       a.click();

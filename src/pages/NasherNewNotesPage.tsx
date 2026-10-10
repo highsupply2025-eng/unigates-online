@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, ALL_SUPPORTED_LANGUAGES, type Language } from "@/contexts/LanguageContext";
 import { useTheme } from "next-themes";
 import {
   ArrowRight,
@@ -30,6 +30,8 @@ import {
   Globe,
   Sun,
   Moon,
+  SunMoon,
+  Monitor,
   LogOut,
   Check,
   Search,
@@ -57,6 +59,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { 
   NashrDataStore, 
@@ -65,6 +70,8 @@ import {
   NashrMessage, 
   NashrInvoice 
 } from "@/services/nashrDataStore";
+import ThemeToggle from "@/components/ThemeToggle";
+import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 
 const NasherNewNotesPage = () => {
   const navigate = useNavigate();
@@ -418,51 +425,166 @@ const NasherNewNotesPage = () => {
               <DropdownMenuSeparator className="my-1.5" />
 
               {/* 9. تغيير اللغة */}
-              <DropdownMenuItem 
-                onClick={() => {
-                  const nextLang = language === "ar" ? "en" : "ar";
-                  setLanguage(nextLang);
-                  toast({
-                    title: nextLang === "ar" ? "تم تغيير اللغة إلى العربية 🌐" : "Language switched to English 🌐",
-                    description: nextLang === "ar" ? "تم تحديث واجهة المنصة باللغة العربية." : "Interface updated to English."
-                  });
-                }}
-                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-cyan-500/10 transition-colors"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-600 flex items-center justify-center shrink-0">
-                    <Globe className="w-4 h-4" />
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-cyan-500/10 data-[state=open]:bg-cyan-500/15 transition-colors">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-600 flex items-center justify-center shrink-0">
+                      <Globe className="w-4 h-4" />
+                    </div>
+                    <span>{isRtl ? "تغيير اللغة" : "Change Language"}</span>
                   </div>
-                  <span>{isRtl ? "تغيير اللغة" : "Change Language"}</span>
-                </div>
-                <Badge variant="outline" className="text-[10px] font-black border-cyan-500/40 text-cyan-700 dark:text-cyan-300 bg-cyan-500/10">
-                  {language === "ar" ? "العربية ⟳" : "English ⟳"}
-                </Badge>
-              </DropdownMenuItem>
+                  <Badge variant="outline" className="text-[10px] font-black border-cyan-500/40 text-cyan-700 dark:text-cyan-300 bg-cyan-500/10 ms-auto me-2">
+                    {ALL_SUPPORTED_LANGUAGES.find(l => l.code === language)?.nativeName || (language === "ar" ? "العربية" : "English")}
+                  </Badge>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-56 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 text-foreground">
+                  <div className="flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-black text-cyan-600 uppercase tracking-wider border-b border-border/60 mb-1">
+                    <Globe className="w-3 h-3 text-cyan-600" />
+                    <span>{isRtl ? "اختر لغة المنصة" : "Select Platform Language"}</span>
+                  </div>
+                  {ALL_SUPPORTED_LANGUAGES.map((lang) => {
+                    const isSelected = language === lang.code;
+                    return (
+                      <DropdownMenuItem
+                        key={lang.code}
+                        onClick={() => {
+                          setLanguage(lang.code as Language);
+                          toast({
+                            title: lang.code === "ar" 
+                              ? "تم تغيير اللغة إلى العربية 🌐" 
+                              : `Language switched to ${lang.nativeName} 🌐`,
+                            description: lang.code === "ar"
+                              ? "تم تحديث واجهة المنصة باللغة العربية."
+                              : `Interface language updated to ${lang.name}.`
+                          });
+                        }}
+                        className={`flex items-center justify-between px-2.5 py-2 rounded-xl cursor-pointer transition-all ${
+                          isSelected
+                            ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-black border border-cyan-500/30 shadow-xs"
+                            : "hover:bg-muted text-foreground"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/20 shrink-0 uppercase tracking-wider">
+                            {lang.flag}
+                          </span>
+                          <div className="flex flex-col text-start">
+                            <span className="text-xs font-bold leading-tight text-foreground">{lang.nativeName}</span>
+                            <span className="text-[10px] text-muted-foreground leading-tight">{lang.name}</span>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 text-cyan-600 dark:text-cyan-400 ms-2 shrink-0" />}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
 
-              {/* 10. السطوع */}
-              <DropdownMenuItem 
-                onClick={() => {
-                  const nextTheme = theme === "dark" ? "light" : "dark";
-                  setTheme(nextTheme);
-                  toast({
-                    title: nextTheme === "dark" 
-                      ? (isRtl ? "تم تفعيل الوضع الداكن 🌙" : "Dark Mode Activated 🌙") 
-                      : (isRtl ? "تم تفعيل الوضع الفاتح ☀️" : "Light Mode Activated ☀️")
-                  });
-                }}
-                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 transition-colors"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
-                    {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              {/* 10. السطوع والمظهر */}
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-amber-500/10 data-[state=open]:bg-amber-500/15 transition-colors">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                      {theme === "dark" ? <Moon className="w-4 h-4" /> : theme === "system" ? <Monitor className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                    </div>
+                    <span>{isRtl ? "السطوع والمظهر" : "Appearance & Theme"}</span>
                   </div>
-                  <span>{isRtl ? "السطوع والمظهر" : "Appearance & Theme"}</span>
-                </div>
-                <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10">
-                  {theme === "dark" ? (isRtl ? "داكن 🌙 ⟳" : "Dark 🌙 ⟳") : (isRtl ? "فاتح ☀️ ⟳" : "Light ☀️ ⟳")}
-                </Badge>
-              </DropdownMenuItem>
+                  <Badge variant="outline" className="text-[10px] font-black border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10 ms-auto me-2">
+                    {theme === "dark" 
+                      ? (isRtl ? "داكن 🌙" : "Dark 🌙") 
+                      : theme === "system"
+                      ? (isRtl ? "تلقائي 💻" : "Auto 💻")
+                      : (isRtl ? "فاتح ☀️" : "Light ☀️")}
+                  </Badge>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-52 p-1.5 rounded-2xl border-2 border-border/80 bg-card/95 backdrop-blur-2xl shadow-2xl z-50 text-foreground">
+                  <div className="flex items-center gap-2 px-2.5 py-1.5 text-[10px] font-black text-amber-600 uppercase tracking-wider border-b border-border/60 mb-1">
+                    <SunMoon className="w-3 h-3 text-amber-600" />
+                    <span>{isRtl ? "اختيار السطوع والمظهر" : "Select Appearance"}</span>
+                  </div>
+
+                  {/* داكن (Dark) */}
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setTheme("dark");
+                      toast({
+                        title: isRtl ? "تم تفعيل الوضع الداكن 🌙" : "Dark Mode Activated 🌙",
+                        description: isRtl ? "مظهر داكن مريح للعين في الإضاءة الخافتة." : "Comfortable dark theme for low light."
+                      });
+                    }}
+                    className={`flex items-center justify-between px-2.5 py-2.5 rounded-xl cursor-pointer transition-all ${
+                      theme === "dark"
+                        ? "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-black border border-indigo-500/30 shadow-xs"
+                        : "hover:bg-muted text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 flex items-center justify-center">
+                        <Moon className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col text-start">
+                        <span className="text-xs font-bold leading-tight">{isRtl ? "داكن" : "Dark"}</span>
+                        <span className="text-[10px] text-muted-foreground leading-tight">{isRtl ? "مظهر ليلي مريح للعين" : "Night dark theme"}</span>
+                      </div>
+                    </div>
+                    {theme === "dark" && <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400 ms-2 shrink-0" />}
+                  </DropdownMenuItem>
+
+                  {/* فاتح (Light) */}
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setTheme("light");
+                      toast({
+                        title: isRtl ? "تم تفعيل الوضع الفاتح ☀️" : "Light Mode Activated ☀️",
+                        description: isRtl ? "مظهر ناصع ومشرق مناسب للقراءة بوضوح." : "Crisp and bright appearance."
+                      });
+                    }}
+                    className={`flex items-center justify-between px-2.5 py-2.5 rounded-xl cursor-pointer transition-all ${
+                      theme === "light"
+                        ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 font-black border border-amber-500/30 shadow-xs"
+                        : "hover:bg-muted text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                        <Sun className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col text-start">
+                        <span className="text-xs font-bold leading-tight">{isRtl ? "فاتح" : "Light"}</span>
+                        <span className="text-[10px] text-muted-foreground leading-tight">{isRtl ? "مظهر نهاري ساطع وواضح" : "Bright day theme"}</span>
+                      </div>
+                    </div>
+                    {theme === "light" && <Check className="w-4 h-4 text-amber-600 dark:text-amber-400 ms-2 shrink-0" />}
+                  </DropdownMenuItem>
+
+                  {/* تلقائي (System) */}
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setTheme("system");
+                      toast({
+                        title: isRtl ? "تم تفعيل الوضع التلقائي 💻" : "System Theme Activated 💻",
+                        description: isRtl ? "يتطابق المظهر تلقائياً مع إعدادات نظام جهازك." : "Matches your device system preference."
+                      });
+                    }}
+                    className={`flex items-center justify-between px-2.5 py-2.5 rounded-xl cursor-pointer transition-all ${
+                      theme === "system"
+                        ? "bg-primary/15 text-primary font-black border border-primary/30 shadow-xs"
+                        : "hover:bg-muted text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-6 h-6 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+                        <Monitor className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="flex flex-col text-start">
+                        <span className="text-xs font-bold leading-tight">{isRtl ? "تلقائي" : "System / Auto"}</span>
+                        <span className="text-[10px] text-muted-foreground leading-tight">{isRtl ? "حسب إعدادات النظام" : "Follows device mode"}</span>
+                      </div>
+                    </div>
+                    {theme === "system" && <Check className="w-4 h-4 text-primary ms-2 shrink-0" />}
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
 
               <DropdownMenuSeparator className="my-1.5" />
 
@@ -487,40 +609,11 @@ const NasherNewNotesPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Quick Language Toggle Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const nextLang = language === "ar" ? "en" : "ar";
-              setLanguage(nextLang);
-              toast({
-                title: nextLang === "ar" ? "تم تغيير اللغة إلى العربية 🌐" : "Language switched to English 🌐"
-              });
-            }}
-            className="h-10 px-3 rounded-2xl border-2 border-border/80 bg-card hover:bg-muted font-black text-xs gap-1.5 shadow-xs cursor-pointer"
-          >
-            <Globe className="w-4 h-4 text-cyan-600" />
-            <span>{language === "ar" ? "English" : "العربية"}</span>
-          </Button>
+          {/* Language Selector */}
+          <LanguageSelectorDropdown className="h-10 px-3 text-xs bg-card/90 hover:bg-muted border-2 border-border/80 rounded-2xl font-black text-foreground tracking-wide shadow-xs" />
 
-          {/* Quick Theme Toggle Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const nextTheme = theme === "dark" ? "light" : "dark";
-              setTheme(nextTheme);
-              toast({
-                title: nextTheme === "dark" 
-                  ? (isRtl ? "تم تفعيل الوضع الداكن 🌙" : "Dark Mode Activated 🌙") 
-                  : (isRtl ? "تم تفعيل الوضع الفاتح ☀️" : "Light Mode Activated ☀️")
-              });
-            }}
-            className="h-10 w-10 p-0 rounded-2xl border-2 border-border/80 bg-card hover:bg-muted shadow-xs flex items-center justify-center cursor-pointer"
-          >
-            {theme === "dark" ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-blue-500" />}
-          </Button>
+          {/* Theme Toggle (Dark / Light / System) */}
+          <ThemeToggle className="h-10 w-10 p-0 rounded-2xl bg-card/90 hover:bg-muted border-2 border-border/80 shadow-xs" />
         </div>
       </header>
 

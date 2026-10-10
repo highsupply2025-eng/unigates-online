@@ -6,6 +6,7 @@ import {
   BookSaleRecord, 
   PayoutRequest 
 } from "@/types/nashr";
+import { NashrFileStore } from "./nashrFileStore";
 
 const STORAGE_KEYS = {
   CURRENT_AUTHOR: "nashr_current_author",
@@ -890,17 +891,81 @@ export class NashrDataStore {
     }
   }
 
+  static pruneAuthorForStorage(author: AuthorProfile): AuthorProfile {
+    if (!author) return author;
+    const isLarge = (str?: string) => Boolean(str && (str.length > 5000 || str.startsWith("data:application") || str.startsWith("data:image")));
+    
+    const qualDocs = (author.qualificationDocuments || []).map((doc, idx) => {
+      const docId = doc.id || `qual-${author.id}-${idx}`;
+      return {
+        ...doc,
+        id: docId,
+        url: isLarge(doc.url) ? `idb:${docId}` : doc.url
+      };
+    });
+
+    return {
+      ...author,
+      avatarUrl: isLarge(author.avatarUrl) ? `idb:av-${author.id}` : author.avatarUrl,
+      nationalIdUrl: isLarge(author.nationalIdUrl) ? `idb:id-${author.id}` : author.nationalIdUrl,
+      qualificationDocuments: qualDocs,
+      qualificationUrls: qualDocs.map(d => d.url)
+    };
+  }
+
   static saveAuthorProfile(profile: AuthorProfile): void {
-    localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(profile));
+    // 1. Asynchronously persist all document and image files into IndexedDB
+    try {
+      const itemsToSave: { id: string; url: string }[] = [];
+      if (profile.avatarUrl && profile.avatarUrl.length > 500) {
+        itemsToSave.push({ id: `av-${profile.id}`, url: profile.avatarUrl });
+      }
+      if (profile.nationalIdUrl && profile.nationalIdUrl.length > 500) {
+        itemsToSave.push({ id: `id-${profile.id}`, url: profile.nationalIdUrl });
+      }
+      profile.qualificationDocuments?.forEach(doc => {
+        if (doc.id && doc.url && doc.url.length > 500) {
+          itemsToSave.push({ id: doc.id, url: doc.url });
+        }
+      });
+      if (itemsToSave.length > 0) {
+        NashrFileStore.saveFiles(itemsToSave).catch(e => console.warn("[saveAuthorProfile] fileStore:", e));
+      }
+    } catch (e) {
+      console.warn("[saveAuthorProfile] file persistence warning:", e);
+    }
+
+    // 2. Safely store CURRENT_AUTHOR (fallback to pruned if quota exceeded)
+    try {
+      localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(profile));
+    } catch (e) {
+      console.warn("[saveAuthorProfile] Quota exceeded on CURRENT_AUTHOR, falling back to pruned:", e);
+      try {
+        const pruned = this.pruneAuthorForStorage(profile);
+        localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(pruned));
+      } catch (err2) {
+        console.error("[saveAuthorProfile] Fallback save failed:", err2);
+      }
+    }
+
+    // 3. Save to ALL_AUTHORS (always pruned so ALL_AUTHORS stays compact and never hits quota)
     try {
       const all = this.getAllAuthors();
+      const prunedForList = this.pruneAuthorForStorage(profile);
       const idx = all.findIndex(a => a.id === profile.id);
       if (idx !== -1) {
-        all[idx] = profile;
+        all[idx] = prunedForList;
       } else {
-        all.unshift(profile);
+        all.unshift(prunedForList);
       }
-      localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(all));
+      const prunedAll = all.map(a => this.pruneAuthorForStorage(a));
+      try {
+        localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(prunedAll));
+      } catch (quotaErr) {
+        console.warn("[saveAuthorProfile] Quota exceeded on ALL_AUTHORS, keeping recent authors:", quotaErr);
+        const compactAll = prunedAll.slice(0, 10);
+        localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(compactAll));
+      }
     } catch (e) {
       console.error(e);
     }

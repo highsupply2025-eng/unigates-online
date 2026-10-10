@@ -49,6 +49,7 @@ import {
   generateSampleAuthorAvatarSvg, 
   generateSampleCertificateSvg 
 } from "@/services/nashrDataStore";
+import { NashrFileStore } from "@/services/nashrFileStore";
 
 const ACADEMIC_TITLES = [
   { value: "prof", labelAr: "أ.د. / أستاذ دكتور", labelEn: "Prof. Dr." },
@@ -254,16 +255,43 @@ const NasherSignup = () => {
     });
   };
 
+  const MAX_QUALIFICATION_FILES = 20;
+
   const handleQualificationSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    if (qualificationFiles.length >= MAX_QUALIFICATION_FILES) {
+      toast({
+        title: isRtl ? "تم الوصول للحد الأقصى (20 ملف)" : "Maximum Limit Reached (20 Files)",
+        description: isRtl 
+          ? "تتسع هذه الخانة حتى 20 ملفاً لشهادات البكالوريوس والماجستير والدكتوراه والمؤهلات الأكاديمية."
+          : "This section accommodates up to 20 degree & qualification documents.",
+        variant: "destructive"
+      });
+      if (e.target) e.target.value = "";
+      return;
+    }
+
+    const remainingSlots = MAX_QUALIFICATION_FILES - qualificationFiles.length;
+    const filesList = Array.from(files);
+    const filesToProcess = filesList.slice(0, remainingSlots);
+
+    if (filesList.length > remainingSlots) {
+      toast({
+        title: isRtl ? "تنبيه سعة الملفات" : "File Capacity Alert",
+        description: isRtl 
+          ? `تم قبول أول ${remainingSlots} ملفات للوصول للحد الأقصى المسموح (20 ملف).` 
+          : `Only first ${remainingSlots} files accepted to reach the 20 files limit.`,
+      });
+    }
+
     const newDocs: UploadedDoc[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const f = files[i];
+    for (let i = 0; i < filesToProcess.length; i++) {
+      const f = filesToProcess[i];
       const url = await readFileAsDataUrl(f);
       newDocs.push({
-        id: `qual-${Date.now()}-${i}`,
+        id: `qual-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`,
         name: f.name,
         url,
         size: `${(f.size / (1024 * 1024)).toFixed(2)} MB`,
@@ -272,10 +300,17 @@ const NasherSignup = () => {
     }
 
     setQualificationFiles((prev) => [...prev, ...newDocs]);
+    const totalCount = qualificationFiles.length + newDocs.length;
     toast({
-      title: isRtl ? `تم إرفاق ${newDocs.length} من ملفات المؤهل الأكاديمي` : `Attached ${newDocs.length} Qualification Documents`,
-      description: isRtl ? "يمكنك إضافة المزيد من ملفات أو شهادات المؤهلات (PDF أو Word أو صور)" : "You can add more qualification files (PDF, Word, or Images)",
+      title: isRtl 
+        ? `تم إرفاق ${newDocs.length} من ملفات المؤهل والشهادات (${totalCount} / 20)`
+        : `Attached ${newDocs.length} Qualification Documents (${totalCount} / 20)`,
+      description: isRtl 
+        ? `تتسع الخانة حتى 20 ملفاً. المتبقي: ${MAX_QUALIFICATION_FILES - totalCount} ملفات.`
+        : `Up to 20 files allowed. Remaining: ${MAX_QUALIFICATION_FILES - totalCount} slots.`,
     });
+
+    if (e.target) e.target.value = "";
   };
 
   const removeQualification = (id: string) => {
@@ -419,6 +454,17 @@ const NasherSignup = () => {
         joinedDate: new Date().toISOString().split("T")[0]
       };
 
+      // Save to IndexedDB file storage first
+      try {
+        await NashrFileStore.saveFiles([
+          ...(avatarFile ? [{ id: `av-${newProfile.id}`, url: avatarFile.url }] : []),
+          ...(nationalIdFile ? [{ id: `id-${newProfile.id}`, url: nationalIdFile.url }] : []),
+          ...qualificationFiles.map(q => ({ id: q.id, url: q.url }))
+        ]);
+      } catch (fErr) {
+        console.warn("[NasherSignup] IndexedDB saveFiles warning:", fErr);
+      }
+
       // Save to store
       NashrDataStore.saveAuthorProfile(newProfile);
 
@@ -434,9 +480,10 @@ const NasherSignup = () => {
           : `Welcome ${newProfile.fullName}. Temporary password generated.`
       });
     } catch (err: any) {
+      console.error("[NasherSignup] Signup error:", err);
       toast({
         title: isRtl ? "حدث خطأ" : "Error",
-        description: isRtl ? "يرجى المحاولة مرة أخرى." : "Please try again.",
+        description: isRtl ? (err?.message || "يرجى المحاولة مرة أخرى.") : "Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -1085,19 +1132,17 @@ const NasherSignup = () => {
 
                     </div>
 
-                    {/* Upload 3: Academic Qualifications (Supports Multiple Files: PDF, Word, Images) */}
+                    {/* Upload 3: Academic Qualifications (Supports Up to 20 Files: PDF, Word, Images) */}
                     <div className="p-4 sm:p-5 rounded-2xl bg-muted/20 border-2 border-dashed border-border/80 hover:border-amber-500/50 transition-all space-y-3">
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
                           <GraduationCap className="w-4 h-4 text-purple-500" />
-                          <span>{isRtl ? "3. المؤهل الأكاديمي والشهادات (ملفات PDF، Word، أو صور)" : "3. Academic Qualification(s) & Degree Certificates (PDF, Word, or Images)"}</span>
+                          <span>{isRtl ? "3. المؤهل الأكاديمي والشهادات (حتى 20 ملف PDF، Word، أو صور)" : "3. Academic Qualification(s) & Degree Certificates (Up to 20 Files: PDF, Word, Images)"}</span>
                           <span className="text-destructive font-black">*</span>
                         </Label>
-                        {qualificationFiles.length > 0 && (
-                          <Badge className="bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30 text-[10px] font-black">
-                            {isRtl ? `${qualificationFiles.length} مستندات مرفقة` : `${qualificationFiles.length} Files`}
-                          </Badge>
-                        )}
+                        <Badge className={`${qualificationFiles.length >= 20 ? "bg-amber-500 text-white" : "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30"} text-[10px] font-black`}>
+                          {isRtl ? `${qualificationFiles.length} / 20 ملف` : `${qualificationFiles.length} / 20 Files`}
+                        </Badge>
                       </div>
 
                       <input 
@@ -1111,8 +1156,19 @@ const NasherSignup = () => {
 
                       {/* Upload Button Box */}
                       <div 
-                        onClick={() => qualificationInputRef.current?.click()}
-                        className="cursor-pointer py-3.5 px-4 rounded-xl bg-background/60 hover:bg-purple-500/5 border border-border flex items-center justify-between transition-all group"
+                        onClick={() => {
+                          if (qualificationFiles.length >= 20) {
+                            toast({
+                              title: isRtl ? "تم الوصول للحد الأقصى (20 ملف)" : "Maximum Limit Reached (20 Files)",
+                              description: isRtl ? "لقد قمت بإرفاق 20 ملفاً بالفعل. يمكنك حذف أي ملف لاستبداله." : "You have already attached 20 files.",
+                            });
+                            return;
+                          }
+                          qualificationInputRef.current?.click();
+                        }}
+                        className={`cursor-pointer py-3.5 px-4 rounded-xl bg-background/60 hover:bg-purple-500/5 border border-border flex items-center justify-between transition-all group ${
+                          qualificationFiles.length >= 20 ? "opacity-75" : ""
+                        }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-xl bg-purple-500/10 group-hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center transition-transform group-hover:scale-105">
@@ -1120,15 +1176,21 @@ const NasherSignup = () => {
                           </div>
                           <div>
                             <span className="text-xs font-bold text-foreground block group-hover:text-purple-600 transition-colors">
-                              {isRtl ? "إضافة شهادة البكالوريوس / الماجستير / الدكتوراه (PDF أو Word أو صور)" : "Add Degree / Certificate Files (PDF, Word, Images)"}
+                              {isRtl ? "إضافة شهادات البكالوريوس / الماجستير / الدكتوراه (حتى 20 ملفاً)" : "Add Degree / Certificate Files (Up to 20 Files)"}
                             </span>
                             <span className="text-[10px] text-muted-foreground">
-                              {isRtl ? "يمكنك إرفاق ملفات PDF، مستندات Word (doc, docx)، أو صور متعددة معاً" : "Upload PDF, Word (doc/docx), or multiple images simultaneously"}
+                              {isRtl ? "تتسع هذه الخانة حتى 20 ملفاً معاً: شهادات PDF، مستندات Word (doc, docx)، أو صور" : "Upload up to 20 files simultaneously: PDF, Word (doc/docx), or images"}
                             </span>
                           </div>
                         </div>
 
-                        <Button type="button" size="sm" variant="outline" className="h-8 text-xs font-bold gap-1 rounded-lg border-purple-500/30 text-purple-600 dark:text-purple-400">
+                        <Button 
+                          type="button" 
+                          size="sm" 
+                          variant="outline" 
+                          disabled={qualificationFiles.length >= 20}
+                          className="h-8 text-xs font-bold gap-1 rounded-lg border-purple-500/30 text-purple-600 dark:text-purple-400"
+                        >
                           <Upload className="w-3.5 h-3.5" />
                           <span>{isRtl ? "إرفاق ملفات / صور" : "Upload Files / Images"}</span>
                         </Button>

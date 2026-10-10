@@ -122,6 +122,8 @@ export const usePlatformStats = (
           lecturers: Number(s.lecturers) || 0,
           students,
           universityStudents: students,
+          trainingCenters: Number(s.training_centers) || 0,
+          languageCenters: Number(s.language_centers) || 0,
         };
       }
 

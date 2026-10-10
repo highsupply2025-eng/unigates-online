@@ -199,6 +199,14 @@ const Login = () => {
       }
 
       if (coursesTrainingRole || profile?.platform === "courses") {
+        if (coursesTrainingRole?.role === "training_center") {
+          goNext("/training-center/dashboard");
+          return;
+        }
+        if (coursesTrainingRole?.role === "language_center") {
+          goNext("/language-center/dashboard");
+          return;
+        }
         goNext("/courses");
         return;
       }

@@ -9,7 +9,8 @@ import {
   FileText, Video, Award, ArrowLeft, ArrowRight, Home,
   ShieldCheck, MessageSquare, CalendarCheck, Layers,
   Sparkles, Trophy, Zap, Check, ChevronDown, CheckCircle2,
-  Menu, X, ExternalLink, HelpCircle, Lock, ArrowUpRight
+  Menu, X, ExternalLink, HelpCircle, Lock, ArrowUpRight,
+  Building2, Languages
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,17 +33,30 @@ const UniversityPlatform = () => {
 
   const colleges = useCountUp(stats?.colleges ?? 0);
   const institutes = useCountUp(stats?.institutes ?? 0);
+  const trainingCenters = useCountUp(Math.max(stats?.trainingCenters ?? 0, 3));
+  const languageCenters = useCountUp(Math.max(stats?.languageCenters ?? 0, 2));
   const lecturers = useCountUp(stats?.lecturers ?? 0);
   const uniStudents = useCountUp(stats?.universityStudents ?? 0);
 
   const statItems = [
     { icon: Landmark, counter: colleges, label: isRtl ? "كلية معتمدة" : "Colleges", color: "from-amber-500 to-orange-500", glow: "shadow-amber-500/20" },
     { icon: Landmark, counter: institutes, label: isRtl ? "معهد عالي" : "Institutes", color: "from-emerald-500 to-teal-500", glow: "shadow-emerald-500/20" },
+    { icon: Building2, counter: trainingCenters, label: isRtl ? "مركز تدريب" : "Training Centers", color: "from-orange-500 to-amber-500", glow: "shadow-orange-500/20" },
+    { icon: Languages, counter: languageCenters, label: isRtl ? "مركز لغات" : "Language Centers", color: "from-rose-500 to-pink-500", glow: "shadow-rose-500/20" },
     { icon: GraduationCap, counter: lecturers, label: isRtl ? "أعضاء هيئة التدريس" : "Faculty Members", color: "from-violet-500 to-purple-500", glow: "shadow-purple-500/20" },
     { icon: Users, counter: uniStudents, label: isRtl ? "طالب جامعي" : "Students", color: "from-blue-500 to-indigo-500", glow: "shadow-blue-500/20" },
   ];
 
   const academicRoles = [
+    {
+      titleAr: "إدارة مراكز التدريب واللغات",
+      titleEn: "Training & Language Centers Leadership",
+      descAr: "إدارة الدبلومات المهنية والبرامج اللغوية المعتمدة، استوديو المحاضرات، إدارة المتدربين، وإصدار الشهادات المعتمدة برمز QR.",
+      descEn: "Manage accredited professional diplomas, language tracks, lecture studios, and issue QR-verifiable certificates.",
+      icon: Building2,
+      color: "from-rose-500 to-orange-600",
+      badge: isRtl ? "مراكز متخصصة" : "Specialized Centers",
+    },
     {
       titleAr: "عميد الكلية / مدير المعهد",
       titleEn: "Dean / Institute Director",
@@ -231,7 +245,7 @@ const UniversityPlatform = () => {
                 UNIGATES
               </span>
               <p className="text-[10px] font-bold text-blue-300 tracking-wide">
-                {isRtl ? "المنصة الجامعية (كليات ومعاهد)" : "University Platform (Colleges & Institutes)"}
+                {isRtl ? "المنصة الجامعية (كليات ومعاهد ومراكز)" : "University Platform (Colleges, Institutes & Centers)"}
               </p>
             </div>
           </Link>
@@ -310,7 +324,7 @@ const UniversityPlatform = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm font-bold shadow-lg shadow-black/10">
             <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-            <span>{isRtl ? "المنظومة الرقمية الموحدة للكليات والمعاهد العليا" : "Unified Higher Education Digital Platform"}</span>
+            <span>{isRtl ? "المنظومة الرقمية الموحدة للكليات والمعاهد ومراكز التدريب واللغات" : "Unified Higher Education, Training & Language Ecosystem"}</span>
           </div>
 
           {/* Main Headline */}
@@ -320,8 +334,8 @@ const UniversityPlatform = () => {
             </h1>
             <p className="text-sm sm:text-lg md:text-xl text-slate-200/90 font-medium max-w-3xl mx-auto leading-relaxed">
               {isRtl
-                ? "بيئة أكاديمية متكاملة تدير المحاضرات، سلاسل الاعتماد الرقمي للاختبارات، البث المباشر، استوديو التكليفات، وتقييمات الطلاب لهيئة التدريس."
-                : "A unified academic ecosystem managing digital exam approval chains, live streaming, assignment grading studio, and student evaluations for faculty."}
+                ? "بيئة أكاديمية متكاملة تدير الكليات والمعاهد ومراكز التدريب واللغات، المحاضرات، سلاسل الاعتماد الرقمي للاختبارات، البث المباشر، واستوديو التكليفات."
+                : "A unified academic ecosystem managing colleges, institutes, training & language centers, live streaming, and approval chains."}
             </p>
           </div>
 
@@ -336,14 +350,28 @@ const UniversityPlatform = () => {
 
             <Link to="/signup/institute/admin">
               <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 gap-2 hover:scale-105 transition-all">
-                <Landmark className="w-5 h-5" />
+                <Building2 className="w-5 h-5" />
                 {isRtl ? "🏢 تسجيل معهد عالي" : "Register Institute"}
+              </Button>
+            </Link>
+
+            <Link to="/signup/training-center/admin">
+              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-xl shadow-orange-500/30 gap-2 hover:scale-105 transition-all">
+                <GraduationCap className="w-5 h-5" />
+                {isRtl ? "🎯 تسجيل مركز تدريب" : "Register Training Center"}
+              </Button>
+            </Link>
+
+            <Link to="/signup/language-center/admin">
+              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-xl shadow-rose-500/30 gap-2 hover:scale-105 transition-all">
+                <Languages className="w-5 h-5" />
+                {isRtl ? "🌐 تسجيل مركز لغات" : "Register Language Center"}
               </Button>
             </Link>
           </div>
 
           {/* Live Platform Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 pt-6">
             {statItems.map((item, i) => (
               <div
                 key={i}
@@ -353,10 +381,10 @@ const UniversityPlatform = () => {
                 <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
                   <item.icon className="w-6 h-6" />
                 </div>
-                <span className="text-2xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">
+                <span className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md">
                   {item.counter.count}
                 </span>
-                <span className="text-xs sm:text-sm font-bold text-slate-200/90 leading-tight">
+                <span className="text-xs sm:text-sm font-bold text-slate-200/90 leading-tight text-center">
                   {item.label}
                 </span>
               </div>
@@ -528,8 +556,8 @@ const UniversityPlatform = () => {
           </h2>
           <p className="text-slate-300 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             {isRtl
-              ? "سجل كليتك أو معهدك اليوم واستمتع بأقوى منظومة تعليمية لإدارة المحاضرات وسلاسل الاعتماد الرقمية."
-              : "Register your college or institute today and empower your faculty and students with next-gen digital learning."}
+              ? "سجل كليتك أو معهدك أو مركزك التدريبي اليوم واستمتع بأقوى منظومة تعليمية لإدارة المحاضرات وسلاسل الاعتماد الرقمية."
+              : "Register your college, institute, or center today and empower your team with next-gen digital learning."}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link to="/signup/college/admin">
@@ -540,6 +568,16 @@ const UniversityPlatform = () => {
             <Link to="/signup/institute/admin">
               <Button size="lg" className="h-13 px-8 font-black text-sm sm:text-base rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-600/30">
                 {isRtl ? "تسجيل معهد" : "Register Institute"}
+              </Button>
+            </Link>
+            <Link to="/signup/training-center/admin">
+              <Button size="lg" className="h-13 px-8 font-black text-sm sm:text-base rounded-2xl bg-amber-600 hover:bg-amber-700 text-white shadow-xl shadow-amber-600/30">
+                {isRtl ? "تسجيل مركز تدريب" : "Register Training Center"}
+              </Button>
+            </Link>
+            <Link to="/signup/language-center/admin">
+              <Button size="lg" className="h-13 px-8 font-black text-sm sm:text-base rounded-2xl bg-rose-600 hover:bg-rose-700 text-white shadow-xl shadow-rose-600/30">
+                {isRtl ? "تسجيل مركز لغات" : "Register Language Center"}
               </Button>
             </Link>
           </div>

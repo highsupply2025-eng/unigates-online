@@ -68,6 +68,7 @@ import {
   printOfficialInvoiceOrReceipt,
   compressAndProcessReceiptFile 
 } from "@/services/nashrReceiptHelper";
+import { downloadDocumentProperly, openDocumentInNewTabProperly } from "@/utils/documentDownloadHelper";
 
 function dataUrlToBlob(dataUrl: string): Blob {
   try {
@@ -243,31 +244,15 @@ export const AdminDashboard = () => {
         if (fromStore) resolvedUrl = fromStore;
       }
 
-      if (resolvedUrl.startsWith("data:")) {
-        const blob = dataUrlToBlob(resolvedUrl);
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = blobUrl;
-        a.download = filename || "document.svg";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-        toast({
-          title: isRtl ? "تم بدء تحميل الوثيقة بنجاح" : "Download Started",
-          description: filename || "document"
-        });
-        return;
-      }
-
-      const a = document.createElement("a");
-      a.href = resolvedUrl;
-      a.download = filename || "document";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
       toast({
-        title: isRtl ? "تم بدء تحميل الوثيقة بنجاح" : "Download Started",
+        title: isRtl ? "جاري تحضير وتحميل الوثيقة..." : "Preparing Download...",
+        description: filename || "document"
+      });
+
+      await downloadDocumentProperly(resolvedUrl, filename || "document.pdf");
+
+      toast({
+        title: isRtl ? "✅ تم تحميل الوثيقة بنجاح" : "Downloaded Successfully",
         description: filename || "document"
       });
     } catch (e) {
@@ -276,22 +261,15 @@ export const AdminDashboard = () => {
     }
   };
 
-  const handleOpenInNewTab = (url: string, filename?: string) => {
+  const handleOpenInNewTab = async (url: string, filename?: string) => {
     try {
-      if (url.startsWith("data:")) {
-        const blob = dataUrlToBlob(url);
-        const blobUrl = URL.createObjectURL(blob);
-        const newTab = window.open(blobUrl, "_blank");
-        if (!newTab) {
-          toast({
-            title: isRtl ? "تنبيه المتصفح" : "Browser Notice",
-            description: isRtl ? "يرجى السماح بالنوافذ المنبثقة لمعاينة المستند في نافذة جديدة." : "Please allow popups to open document.",
-            variant: "destructive"
-          });
-        }
-        return;
+      let resolvedUrl = url;
+      if (url && url.startsWith("idb:")) {
+        const id = url.replace("idb:", "");
+        const fromStore = await NashrFileStore.getFile(id);
+        if (fromStore) resolvedUrl = fromStore;
       }
-      window.open(url, "_blank");
+      await openDocumentInNewTabProperly(resolvedUrl, filename);
     } catch (e) {
       console.error("[AdminDashboard] Open in new tab error:", e);
       window.open(url, "_blank");

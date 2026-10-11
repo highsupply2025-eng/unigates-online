@@ -569,121 +569,243 @@ export function generateSampleAuthorAvatarSvg(fullName?: string, academicTitle?:
 }
 
 export function generateSampleNationalIdCardSvg(fullName?: string, authorCode?: string, specialization?: string): string {
-  const safeName = (fullName || "د. السيد محمد عبيد").trim();
-  const safeCode = (authorCode || "AUT-3111").replace(/\D/g, "") || "3111";
-  const nationalIdNum = `2850915010${safeCode.padStart(4, "0").slice(-4)}`;
+  const safeName = (fullName || "د. ايمن احمد محمد الدلوع").trim();
+  const safeCode = (authorCode || "AUT-4714").replace(/\D/g, "") || "4714";
+  // Egyptian National ID standard: 14 digits
+  // 2 (century 1900-1999) + 85 (year 1985) + 09 (month 09) + 15 (day 15) + 01 (Cairo gov code) + 4-digit serial + check digit
+  const serial = safeCode.padStart(4, "0").slice(-4);
+  const nationalIdNum = `2850915010${serial}`;
   const specText = (specialization || "عضو هيئة تدريس - باحث أكاديمي").trim();
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 856 540" width="100%" height="100%">
   <defs>
-    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#eaf5f2" />
-      <stop offset="50%" stop-color="#f4faf8" />
-      <stop offset="100%" stop-color="#e2f0ec" />
+    <!-- Egyptian ID Card Authentic Pastel Peach / Cream Security Gradient -->
+    <linearGradient id="egyptIdBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff9f3" />
+      <stop offset="35%" stop-color="#fef3e7" />
+      <stop offset="70%" stop-color="#fae7d6" />
+      <stop offset="100%" stop-color="#fdf1e4" />
     </linearGradient>
-    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#047857" />
-      <stop offset="50%" stop-color="#065f46" />
-      <stop offset="100%" stop-color="#047857" />
+
+    <!-- Header Subtle Tint Gradient -->
+    <linearGradient id="headerTint" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#f5e1ce" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#faebd7" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#f5e1ce" stop-opacity="0.8" />
     </linearGradient>
-    <linearGradient id="goldSeal" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fbbf24" />
-      <stop offset="50%" stop-color="#d97706" />
-      <stop offset="100%" stop-color="#b45309" />
+
+    <!-- Eagle of Saladin True Gold Gradient -->
+    <linearGradient id="eagleGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047" />
+      <stop offset="30%" stop-color="#eab308" />
+      <stop offset="70%" stop-color="#ca8a04" />
+      <stop offset="100%" stop-color="#a16207" />
     </linearGradient>
-    <pattern id="guilloche" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 0 20 Q 20 0, 40 20 T 80 20" fill="none" stroke="#10b981" stroke-width="0.35" opacity="0.18"/>
-      <path d="M 0 20 Q 20 40, 40 20 T 80 20" fill="none" stroke="#059669" stroke-width="0.35" opacity="0.18"/>
+
+    <!-- Authentic Egyptian Security Guilloche Pattern (Fine Pink & Cyan waves) -->
+    <pattern id="egyptGuilloche" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 0 30 Q 15 10, 30 30 T 60 30" fill="none" stroke="#f472b6" stroke-width="0.4" opacity="0.18"/>
+      <path d="M 0 30 Q 15 50, 30 30 T 60 30" fill="none" stroke="#38bdf8" stroke-width="0.4" opacity="0.16"/>
+      <path d="M 30 0 Q 10 15, 30 30 T 30 60" fill="none" stroke="#fb923c" stroke-width="0.3" opacity="0.14"/>
+      <circle cx="30" cy="30" r="18" fill="none" stroke="#ec4899" stroke-width="0.3" opacity="0.10" stroke-dasharray="2 2"/>
     </pattern>
-    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="110%">
-      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.25"/>
+
+    <filter id="cardShadow" x="-3%" y="-3%" width="106%" height="106%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#1e293b" flood-opacity="0.22"/>
     </filter>
   </defs>
 
   <style>
+    .ar-title { font-family: 'Traditional Arabic', 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 900; direction: rtl; }
     .ar-bold { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 800; direction: rtl; }
-    .ar-reg { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 600; direction: rtl; }
-    .mono { font-family: 'Consolas', 'Courier New', monospace; font-weight: 800; }
+    .ar-data { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 700; direction: rtl; }
+    .ar-lbl { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-weight: 600; direction: rtl; fill: #64748b; font-size: 13px; }
+    .ocr-num { font-family: 'Consolas', 'Courier New', monospace; font-weight: 900; }
   </style>
 
-  <!-- Card Border & Background -->
-  <rect x="6" y="6" width="844" height="528" rx="28" fill="url(#cardBg)" stroke="#059669" stroke-width="3" filter="url(#cardShadow)"/>
-  <rect x="14" y="14" width="828" height="512" rx="22" fill="url(#guilloche)"/>
+  <!-- Card Body with Rounded Corners & Security Border -->
+  <rect x="8" y="8" width="840" height="524" rx="26" fill="url(#egyptIdBg)" stroke="#d97706" stroke-width="1.8" filter="url(#cardShadow)"/>
+  <rect x="14" y="14" width="828" height="512" rx="22" fill="url(#egyptGuilloche)"/>
 
-  <!-- Official Header Bar -->
-  <path d="M 14 36 Q 14 14 36 14 L 820 14 Q 842 14 842 36 L 842 85 L 14 85 Z" fill="url(#headerGrad)"/>
-
-  <!-- Eagle of Saladin Crest (Center) -->
-  <g transform="translate(428, 48)">
-    <circle cx="0" cy="0" r="28" fill="url(#goldSeal)" stroke="#ffffff" stroke-width="1.5" />
-    <path d="M -12 -12 L 0 -22 L 12 -12 L 10 10 L 0 16 L -10 10 Z" fill="#ffffff" opacity="0.95"/>
-    <rect x="-6" y="-6" width="12" height="14" fill="#d97706" rx="2" />
+  <!-- Faint Background Security Watermark (Eagle of Saladin) -->
+  <g transform="translate(480, 240) scale(3.2)" opacity="0.06">
+    <path d="M 0 -35 L 12 -15 L 30 -12 L 20 10 L 25 35 L 0 25 L -25 35 L -20 10 L -30 -12 L -12 -15 Z" fill="#0f172a" />
   </g>
 
-  <!-- Header Text -->
-  <text x="815" y="46" class="ar-bold" font-size="22" fill="#ffffff" text-anchor="start">جمهورية مصر العربية</text>
-  <text x="815" y="70" class="ar-reg" font-size="14" fill="#a7f3d0" text-anchor="start">وزارة الداخلية • قطاع مصلحة الأحوال المدنية</text>
+  <!-- Top Header Underlay Strip -->
+  <rect x="14" y="14" width="828" height="88" rx="20" fill="url(#headerTint)"/>
+  <line x1="20" y1="102" x2="836" y2="102" stroke="#d97706" stroke-width="1.2" opacity="0.6"/>
 
-  <text x="40" y="46" class="ar-bold" font-size="20" fill="#ffffff" text-anchor="start">بطاقة تحقيق الشخصية</text>
-  <text x="40" y="68" class="mono" font-size="13" fill="#fbbf24" text-anchor="start">NATIONAL IDENTITY CARD</text>
-
-  <line x1="20" y1="92" x2="836" y2="92" stroke="#059669" stroke-width="2" />
-
-  <!-- Smart Chip -->
-  <g transform="translate(50, 130)">
-    <rect x="0" y="0" width="76" height="60" rx="10" fill="url(#goldSeal)" stroke="#b45309" stroke-width="1.5" />
-    <line x1="0" y1="30" x2="76" y2="30" stroke="#78350f" stroke-width="1" />
-    <line x1="38" y1="0" x2="38" y2="60" stroke="#78350f" stroke-width="1" />
-    <circle cx="38" cy="30" r="12" fill="none" stroke="#78350f" stroke-width="1.2" />
+  <!-- Official Egyptian Golden Eagle of Saladin Crest (Center Top) -->
+  <g transform="translate(428, 55)">
+    <!-- Eagle Body & Wings in Gold -->
+    <path d="M 0 -32 C 4 -32, 7 -29, 8 -25 C 10 -20, 16 -16, 24 -15 C 32 -13, 36 -6, 32 6 C 29 16, 22 28, 16 34 L 14 36 L 0 30 L -14 36 L -16 34 C -22 28, -29 16, -32 6 C -36 -6, -32 -13, -24 -15 C -16 -16, -10 -20, -8 -25 C -7 -29, -4 -32, 0 -32 Z" fill="url(#eagleGold)" stroke="#854d0e" stroke-width="1"/>
+    <!-- Eagle Head & Beak facing Right (viewer left) -->
+    <path d="M 0 -32 C -3 -35, -7 -34, -10 -31 C -12 -28, -8 -26, -5 -27 Z" fill="#ca8a04"/>
+    <!-- Egyptian Flag Tricolor Shield on Eagle's Chest (Red / White / Black) -->
+    <g transform="translate(-10, -10)">
+      <rect x="0" y="0" width="20" height="24" rx="3" fill="#ffffff" stroke="#78350f" stroke-width="0.8"/>
+      <rect x="0" y="0" width="20" height="8" rx="2" fill="#dc2626"/>
+      <rect x="0" y="16" width="20" height="8" rx="2" fill="#0f172a"/>
+      <!-- Tiny Eagle in White stripe -->
+      <circle cx="10" cy="12" r="2.5" fill="#ca8a04"/>
+    </g>
+    <!-- Base Ribbon / Scroll -->
+    <path d="M -24 35 Q 0 28 24 35 Q 12 40 -24 35 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="0.8"/>
   </g>
 
-  <!-- Author Photo Box -->
-  <g transform="translate(630, 115)">
-    <rect x="0" y="0" width="180" height="225" rx="16" fill="#1e293b" stroke="#059669" stroke-width="2.5" />
-    <circle cx="90" cy="85" r="45" fill="#f8fafc" />
-    <path d="M 30 195 C 30 145, 60 140, 90 140 C 120 140, 150 145, 150 195 Z" fill="#047857" />
-    <path d="M 80 140 L 90 165 L 100 140 Z" fill="#ffffff" />
-    <circle cx="140" cy="45" r="22" fill="none" stroke="#34d399" stroke-width="1.5" opacity="0.75" stroke-dasharray="3 3"/>
-    <text x="90" y="215" class="ar-bold" font-size="11" fill="#a7f3d0" text-anchor="middle">صورة معتمدة رقمياً</text>
+  <!-- Right Header (Official Egyptian Ministry of Interior Typography) -->
+  <g transform="translate(820, 36)">
+    <text x="0" y="0" class="ar-title" font-size="22" fill="#0f172a" text-anchor="start">جمهورية مصر العربية</text>
+    <text x="0" y="24" class="ar-bold" font-size="15" fill="#334155" text-anchor="start">وزارة الداخلية</text>
+    <text x="0" y="44" class="ar-data" font-size="12" fill="#64748b" text-anchor="start">قطاع مصلحة الأحوال المدنية</text>
   </g>
 
-  <!-- Data Fields -->
-  <g transform="translate(600, 125)">
-    <text x="0" y="24" class="ar-reg" font-size="13" fill="#047857" text-anchor="start">الاسم الكامل:</text>
-    <text x="0" y="58" class="ar-bold" font-size="24" fill="#0f172a" text-anchor="start">${safeName}</text>
-
-    <text x="0" y="98" class="ar-reg" font-size="13" fill="#047857" text-anchor="start">المهنة / الصفة الأكاديمية:</text>
-    <text x="0" y="126" class="ar-bold" font-size="17" fill="#1e293b" text-anchor="start">${specText}</text>
-
-    <text x="0" y="165" class="ar-reg" font-size="13" fill="#047857" text-anchor="start">محل الإقامة والتسجيل:</text>
-    <text x="0" y="190" class="ar-bold" font-size="16" fill="#334155" text-anchor="start">جمهورية مصر العربية • موثق بالمنظومة</text>
+  <!-- Left Header (Card Title) -->
+  <g transform="translate(42, 38)">
+    <text x="0" y="0" class="ar-bold" font-size="21" fill="#0f172a" text-anchor="start">بطاقة تحقيق شخصية</text>
+    <text x="0" y="22" class="ocr-num" font-size="11" fill="#b45309" letter-spacing="2" text-anchor="start">EGYPTIAN NATIONAL ID</text>
+    <text x="0" y="42" class="ar-lbl" font-size="11" fill="#64748b" text-anchor="start">وثيقة إثبات الهوية الرقمية المعتمدة</text>
   </g>
 
-  <!-- National ID Number Banner -->
-  <g transform="translate(428, 385)">
-    <rect x="-385" y="-22" width="770" height="48" rx="14" fill="#064e3b" stroke="#059669" stroke-width="2" />
-    <text x="350" y="10" class="ar-bold" font-size="16" fill="#a7f3d0" text-anchor="start">الرقم القومي:</text>
-    <text x="-350" y="12" class="mono" font-size="28" fill="#fbbf24" letter-spacing="8" text-anchor="start">${nationalIdNum}</text>
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- Left Section: Personal ID Photo Box with Formal Portrait -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <g transform="translate(45, 120)">
+    <!-- Photo Outer Frame -->
+    <rect x="0" y="0" width="185" height="240" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8"/>
+    <!-- Photo Background -->
+    <rect x="4" y="4" width="177" height="232" rx="6" fill="#e2e8f0"/>
+    
+    <!-- Formal Portrait (Author in Suit & Shirt) -->
+    <!-- Head / Face -->
+    <circle cx="92" cy="78" r="42" fill="#fed7aa"/>
+    <!-- Hair -->
+    <path d="M 52 74 C 52 38, 70 28, 92 28 C 114 28, 132 38, 132 74 C 122 62, 108 58, 92 58 C 76 58, 62 62, 52 74 Z" fill="#1e293b"/>
+    <!-- Eyes, Eyebrows & Glasses frame (Academic touch) -->
+    <rect x="68" y="70" width="18" height="12" rx="3" fill="none" stroke="#334155" stroke-width="1.5"/>
+    <rect x="98" y="70" width="18" height="12" rx="3" fill="none" stroke="#334155" stroke-width="1.5"/>
+    <line x1="86" y1="75" x2="98" y2="75" stroke="#334155" stroke-width="1.5"/>
+    <!-- Eyes -->
+    <circle cx="77" cy="76" r="2.5" fill="#0f172a"/>
+    <circle cx="107" cy="76" r="2.5" fill="#0f172a"/>
+    <!-- Gentle Smile -->
+    <path d="M 83 95 Q 92 100 101 95" fill="none" stroke="#9a3412" stroke-width="1.8" stroke-linecap="round"/>
+    
+    <!-- Neck -->
+    <rect x="80" y="112" width="24" height="22" fill="#fdba74"/>
+    
+    <!-- Dark Blue Academic Blazer / Suit -->
+    <path d="M 15 236 C 15 155, 45 130, 92 130 C 139 130, 169 155, 169 236 Z" fill="#1e293b"/>
+    <!-- White Collared Shirt -->
+    <polygon points="92,130 74,175 110,175" fill="#ffffff"/>
+    <!-- Burgundy Tie -->
+    <polygon points="92,145 87,220 92,230 97,220" fill="#991b1b"/>
+    <!-- Suit Lapels -->
+    <path d="M 50 148 L 74 195 L 72 236 Z" fill="#0f172a"/>
+    <path d="M 134 148 L 110 195 L 112 236 Z" fill="#0f172a"/>
+
+    <!-- Holographic Translucent Eagle Stamp on Photo (True Security Feature) -->
+    <g transform="translate(130, 190) scale(0.65)" opacity="0.45">
+      <circle cx="0" cy="0" r="30" fill="none" stroke="#38bdf8" stroke-width="2"/>
+      <path d="M 0 -22 L 8 -10 L 20 -8 L 14 7 L 16 22 L 0 15 L -16 22 L -14 7 L -20 -8 L -8 -10 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+    </g>
+
+    <!-- Under Photo Date / Security Code -->
+    <rect x="0" y="244" width="185" height="22" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="92" y="259" class="ocr-num" font-size="11" fill="#475569" text-anchor="middle">DOB: 15/09/1985</text>
   </g>
 
-  <!-- Machine Readable Zone (MRZ) -->
-  <g transform="translate(428, 455)">
-    <rect x="-385" y="-12" width="770" height="60" rx="10" fill="#0f172a" />
-    <text x="0" y="16" class="mono" font-size="16" fill="#94a3b8" letter-spacing="4" text-anchor="middle">
-      IDAR&lt;EGY&lt;${nationalIdNum}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;9
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- Center & Right Section: Authentic Egyptian Citizen Data     -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <g transform="translate(815, 130)">
+    
+    <!-- 1. Full Legal Name (الاسم الكامل) -->
+    <text x="0" y="16" class="ar-lbl">الاسم:</text>
+    <text x="0" y="52" class="ar-bold" font-size="25" fill="#0f172a" text-anchor="start">${safeName}</text>
+    <line x1="0" y1="64" x2="-550" y2="64" stroke="#e2e8f0" stroke-width="1"/>
+
+    <!-- 2. Address / Residence (العنوان ومحل الإقامة) -->
+    <g transform="translate(0, 80)">
+      <text x="0" y="10" class="ar-lbl">العنوان ومحل الإقامة:</text>
+      <text x="0" y="36" class="ar-data" font-size="17" fill="#1e293b" text-anchor="start">18 شارع النصر - الحي السابع</text>
+      <text x="0" y="62" class="ar-data" font-size="16" fill="#334155" text-anchor="start">قسم أول مدينة نصر - محافظة القاهرة</text>
+      <line x1="0" y1="74" x2="-550" y2="74" stroke="#e2e8f0" stroke-width="1"/>
+    </g>
+
+    <!-- 3. Profession & Academic Affiliation (المهنة / الصفة) -->
+    <g transform="translate(0, 170)">
+      <text x="0" y="10" class="ar-lbl">المهنة / العمل:</text>
+      <text x="0" y="36" class="ar-bold" font-size="17" fill="#047857" text-anchor="start">${specText}</text>
+      <text x="0" y="60" class="ar-data" font-size="13" fill="#64748b" text-anchor="start">عضو معتمد باتحاد الناشرين والجامعات المصرية</text>
+    </g>
+
+  </g>
+
+  <!-- Circular Civil Registry Security Stamp (ختم مصلحة الأحوال المدنية) -->
+  <g transform="translate(300, 310)" opacity="0.65">
+    <circle cx="0" cy="0" r="44" fill="none" stroke="#ca8a04" stroke-width="2"/>
+    <circle cx="0" cy="0" r="39" fill="none" stroke="#ca8a04" stroke-width="1" stroke-dasharray="4 2"/>
+    <text x="0" y="-12" class="ar-bold" font-size="9" fill="#854d0e" text-anchor="middle">مصلحة الأحوال المدنية</text>
+    <text x="0" y="4" class="ar-bold" font-size="11" fill="#a16207" text-anchor="middle">جمهورية مصر العربية</text>
+    <text x="0" y="18" class="ar-bold" font-size="9" fill="#854d0e" text-anchor="middle">وثيقة سارية قانوناً</text>
+  </g>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- Bottom Bar: Genuine 14-Digit Egyptian National ID & Barcode -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <g transform="translate(428, 452)">
+    <!-- High-Contrast Clean National ID Strip -->
+    <rect x="-395" y="-32" width="790" height="64" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8" filter="url(#cardShadow)"/>
+    <rect x="-391" y="-28" width="782" height="56" rx="12" fill="#fffbeb" stroke="#fef08a" stroke-width="1"/>
+    
+    <!-- Label on the Right -->
+    <text x="365" y="8" class="ar-bold" font-size="16" fill="#78350f" text-anchor="start">الرقم القومي:</text>
+    
+    <!-- Formatted 14-Digit National ID Number (Consolas OCR-B Font) -->
+    <!-- Format: 2 85 09 15 01 0471 4 -->
+    <text x="-365" y="10" class="ocr-num" font-size="33" fill="#0f172a" letter-spacing="11" text-anchor="start">
+      ${nationalIdNum.slice(0, 1)} ${nationalIdNum.slice(1, 3)} ${nationalIdNum.slice(3, 5)} ${nationalIdNum.slice(5, 7)} ${nationalIdNum.slice(7, 9)} ${nationalIdNum.slice(9, 13)} ${nationalIdNum.slice(13, 14) || "4"}
     </text>
-    <text x="0" y="38" class="mono" font-size="16" fill="#94a3b8" letter-spacing="4" text-anchor="middle">
-      8509153M3205188EGY&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;0
-    </text>
   </g>
 
-  <!-- Security Verification Watermark -->
-  <g transform="translate(180, 260)" opacity="0.85">
-    <circle cx="0" cy="0" r="38" fill="none" stroke="#059669" stroke-width="2" />
-    <circle cx="0" cy="0" r="34" fill="none" stroke="#059669" stroke-width="1" stroke-dasharray="4 2" />
-    <text x="0" y="-8" class="ar-bold" font-size="10" fill="#047857" text-anchor="middle">مصلحة الأحوال المدنية</text>
-    <text x="0" y="8" class="ar-bold" font-size="11" fill="#059669" text-anchor="middle">وثيقة سارية معتمدة</text>
-    <text x="0" y="22" class="mono" font-size="9" fill="#047857" text-anchor="middle">VERIFIED • OK</text>
+  <!-- Authentic Security Barcode at Bottom -->
+  <g transform="translate(428, 510)">
+    <!-- Barcode bars -->
+    <rect x="-340" y="-8" width="4" height="16" fill="#0f172a"/>
+    <rect x="-332" y="-8" width="8" height="16" fill="#0f172a"/>
+    <rect x="-320" y="-8" width="3" height="16" fill="#0f172a"/>
+    <rect x="-312" y="-8" width="6" height="16" fill="#0f172a"/>
+    <rect x="-302" y="-8" width="2" height="16" fill="#0f172a"/>
+    <rect x="-294" y="-8" width="7" height="16" fill="#0f172a"/>
+    <rect x="-282" y="-8" width="4" height="16" fill="#0f172a"/>
+    <rect x="-274" y="-8" width="2" height="16" fill="#0f172a"/>
+    <rect x="-266" y="-8" width="9" height="16" fill="#0f172a"/>
+    <rect x="-252" y="-8" width="3" height="16" fill="#0f172a"/>
+    <rect x="-244" y="-8" width="6" height="16" fill="#0f172a"/>
+    <rect x="-234" y="-8" width="4" height="16" fill="#0f172a"/>
+    <rect x="-224" y="-8" width="8" height="16" fill="#0f172a"/>
+    <rect x="-212" y="-8" width="3" height="16" fill="#0f172a"/>
+    
+    <rect x="210" y="-8" width="4" height="16" fill="#0f172a"/>
+    <rect x="218" y="-8" width="8" height="16" fill="#0f172a"/>
+    <rect x="230" y="-8" width="3" height="16" fill="#0f172a"/>
+    <rect x="238" y="-8" width="6" height="16" fill="#0f172a"/>
+    <rect x="248" y="-8" width="2" height="16" fill="#0f172a"/>
+    <rect x="256" y="-8" width="7" height="16" fill="#0f172a"/>
+    <rect x="268" y="-8" width="4" height="16" fill="#0f172a"/>
+    <rect x="276" y="-8" width="2" height="16" fill="#0f172a"/>
+    <rect x="284" y="-8" width="9" height="16" fill="#0f172a"/>
+    <rect x="298" y="-8" width="3" height="16" fill="#0f172a"/>
+    <rect x="306" y="-8" width="6" height="16" fill="#0f172a"/>
+    <rect x="316" y="-8" width="4" height="16" fill="#0f172a"/>
+    <rect x="326" y="-8" width="8" height="16" fill="#0f172a"/>
+    <rect x="338" y="-8" width="3" height="16" fill="#0f172a"/>
+
+    <text x="0" y="5" class="ocr-num" font-size="11" fill="#475569" letter-spacing="4" text-anchor="middle">
+      EGY • CIV-REG • ${nationalIdNum} • VERIFIED
+    </text>
   </g>
 </svg>`;
 
@@ -918,10 +1040,11 @@ export function healAuthorDocuments(a: AuthorProfile): { healed: boolean; author
     healed = true;
   }
 
-  // 2. Check nationalIdUrl (replace dead blob or missing ID)
+  // 2. Check nationalIdUrl (replace dead blob, missing ID, or outdated legacy green mock)
   const isIdDeadBlob = Boolean(author.nationalIdUrl && author.nationalIdUrl.startsWith("blob:"));
   const isIdMissing = !author.nationalIdUrl || author.nationalIdUrl.trim() === "";
-  if (isIdDeadBlob || isIdMissing) {
+  const isLegacyMock = Boolean(author.nationalIdUrl && (author.nationalIdUrl.includes("047857") || author.nationalIdUrl.includes("059669")));
+  if (isIdDeadBlob || isIdMissing || isLegacyMock) {
     author.nationalIdUrl = generateSampleNationalIdCardSvg(author.fullName, author.authorCode, author.specialization);
     author.nationalIdName = author.nationalIdName || "National_ID_Card.svg";
     author.nationalIdSize = author.nationalIdSize || "1.8 MB";

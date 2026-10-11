@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   ShieldCheck, 
@@ -41,7 +41,8 @@ import {
   Tag,
   FileSignature,
   Scroll,
-  Printer
+  Printer,
+  UploadCloud
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -274,6 +275,29 @@ export const AdminDashboard = () => {
       console.error("[AdminDashboard] Open in new tab error:", e);
       window.open(url, "_blank");
     }
+  const authorIdUploadRef = useRef<HTMLInputElement>(null);
+
+  const handleAdminReplaceNationalId = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedAuthor) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      const sizeStr = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+      const updated = {
+        ...selectedAuthor,
+        nationalIdUrl: dataUrl,
+        nationalIdName: file.name,
+        nationalIdSize: sizeStr
+      };
+      setSelectedAuthor(updated);
+      NashrDataStore.saveAuthorProfile(updated);
+      toast({
+        title: isRtl ? "✅ تم تحديث وتعيين صورة بطاقة الرقم القومي بنجاح" : "National ID Updated",
+        description: file.name
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleDownloadManuscriptFile = async (sub: ManuscriptSubmission) => {
@@ -2824,7 +2848,24 @@ export const AdminDashboard = () => {
                             </p>
                           </div>
                           
-                          <div className="flex items-center gap-1.5 shrink-0 w-full sm:w-auto justify-end">
+                          <div className="flex items-center gap-1.5 shrink-0 w-full sm:w-auto justify-end flex-wrap">
+                            <input
+                              type="file"
+                              ref={authorIdUploadRef}
+                              accept="image/*,.pdf"
+                              className="hidden"
+                              onChange={handleAdminReplaceNationalId}
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => authorIdUploadRef.current?.click()}
+                              className="h-8 px-2.5 text-xs font-bold gap-1 rounded-xl bg-card hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/40"
+                            >
+                              <UploadCloud className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>{isRtl ? "استبدال / رفع صورة البطاقة" : "Replace Scan"}</span>
+                            </Button>
                             <Button
                               type="button"
                               size="sm"
@@ -2849,10 +2890,20 @@ export const AdminDashboard = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="p-4 rounded-xl bg-muted/40 text-center border border-dashed border-border/80 text-muted-foreground text-xs space-y-1">
+                      <div className="p-4 rounded-xl bg-muted/40 text-center border border-dashed border-border/80 text-muted-foreground text-xs space-y-2">
                         <ImageIcon className="w-8 h-8 mx-auto text-amber-500/60" />
                         <p className="font-bold text-foreground">National_ID_Card_Scan.jpg</p>
                         <p className="text-[10px]">{isRtl ? "لم يتم إرفاق ملف الهوية." : "No document uploaded."}</p>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => authorIdUploadRef.current?.click()}
+                          className="h-8 px-3 text-xs font-bold gap-1.5 rounded-xl border-emerald-500/40 text-emerald-600 hover:bg-emerald-500/10"
+                        >
+                          <UploadCloud className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>{isRtl ? "رفع وثيقة الهوية الآن" : "Upload ID Document"}</span>
+                        </Button>
                       </div>
                     )}
                   </div>

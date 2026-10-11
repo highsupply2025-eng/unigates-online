@@ -42,8 +42,12 @@ import {
   FileSignature,
   Scroll,
   Printer,
-  UploadCloud
+  UploadCloud,
+  Paperclip,
+  Camera,
+  Loader2
 } from "lucide-react";
+import { ChatCameraModal } from "@/components/messaging/ChatCameraModal";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -116,6 +120,12 @@ export const AdminDashboard = () => {
   const [chatReplyText, setChatReplyText] = useState("");
   const [chatSearchQuery, setChatSearchQuery] = useState("");
   const [chatMessagesVersion, setChatMessagesVersion] = useState(0);
+  const [adminChatAttachmentName, setAdminChatAttachmentName] = useState("");
+  const [adminChatAttachmentUrl, setAdminChatAttachmentUrl] = useState("");
+  const [isAdminChatCameraOpen, setIsAdminChatCameraOpen] = useState(false);
+  const [isAdminUploadingChatFile, setIsAdminUploadingChatFile] = useState(false);
+  const adminChatFileInputRef = useRef<HTMLInputElement | null>(null);
+  const adminChatImageInputRef = useRef<HTMLInputElement | null>(null);
 
   // Data states
   const [authors, setAuthors] = useState<AuthorProfile[]>([]);
@@ -891,12 +901,66 @@ export const AdminDashboard = () => {
     ? NashrDataStore.getMessages(selectedChatAuthor.id) 
     : [];
 
+  const handleAdminChatFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 25 * 1024 * 1024) {
+      toast({
+        title: isRtl ? "حجم الملف كبير جداً" : "File Too Large",
+        description: isRtl ? "الحد الأقصى المسموح به للمرفق هو 25 ميجابايت." : "Maximum allowed size is 25 MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAdminUploadingChatFile(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setAdminChatAttachmentName(file.name);
+      setAdminChatAttachmentUrl(dataUrl);
+      setIsAdminUploadingChatFile(false);
+      toast({
+        title: isRtl ? "📎 تم إرفاق الملف بنجاح" : "File Attached",
+        description: file.name
+      });
+    };
+    reader.onerror = () => {
+      setIsAdminUploadingChatFile(false);
+      toast({
+        title: isRtl ? "فشل قراءة الملف" : "File Read Failed",
+        variant: "destructive"
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleAdminCameraCapture = (dataUrl: string, fileName: string) => {
+    setAdminChatAttachmentName(fileName);
+    setAdminChatAttachmentUrl(dataUrl);
+    toast({
+      title: isRtl ? "📸 تم التقاط الصورة وإرفاقها بنجاح" : "Photo Captured",
+      description: fileName
+    });
+  };
+
   const handleAdminSendMessage = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!chatReplyText.trim() || !selectedChatAuthor) return;
+    if ((!chatReplyText.trim() && !adminChatAttachmentName) || !selectedChatAuthor) return;
 
-    NashrDataStore.sendAdminMessageToAuthor(selectedChatAuthor.id, chatReplyText.trim());
+    const messageText = chatReplyText.trim() || (isRtl ? `مرفق: ${adminChatAttachmentName}` : `Attachment: ${adminChatAttachmentName}`);
+
+    NashrDataStore.sendAdminMessageToAuthor(
+      selectedChatAuthor.id, 
+      messageText,
+      adminChatAttachmentName || undefined,
+      adminChatAttachmentUrl || undefined
+    );
     setChatReplyText("");
+    setAdminChatAttachmentName("");
+    setAdminChatAttachmentUrl("");
     setChatMessagesVersion(v => v + 1);
     toast({
       title: isRtl ? "✅ تم إرسال الرد للمؤلف بنجاح" : "Reply Sent Successfully",
@@ -2374,31 +2438,79 @@ export const AdminDashboard = () => {
                                   : "bg-blue-600 text-white rounded-te-xs shadow-md"
                               }`}>
                                 <p className="whitespace-pre-wrap">{msg.text}</p>
-                                {msg.attachmentName && (
-                                  <div 
-                                    onClick={() => {
-                                      setSelectedAttachment({
-                                        fileName: msg.attachmentName,
-                                        fileUrl: msg.attachmentUrl,
-                                        senderName: msg.senderName,
-                                        timestamp: msg.timestamp,
-                                        messageText: msg.text
-                                      });
-                                      setShowAttachmentModal(true);
-                                    }}
-                                    className={`mt-2 p-2.5 rounded-xl flex items-center justify-between gap-2 text-[10px] font-bold cursor-pointer hover:opacity-90 transition-all ${
-                                      isAuthor ? "bg-card border border-border shadow-xs" : "bg-white/20 text-white"
-                                    }`}
-                                    title={isRtl ? "اضغط لمعاينة وتحميل المرفق" : "Click to view / download"}
-                                  >
-                                    <div className="flex items-center gap-1.5 truncate">
-                                      <FileText className="w-3.5 h-3.5 shrink-0" />
-                                      <span className="truncate">{msg.attachmentName}</span>
-                                    </div>
-                                    <span className="text-[9px] underline shrink-0 font-mono">
-                                      {isRtl ? "معاينة وتحميل 📥" : "View 📥"}
-                                    </span>
-                                  </div>
+                                {msg.attachmentUrl && (
+                                  (() => {
+                                    const isImg = msg.attachmentUrl.startsWith("data:image/") || 
+                                      /\.(png|jpe?g|webp|gif|svg)$/i.test(msg.attachmentName || "");
+                                    
+                                    return isImg ? (
+                                      <div className="mt-2.5 space-y-1.5">
+                                        <div 
+                                          onClick={() => {
+                                            setSelectedAttachment({
+                                              fileName: msg.attachmentName || "image.jpg",
+                                              fileUrl: msg.attachmentUrl,
+                                              senderName: msg.senderName,
+                                              timestamp: msg.timestamp,
+                                              messageText: msg.text
+                                            });
+                                            setShowAttachmentModal(true);
+                                          }}
+                                          className="relative group rounded-xl overflow-hidden border border-border/80 bg-black/20 cursor-pointer max-w-sm"
+                                        >
+                                          <img 
+                                            src={msg.attachmentUrl} 
+                                            alt={msg.attachmentName || "Image"} 
+                                            className="max-h-56 w-auto object-cover rounded-xl transition-transform group-hover:scale-[1.02]"
+                                          />
+                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-2xs">
+                                            <span className="px-2.5 py-1 rounded-lg bg-black/80 text-white text-[11px] font-bold flex items-center gap-1 shadow-md">
+                                              <Eye className="w-3.5 h-3.5 text-amber-400" />
+                                              <span>{isRtl ? "معاينة وتكبير 👁️" : "Preview"}</span>
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center justify-between text-[10px] text-muted-foreground px-1">
+                                          <span className="truncate max-w-[200px] font-mono">{msg.attachmentName}</span>
+                                          <button 
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleDownloadDoc(msg.attachmentUrl!, msg.attachmentName || "image.jpg");
+                                            }}
+                                            className="hover:text-blue-500 underline font-bold"
+                                          >
+                                            {isRtl ? "تحميل 📥" : "Download"}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div 
+                                        onClick={() => {
+                                          setSelectedAttachment({
+                                            fileName: msg.attachmentName,
+                                            fileUrl: msg.attachmentUrl,
+                                            senderName: msg.senderName,
+                                            timestamp: msg.timestamp,
+                                            messageText: msg.text
+                                          });
+                                          setShowAttachmentModal(true);
+                                        }}
+                                        className={`mt-2 p-2.5 rounded-xl flex items-center justify-between gap-2 text-[10px] font-bold cursor-pointer hover:opacity-90 transition-all ${
+                                          isAuthor ? "bg-card border border-border shadow-xs" : "bg-white/20 text-white"
+                                        }`}
+                                        title={isRtl ? "اضغط لمعاينة وتحميل المرفق" : "Click to view / download"}
+                                      >
+                                        <div className="flex items-center gap-1.5 truncate">
+                                          <FileText className="w-3.5 h-3.5 shrink-0" />
+                                          <span className="truncate">{msg.attachmentName}</span>
+                                        </div>
+                                        <span className="text-[9px] underline shrink-0 font-mono">
+                                          {isRtl ? "معاينة وتحميل 📥" : "View 📥"}
+                                        </span>
+                                      </div>
+                                    );
+                                  })()
                                 )}
                               </div>
                             </div>
@@ -2426,25 +2538,117 @@ export const AdminDashboard = () => {
                     </div>
 
                     {/* Chat Input Footer */}
-                    <div className="p-4 bg-card border-t border-border/60">
-                      <form onSubmit={handleAdminSendMessage} className="flex items-center gap-2">
+                    <div className="p-3 sm:p-4 bg-card border-t border-border/60 space-y-2">
+                      {/* Active Attachment Pill Preview */}
+                      {adminChatAttachmentName && (
+                        <div className="flex items-center justify-between p-2 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs animate-in fade-in">
+                          <div className="flex items-center gap-2 truncate">
+                            {adminChatAttachmentUrl?.startsWith("data:image/") ? (
+                              <img src={adminChatAttachmentUrl} alt="Preview" className="w-7 h-7 rounded-lg object-cover border border-purple-500/30 shrink-0" />
+                            ) : (
+                              <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                            )}
+                            <span className="font-bold text-foreground truncate">{adminChatAttachmentName}</span>
+                            <Badge className="bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30 text-[9px] px-1.5 py-0 font-bold">
+                              {isRtl ? "جاهز للإرسال 📎" : "Ready"}
+                            </Badge>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            onClick={() => {
+                              setAdminChatAttachmentName("");
+                              setAdminChatAttachmentUrl("");
+                            }} 
+                            className="h-7 w-7 p-0 rounded-lg hover:bg-rose-500/10 hover:text-rose-600 shrink-0"
+                            title={isRtl ? "إلغاء المرفق" : "Remove"}
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Hidden File Inputs */}
+                      <input 
+                        type="file" 
+                        ref={adminChatFileInputRef}
+                        onChange={handleAdminChatFileUpload}
+                        className="hidden" 
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
+                      />
+                      <input 
+                        type="file" 
+                        ref={adminChatImageInputRef}
+                        onChange={handleAdminChatFileUpload}
+                        className="hidden" 
+                        accept="image/*"
+                      />
+
+                      <form onSubmit={handleAdminSendMessage} className="flex items-center gap-1.5 sm:gap-2">
+                        {/* 1. Camera Button */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsAdminChatCameraOpen(true)}
+                          className="h-11 w-11 p-0 rounded-2xl border-border hover:bg-amber-500/10 hover:border-amber-500/40 text-amber-600 dark:text-amber-400 shrink-0 transition-all shadow-2xs"
+                          title={isRtl ? "فتح الكاميرا والتقاط صورة 📸" : "Open Camera 📸"}
+                        >
+                          <Camera className="w-4 h-4" />
+                        </Button>
+
+                        {/* 2. Image Gallery Button */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => adminChatImageInputRef.current?.click()}
+                          className="h-11 w-11 p-0 rounded-2xl border-border hover:bg-emerald-500/10 hover:border-emerald-500/40 text-emerald-600 dark:text-emerald-400 shrink-0 transition-all shadow-2xs"
+                          title={isRtl ? "إرفاق صورة من الجهاز 🖼️" : "Attach Image 🖼️"}
+                        >
+                          <ImageIcon className="w-4 h-4" />
+                        </Button>
+
+                        {/* 3. Document / File Attachment Button */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => adminChatFileInputRef.current?.click()}
+                          disabled={isAdminUploadingChatFile}
+                          className="h-11 w-11 p-0 rounded-2xl border-border hover:bg-blue-500/10 hover:border-blue-500/40 text-blue-600 dark:text-blue-400 shrink-0 transition-all shadow-2xs"
+                          title={isRtl ? "إرفاق ملف أو مستند (PDF / Word) 📁" : "Attach File 📁"}
+                        >
+                          {isAdminUploadingChatFile ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                          ) : (
+                            <Paperclip className="w-4 h-4" />
+                          )}
+                        </Button>
+
                         <Input 
                           placeholder={isRtl ? `اكتب رد الإدارة على المؤلف ${selectedChatAuthor.fullName}...` : "Type admin reply..."}
                           value={chatReplyText}
                           onChange={(e) => setChatReplyText(e.target.value)}
-                          className="h-11 rounded-xl text-xs border-border bg-muted/20 flex-1"
+                          className="h-11 rounded-2xl text-xs sm:text-sm border-border bg-muted/20 flex-1 px-4 shadow-2xs"
                         />
+
                         <Button 
                           type="submit" 
                           size="sm" 
-                          disabled={!chatReplyText.trim()}
-                          className="h-11 px-5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white shadow-md gap-1.5 shrink-0 active:scale-95 transition-all"
+                          disabled={!chatReplyText.trim() && !adminChatAttachmentName}
+                          className="h-11 px-4 sm:px-6 rounded-2xl font-black text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md gap-1.5 shrink-0 active:scale-95 transition-all disabled:opacity-50"
                         >
-                          <Send className="w-4 h-4" />
-                          <span>{isRtl ? "إرسال الرد ➔" : "Send Reply"}</span>
+                          <Send className="w-4 h-4 rtl:-scale-x-100" />
+                          <span className="hidden sm:inline">{isRtl ? "إرسال الرد" : "Send"}</span>
                         </Button>
                       </form>
                     </div>
+
+                    {/* Camera Modal */}
+                    <ChatCameraModal
+                      open={isAdminChatCameraOpen}
+                      onOpenChange={setIsAdminChatCameraOpen}
+                      onCapture={handleAdminCameraCapture}
+                      isRtl={isRtl}
+                    />
                   </>
                 ) : (
                   <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">

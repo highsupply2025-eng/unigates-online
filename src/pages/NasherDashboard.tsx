@@ -60,8 +60,10 @@ import {
   Paperclip,
   X,
   FileSignature,
-  Scroll
+  Scroll,
+  Camera
 } from "lucide-react";
+import { ChatCameraModal } from "@/components/messaging/ChatCameraModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -189,8 +191,10 @@ const NasherDashboard = () => {
   const [chatAttachmentName, setChatAttachmentName] = useState("");
   const [chatAttachmentUrl, setChatAttachmentUrl] = useState("");
   const [isUploadingChatFile, setIsUploadingChatFile] = useState(false);
+  const [isChatCameraOpen, setIsChatCameraOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const chatFileInputRef = useRef<HTMLInputElement | null>(null);
+  const chatImageInputRef = useRef<HTMLInputElement | null>(null);
 
   // Form states for Payment Receipt Upload Modal & Dedicated Section
   const [selectedInvoice, setSelectedInvoice] = useState<NashrInvoice | null>(null);
@@ -574,6 +578,15 @@ const NasherDashboard = () => {
     };
     reader.readAsDataURL(file);
     e.target.value = "";
+  };
+
+  const handleCameraCapture = (dataUrl: string, fileName: string) => {
+    setChatAttachmentName(fileName);
+    setChatAttachmentUrl(dataUrl);
+    toast({
+      title: isRtl ? "📸 تم التقاط الصورة وإرفاقها بنجاح" : "Photo Captured",
+      description: fileName
+    });
   };
 
   // Handle Payment Receipt Upload (Modal)
@@ -3327,42 +3340,90 @@ const NasherDashboard = () => {
                               {msg.text}
                             </p>
 
-                            {/* Attachment Card if present */}
-                            {msg.attachmentName && (
-                              <div 
-                                onClick={() => {
-                                  setSelectedAttachment({
-                                    fileName: msg.attachmentName,
-                                    fileUrl: msg.attachmentUrl,
-                                    senderName: msg.senderName,
-                                    timestamp: msg.timestamp,
-                                    messageText: msg.text
-                                  });
-                                  setShowAttachmentModal(true);
-                                }}
-                                className={`mt-3 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs font-bold cursor-pointer transition-all border ${
-                                  isAuthor 
-                                    ? "bg-white/15 hover:bg-white/25 text-white border-white/20" 
-                                    : "bg-muted/70 hover:bg-muted text-foreground border-border/80 shadow-2xs"
-                                }`}
-                                title={isRtl ? "اضغط لمعاينة وتحميل المرفق" : "Click to view / download"}
-                              >
-                                <div className="flex items-center gap-2 truncate">
-                                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isAuthor ? "bg-white/20 text-white" : "bg-primary/10 text-primary"}`}>
-                                    <FileText className="w-4 h-4" />
+                            {/* Attachment Card or Image Preview if present */}
+                            {msg.attachmentUrl && (
+                              (() => {
+                                const isImg = msg.attachmentUrl.startsWith("data:image/") || 
+                                  /\.(png|jpe?g|webp|gif|svg)$/i.test(msg.attachmentName || "");
+                                
+                                return isImg ? (
+                                  <div className="mt-3 space-y-1.5">
+                                    <div 
+                                      onClick={() => {
+                                        setSelectedAttachment({
+                                          fileName: msg.attachmentName || "image.jpg",
+                                          fileUrl: msg.attachmentUrl,
+                                          senderName: msg.senderName,
+                                          timestamp: msg.timestamp,
+                                          messageText: msg.text
+                                        });
+                                        setShowAttachmentModal(true);
+                                      }}
+                                      className="relative group rounded-2xl overflow-hidden border border-white/20 bg-black/20 cursor-pointer max-w-sm"
+                                    >
+                                      <img 
+                                        src={msg.attachmentUrl} 
+                                        alt={msg.attachmentName || "Image"} 
+                                        className="max-h-56 w-auto object-cover rounded-2xl transition-transform group-hover:scale-[1.02]"
+                                      />
+                                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-2xs">
+                                        <span className="px-2.5 py-1 rounded-xl bg-black/80 text-white text-[11px] font-bold flex items-center gap-1 shadow-md">
+                                          <Eye className="w-3.5 h-3.5 text-amber-400" />
+                                          <span>{isRtl ? "معاينة وتكبير 👁️" : "Preview"}</span>
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center justify-between text-[10px] opacity-90 px-1">
+                                      <span className="truncate max-w-[200px] font-mono">{msg.attachmentName}</span>
+                                      <button 
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDownloadDoc(msg.attachmentUrl!, msg.attachmentName || "image.jpg");
+                                        }}
+                                        className="hover:underline font-bold"
+                                      >
+                                        {isRtl ? "تحميل 📥" : "Download"}
+                                      </button>
+                                    </div>
                                   </div>
-                                  <div className="truncate text-start">
-                                    <span className="truncate block font-black text-[11px] sm:text-xs">{msg.attachmentName}</span>
-                                    <span className="text-[10px] opacity-80 font-normal">{isRtl ? "مرفق مستند / ملف" : "Document Attachment"}</span>
+                                ) : (
+                                  <div 
+                                    onClick={() => {
+                                      setSelectedAttachment({
+                                        fileName: msg.attachmentName,
+                                        fileUrl: msg.attachmentUrl,
+                                        senderName: msg.senderName,
+                                        timestamp: msg.timestamp,
+                                        messageText: msg.text
+                                      });
+                                      setShowAttachmentModal(true);
+                                    }}
+                                    className={`mt-3 p-3 rounded-2xl flex items-center justify-between gap-3 text-xs font-bold cursor-pointer transition-all border ${
+                                      isAuthor 
+                                        ? "bg-white/15 hover:bg-white/25 text-white border-white/20" 
+                                        : "bg-muted/70 hover:bg-muted text-foreground border-border/80 shadow-2xs"
+                                    }`}
+                                    title={isRtl ? "اضغط لمعاينة وتحميل المرفق" : "Click to view / download"}
+                                  >
+                                    <div className="flex items-center gap-2 truncate">
+                                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isAuthor ? "bg-white/20 text-white" : "bg-primary/10 text-primary"}`}>
+                                        <FileText className="w-4 h-4" />
+                                      </div>
+                                      <div className="truncate text-start">
+                                        <span className="truncate block font-black text-[11px] sm:text-xs">{msg.attachmentName}</span>
+                                        <span className="text-[10px] opacity-80 font-normal">{isRtl ? "مرفق مستند / ملف" : "Document Attachment"}</span>
+                                      </div>
+                                    </div>
+                                    <span className={`text-[11px] font-black px-2.5 py-1 rounded-xl shrink-0 flex items-center gap-1 ${
+                                      isAuthor ? "bg-white/20 text-white" : "bg-background border border-border text-foreground"
+                                    }`}>
+                                      <Download className="w-3 h-3" />
+                                      <span>{isRtl ? "معاينة وتحميل" : "View"}</span>
+                                    </span>
                                   </div>
-                                </div>
-                                <span className={`text-[11px] font-black px-2.5 py-1 rounded-xl shrink-0 flex items-center gap-1 ${
-                                  isAuthor ? "bg-white/20 text-white" : "bg-background border border-border text-foreground"
-                                }`}>
-                                  <Download className="w-3 h-3" />
-                                  <span>{isRtl ? "معاينة وتحميل" : "View"}</span>
-                                </span>
-                              </div>
+                                );
+                              })()
                             )}
                           </div>
 
@@ -3375,16 +3436,20 @@ const NasherDashboard = () => {
               </div>
 
               {/* Chat Input Bar */}
-              <div className="p-3 sm:p-4 bg-card/95 border-t border-border/70 backdrop-blur-sm">
+              <div className="p-3 sm:p-4 bg-card/95 border-t border-border/70 backdrop-blur-sm space-y-2">
                 
                 {/* Active attachment pill preview */}
                 {chatAttachmentName && (
-                  <div className="flex items-center justify-between p-2.5 mb-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs animate-in fade-in">
+                  <div className="flex items-center justify-between p-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs animate-in fade-in">
                     <div className="flex items-center gap-2 truncate">
-                      <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      {chatAttachmentUrl?.startsWith("data:image/") ? (
+                        <img src={chatAttachmentUrl} alt="Preview" className="w-7 h-7 rounded-lg object-cover border border-amber-500/30 shrink-0" />
+                      ) : (
+                        <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      )}
                       <span className="font-bold text-foreground truncate">{chatAttachmentName}</span>
-                      <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[9px] px-1.5 py-0 font-normal">
-                        {isRtl ? "جاهز للإرسال" : "Ready"}
+                      <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[9px] px-1.5 py-0 font-bold">
+                        {isRtl ? "جاهز للإرسال 📎" : "Ready"}
                       </Badge>
                     </div>
                     <Button 
@@ -3394,7 +3459,7 @@ const NasherDashboard = () => {
                         setChatAttachmentName("");
                         setChatAttachmentUrl("");
                       }} 
-                      className="h-7 w-7 p-0 rounded-xl hover:bg-rose-500/10 hover:text-rose-600"
+                      className="h-7 w-7 p-0 rounded-xl hover:bg-rose-500/10 hover:text-rose-600 shrink-0"
                       title={isRtl ? "إلغاء المرفق" : "Cancel attachment"}
                     >
                       <X className="w-3.5 h-3.5" />
@@ -3402,25 +3467,54 @@ const NasherDashboard = () => {
                   </div>
                 )}
 
-                {/* Hidden file input */}
+                {/* Hidden file inputs */}
                 <input 
                   type="file" 
                   ref={chatFileInputRef}
                   onChange={handleChatFileUpload}
                   className="hidden" 
-                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
+                />
+                <input 
+                  type="file" 
+                  ref={chatImageInputRef}
+                  onChange={handleChatFileUpload}
+                  className="hidden" 
+                  accept="image/*"
                 />
 
-                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                <form onSubmit={handleSendMessage} className="flex items-center gap-1.5 sm:gap-2">
                   
-                  {/* File Attachment Button */}
+                  {/* 1. Camera Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsChatCameraOpen(true)}
+                    className="h-11 w-11 p-0 rounded-2xl border-border hover:bg-amber-500/10 hover:border-amber-500/40 text-amber-600 dark:text-amber-400 shrink-0 transition-all shadow-2xs"
+                    title={isRtl ? "فتح الكاميرا والتقاط صورة 📸" : "Open Camera 📸"}
+                  >
+                    <Camera className="w-4 h-4" />
+                  </Button>
+
+                  {/* 2. Photo Gallery Button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => chatImageInputRef.current?.click()}
+                    className="h-11 w-11 p-0 rounded-2xl border-border hover:bg-emerald-500/10 hover:border-emerald-500/40 text-emerald-600 dark:text-emerald-400 shrink-0 transition-all shadow-2xs"
+                    title={isRtl ? "إرفاق صورة من الجهاز 🖼️" : "Attach Image 🖼️"}
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                  </Button>
+
+                  {/* 3. Document / File Attachment Button */}
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => chatFileInputRef.current?.click()}
                     disabled={isUploadingChatFile}
-                    className="h-11 w-11 p-0 rounded-2xl border-border hover:bg-muted hover:border-amber-500/40 text-muted-foreground hover:text-foreground shrink-0 transition-all shadow-2xs"
-                    title={isRtl ? "إرفاق ملف أو مستند (PDF / Word / صورة)" : "Attach document or image"}
+                    className="h-11 w-11 p-0 rounded-2xl border-border hover:bg-blue-500/10 hover:border-blue-500/40 text-blue-600 dark:text-blue-400 shrink-0 transition-all shadow-2xs"
+                    title={isRtl ? "إرفاق ملف أو مستند (PDF / Word) 📁" : "Attach Document 📁"}
                   >
                     {isUploadingChatFile ? (
                       <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
@@ -3445,16 +3539,24 @@ const NasherDashboard = () => {
                     className="h-11 px-5 sm:px-6 rounded-2xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 via-orange-600 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md gap-2 shrink-0 transition-all disabled:opacity-50"
                   >
                     <Send className="w-4 h-4 rtl:-scale-x-100" />
-                    <span>{isRtl ? "إرسال" : "Send"}</span>
+                    <span className="hidden sm:inline">{isRtl ? "إرسال" : "Send"}</span>
                   </Button>
                 </form>
 
                 {/* Helper hint */}
-                <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 px-1">
-                  <span>{isRtl ? "💡 يمكنك إرفاق مسودات، استفسارات، أو طلبات تعديل الغلاف والتحكيم" : "You can attach drafts, inquiries, or cover design notes"}</span>
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 px-1">
+                  <span>{isRtl ? "💡 يمكنك فتح الكاميرا، إرفاق صور مسودات، أو مستندات وملفات PDF وWord" : "Open camera, attach draft photos, or PDF/Word files"}</span>
                   <span className="hidden sm:inline font-mono">End-to-End Encrypted 🔒</span>
                 </div>
               </div>
+
+              {/* Live Camera Modal */}
+              <ChatCameraModal
+                open={isChatCameraOpen}
+                onOpenChange={setIsChatCameraOpen}
+                onCapture={handleCameraCapture}
+                isRtl={isRtl}
+              />
 
             </Card>
           </div>

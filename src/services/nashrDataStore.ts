@@ -182,65 +182,8 @@ const INITIAL_SALES: BookSaleRecord[] = [];
 // Default Payout History - clean slate for author payout requests
 const INITIAL_PAYOUTS: PayoutRequest[] = [];
 
-// Default Initial Official Publishing Contracts
-export const INITIAL_CONTRACTS: AuthorContract[] = [
-  {
-    id: "cnt-101",
-    contractNumber: "CNT-2026-0482",
-    submissionId: "sub-101",
-    bookTitle: "مستقبل الحوكمة الرقمية في الجامعات والمؤسسات العربية",
-    category: "دراسات إدارية وأكاديمية",
-    publishType: "both",
-    authorId: "auth-2026-001",
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    digitalRoyaltyRate: 70,
-    printRoyaltyRate: 30,
-    rightsDurationYears: 5,
-    exclusiveRights: true,
-    retailPriceEstimate: 140,
-    status: "signed",
-    issueDate: "2026-02-12",
-    signedDate: "2026-02-14",
-    adminSignature: {
-      signedByName: "د. عبيد بن عيسى",
-      role: "المدير التنفيذي لدار عبيد للنشر والتوزيع",
-      signedAt: "2026-02-12",
-      sealNumber: "SEAL-DO-2026-01"
-    },
-    authorSignature: {
-      signatureText: "أ.د. عبد الرحمن المنشاوي",
-      signedAt: "2026-02-14 11:30 ص",
-      ipOrRef: "DIGI-SIGN-9921"
-    },
-    specialConditions: "يشمل العقد الإدراج التلقائي في المنصة الرقمية ومتجر UNIGATES مع أولوية العرض في معارض الكتاب الدولية السنوية."
-  },
-  {
-    id: "cnt-103",
-    contractNumber: "CNT-2026-0915",
-    submissionId: "sub-103",
-    bookTitle: "الذكاء الاصطناعي والقانون الدولي الإنساني: تحديات السيادة والمسؤولية",
-    category: "قانون وعلوم سياسية",
-    publishType: "both",
-    authorId: "auth-2026-001",
-    authorName: "أ.د. عبد الرحمن المنشاوي",
-    authorCode: "AUT-7890",
-    digitalRoyaltyRate: 70,
-    printRoyaltyRate: 30,
-    rightsDurationYears: 5,
-    exclusiveRights: true,
-    retailPriceEstimate: 160,
-    status: "pending_signature",
-    issueDate: "2026-10-10",
-    adminSignature: {
-      signedByName: "د. عبيد بن عيسى",
-      role: "المدير التنفيذي لدار عبيد للنشر والتوزيع",
-      signedAt: "2026-10-10",
-      sealNumber: "SEAL-DO-2026-09"
-    },
-    specialConditions: "يحق للناشر البدء في تجهيز المخطوطة للطباعة الفاخرة فور توقيع المؤلف على هذا العقد."
-  }
-];
+// Default Initial Official Publishing Contracts (Empty by default - contracts only exist when issued by Admin)
+export const INITIAL_CONTRACTS: AuthorContract[] = [];
 
 export function dataUrlToBlob(dataUrl: string): Blob {
   try {
@@ -2110,15 +2053,12 @@ export class NashrDataStore {
       const saved = localStorage.getItem(STORAGE_KEYS.CONTRACTS);
       if (saved) {
         const parsed: AuthorContract[] = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch (e) {
       console.error(e);
     }
-    try {
-      localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(INITIAL_CONTRACTS));
-    } catch (e) {}
-    return [...INITIAL_CONTRACTS];
+    return [];
   }
 
   static getContracts(authorId?: string): AuthorContract[] {

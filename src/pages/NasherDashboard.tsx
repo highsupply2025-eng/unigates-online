@@ -1136,6 +1136,16 @@ const NasherDashboard = () => {
               {/* 7. العقود الرسمية */}
               <DropdownMenuItem 
                 onClick={() => {
+                  if (contracts.length === 0) {
+                    toast({
+                      title: isRtl ? "صفحة العقود مقفلة حالياً 🔒" : "Contracts Locked 🔒",
+                      description: isRtl 
+                        ? "لا تفتح صفحة العقود إلا بعد قيام إدارة المنصة ودار عبيد للنشر بإصدار عقد رسمي معتمد لمخطوطتكم وإرساله لحسابكم."
+                        : "Contracts page will only open once an official agreement is issued by Dar Obeid administration.",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
                   handleTabChange("contracts");
                   setTimeout(() => {
                     const el = document.getElementById("nasher-tab-content") || document.querySelector("main");
@@ -1145,11 +1155,17 @@ const NasherDashboard = () => {
                 className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer transition-colors ${
                   activeTab === "contracts"
                     ? "bg-gradient-to-r from-indigo-500/20 to-blue-500/20 text-indigo-900 dark:text-indigo-200 border border-indigo-500/30"
-                    : "hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300"
+                    : contracts.length === 0
+                      ? "opacity-60 hover:bg-muted/50 cursor-not-allowed"
+                      : "hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-xs ${
+                    contracts.length > 0 
+                      ? "bg-gradient-to-br from-indigo-500 to-blue-600 text-white" 
+                      : "bg-muted text-muted-foreground"
+                  }`}>
                     <FileSignature className="w-4 h-4" />
                   </div>
                   <span>{isRtl ? "العقود الرسمية" : "Official Contracts"}</span>
@@ -1158,9 +1174,14 @@ const NasherDashboard = () => {
                   <Badge className="bg-amber-500 text-white text-[10px] h-5 px-1.5 font-bold animate-pulse">
                     {contracts.filter(c => c.status === "pending_signature").length} {isRtl ? "بانتظار توقيعك ✍️" : "Pending Sign"}
                   </Badge>
-                ) : (
+                ) : contracts.length > 0 ? (
                   <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-600 font-bold">
                     {contracts.length} {isRtl ? "عقود 📜" : "Contracts"}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                    <Lock className="w-2.5 h-2.5" />
+                    {isRtl ? "بانتظار الإصدار" : "Pending Issue"}
                   </Badge>
                 )}
               </DropdownMenuItem>
@@ -3774,6 +3795,35 @@ const NasherDashboard = () => {
         {/* TAB 7: 📜 العقود الرسمية واتفاقيات النشر والتوزيع (Contracts) */}
         {/* ------------------------------------------------------------- */}
         {activeTab === "contracts" && (
+          contracts.length === 0 ? (
+            <Card className="rounded-3xl border-2 border-dashed border-amber-500/40 bg-gradient-to-br from-amber-500/5 via-card to-background p-8 sm:p-12 text-center space-y-4 max-w-2xl mx-auto my-8 shadow-sm animate-fade-in">
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/15 text-amber-600 mx-auto flex items-center justify-center border border-amber-500/30 shadow-inner">
+                <Lock className="w-8 h-8" />
+              </div>
+              <div className="space-y-2">
+                <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-300 font-bold text-xs px-3 py-1">
+                  {isRtl ? "🔒 صفحة العقود مقفلة حالياً" : "🔒 Contracts Page Locked"}
+                </Badge>
+                <h2 className="text-xl sm:text-2xl font-black text-foreground">
+                  {isRtl ? "لا تفتح صفحة العقود إلا بعد إصدار عقد من إدارة المنصة" : "Contracts will open once issued by administration"}
+                </h2>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
+                  {isRtl 
+                    ? "تخضع المخطوطات والملفات المرفوعة حالياً لفحص لجان القراءة والتحكيم بدار عبيد للنشر والتوزيع. فور قبول المخطوطة وإصدار العقد الرسمي المعتمد من قبل الإدارة، ستفتح هذه الصفحة تلقائياً لتتمكنوا من مراجعة البنود ونسب الأرباح والتوقيع الرقمي المعتمد."
+                    : "Once your submitted manuscript is accepted and an official contract is issued by Dar Obeid administration, this page will unlock for review and digital signature."}
+                </p>
+              </div>
+              <div className="pt-2">
+                <Button 
+                  onClick={() => handleTabChange("overview")}
+                  className="bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-xs rounded-xl px-6 h-10 shadow-md"
+                >
+                  <Home className="w-4 h-4 me-2" />
+                  {isRtl ? "العودة إلى لوحة المخطوطات الرئيسية" : "Back to Dashboard"}
+                </Button>
+              </div>
+            </Card>
+          ) : (
           <div className="space-y-6 animate-fade-in">
             {/* Header Banner */}
             <Card className="border-2 border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 via-blue-500/5 to-purple-500/10 rounded-3xl p-6 shadow-md relative overflow-hidden">
@@ -4013,6 +4063,7 @@ const NasherDashboard = () => {
               </div>
             )}
           </div>
+          )
         )}
 
         {/* ------------------------------------------------------------- */}

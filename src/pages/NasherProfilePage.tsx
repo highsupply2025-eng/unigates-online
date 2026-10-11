@@ -544,11 +544,31 @@ const NasherProfilePage = () => {
 
               {/* 7. العقود الرسمية */}
               <DropdownMenuItem 
-                onClick={() => navigate("/nashr/dashboard?tab=contracts")}
-                className="rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                onClick={() => {
+                  if (contracts.length === 0) {
+                    toast({
+                      title: isRtl ? "صفحة العقود مقفلة حالياً 🔒" : "Contracts Locked 🔒",
+                      description: isRtl 
+                        ? "لا تفتح صفحة العقود إلا بعد قيام إدارة المنصة ودار عبيد للنشر بإصدار عقد رسمي معتمد لمخطوطتكم وإرساله لحسابكم."
+                        : "Contracts page will only open once an official agreement is issued by Dar Obeid administration.",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  navigate("/nashr/dashboard?tab=contracts");
+                }}
+                className={`rounded-xl px-3 py-2 text-xs font-black flex items-center justify-between cursor-pointer transition-colors ${
+                  contracts.length === 0
+                    ? "opacity-60 hover:bg-muted/50 cursor-not-allowed"
+                    : "hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300"
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-xs ${
+                    contracts.length > 0 
+                      ? "bg-gradient-to-br from-indigo-500 to-blue-600 text-white" 
+                      : "bg-muted text-muted-foreground"
+                  }`}>
                     <FileSignature className="w-4 h-4" />
                   </div>
                   <span>{isRtl ? "العقود الرسمية" : "Official Contracts"}</span>
@@ -557,9 +577,14 @@ const NasherProfilePage = () => {
                   <Badge className="bg-amber-500 text-white text-[10px] h-5 px-1.5 font-bold animate-pulse">
                     {contracts.filter(c => c.status === "pending_signature").length} {isRtl ? "بانتظار توقيعك ✍️" : "Pending Sign"}
                   </Badge>
-                ) : (
+                ) : contracts.length > 0 ? (
                   <Badge variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-600 font-bold">
                     {contracts.length} {isRtl ? "عقود 📜" : "Contracts"}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                    <Lock className="w-2.5 h-2.5" />
+                    {isRtl ? "بانتظار الإصدار" : "Pending Issue"}
                   </Badge>
                 )}
               </DropdownMenuItem>

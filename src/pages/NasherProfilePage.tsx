@@ -230,6 +230,19 @@ const NasherProfilePage = () => {
     });
   };
 
+  useEffect(() => {
+    const handleSync = () => {
+      const refreshed = NashrDataStore.getAuthorProfile();
+      setProfile(refreshed);
+    };
+    window.addEventListener("unigates-cloud-sync", handleSync);
+    window.addEventListener("storage", handleSync);
+    return () => {
+      window.removeEventListener("unigates-cloud-sync", handleSync);
+      window.removeEventListener("storage", handleSync);
+    };
+  }, []);
+
   const handleNationalIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;

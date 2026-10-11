@@ -355,6 +355,7 @@ const NasherDashboard = () => {
     window.addEventListener("storage", handleStorage);
     window.addEventListener("bookstore-updated", handleCustomStoreEvent);
     window.addEventListener("bookstore-order-created", handleCustomStoreEvent);
+    window.addEventListener("unigates-cloud-sync", handleCustomStoreEvent);
 
     const interval = setInterval(() => {
       if (activeTab === "chat") {
@@ -370,6 +371,7 @@ const NasherDashboard = () => {
       window.removeEventListener("storage", handleStorage);
       window.removeEventListener("bookstore-updated", handleCustomStoreEvent);
       window.removeEventListener("bookstore-order-created", handleCustomStoreEvent);
+      window.removeEventListener("unigates-cloud-sync", handleCustomStoreEvent);
       clearInterval(interval);
     };
   }, [activeTab]);

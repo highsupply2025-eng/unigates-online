@@ -9,6 +9,7 @@ import {
   PublishType
 } from "@/types/nashr";
 import { NashrFileStore } from "./nashrFileStore";
+import { UnigatesCloudSync, type CloudSyncPayload } from "./unigatesCloudSync";
 
 const STORAGE_KEYS = {
   CURRENT_AUTHOR: "nashr_current_author",
@@ -1243,6 +1244,14 @@ export class NashrDataStore {
     } catch (e) {
       console.error("[saveAuthorProfile] ALL_AUTHORS error:", e);
     }
+
+    // 4. Synchronize with UNIGATES Global Cloud Mesh & Cloud Auth
+    try {
+      UnigatesCloudSync.broadcast("AUTHOR_REGISTERED", profile.id, pruned);
+      UnigatesCloudSync.syncAuthorToSupabaseAuth(profile);
+    } catch (syncErr) {
+      console.warn("[saveAuthorProfile] Cloud sync non-fatal notice:", syncErr);
+    }
   }
 
   static findAuthorByIdentifier(identifier: string): AuthorProfile | null {
@@ -1319,6 +1328,18 @@ export class NashrDataStore {
       }
       localStorage.setItem(STORAGE_KEYS.CURRENT_AUTHOR, JSON.stringify(current));
       return current;
+    }
+
+    // Broadcast status change to global cloud mesh
+    try {
+      UnigatesCloudSync.broadcast("AUTHOR_VERIFIED", targetId, {
+        id: targetId,
+        verificationStatus: status,
+        verificationNotes: notes,
+        verificationDate: status === "approved" ? new Date().toISOString().split("T")[0] : undefined
+      });
+    } catch (syncErr) {
+      console.warn("[setVerificationStatus] Cloud broadcast notice:", syncErr);
     }
 
     return author || current;
@@ -1412,6 +1433,13 @@ export class NashrDataStore {
     };
     list.unshift(newSub);
     localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(list));
+
+    try {
+      UnigatesCloudSync.broadcast("SUBMISSION_CREATED", newSub.id, newSub);
+    } catch (syncErr) {
+      console.warn("[addSubmission] Cloud broadcast notice:", syncErr);
+    }
+
     return newSub;
   }
 
@@ -1591,6 +1619,11 @@ export class NashrDataStore {
     if (adminFeedback !== undefined) item.adminFeedback = adminFeedback;
     if (storeBookCode) item.storeBookCode = storeBookCode;
     localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(list));
+    try {
+      UnigatesCloudSync.broadcast("SUBMISSION_UPDATED", submissionId, item);
+    } catch (syncErr) {
+      console.warn("[updateSubmissionStatus] Cloud broadcast notice:", syncErr);
+    }
     return item;
   }
 
@@ -1603,6 +1636,11 @@ export class NashrDataStore {
     if (!item) return null;
     Object.assign(item, updates);
     localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(list));
+    try {
+      UnigatesCloudSync.broadcast("SUBMISSION_UPDATED", submissionId, item);
+    } catch (syncErr) {
+      console.warn("[updateSubmission] Cloud broadcast notice:", syncErr);
+    }
     return item;
   }
 
@@ -1616,6 +1654,11 @@ export class NashrDataStore {
     };
     all.unshift(newInv);
     localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all));
+    try {
+      UnigatesCloudSync.broadcast("INVOICE_CREATED", newInv.id, newInv);
+    } catch (syncErr) {
+      console.warn("[createInvoice] Cloud broadcast notice:", syncErr);
+    }
     return newInv;
   }
 
@@ -1639,6 +1682,11 @@ export class NashrDataStore {
       );
     }
     localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all));
+    try {
+      UnigatesCloudSync.broadcast("INVOICE_UPDATED", inv.id, inv);
+    } catch (syncErr) {
+      console.warn("[verifyInvoiceReceipt] Cloud broadcast notice:", syncErr);
+    }
     return inv;
   }
 
@@ -1693,6 +1741,11 @@ export class NashrDataStore {
     };
     list.push(newMsg);
     localStorage.setItem(`${STORAGE_KEYS.MESSAGES}_${author.id}`, JSON.stringify(list));
+    try {
+      UnigatesCloudSync.broadcast("MESSAGE_SENT", author.id, newMsg);
+    } catch (syncErr) {
+      console.warn("[sendMessage] Cloud broadcast notice:", syncErr);
+    }
     return newMsg;
   }
 
@@ -1714,6 +1767,11 @@ export class NashrDataStore {
     };
     list.push(newMsg);
     localStorage.setItem(`${STORAGE_KEYS.MESSAGES}_${authorId}`, JSON.stringify(list));
+    try {
+      UnigatesCloudSync.broadcast("MESSAGE_SENT", authorId, newMsg);
+    } catch (syncErr) {
+      console.warn("[sendAdminMessageToAuthor] Cloud broadcast notice:", syncErr);
+    }
     return newMsg;
   }
 
@@ -2126,6 +2184,12 @@ export class NashrDataStore {
     all.unshift(newContract);
     localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(all));
 
+    try {
+      UnigatesCloudSync.broadcast("CONTRACT_ISSUED", newContract.id, newContract);
+    } catch (syncErr) {
+      console.warn("[issueContract] Cloud broadcast notice:", syncErr);
+    }
+
     // Send direct notification message to the author
     try {
       this.sendAdminMessageToAuthor(
@@ -2160,6 +2224,12 @@ export class NashrDataStore {
 
     localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(all));
 
+    try {
+      UnigatesCloudSync.broadcast("CONTRACT_SIGNED", contractId, all[idx]);
+    } catch (syncErr) {
+      console.warn("[signContract] Cloud broadcast notice:", syncErr);
+    }
+
     // Send confirmation message to author
     try {
       this.sendAdminMessageToAuthor(
@@ -2192,6 +2262,150 @@ export class NashrDataStore {
     const all = this.getAllContracts();
     const filtered = all.filter(c => c.id !== contractId);
     localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(filtered));
+    try {
+      UnigatesCloudSync.broadcast("CONTRACT_DELETED", contractId, { id: contractId });
+    } catch (syncErr) {
+      console.warn("[deleteContract] Cloud broadcast notice:", syncErr);
+    }
     return true;
   }
+
+  /**
+   * Process incoming cloud payloads broadcasted from other devices worldwide
+   */
+  static handleIncomingCloudPayload(payload: CloudSyncPayload) {
+    if (!payload || !payload.eventType) return;
+    const { eventType, data } = payload;
+
+    try {
+      switch (eventType) {
+        case "AUTHOR_REGISTERED":
+        case "AUTHOR_UPDATED":
+        case "AUTHOR_VERIFIED": {
+          if (!data || !data.id) break;
+          const all = this.getAllAuthors();
+          const idx = all.findIndex(a => a.id === data.id || (data.authorCode && a.authorCode === data.authorCode));
+          if (idx !== -1) {
+            all[idx] = { ...all[idx], ...data };
+          } else {
+            all.unshift(data);
+          }
+          localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(all));
+          break;
+        }
+
+        case "SUBMISSION_CREATED":
+        case "SUBMISSION_UPDATED": {
+          if (!data || !data.id) break;
+          const all = this.getAllSubmissions();
+          const idx = all.findIndex(s => s.id === data.id);
+          if (idx !== -1) {
+            all[idx] = { ...all[idx], ...data };
+          } else {
+            all.unshift(data);
+          }
+          localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(all));
+          break;
+        }
+
+        case "INVOICE_CREATED":
+        case "INVOICE_UPDATED": {
+          if (!data || !data.id) break;
+          const all = this.getAllInvoices();
+          const idx = all.findIndex(i => i.id === data.id);
+          if (idx !== -1) {
+            all[idx] = { ...all[idx], ...data };
+          } else {
+            all.unshift(data);
+          }
+          localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(all));
+          break;
+        }
+
+        case "CONTRACT_ISSUED":
+        case "CONTRACT_SIGNED": {
+          if (!data || !data.id) break;
+          const all = this.getAllContracts();
+          const idx = all.findIndex(c => c.id === data.id);
+          if (idx !== -1) {
+            all[idx] = { ...all[idx], ...data };
+          } else {
+            all.unshift(data);
+          }
+          localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(all));
+          break;
+        }
+
+        case "CONTRACT_DELETED": {
+          if (!payload.entityId) break;
+          const all = this.getAllContracts().filter(c => c.id !== payload.entityId);
+          localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(all));
+          break;
+        }
+
+        case "MESSAGE_SENT": {
+          if (!data || !payload.entityId) break;
+          const storageKey = `${STORAGE_KEYS.MESSAGES}_${payload.entityId}`;
+          const saved = localStorage.getItem(storageKey);
+          const list = saved ? JSON.parse(saved) : [];
+          if (!list.some((m: any) => m.id === data.id)) {
+            list.push(data);
+            localStorage.setItem(storageKey, JSON.stringify(list));
+          }
+          break;
+        }
+
+        case "FULL_STATE_SYNC": {
+          if (data && typeof data === "object") {
+            if (Array.isArray(data.authors) && data.authors.length > 0) {
+              const currentAll = this.getAllAuthors();
+              data.authors.forEach((remAuth: any) => {
+                if (!currentAll.some(a => a.id === remAuth.id || (remAuth.authorCode && a.authorCode === remAuth.authorCode))) {
+                  currentAll.unshift(remAuth);
+                }
+              });
+              localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(currentAll));
+            }
+            if (Array.isArray(data.submissions) && data.submissions.length > 0) {
+              const currentSubs = this.getAllSubmissions();
+              data.submissions.forEach((remSub: any) => {
+                if (!currentSubs.some(s => s.id === remSub.id)) {
+                  currentSubs.unshift(remSub);
+                }
+              });
+              localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(currentSubs));
+            }
+            if (Array.isArray(data.contracts) && data.contracts.length > 0) {
+              const currentContracts = this.getAllContracts();
+              data.contracts.forEach((remCnt: any) => {
+                if (!currentContracts.some(c => c.id === remCnt.id)) {
+                  currentContracts.unshift(remCnt);
+                }
+              });
+              localStorage.setItem(STORAGE_KEYS.CONTRACTS, JSON.stringify(currentContracts));
+            }
+          }
+          break;
+        }
+      }
+
+      // Notify open UI components instantly without page refresh
+      window.dispatchEvent(new CustomEvent("unigates-cloud-sync", { detail: payload }));
+      window.dispatchEvent(new Event("storage"));
+    } catch (err) {
+      console.warn("[NashrDataStore] Inbound cloud sync merge notice:", err);
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Auto-initialize Global Mesh & Inbound Sync in Browser Runtime
+// -------------------------------------------------------------
+if (typeof window !== "undefined") {
+  UnigatesCloudSync.initialize().catch((e) => {
+    console.info("[NashrDataStore] Cloud Mesh auto-start notice:", e);
+  });
+  UnigatesCloudSync.subscribe((payload) => {
+    NashrDataStore.handleIncomingCloudPayload(payload);
+  });
 }

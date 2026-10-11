@@ -927,6 +927,39 @@ export const AdminDashboard = () => {
     };
   }, []);
 
+  // Global Realtime Cloud Mesh Sync Listener
+  useEffect(() => {
+    const handleGlobalCloudSync = (e: any) => {
+      loadAllData();
+      const payload = e.detail;
+      if (payload) {
+        if (payload.eventType === "AUTHOR_REGISTERED") {
+          toast({
+            title: isRtl ? "🌐 تسجيل مؤلف جديد عالمياً" : "New Global Author Registered",
+            description: isRtl
+              ? `سجل المؤلف ${payload.data?.fullName || ""} (${payload.data?.authorCode || ""}) وأضيف تلقائياً للتدقيق.`
+              : `Author ${payload.data?.fullName || ""} registered and synced to admin dashboard.`,
+          });
+        } else if (payload.eventType === "SUBMISSION_CREATED") {
+          toast({
+            title: isRtl ? "📚 مخطوطة جديدة واردة" : "New Manuscript Submitted",
+            description: payload.data?.title || "",
+          });
+        } else if (payload.eventType === "CONTRACT_SIGNED") {
+          toast({
+            title: isRtl ? "✍️ توقيع عقد إلكتروني" : "Contract Signed",
+            description: isRtl ? "تم توقيع العقد رسمياً بالاعتماد الرقمي من قبل المؤلف." : "Contract digitally signed by author.",
+          });
+        }
+      }
+    };
+
+    window.addEventListener("unigates-cloud-sync", handleGlobalCloudSync);
+    return () => {
+      window.removeEventListener("unigates-cloud-sync", handleGlobalCloudSync);
+    };
+  }, [isRtl]);
+
   const chatQuickReplies = [
     isRtl ? "وعليكم السلام ورحمة الله وبركاته، مرحباً بحضرتكم دكتور، نحن في خدمتكم دائماً." : "Peace be upon you, we are at your service.",
     isRtl ? "أهلاً بحضرتكم، تم استلام رسالتكم والملفات قيد المراجعة والتدقيق الأكاديمي." : "Hello, we received your message and files are under academic review.",

@@ -4,6 +4,59 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 
+// Local dev server handler for /api/cloud-sync
+function devCloudSyncPlugin() {
+  const devStore = {
+    authors: new Map(),
+    submissions: new Map(),
+    invoices: new Map(),
+    contracts: new Map(),
+    messages: new Map()
+  };
+  return {
+    name: "dev-cloud-sync",
+    configureServer(server: any) {
+      server.middlewares.use("/api/cloud-sync", (req: any, res: any) => {
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        if (req.method === "GET") {
+          res.end(JSON.stringify({
+            authors: Array.from(devStore.authors.values()),
+            submissions: Array.from(devStore.submissions.values()),
+            invoices: Array.from(devStore.invoices.values()),
+            contracts: Array.from(devStore.contracts.values()),
+            timestamp: new Date().toISOString()
+          }));
+          return;
+        }
+        if (req.method === "POST") {
+          let body = "";
+          req.on("data", (chunk: any) => { body += chunk; });
+          req.on("end", () => {
+            try {
+              const payload = JSON.parse(body);
+              const { eventType, entityId, data } = payload;
+              if (data && (data.id || entityId)) {
+                const id = data.id || entityId;
+                if (eventType.includes("AUTHOR")) devStore.authors.set(id, data);
+                if (eventType.includes("SUBMISSION")) devStore.submissions.set(id, data);
+                if (eventType.includes("INVOICE")) devStore.invoices.set(id, data);
+                if (eventType.includes("CONTRACT")) devStore.contracts.set(id, data);
+              }
+              res.end(JSON.stringify({ success: true, eventType }));
+            } catch (e: any) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: e.message }));
+            }
+          });
+          return;
+        }
+        res.end(JSON.stringify({ ok: true }));
+      });
+    }
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -21,7 +74,12 @@ export default defineConfig(({ mode }) => ({
       process.env.LOVABLE_BUILD_ID || `${Date.now()}-${mode}`,
     ),
   },
-  plugins: [react(), mode === "development" && componentTagger(), mode === "development" && mcpPlugin()].filter(Boolean),
+  plugins: [
+    react(), 
+    mode === "development" && devCloudSyncPlugin(),
+    mode === "development" && componentTagger(), 
+    mode === "development" && mcpPlugin()
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

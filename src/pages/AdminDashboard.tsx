@@ -275,6 +275,8 @@ export const AdminDashboard = () => {
       console.error("[AdminDashboard] Open in new tab error:", e);
       window.open(url, "_blank");
     }
+  };
+
   const authorIdUploadRef = useRef<HTMLInputElement>(null);
 
   const handleAdminReplaceNationalId = (e: React.ChangeEvent<HTMLInputElement>) => {

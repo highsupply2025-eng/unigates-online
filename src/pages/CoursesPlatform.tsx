@@ -54,232 +54,8 @@ export interface CourseCatalogItem {
   description_en: string;
 }
 
-const DEFAULT_COURSES_CATALOG: CourseCatalogItem[] = [
-  {
-    id: "course-ai-1",
-    title_ar: "دبلوم الذكاء الاصطناعي التوليدي والتعلم الآلي بالبايثون 2026",
-    title_en: "Generative AI & Machine Learning with Python 2026",
-    instructor_ar: "د. طارق المنشاوي",
-    instructor_en: "Dr. Tarek El-Menshawy",
-    instructor_role_ar: "باحث ذكاء اصطناعي وخبير سحابي",
-    instructor_role_en: "AI Researcher & Cloud Specialist",
-    category: "programming",
-    category_ar: "البرمجة والذكاء الاصطناعي",
-    category_en: "Programming & AI",
-    episode_count: 34,
-    duration_hours: 42,
-    rating: 4.9,
-    reviews_count: 512,
-    students_count: 1420,
-    price_egp: 850,
-    is_free: false,
-    is_bestseller: true,
-    has_certificate: true,
-    is_new_2026: true,
-    thumbnail_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=900&q=80",
-    free_episode_title_ar: "مقدمة ثورة الذكاء الاصطناعي التوليدي وإعداد البيئة",
-    free_episode_title_en: "Intro to Generative AI Era & Environment Setup",
-    free_episode_duration: "24 دقيقة",
-    description_ar: "مسار عملي متكامل يبدأ من أساسيات البايثون المتقدمة وحتى بناء نماذج LLM و RAG ونشرها سحابياً مع حماية كاملة.",
-    description_en: "Comprehensive practical track from modern Python to fine-tuning LLMs, RAG, and cloud deployment.",
-  },
-  {
-    id: "course-pmp-1",
-    title_ar: "الإعداد المتكامل لاختبار إدارة المشاريع الاحترافية PMP الإصدار الثامن",
-    title_en: "Complete PMP Exam Prep (8th Edition Standards)",
-    instructor_ar: "م. أحمد فهمي",
-    instructor_en: "Eng. Ahmed Fahmy",
-    instructor_role_ar: "مستشار PMP ومدرب دولي معتمد",
-    instructor_role_en: "Certified PMP Consultant & Trainer",
-    category: "business",
-    category_ar: "إدارة الأعمال والقيادة (PMP)",
-    category_en: "Business & Management",
-    episode_count: 28,
-    duration_hours: 36,
-    rating: 4.95,
-    reviews_count: 640,
-    students_count: 2180,
-    price_egp: 950,
-    is_free: false,
-    is_bestseller: true,
-    has_certificate: true,
-    is_new_2026: true,
-    thumbnail_url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80",
-    free_episode_title_ar: "خارطة طريق شهادة PMP وكيفية اجتياز الامتحان من أول محاولة",
-    free_episode_title_en: "PMP Roadmap & First-Attempt Passing Strategy",
-    free_episode_duration: "32 دقيقة",
-    description_ar: "تغطية كاملة للمفاهيم التنبؤية والرشيقة (Agile) مع بنوك أسئلة محاكية للامتحان الدولي ونماذج واقعية.",
-    description_en: "Full coverage of predictive and agile methodologies with realistic mock exam questions.",
-  },
-  {
-    id: "course-lang-1",
-    title_ar: "إتقان المحادثة باللغة الإنجليزية للأعمال واجتياز اختبار IELTS 7.5+",
-    title_en: "Business English Masterclass & IELTS 7.5+ Strategy",
-    instructor_ar: "أ. سارة عبد الرحمن",
-    instructor_en: "Sarah Abdelrahman",
-    instructor_role_ar: "محاضرة لغات معتمدة من جامعة كامبريدج",
-    instructor_role_en: "Cambridge Certified Language Lecturer",
-    category: "languages",
-    category_ar: "اللغات والترجمة العالمية",
-    category_en: "Languages & Translation",
-    episode_count: 30,
-    duration_hours: 32,
-    rating: 4.85,
-    reviews_count: 420,
-    students_count: 1750,
-    price_egp: 650,
-    is_free: false,
-    is_bestseller: true,
-    has_certificate: true,
-    is_new_2026: false,
-    thumbnail_url: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=900&q=80",
-    free_episode_title_ar: "قواعد الطلاقة الفورية وكسر حاجز الخوف في المقابلات الرسمية",
-    free_episode_title_en: "Fluency Secrets & Overcoming Speaking Anxiety",
-    free_episode_duration: "21 دقيقة",
-    description_ar: "تطوير النطق والطلاقة وصياغة الإيميلات الاحترافية وتقنيات الاستماع والقراءة للاختبارات الدولية.",
-    description_en: "Master speaking fluency, executive emails, and exam-tested IELTS strategies.",
-  },
-  {
-    id: "course-uiux-1",
-    title_ar: "تصميم واجهات وتجربة المستخدم الاحترافية UI/UX وأنظمة Figma التصميمية",
-    title_en: "Professional UI/UX Design & Advanced Figma Design Systems",
-    instructor_ar: "م. عمر الشريف",
-    instructor_en: "Omar El-Sherif",
-    instructor_role_ar: "كبير مصممي منتجات رقمية Lead Product Designer",
-    instructor_role_en: "Lead Product Designer",
-    category: "design",
-    category_ar: "التصميم الرقمي والـ UI/UX",
-    category_en: "Design & UI/UX",
-    episode_count: 26,
-    duration_hours: 28,
-    rating: 4.9,
-    reviews_count: 380,
-    students_count: 980,
-    price_egp: 720,
-    is_free: false,
-    is_bestseller: false,
-    has_certificate: true,
-    is_new_2026: true,
-    thumbnail_url: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=900&q=80",
-    free_episode_title_ar: "أسس التفكير التصميمي وبناء أول Wireframe تفاعلي",
-    free_episode_title_en: "Design Thinking Basics & First Interactive Wireframe",
-    free_episode_duration: "27 دقيقة",
-    description_ar: "من مرحلة البحث وتحليل المستخدمين إلى إتقان Figma Auto-Layout والمتغيرات وتصدير ملفات جاهزة للمطورين.",
-    description_en: "From user research to Figma auto-layout, variables, and developer handoff.",
-  },
-  {
-    id: "course-health-1",
-    title_ar: "الإسعافات الأولية المتقدمة والمصطلحات الطبية السريرية",
-    title_en: "Advanced First Aid & Clinical Medical Terminology",
-    instructor_ar: "د. منى زهران",
-    instructor_en: "Dr. Mona Zahran",
-    instructor_role_ar: "استشارية طب الطوارئ والعناية المركزة",
-    instructor_role_en: "Emergency & Critical Care Consultant",
-    category: "health",
-    category_ar: "العلوم الطبية والصحية",
-    category_en: "Healthcare & Medicine",
-    episode_count: 22,
-    duration_hours: 24,
-    rating: 4.92,
-    reviews_count: 290,
-    students_count: 870,
-    price_egp: 580,
-    is_free: false,
-    is_bestseller: false,
-    has_certificate: true,
-    is_new_2026: false,
-    thumbnail_url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80",
-    free_episode_title_ar: "التعامل السريع مع الصدمات والحالات الحرجة خطوة بخطوة",
-    free_episode_title_en: "Step-by-Step Critical Triage & Emergency Response",
-    free_episode_duration: "19 دقيقة",
-    description_ar: "دليل تطبيقي شامل لإنعاش القلب والرئتين CPR، وتدبير الكسور والنزيف، وفهم لغة التقارير الطبية الدولية.",
-    description_en: "Practical protocol for CPR, trauma care, triage, and international medical jargon.",
-  },
-  {
-    id: "course-math-1",
-    title_ar: "التفاضل والتكامل المتقدم والجبر الخطي لطلاب الهندسة والحاسبات",
-    title_en: "Advanced Calculus & Linear Algebra for Engineers",
-    instructor_ar: "د. خالد العوضي",
-    instructor_en: "Dr. Khaled El-Awady",
-    instructor_role_ar: "أستاذ الرياضيات التطبيقية بالجامعة",
-    instructor_role_en: "Professor of Applied Mathematics",
-    category: "sciences",
-    category_ar: "المناهج والعلوم والرياضيات",
-    category_en: "Sciences & Mathematics",
-    episode_count: 24,
-    duration_hours: 30,
-    rating: 4.88,
-    reviews_count: 210,
-    students_count: 650,
-    price_egp: 490,
-    is_free: false,
-    is_bestseller: false,
-    has_certificate: true,
-    is_new_2026: false,
-    thumbnail_url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=900&q=80",
-    free_episode_title_ar: "فهم المصفوفات والتحويلات الهندسية بعين المهندس",
-    free_episode_title_en: "Intuition of Matrices & Transformations for Engineers",
-    free_episode_duration: "25 دقيقة",
-    description_ar: "شرح مبسط وتطبيقي عميق للمفاهيم الرياضية المعقدة مع حل مئات المسائل ونماذج الامتحانات الجامعية.",
-    description_en: "Intuitive, application-driven calculus and matrices with hundreds of solved problems.",
-  },
-  {
-    id: "course-cyber-1",
-    title_ar: "الأمن السيبراني واختبار الاختراق الأخلاقي المتقدم (CEH 2026)",
-    title_en: "Cybersecurity & Advanced Ethical Hacking (CEH 2026)",
-    instructor_ar: "م. رامي النجار",
-    instructor_en: "Eng. Rami El-Naggar",
-    instructor_role_ar: "خبير أمن المعلومات واختبار الاختراق",
-    instructor_role_en: "Information Security & Penetration Testing Expert",
-    category: "programming",
-    category_ar: "البرمجة والذكاء الاصطناعي",
-    category_en: "Programming & AI",
-    episode_count: 32,
-    duration_hours: 40,
-    rating: 4.96,
-    reviews_count: 480,
-    students_count: 1290,
-    price_egp: 890,
-    is_free: false,
-    is_bestseller: true,
-    has_certificate: true,
-    is_new_2026: true,
-    thumbnail_url: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=900&q=80",
-    free_episode_title_ar: "معمارية حماية الشبكات وتحليل الثغرات الشائعة OWASP",
-    free_episode_title_en: "Network Defense Architecture & OWASP Top 10",
-    free_episode_duration: "28 دقيقة",
-    description_ar: "تطبيقات معملية عملية على فحص الشبكات، تأمين السيرفرات السحابية، والوقاية من هجمات الفدية والهندسة الاجتماعية.",
-    description_en: "Hands-on cyber labs covering web exploitation, cloud security hardening, and defense against malware.",
-  },
-  {
-    id: "course-biz-2",
-    title_ar: "استراتيجيات التسويق الرقمي ونمو الشركات الناشئة Growth Hacking",
-    title_en: "Digital Marketing Strategies & Startup Growth Hacking",
-    instructor_ar: "أ. نور الهدى سامي",
-    instructor_en: "Nour El-Hoda Sami",
-    instructor_role_ar: "مديرة نمو وتسويق رقمي سابقة بشركات يونيكورن",
-    instructor_role_en: "Former Unicorn Growth Director",
-    category: "business",
-    category_ar: "إدارة الأعمال والقيادة (PMP)",
-    category_en: "Business & Management",
-    episode_count: 20,
-    duration_hours: 22,
-    rating: 4.82,
-    reviews_count: 310,
-    students_count: 840,
-    price_egp: 600,
-    is_free: false,
-    is_bestseller: false,
-    has_certificate: true,
-    is_new_2026: true,
-    thumbnail_url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=80",
-    free_episode_title_ar: "بناء قمع المبيعات Funnel وخطة إطلاق الحملات الممولة",
-    free_episode_title_en: "Building High-Converting Sales Funnels & Paid Ads",
-    free_episode_duration: "22 دقيقة",
-    description_ar: "تحليل البيانات، إعلانات Meta و Google المتقدمة، تحسين محركات البحث SEO، وأساليب مضاعفة العائد على الاستثمار ROI.",
-    description_en: "Data analytics, Meta & Google Ads optimization, advanced SEO, and maximizing ROI.",
-  },
-];
+// Empty catalog: Waiting for verified instructors and institutions to upload authentic courses
+const DEFAULT_COURSES_CATALOG: CourseCatalogItem[] = [];
 
 const CoursesPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -861,29 +637,44 @@ const CoursesPlatform = () => {
               </div>
             )}
 
-            {/* Empty State */}
+            {/* Empty State: Waiting for authentic courses or no search match */}
             {displayedCourses.length === 0 ? (
-              <div className="text-center py-16 bg-card/60 dark:bg-slate-900/40 rounded-3xl border border-border dark:border-slate-800 space-y-4">
-                <Video className="w-12 h-12 text-muted-foreground/60 dark:text-slate-600 mx-auto" />
-                <h3 className="text-lg font-black text-foreground dark:text-white">
-                  {isRtl ? "لم يتم العثور على دورات مطابقة للبحث أو التصفية" : "No courses match your criteria"}
-                </h3>
-                <p className="text-xs text-muted-foreground dark:text-slate-400 max-w-md mx-auto">
-                  {isRtl
-                    ? "جرّب تغيير كلمات البحث في الصف العلوي أو إزالة تصفية التخصص لاستعراض باقي دورات المنصة."
-                    : "Try modifying your search terms in the top bar or clearing sub-department filters."}
-                </p>
-                <Button
-                  onClick={() => {
-                    setLiveSearchQuery("");
-                    setLiveSearchCategory("all");
-                    setActiveSubCategory("all");
-                    setActiveMainTab("categories");
-                  }}
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl"
-                >
-                  {isRtl ? "عرض كل دورات المنصة" : "Reset & View All"}
-                </Button>
+              <div className="text-center py-20 px-4 bg-card/60 dark:bg-slate-900/40 rounded-3xl border border-border dark:border-slate-800 space-y-5 max-w-2xl mx-auto shadow-sm">
+                <div className="w-16 h-16 rounded-3xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto shadow-inner">
+                  <Video className="w-8 h-8" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl sm:text-2xl font-black text-foreground dark:text-white">
+                    {isRtl ? "في انتظار إطلاق الدورات والمحاضرات المعتمدة قريباً" : "Awaiting Official Courses & Lectures"}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground dark:text-slate-400 leading-relaxed">
+                    {isRtl
+                      ? "تم تنظيف كافة الدورات التجريبية. تخضع المحاضرات والدورات الحقيقية حالياً للمراجعة والاعتماد الأكاديمي، وسيتم نشرها تباعاً من قِبل نخبة الأساتذة والمدربين المعتمدين."
+                      : "Mock courses have been cleared. Authentic courses and accredited lectures are currently undergoing academic review and will be published shortly by certified instructors."}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <Link to="/courses/signup?role=lecturer">
+                    <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-xs sm:text-sm h-11 px-5 rounded-xl shadow-md gap-2">
+                      <BookOpenCheck className="w-4 h-4" />
+                      <span>{isRtl ? "انضم كمحاضر معتمد وانشر دورتك" : "Join as Instructor & Publish"}</span>
+                    </Button>
+                  </Link>
+                  {(liveSearchQuery || liveSearchCategory !== "all" || activeSubCategory !== "all") && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setLiveSearchQuery("");
+                        setLiveSearchCategory("all");
+                        setActiveSubCategory("all");
+                        setActiveMainTab("categories");
+                      }}
+                      className="border-border text-foreground font-bold text-xs h-11 px-4 rounded-xl"
+                    >
+                      {isRtl ? "إعادة ضبط التصفية" : "Reset Filters"}
+                    </Button>
+                  )}
+                </div>
               </div>
             ) : (
               /* Courses Grid */

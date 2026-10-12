@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import ugLogo from "@/assets/ug-logo.png";
 
 const Login = () => {
@@ -345,6 +346,12 @@ const Login = () => {
                 <span>{t.home}</span>
               </Button>
             </Link>
+
+            {/* Brightness / Theme Toggle (زر السطوع والمظهر) */}
+            <ThemeToggle
+              variant="dropdown"
+              className="h-9 px-2.5 sm:px-3 rounded-xl border-white/20 bg-white/5 hover:bg-white/15 text-white backdrop-blur-md shadow-xs transition-all"
+            />
 
             <LanguageSelectorDropdown />
           </div>

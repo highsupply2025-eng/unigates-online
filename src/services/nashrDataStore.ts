@@ -10,6 +10,7 @@ import {
 } from "@/types/nashr";
 import { NashrFileStore } from "./nashrFileStore";
 import { UnigatesCloudSync, type CloudSyncPayload } from "./unigatesCloudSync";
+import { DR_AYMAN_AVATAR_DATA_URL } from "@/assets/dr-ayman-avatar-dataurl";
 
 const STORAGE_KEYS = {
   CURRENT_AUTHOR: "nashr_current_author",
@@ -973,7 +974,7 @@ export const OFFICIAL_SEED_AUTHORS: AuthorProfile[] = [
     email: "dr.aymaneldlloa@gmail.com",
     phone: "+20 100 000 0000",
     bio: "دكتور وباحث في القانون والشريعة والتشريعات المقارنة وحقوق الملكية الفكرية، حاصل على الدكتوراه في الدراسات الفقهية والقانونية وله مؤلفات وأبحاث محكمة.",
-    avatarUrl: generateSampleAuthorAvatarSvg("د. ايمن احمد محمد الدلوع", "دكتور (د.)"),
+    avatarUrl: DR_AYMAN_AVATAR_DATA_URL,
     avatarName: "د. أيمن أحمد الدلوع.jpg",
     nationalIdUrl: generateSampleNationalIdCardSvg("د. ايمن احمد محمد الدلوع", "AUT-4714", "القانون والتشريعات والشريعة"),
     nationalIdName: "بطاقة الرقم القومي - د. ايمن احمد محمد الدلوع.pdf",
@@ -1031,10 +1032,19 @@ export function healAuthorDocuments(a: AuthorProfile): { healed: boolean; author
   let healed = false;
   const author: AuthorProfile = { ...a };
 
-  // 1. Check avatarUrl (replace dead blob or missing avatar)
+  // 1. Check avatarUrl (replace dead blob or missing avatar, or upgrade Dr. Ayman to his real photo)
+  const isAyman = (author.authorCode && author.authorCode.toUpperCase().includes("4714")) ||
+                  (author.fullName && author.fullName.includes("الدلوع")) ||
+                  (author.email && author.email.toLowerCase().includes("ayman"));
   const isAvatarDeadBlob = Boolean(author.avatarUrl && author.avatarUrl.startsWith("blob:"));
   const isAvatarMissing = !author.avatarUrl || author.avatarUrl.trim() === "";
-  if (isAvatarDeadBlob || isAvatarMissing) {
+  const isAymanSampleSvg = Boolean(isAyman && author.avatarUrl && author.avatarUrl.startsWith("data:image/svg+xml"));
+
+  if (isAyman && (isAymanSampleSvg || isAvatarDeadBlob || isAvatarMissing)) {
+    author.avatarUrl = DR_AYMAN_AVATAR_DATA_URL;
+    author.avatarName = "د. أيمن أحمد الدلوع.jpg";
+    healed = true;
+  } else if (isAvatarDeadBlob || isAvatarMissing) {
     author.avatarUrl = generateSampleAuthorAvatarSvg(author.fullName, author.academicTitleLabel);
     author.avatarName = author.avatarName || "Author_Profile_Photo.svg";
     healed = true;
@@ -1135,11 +1145,22 @@ export async function resolveAuthorAvatar(author?: AuthorProfile | null): Promis
   }
 
   // 3. Direct valid image data URL or web URL
+  const isAyman = (author.authorCode && author.authorCode.toUpperCase().includes("4714")) ||
+                  (author.fullName && author.fullName.includes("الدلوع")) ||
+                  (author.email && author.email.toLowerCase().includes("ayman"));
+
+  if (isAyman && (!author.avatarUrl || author.avatarUrl.startsWith("blob:") || author.avatarUrl.startsWith("data:image/svg+xml"))) {
+    return DR_AYMAN_AVATAR_DATA_URL;
+  }
+
   if (author.avatarUrl && !author.avatarUrl.startsWith("blob:") && !author.avatarUrl.startsWith("idb:")) {
     return author.avatarUrl;
   }
 
   // 4. Default fallback generator
+  if (isAyman) {
+    return DR_AYMAN_AVATAR_DATA_URL;
+  }
   return generateSampleAuthorAvatarSvg(author.fullName, author.academicTitleLabel);
 }
 

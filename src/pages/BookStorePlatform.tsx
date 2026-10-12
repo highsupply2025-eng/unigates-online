@@ -741,29 +741,44 @@ const BookStorePlatform = () => {
               </div>
             )}
 
-            {/* If no books match filters */}
+            {/* If no books match filters / awaiting real books */}
             {displayedBooks.length === 0 ? (
-              <div className="text-center py-16 bg-card/60 dark:bg-slate-900/40 rounded-3xl border border-border dark:border-slate-800 space-y-4">
-                <BookOpen className="w-12 h-12 text-muted-foreground/60 dark:text-slate-600 mx-auto" />
-                <h3 className="text-lg font-black text-foreground dark:text-white">
-                  {isRtl ? "لم يتم العثور على كتب مطابقة للبحث أو التصفية" : "No books match your criteria"}
-                </h3>
-                <p className="text-xs text-muted-foreground dark:text-slate-400 max-w-md mx-auto">
-                  {isRtl
-                    ? "جرّب تغيير كلمات البحث في الصف العلوي أو إزالة تصفية القسم لاستعراض باقي كتب المتجر."
-                    : "Try modifying your search terms in the top bar or clearing sub-department filters."}
-                </p>
-                <Button
-                  onClick={() => {
-                    setLiveSearchQuery("");
-                    setLiveSearchCategory("all");
-                    setActiveSubCategory("all");
-                    setActiveMainTab("categories");
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl"
-                >
-                  {isRtl ? "عرض كل كتب المتجر" : "Reset & View All"}
-                </Button>
+              <div className="text-center py-20 px-4 bg-card/60 dark:bg-slate-900/40 rounded-3xl border border-border dark:border-slate-800 space-y-5 max-w-2xl mx-auto shadow-sm">
+                <div className="w-16 h-16 rounded-3xl bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto shadow-inner">
+                  <BookOpen className="w-8 h-8" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl sm:text-2xl font-black text-foreground dark:text-white">
+                    {isRtl ? "في انتظار إطلاق ونشر الكتب والمؤلفات الحقيقية قريباً" : "Awaiting Official Books & Publications"}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground dark:text-slate-400 leading-relaxed">
+                    {isRtl
+                      ? "تم تنظيف كافة الكتب التجريبية. تخضع الكتب والمراجع الحقيقية حالياً لمراجعة اللجان العلمية ودور النشر المعتمدة، وسيتم طرحها تباعاً للشراء الورقي والرقمي فور اعتمادها."
+                      : "Mock books have been cleared. Authentic books and peer-reviewed publications are currently undergoing editorial review and will be published shortly."}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <Link to="/nashr">
+                    <Button className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-black text-xs sm:text-sm h-11 px-5 rounded-xl shadow-md gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      <span>{isRtl ? "سجل كمؤلف وقدم كتابك للنشر" : "Register as Author & Publish"}</span>
+                    </Button>
+                  </Link>
+                  {(liveSearchQuery || liveSearchCategory !== "all" || activeSubCategory !== "all") && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setLiveSearchQuery("");
+                        setLiveSearchCategory("all");
+                        setActiveSubCategory("all");
+                        setActiveMainTab("categories");
+                      }}
+                      className="border-border text-foreground font-bold text-xs h-11 px-4 rounded-xl"
+                    >
+                      {isRtl ? "إعادة ضبط التصفية" : "Reset Filters"}
+                    </Button>
+                  )}
+                </div>
               </div>
             ) : (
               /* Books Grid */

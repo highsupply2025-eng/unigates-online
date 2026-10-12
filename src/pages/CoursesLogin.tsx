@@ -139,38 +139,46 @@ const CoursesLogin = () => {
       <div className="absolute top-1/3 end-1/4 w-96 h-96 bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Header Bar */}
-      <header className="relative z-30 flex items-center justify-between px-4 sm:px-8 md:px-12 py-4 border-b border-white/10 backdrop-blur-xl bg-slate-950/40">
-        <Link to="/courses" className="flex items-center gap-3 group min-w-0">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-600 to-indigo-600 p-0.5 shadow-xl shadow-purple-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
-            <BookOpen className="w-6 h-6 sm:w-7 sm:h-7" />
-          </div>
-          <div>
-            <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
-              UNIGATES
-            </span>
-            <p className="text-[10px] font-bold text-purple-300 tracking-wide">
-              {tText("أكاديمية الدورات والتدريب المهني", "Courses & Skills Academy")}
-            </p>
-          </div>
-        </Link>
-
-        {/* Header Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link to="/courses">
-            <Button size="sm" variant="ghost" className="h-10 px-3 sm:px-4 font-bold text-xs sm:text-sm text-white/90 hover:text-white hover:bg-white/10 rounded-xl gap-1.5">
-              <Home className="w-4 h-4" />
-              <span className="hidden sm:inline">{tText("الرئيسية", "Home")}</span>
-            </Button>
+      <header className="relative z-30 border-b border-white/10 backdrop-blur-2xl bg-slate-950/70 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-3 sm:py-3.5 flex items-center justify-between gap-4">
+          <Link to="/courses" className="flex items-center gap-3 group min-w-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-600 to-indigo-600 p-0.5 shadow-xl shadow-purple-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white shrink-0">
+              <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
+                  UNIGATES
+                </span>
+                <span className="hidden sm:inline-block text-[10px] font-black px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  {tText("أكاديمية الدورات", "Courses Academy")}
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-[11px] font-bold text-purple-200/80 tracking-wide truncate">
+                {tText("أكاديمية الدورات والتدريب المهني", "Courses & Skills Academy")}
+              </p>
+            </div>
           </Link>
 
-          <Link to="/courses/signup">
-            <Button size="sm" className="h-10 px-4 font-bold text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl shadow-md shadow-purple-500/25">
-              {tText("إنشاء حساب", "Sign Up")}
-            </Button>
-          </Link>
+          {/* Header Right Actions */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <Link to="/courses">
+              <Button size="sm" variant="ghost" className="h-9 sm:h-10 px-3 sm:px-3.5 font-bold text-xs sm:text-sm text-white/80 hover:text-white hover:bg-white/10 rounded-xl gap-1.5 transition-colors">
+                <Home className="w-4 h-4 text-purple-400" />
+                <span className="hidden md:inline">{tText("الرئيسية", "Home")}</span>
+              </Button>
+            </Link>
 
-          <LanguageSelectorDropdown className="h-10 px-3" />
-          <ThemeToggle className="h-10 w-10 p-0 rounded-xl" />
+            <Link to="/courses/signup">
+              <Button size="sm" className="h-9 sm:h-10 px-3.5 sm:px-4 font-black text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl shadow-md shadow-purple-500/25 gap-1.5 transition-all hover:scale-105">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{tText("إنشاء حساب", "Sign Up")}</span>
+              </Button>
+            </Link>
+
+            <LanguageSelectorDropdown className="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl border-white/20 bg-slate-900/80 hover:bg-slate-800 text-white shadow-xs" />
+            <ThemeToggle className="h-9 w-9 sm:h-10 sm:w-10 p-0 rounded-xl border-white/20 bg-slate-900/80 hover:bg-slate-800 text-white shadow-xs" />
+          </div>
         </div>
       </header>
 

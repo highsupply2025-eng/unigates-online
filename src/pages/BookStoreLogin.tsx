@@ -89,14 +89,14 @@ const BookStoreLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white" dir={dir}>
+    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-blue-600 selection:text-white transition-colors" dir={dir}>
       {/* Ambient Lighting Gradients */}
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(59,130,246,0.18),rgba(255,255,255,0))] pointer-events-none" />
-      <div className="fixed top-1/4 start-1/6 w-96 h-96 bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="fixed bottom-1/4 end-1/6 w-[450px] h-[450px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(59,130,246,0.15),transparent)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(59,130,246,0.18),transparent)] pointer-events-none" />
+      <div className="fixed top-1/4 start-1/6 w-96 h-96 bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="fixed bottom-1/4 end-1/6 w-[450px] h-[450px] bg-cyan-500/10 dark:bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" />
 
       {/* Top Header Navigation - Strictly Bookstore Branded, No "Back" Icon */}
-      <header className="border-b border-slate-800/80 px-4 sm:px-8 py-3.5 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-40 shadow-lg">
+      <header className="border-b border-border/80 px-4 sm:px-8 py-3.5 bg-card/90 dark:bg-slate-950/90 backdrop-blur-xl sticky top-0 z-40 shadow-xs transition-colors">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <Link to="/book-store" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 p-0.5 shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
@@ -104,12 +104,12 @@ const BookStoreLogin = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xl font-black text-white tracking-tight">UNIGATES</span>
-                <Badge className="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[10px] font-bold px-2 py-0.5">
+                <span className="text-xl font-black text-foreground tracking-tight">UNIGATES</span>
+                <Badge className="bg-blue-500/15 text-blue-600 dark:text-blue-300 border border-blue-400/30 text-[10px] font-bold px-2 py-0.5">
                   {isRtl ? "متجر الكتب" : "Bookstore"}
                 </Badge>
               </div>
-              <p className="text-[10px] font-bold text-slate-400">
+              <p className="text-[10px] font-bold text-muted-foreground">
                 {isRtl ? "دار عبيد للنشر والتوزيع والطباعة" : "Dar Obeid Publishing & Distribution"}
               </p>
             </div>
@@ -118,23 +118,23 @@ const BookStoreLogin = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             {/* الرئيسية */}
             <Link to="/book-store">
-              <Button size="sm" variant="outline" className="font-bold border-slate-700 bg-slate-900/90 text-slate-200 hover:text-white hover:bg-slate-800 text-xs h-9 px-3.5 rounded-xl gap-1.5 transition-all shadow-sm">
-                <Home className="w-4 h-4 text-cyan-400" />
+              <Button size="sm" variant="ghost" className="font-bold hover:bg-muted text-muted-foreground hover:text-foreground text-xs h-9 px-3.5 rounded-xl gap-1.5 transition-all shadow-xs">
+                <Home className="w-4 h-4 text-cyan-500" />
                 <span>{isRtl ? "الرئيسية" : "Home"}</span>
               </Button>
             </Link>
 
             {/* إنشاء حساب قارئ */}
             <Link to="/book-store/signup">
-              <Button size="sm" variant="outline" className="font-bold border-slate-700 bg-slate-900 text-white hover:bg-slate-800 text-xs h-9 px-3.5 rounded-xl">
+              <Button size="sm" variant="outline" className="font-bold border-border/80 bg-card text-foreground hover:bg-muted text-xs h-9 px-3.5 rounded-xl shadow-xs">
                 <span>{isRtl ? "إنشاء حساب قارئ" : "Sign Up"}</span>
               </Button>
             </Link>
 
-            <div className="h-5 w-px bg-slate-800 hidden sm:block" />
+            <div className="h-5 w-px bg-border hidden sm:block" />
 
-            <ThemeToggle className="h-9 w-9 p-0 rounded-xl border-slate-800 bg-slate-900 text-white" />
-            <LanguageSelectorDropdown className="h-9 px-2.5 rounded-xl border-slate-800 bg-slate-900 text-white" />
+            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
+            <LanguageSelectorDropdown className="h-9 px-2.5 rounded-xl" />
           </div>
         </div>
       </header>
@@ -146,30 +146,30 @@ const BookStoreLogin = () => {
           {/* Right/Start Column: Visual Showcase & Brand Trust (Desktop) */}
           <div className="lg:col-span-6 space-y-6">
             <div className="space-y-3.5 text-center lg:text-start">
-              <div className="inline-flex items-center gap-2 bg-blue-500/10 text-blue-300 border border-blue-500/30 px-3.5 py-1.5 rounded-full text-xs font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <div className="inline-flex items-center gap-2 bg-blue-500/10 text-blue-600 dark:text-blue-300 border border-blue-500/30 px-3.5 py-1.5 rounded-full text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
                 <span>{isRtl ? "متجر ومكتبة دار عبيد للنشر والتوزيع" : "Dar Obeid Bookstore & Digital Hub"}</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-tight">
                 {isRtl ? (
                   <>
                     مرحباً بك مجدداً في <br />
-                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-300 bg-clip-text text-transparent">
+                    <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 dark:from-blue-400 dark:via-cyan-400 dark:to-teal-300 bg-clip-text text-transparent">
                       عالم القراءة والمراجع الأكاديمية
                     </span>
                   </>
                 ) : (
                   <>
                     Welcome back to <br />
-                    <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-300 bg-clip-text text-transparent">
+                    <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 dark:from-blue-400 dark:via-cyan-400 dark:to-teal-300 bg-clip-text text-transparent">
                       Your Academic Book Haven
                     </span>
                   </>
                 )}
               </h1>
 
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl font-medium">
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl font-medium">
                 {isRtl
                   ? "سجّل دخولك للوصول المباشر إلى مكتبتك الرقمية المشفرة بنظام DRM، متابعة طلبات شحن الكتب الورقية، وسلة مشترياتك المحفوظة."
                   : "Sign in to access your DRM-protected e-books for instant & offline reading, track physical doorstep orders, and manage your cart."}
@@ -178,57 +178,57 @@ const BookStoreLogin = () => {
 
             {/* Platform Core Highlights Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-              <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
+              <div className="p-4 rounded-2xl bg-card/80 dark:bg-slate-900/70 border border-border/80 dark:border-slate-800 flex items-start gap-3 shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-500 dark:text-blue-400 flex items-center justify-center shrink-0">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs sm:text-sm font-black text-white">
+                  <h4 className="text-xs sm:text-sm font-black text-foreground">
                     {isRtl ? "حماية وتشفير DRM" : "Cloud DRM Security"}
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
                     {isRtl ? "قراءة سحابية فورية ومحمية على كافة الأجهزة" : "Instant cloud & offline reading on any device"}
                   </p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center shrink-0">
+              <div className="p-4 rounded-2xl bg-card/80 dark:bg-slate-900/70 border border-border/80 dark:border-slate-800 flex items-start gap-3 shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-500 dark:text-cyan-400 flex items-center justify-center shrink-0">
                   <Truck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs sm:text-sm font-black text-white">
+                  <h4 className="text-xs sm:text-sm font-black text-foreground">
                     {isRtl ? "شحن إكسبريس 48 ساعة" : "Express Doorstep Delivery"}
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
                     {isRtl ? "توصيل وتغليف كراتين فاخرة لكافة المحافظات" : "Safe packaging delivered to your door"}
                   </p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-500/15 text-teal-400 flex items-center justify-center shrink-0">
+              <div className="p-4 rounded-2xl bg-card/80 dark:bg-slate-900/70 border border-border/80 dark:border-slate-800 flex items-start gap-3 shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/15 text-teal-500 dark:text-teal-400 flex items-center justify-center shrink-0">
                   <BookCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs sm:text-sm font-black text-white">
+                  <h4 className="text-xs sm:text-sm font-black text-foreground">
                     {isRtl ? "كتب أصلية 100%" : "100% Genuine Editions"}
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
                     {isRtl ? "ترقيم دولي ISBN معتمد وتوثيق قانوني" : "Verified ISBN with legal publishing deposits"}
                   </p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center shrink-0">
+              <div className="p-4 rounded-2xl bg-card/80 dark:bg-slate-900/70 border border-border/80 dark:border-slate-800 flex items-start gap-3 shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-500 dark:text-indigo-400 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs sm:text-sm font-black text-white">
+                  <h4 className="text-xs sm:text-sm font-black text-foreground">
                     {isRtl ? "دفع آمن ومتعدد" : "Safe Flexible Payments"}
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
                     {isRtl ? "فيزا • ميزة • إنستاباي • محافظ • دفع بالاستلام" : "Cards • Meeza • InstaPay • Wallets • COD"}
                   </p>
                 </div>
@@ -238,15 +238,15 @@ const BookStoreLogin = () => {
             {/* Dedicated Publishing Platform Callout (Clean separation) */}
             <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-900/80 border border-slate-800/90 flex items-center justify-between gap-4">
               <div className="space-y-0.5">
-                <p className="text-xs font-bold text-slate-200">
+                <p className="text-xs font-bold text-foreground">
                   {isRtl ? "هل أنت مؤلف أو دار نشر وتريد نشر كتابك؟" : "Are you an author or publisher wanting to publish?"}
                 </p>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-muted-foreground">
                   {isRtl ? "منصة نشر مستقلة متخصصة لتوثيق وإيداع وطباعة وتوزيع المؤلفات." : "Dedicated publishing platform for distribution & royalties."}
                 </p>
               </div>
               <Link to="/nashr" className="shrink-0">
-                <Button size="sm" variant="outline" className="border-amber-500/40 text-amber-300 hover:bg-amber-500/10 text-xs font-bold gap-1.5 h-9 rounded-xl">
+                <Button size="sm" variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-300 hover:bg-amber-500/10 text-xs font-bold gap-1.5 h-9 rounded-xl">
                   <PenTool className="w-3.5 h-3.5" />
                   <span>{isRtl ? "منصة نشر" : "Nashr"}</span>
                 </Button>
@@ -256,7 +256,7 @@ const BookStoreLogin = () => {
 
           {/* Left/End Column: Interactive Login Card */}
           <div className="lg:col-span-6 max-w-md w-full mx-auto">
-            <Card className="border-2 border-slate-800 bg-slate-900/90 backdrop-blur-2xl shadow-2xl rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+            <Card className="border-2 border-border/80 dark:border-slate-800 bg-card/95 dark:bg-slate-900/90 backdrop-blur-2xl shadow-xl dark:shadow-2xl rounded-3xl p-6 sm:p-8 relative overflow-hidden transition-colors">
               <div className="absolute top-0 end-0 w-44 h-44 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
               {/* Card Header */}
@@ -264,10 +264,10 @@ const BookStoreLogin = () => {
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 mx-auto flex items-center justify-center text-white shadow-xl shadow-blue-500/25">
                   <Library className="w-7 h-7" />
                 </div>
-                <h2 className="text-2xl font-black text-white">
+                <h2 className="text-2xl font-black text-foreground">
                   {isRtl ? "تسجيل دخول القراء" : "Reader Sign In"}
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   {isRtl ? "أدخل بيانات حسابك للوصول إلى مكتبتك وسلة مشترياتك" : "Enter your credentials to access your library & cart"}
                 </p>
               </div>
@@ -275,7 +275,7 @@ const BookStoreLogin = () => {
               {/* Login Form */}
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-200">
+                  <label className="text-xs font-bold text-foreground">
                     {isRtl ? "البريد الإلكتروني" : "Email Address"}
                   </label>
                   <div className="relative">
@@ -286,18 +286,18 @@ const BookStoreLogin = () => {
                       placeholder="reader@example.com"
                       dir="ltr"
                       required
-                      className="h-11 bg-slate-950 border-slate-800 focus:border-blue-500 text-white rounded-xl text-xs ps-10"
+                      className="h-11 bg-background dark:bg-slate-950 border-input dark:border-slate-800 focus:border-blue-500 text-foreground rounded-xl text-xs ps-10"
                     />
-                    <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-200">
+                    <label className="text-xs font-bold text-foreground">
                       {isRtl ? "كلمة المرور" : "Password"}
                     </label>
-                    <Link to="/forgot-password" className="text-[11px] text-cyan-400 hover:underline font-semibold">
+                    <Link to="/forgot-password" className="text-[11px] text-cyan-600 dark:text-cyan-400 hover:underline font-semibold">
                       {isRtl ? "نسيت كلمة المرور؟" : "Forgot Password?"}
                     </Link>
                   </div>
@@ -309,13 +309,13 @@ const BookStoreLogin = () => {
                       placeholder="••••••••••••"
                       dir="ltr"
                       required
-                      className="h-11 bg-slate-950 border-slate-800 focus:border-blue-500 text-white rounded-xl text-xs ps-10 pe-10"
+                      className="h-11 bg-background dark:bg-slate-950 border-input dark:border-slate-800 focus:border-blue-500 text-foreground rounded-xl text-xs ps-10 pe-10"
                     />
-                    <Lock className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    <Lock className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -328,9 +328,9 @@ const BookStoreLogin = () => {
                     id="remember"
                     checked={rememberMe}
                     onCheckedChange={(checked) => setRememberMe(!!checked)}
-                    className="border-slate-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                    className="border-border data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                   />
-                  <label htmlFor="remember" className="text-xs text-slate-400 cursor-pointer font-medium select-none">
+                  <label htmlFor="remember" className="text-xs text-muted-foreground cursor-pointer font-medium select-none">
                     {isRtl ? "تذكر بيانات تسجيل الدخول على هذا الجهاز" : "Remember my login on this device"}
                   </label>
                 </div>
@@ -352,25 +352,25 @@ const BookStoreLogin = () => {
                 </Button>
 
                 {/* Security Guarantee Notice */}
-                <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 pt-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground pt-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{isRtl ? "اتصال مشفر وآمن 100% وفق القانون المصري وحماية المستهلك" : "256-bit SSL Encrypted & Consumer Protected"}</span>
                 </div>
 
-                <Separator className="my-3 bg-slate-800" />
+                <Separator className="my-3 bg-border" />
 
                 {/* Card Footer Options */}
-                <div className="text-center text-xs text-slate-400 space-y-2.5">
+                <div className="text-center text-xs text-muted-foreground space-y-2.5">
                   <p>
                     {isRtl ? "ليس لديك حساب قارئ بعد؟" : "Don't have a reader account yet?"}{" "}
-                    <Link to="/book-store/signup" className="text-cyan-400 font-black hover:underline">
+                    <Link to="/book-store/signup" className="text-cyan-600 dark:text-cyan-400 font-black hover:underline">
                       {isRtl ? "إنشاء حساب الآن مجاناً" : "Create Account Free"}
                     </Link>
                   </p>
 
                   <div className="pt-1">
-                    <Link to="/book-store" className="text-[11px] text-slate-400 hover:text-white inline-flex items-center gap-1">
-                      <Compass className="w-3 h-3 text-cyan-400" />
+                    <Link to="/book-store" className="text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+                      <Compass className="w-3 h-3 text-cyan-500" />
                       <span>{isRtl ? "العودة لتصفح متجر الكتب كزائر" : "Continue browsing book store as guest"}</span>
                     </Link>
                   </div>

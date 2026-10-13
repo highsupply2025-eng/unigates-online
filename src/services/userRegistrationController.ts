@@ -230,37 +230,47 @@ export class UserRegistrationController {
   public static async fetchAdminPendingUsers(options?: {
     onlyForeign?: boolean;
     searchQuery?: string;
+    platform?: string; // strictly defaults to 'courses' for the publishing dashboard
   }): Promise<AdminUserListItem[]> {
     try {
+      const targetPlatform = (options?.platform !== undefined ? options.platform : "courses").trim().toLowerCase();
+
       // 1. Attempt database RPC first
       const { data: rpcData, error: rpcError } = await supabase.rpc("get_admin_pending_users" as any, {
         p_only_foreign: options?.onlyForeign ?? false,
-        p_search: options?.searchQuery?.trim() || null
+        p_search: options?.searchQuery?.trim() || null,
+        p_platform: targetPlatform || null
       });
 
       if (!rpcError && Array.isArray(rpcData) && rpcData.length > 0) {
-        return rpcData.map((row: any) => ({
-          userId: row.user_id,
-          fullName: row.full_name || "مستخدم مسجل",
-          email: row.email || "",
-          phone: row.phone || "",
-          role: row.role || "user",
-          platform: row.platform || "general",
-          countryCode: row.country_code || "+966",
-          country: row.country || "SA",
-          isForeign: Boolean(row.is_foreign),
-          idType: (row.id_type as IdentificationType) || "national_id",
-          idNumber: row.id_number || undefined,
-          verificationStatus: (row.verification_status as UserVerificationStatus) || "pending_review",
-          approved: Boolean(row.approved),
-          idPhotoUrl: row.id_photo_url || undefined,
-          universityCertUrl: row.university_cert_url || undefined,
-          livePhotoUrl: row.live_photo_url || undefined,
-          createdAt: row.created_at || new Date().toISOString()
-        }));
+        return rpcData
+          .filter((row: any) => {
+            if (!targetPlatform) return true;
+            const p = (row.platform || "").trim().toLowerCase();
+            return p === targetPlatform || p === "publishing" || p.startsWith("nashr");
+          })
+          .map((row: any) => ({
+            userId: row.user_id,
+            fullName: row.full_name || "مستخدم مسجل",
+            email: row.email || "",
+            phone: row.phone || "",
+            role: row.role || "user",
+            platform: row.platform || "courses",
+            countryCode: row.country_code || "+966",
+            country: row.country || "SA",
+            isForeign: Boolean(row.is_foreign),
+            idType: (row.id_type as IdentificationType) || "national_id",
+            idNumber: row.id_number || undefined,
+            verificationStatus: (row.verification_status as UserVerificationStatus) || "pending_review",
+            approved: Boolean(row.approved),
+            idPhotoUrl: row.id_photo_url || undefined,
+            universityCertUrl: row.university_cert_url || undefined,
+            livePhotoUrl: row.live_photo_url || undefined,
+            createdAt: row.created_at || new Date().toISOString()
+          }));
       }
 
-      // 2. Direct query fallback across profiles and user_roles
+      // 2. Direct query fallback across profiles and user_roles strictly filtered by platform = 'courses'
       let query = supabase
         .from("profiles")
         .select(`
@@ -273,6 +283,10 @@ export class UserRegistrationController {
           created_at
         `)
         .order("created_at", { ascending: false });
+
+      if (targetPlatform) {
+        query = query.or(`platform.eq.${targetPlatform},platform.eq.publishing,platform.ilike.nashr%`);
+      }
 
       if (options?.searchQuery?.trim()) {
         const q = options.searchQuery.trim();
@@ -294,6 +308,16 @@ export class UserRegistrationController {
       const results: AdminUserListItem[] = [];
 
       for (const p of profiles) {
+        const pPlatform = (p.platform || "").trim().toLowerCase();
+        // Strict exclusion of university platform or any non-publishing platform
+        if (targetPlatform) {
+          const isAllowedPlatform = 
+            pPlatform === targetPlatform || 
+            pPlatform === "publishing" || 
+            pPlatform.startsWith("nashr");
+          if (!isAllowedPlatform) continue;
+        }
+
         const userRole = rolesMap.get(p.user_id);
         const isApproved = userRole?.approved ?? false;
 
@@ -316,7 +340,7 @@ export class UserRegistrationController {
             email: p.email,
             phone: p.phone || "",
             role: userRole?.role || p.role || "user",
-            platform: p.platform || "general",
+            platform: p.platform || "courses",
             countryCode,
             country: isForeignPhone ? "OTHER" : "SA",
             isForeign: isForeignPhone,

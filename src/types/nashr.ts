@@ -50,6 +50,8 @@ export interface AuthorProfile {
   verificationDate?: string;
   verificationNotes?: string;
   joinedDate: string;
+  // Platform metadata
+  platform?: string;
   // International / Foreign Registration
   isForeign?: boolean;
   idType?: "national_id" | "passport";

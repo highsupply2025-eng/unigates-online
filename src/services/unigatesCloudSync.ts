@@ -329,11 +329,11 @@ class UnigatesCloudSyncEngine {
    */
   public async fetchCloudAuthorsFromSupabase(): Promise<AuthorProfile[]> {
     try {
-      // Pull all authors/publishers, or anyone currently pending review / unverified across the platform
+      // Pull authors/publishers belonging to publishing platform (courses / nashr / publishing)
       const { data: profilesData, error } = await supabase
         .from("profiles")
         .select("*")
-        .or("platform.ilike.nashr%,platform.eq.publishing,role.eq.publisher,role.eq.author,verification_status.eq.pending_review,verification_status.eq.unverified,verification_status.eq.under_review,verification_status.eq.pending")
+        .or("platform.ilike.nashr%,platform.eq.publishing,platform.eq.courses,role.eq.publisher,role.eq.author")
         .order("created_at", { ascending: false });
 
       if (error || !profilesData) return [];
@@ -349,17 +349,17 @@ class UnigatesCloudSyncEngine {
           }
         }
 
-        // Include if publishing/nashr role OR if account is under review/pending/unverified
-        const isNashrRole = row.role === "publisher" || row.role === "author";
-        const isNashrPlatform = row.platform === "nashr" || row.platform === "publishing" || (row.platform && row.platform.startsWith("nashr:"));
-        const vStatus = (row.verification_status || parsedMeta.verificationStatus || "").toLowerCase();
-        const isPendingOrUnderReview = 
-          vStatus === "pending_review" || 
-          vStatus === "unverified" || 
-          vStatus === "under_review" || 
-          vStatus === "pending";
+        // Strict platform filter: only accounts belonging to the publishing house platform (courses / nashr / publishing)
+        // Completely exclude university platform ('university', 'college', 'institute', etc.)
+        const pStr = (row.platform || "").trim().toLowerCase();
+        const isPublishingPlatform = 
+          pStr === "courses" || 
+          pStr === "publishing" || 
+          pStr.startsWith("nashr") || 
+          row.role === "publisher" || 
+          row.role === "author";
 
-        if (!isNashrRole && !isNashrPlatform && !isPendingOrUnderReview) {
+        if (!isPublishingPlatform) {
           continue;
         }
 

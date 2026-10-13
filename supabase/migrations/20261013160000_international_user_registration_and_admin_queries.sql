@@ -268,10 +268,11 @@ GRANT EXECUTE ON FUNCTION public.complete_signup(uuid, text, text, text, text, t
 -- 3. Database Queries and RPCs for Admin Dashboard Users & International Review
 -- =========================================================================
 
--- RPC to fetch all pending, unverified, and international accounts requiring review
+-- RPC to fetch pending, unverified, and international accounts requiring review strictly for a platform (defaults to publishing platform 'courses')
 CREATE OR REPLACE FUNCTION public.get_admin_pending_users(
   p_only_foreign boolean DEFAULT false,
-  p_search text DEFAULT NULL
+  p_search text DEFAULT NULL,
+  p_platform text DEFAULT 'courses'
 )
 RETURNS TABLE (
   user_id uuid,
@@ -324,6 +325,21 @@ AS $$
     OR (p_only_foreign AND p.is_foreign = true)
   )
   AND (
+    -- Strict platform filter: only accounts belonging to publishing platform (courses / nashr / publishing)
+    -- Completely excludes university, college, institute, or any non-publishing platforms
+    p_platform IS NULL
+    OR (
+      lower(p_platform) = 'courses' 
+      AND (
+        lower(p.platform) = 'courses' 
+        OR lower(p.platform) = 'publishing' 
+        OR lower(p.platform) LIKE 'nashr%'
+        OR lower(p.role) IN ('publisher', 'author')
+      )
+    )
+    OR lower(p.platform) = lower(p_platform)
+  )
+  AND (
     p_only_foreign = false OR p.is_foreign = true
   )
   AND (
@@ -336,7 +352,7 @@ AS $$
   ORDER BY p.created_at DESC;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.get_admin_pending_users(boolean, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_admin_pending_users(boolean, text, text) TO authenticated, anon;
 
 -- Admin User Approval RPC
 CREATE OR REPLACE FUNCTION public.admin_approve_user(

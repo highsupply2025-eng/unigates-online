@@ -451,9 +451,9 @@ export const AdminDashboard = () => {
       NashrDataStore.syncAuthorsFromCloud().then(async (mergedAuthors) => {
         let currentList = Array.isArray(mergedAuthors) ? mergedAuthors.filter(Boolean) : [];
         
-        // Also query UserRegistrationController to guarantee all pending/unverified users from Supabase are pulled
+        // Also query UserRegistrationController to guarantee all pending/unverified users from Supabase are pulled (strictly platform = 'courses')
         try {
-          const pendingUsers = await UserRegistrationController.fetchAdminPendingUsers();
+          const pendingUsers = await UserRegistrationController.fetchAdminPendingUsers({ platform: "courses" });
           if (Array.isArray(pendingUsers) && pendingUsers.length > 0) {
             for (const u of pendingUsers) {
               const alreadyExists = currentList.some(
@@ -470,6 +470,7 @@ export const AdminDashboard = () => {
                   institution: u.country || "مؤسسة أكاديمية",
                   email: u.email,
                   phone: u.phone,
+                  platform: u.platform || "courses",
                   verificationStatus: u.verificationStatus || "pending_review",
                   isForeign: u.isForeign,
                   idType: u.idType,
@@ -846,8 +847,17 @@ export const AdminDashboard = () => {
     });
   };
 
-  // Filters with defensive null/undefined checks
-  const safeAuthors = Array.isArray(authors) ? authors.filter(Boolean) : [];
+  // Filters with defensive null/undefined checks - strictly for publishing platform (courses)
+  const safeAuthors = (Array.isArray(authors) ? authors.filter(Boolean) : []).filter(a => {
+    if (!a) return false;
+    // If platform is defined on author, must be publishing platform (courses / nashr / publishing)
+    if (a.platform) {
+      const p = a.platform.trim().toLowerCase();
+      const isPublishing = p === "courses" || p === "publishing" || p.startsWith("nashr");
+      if (!isPublishing) return false;
+    }
+    return true;
+  });
   const safeSubmissions = Array.isArray(submissions) ? submissions.filter(Boolean) : [];
   const safeInvoices = Array.isArray(invoices) ? invoices.filter(Boolean) : [];
 

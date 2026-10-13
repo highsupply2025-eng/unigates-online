@@ -106,7 +106,7 @@ const NasherLogin = () => {
 
     setLoading(true);
     try {
-      await new Promise(r => setTimeout(r, 600));
+      await NashrDataStore.syncAuthorsFromCloud();
 
       const author = NashrDataStore.findAuthorByIdentifier(identifier.trim()) || NashrDataStore.getAuthorProfile();
       setCurrentAuthor(author);

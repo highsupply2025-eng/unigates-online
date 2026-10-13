@@ -1393,6 +1393,18 @@ export class NashrDataStore {
     try {
       UnigatesCloudSync.broadcast("AUTHOR_REGISTERED", profile.id, pruned);
       UnigatesCloudSync.syncAuthorToSupabaseAuth(profile);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("unigates-cloud-sync", {
+          detail: {
+            eventType: "AUTHOR_REGISTERED",
+            entityId: profile.id,
+            data: pruned,
+            originNodeId: "local",
+            timestamp: new Date().toISOString()
+          }
+        }));
+        window.dispatchEvent(new Event("storage"));
+      }
     } catch (syncErr) {
       console.warn("[saveAuthorProfile] Cloud sync non-fatal notice:", syncErr);
     }
@@ -2540,16 +2552,70 @@ export class NashrDataStore {
       console.warn("[NashrDataStore] Inbound cloud sync merge notice:", err);
     }
   }
+
+  /**
+   * Synchronize and merge all registered Nashr authors from Supabase Cloud Database
+   * and the Global Sync API so any registration from any device appears in the Admin Dashboard.
+   */
+  static async syncAuthorsFromCloud(): Promise<AuthorProfile[]> {
+    try {
+      const [dbAuthors, remoteState] = await Promise.all([
+        UnigatesCloudSync.fetchCloudAuthorsFromSupabase(),
+        UnigatesCloudSync.pullRemoteState()
+      ]);
+
+      const incomingAuthors: AuthorProfile[] = [
+        ...(Array.isArray(dbAuthors) ? dbAuthors : []),
+        ...(Array.isArray(remoteState?.authors) ? remoteState.authors : [])
+      ];
+
+      if (incomingAuthors.length > 0) {
+        const currentAll = this.getAllAuthors();
+        let addedOrUpdated = false;
+
+        for (const rem of incomingAuthors) {
+          if (!rem || (!rem.id && !rem.email)) continue;
+          const idx = currentAll.findIndex(a =>
+            a.id === rem.id ||
+            (rem.authorCode && a.authorCode?.toUpperCase() === rem.authorCode.toUpperCase()) ||
+            (rem.email && a.email?.toLowerCase() === rem.email.toLowerCase())
+          );
+
+          if (idx === -1) {
+            const { author: healed } = healAuthorDocuments(rem);
+            currentAll.unshift(healed);
+            addedOrUpdated = true;
+          }
+        }
+
+        if (addedOrUpdated) {
+          try {
+            const prunedAll = currentAll.map(a => this.pruneAuthorForStorage(a));
+            localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(prunedAll));
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("storage"));
+            }
+          } catch (e) {
+            console.warn("[NashrDataStore] syncAuthorsFromCloud storage warning:", e);
+          }
+        }
+        return currentAll;
+      }
+    } catch (err) {
+      console.warn("[NashrDataStore] syncAuthorsFromCloud notice:", err);
+    }
+    return this.getAllAuthors();
+  }
 }
 
 // -------------------------------------------------------------
 // Auto-initialize Global Mesh & Inbound Sync in Browser Runtime
 // -------------------------------------------------------------
 if (typeof window !== "undefined") {
-  UnigatesCloudSync.initialize().catch((e) => {
-    console.info("[NashrDataStore] Cloud Mesh auto-start notice:", e);
-  });
   UnigatesCloudSync.subscribe((payload) => {
     NashrDataStore.handleIncomingCloudPayload(payload);
+  });
+  UnigatesCloudSync.initialize().catch((e) => {
+    console.info("[NashrDataStore] Cloud Mesh auto-start notice:", e);
   });
 }

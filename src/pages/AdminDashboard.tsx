@@ -442,6 +442,13 @@ export const AdminDashboard = () => {
       setSubmissions(Array.isArray(s) ? s.filter(Boolean) : []);
       setInvoices(Array.isArray(i) ? i.filter(Boolean) : []);
       setContracts(Array.isArray(c) ? c.filter(Boolean) : []);
+
+      // Also pull & merge any newly registered authors from Supabase Cloud & Edge Sync
+      NashrDataStore.syncAuthorsFromCloud().then((mergedAuthors) => {
+        if (Array.isArray(mergedAuthors)) {
+          setAuthors(mergedAuthors.filter(Boolean));
+        }
+      }).catch(() => {});
     } catch (err) {
       console.error("[AdminDashboard] Error loading data:", err);
       setAuthors([]);

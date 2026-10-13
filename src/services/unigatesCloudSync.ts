@@ -129,6 +129,13 @@ class UnigatesCloudSyncEngine {
         console.error("[UnigatesCloudSync] Listener error:", err);
       }
     });
+    if (typeof window !== "undefined") {
+      try {
+        window.dispatchEvent(new CustomEvent("unigates-cloud-sync", { detail: payload }));
+      } catch {
+        // Ignore in SSR or constrained environments
+      }
+    }
   }
 
   /**
@@ -160,7 +167,7 @@ class UnigatesCloudSyncEngine {
     }
 
     // 2. Also persist to Cloud Sync API in the background (fire-and-forget with error boundary)
-    this.pushToCloudApi(payload).catch((e) => {
+    this.pushToCloudApi(payload).catch(() => {
       // Non-fatal, cached locally
     });
   }
@@ -213,7 +220,7 @@ class UnigatesCloudSyncEngine {
     authors?: AuthorProfile[];
     submissions?: ManuscriptSubmission[];
     invoices?: NashrInvoice[];
-    contracts?: NashrContract[];
+    contracts?: AuthorContract[];
   } | null> {
     if (this.syncInProgress) return null;
     this.syncInProgress = true;
@@ -227,6 +234,15 @@ class UnigatesCloudSyncEngine {
 
       if (response.ok) {
         const data = await response.json();
+        if (data) {
+          this.notifyListeners({
+            eventType: "FULL_STATE_SYNC",
+            entityId: "remote_pull",
+            data,
+            originNodeId: "server",
+            timestamp: new Date().toISOString()
+          });
+        }
         return data;
       }
     } catch {
@@ -238,12 +254,30 @@ class UnigatesCloudSyncEngine {
   }
 
   /**
-   * Register a new author in Supabase Cloud Auth as well
+   * Register a new author in Supabase Cloud Auth AND persistent PostgreSQL database
+   * so admins on any device/browser worldwide can immediately review the account.
    */
   public async syncAuthorToSupabaseAuth(author: AuthorProfile): Promise<void> {
     if (!author.email) return;
     try {
       const defaultPassword = author.tempPassword || "UnigatesAuthor@2026";
+      const metadataPayload = {
+        id: author.id,
+        authorCode: author.authorCode,
+        fullName: author.fullName,
+        academicTitle: author.academicTitle,
+        academicTitleLabel: author.academicTitleLabel,
+        specialization: author.specialization,
+        institution: author.institution || "UNIGATES Global Author",
+        email: author.email.trim().toLowerCase(),
+        phone: author.phone,
+        bio: author.bio,
+        tempPassword: author.tempPassword,
+        isTemporaryPassword: author.isTemporaryPassword ?? true,
+        verificationStatus: author.verificationStatus || "pending_review",
+        joinedDate: author.joinedDate || new Date().toISOString().split("T")[0]
+      };
+
       const { data, error } = await supabase.auth.signUp({
         email: author.email.trim().toLowerCase(),
         password: defaultPassword,
@@ -255,16 +289,34 @@ class UnigatesCloudSyncEngine {
             phone: author.phone,
             specialization: author.specialization,
             academic_title: author.academicTitle,
-            institution: author.institution || "UNIGATES Global Author"
+            institution: author.institution || "UNIGATES Global Author",
+            nashr_meta: JSON.stringify(metadataPayload)
           }
         }
       });
 
       if (error) {
-        // User may already exist, which is completely normal
         console.info("[UnigatesCloudSync] Supabase Auth registration notice:", error.message);
       } else if (data.user) {
         console.info("[UnigatesCloudSync] Author account created in Supabase Cloud Auth:", data.user.id);
+        // Persist into public.profiles, public.profile_documents, and public.user_roles
+        try {
+          const encodedPlatform = `nashr:${JSON.stringify(metadataPayload)}`;
+          await (supabase.rpc as any)("complete_signup", {
+            p_user_id: data.user.id,
+            p_role: "publisher",
+            p_full_name: author.fullName,
+            p_phone: author.phone || "",
+            p_email: author.email.trim().toLowerCase(),
+            p_platform: encodedPlatform,
+            p_id_photo_url: author.nationalIdUrl && !author.nationalIdUrl.startsWith("data:") ? author.nationalIdUrl : `meta:${author.authorCode}`,
+            p_university_cert_url: author.qualificationDocuments?.[0]?.name || author.specialization,
+            p_additional_certs_urls: (author.qualificationDocuments || []).map(d => d.name),
+            p_live_photo_url: author.avatarName || author.authorCode
+          });
+        } catch (rpcErr) {
+          console.warn("[UnigatesCloudSync] complete_signup RPC notice:", rpcErr);
+        }
       }
     } catch (err) {
       console.warn("[UnigatesCloudSync] Auth sync non-fatal warning:", err);
@@ -272,23 +324,67 @@ class UnigatesCloudSyncEngine {
   }
 
   /**
-   * Periodic background synchronization (every 30 seconds)
+   * Fetch all Nashr authors stored in Supabase PostgreSQL (public.profiles)
+   * and merge them into local storage for the Admin Dashboard.
+   */
+  public async fetchCloudAuthorsFromSupabase(): Promise<AuthorProfile[]> {
+    try {
+      const { data: profilesData, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .or("platform.ilike.nashr%,platform.eq.publishing,role.eq.publisher")
+        .order("created_at", { ascending: false });
+
+      if (error || !profilesData) return [];
+
+      const cloudAuthors: AuthorProfile[] = [];
+      for (const row of profilesData) {
+        let parsedMeta: Partial<AuthorProfile> = {};
+        if (row.platform && row.platform.startsWith("nashr:")) {
+          try {
+            parsedMeta = JSON.parse(row.platform.slice(6));
+          } catch {
+            // fallback
+          }
+        } else if (row.platform !== "nashr" && row.platform !== "publishing") {
+          // Skip non-Nashr publishers if they belong to another platform unless they have nashr prefix
+          continue;
+        }
+
+        const authorCode = parsedMeta.authorCode || `AUT-${row.user_id.substring(0, 4).toUpperCase()}`;
+        cloudAuthors.push({
+          id: parsedMeta.id || `auth-${row.user_id}`,
+          authorCode,
+          fullName: parsedMeta.fullName || row.full_name || "مؤلف مسجل",
+          academicTitle: (parsedMeta.academicTitle as any) || "dr",
+          academicTitleLabel: parsedMeta.academicTitleLabel || "دكتور / باحث أكاديمي",
+          specialization: parsedMeta.specialization || "الدراسات الأكاديمية والبحث العلمي",
+          institution: parsedMeta.institution || "مؤسسة أكاديمية",
+          email: (row.email || parsedMeta.email || "").toLowerCase(),
+          phone: row.phone || parsedMeta.phone || "",
+          bio: parsedMeta.bio || "مؤلف وباحث مسجل عبر منصة نشر الموحدة.",
+          isTemporaryPassword: parsedMeta.isTemporaryPassword ?? row.must_change_password ?? false,
+          tempPassword: parsedMeta.tempPassword,
+          verificationStatus: parsedMeta.verificationStatus || "pending_review",
+          joinedDate: parsedMeta.joinedDate || (row.created_at ? row.created_at.split("T")[0] : new Date().toISOString().split("T")[0])
+        });
+      }
+
+      return cloudAuthors;
+    } catch (err) {
+      console.warn("[UnigatesCloudSync] fetchCloudAuthorsFromSupabase notice:", err);
+      return [];
+    }
+  }
+
+  /**
+   * Periodic background synchronization (every 20 seconds)
    */
   private startPeriodicSync() {
     if (this.syncIntervalTimer) clearInterval(this.syncIntervalTimer);
     this.syncIntervalTimer = setInterval(() => {
-      this.pullRemoteState().then((remoteData) => {
-        if (remoteData) {
-          this.notifyListeners({
-            eventType: "FULL_STATE_SYNC",
-            entityId: "global_sync_interval",
-            data: remoteData,
-            originNodeId: "server",
-            timestamp: new Date().toISOString()
-          });
-        }
-      }).catch(() => {});
-    }, 30000);
+      this.pullRemoteState().catch(() => {});
+    }, 20000);
   }
 }
 

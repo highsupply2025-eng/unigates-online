@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
@@ -1749,42 +1749,63 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          country: string | null
+          country_code: string | null
           created_at: string
           email: string
           full_name: string
           id: string
+          id_number: string | null
+          id_type: string | null
+          is_foreign: boolean | null
           must_change_password: boolean
           phone: string | null
           platform: string
+          rejection_reason: string | null
           role: string
           updated_at: string
           user_id: string
+          verification_status: string | null
         }
         Insert: {
           avatar_url?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string
           email: string
           full_name: string
           id?: string
+          id_number?: string | null
+          id_type?: string | null
+          is_foreign?: boolean | null
           must_change_password?: boolean
           phone?: string | null
           platform?: string
+          rejection_reason?: string | null
           role: string
           updated_at?: string
           user_id: string
+          verification_status?: string | null
         }
         Update: {
           avatar_url?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string
           email?: string
           full_name?: string
           id?: string
+          id_number?: string | null
+          id_type?: string | null
+          is_foreign?: boolean | null
           must_change_password?: boolean
           phone?: string | null
           platform?: string
+          rejection_reason?: string | null
           role?: string
           updated_at?: string
           user_id?: string
+          verification_status?: string | null
         }
         Relationships: []
       }
@@ -3207,6 +3228,14 @@ export type Database = {
     }
     Functions: {
       _protected_owner_emails: { Args: never; Returns: string[] }
+      admin_approve_user: {
+        Args: { p_role?: string; p_user_id: string }
+        Returns: Json
+      }
+      admin_reject_user: {
+        Args: { p_rejection_reason?: string; p_user_id: string }
+        Returns: Json
+      }
       archive_school_registration: {
         Args: { _school_id: string }
         Returns: {
@@ -3278,21 +3307,43 @@ export type Database = {
           temporary_password_column_present: boolean
         }[]
       }
-      complete_signup: {
-        Args: {
-          p_additional_certs_urls?: string[]
-          p_email: string
-          p_full_name: string
-          p_id_photo_url?: string
-          p_live_photo_url?: string
-          p_phone: string
-          p_platform?: string
-          p_role: string
-          p_university_cert_url?: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
+      complete_signup:
+        | {
+            Args: {
+              p_additional_certs_urls?: string[]
+              p_email: string
+              p_full_name: string
+              p_id_photo_url?: string
+              p_live_photo_url?: string
+              p_phone: string
+              p_platform?: string
+              p_role: string
+              p_university_cert_url?: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_additional_certs_urls?: string[]
+              p_country?: string
+              p_country_code?: string
+              p_email: string
+              p_full_name: string
+              p_id_number?: string
+              p_id_photo_url?: string
+              p_id_type?: string
+              p_is_foreign?: boolean
+              p_live_photo_url?: string
+              p_phone: string
+              p_platform?: string
+              p_role: string
+              p_university_cert_url?: string
+              p_user_id: string
+              p_verification_status?: string
+            }
+            Returns: Json
+          }
       confirm_registration_email: {
         Args: { _email: string }
         Returns: undefined
@@ -3395,6 +3446,32 @@ export type Database = {
       }
       delete_test_accounts: { Args: never; Returns: undefined }
       ensure_owner_role: { Args: never; Returns: undefined }
+      get_admin_pending_users: {
+        Args: {
+          p_only_foreign?: boolean
+          p_platform?: string
+          p_search?: string
+        }
+        Returns: {
+          approved: boolean
+          country: string
+          country_code: string
+          created_at: string
+          email: string
+          full_name: string
+          id_number: string
+          id_photo_url: string
+          id_type: string
+          is_foreign: boolean
+          live_photo_url: string
+          phone: string
+          platform: string
+          role: string
+          university_cert_url: string
+          user_id: string
+          verification_status: string
+        }[]
+      }
       get_bank_details: { Args: never; Returns: Json }
       get_cleanup_candidates: {
         Args: never

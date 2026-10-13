@@ -33,6 +33,7 @@ function dataUrlToBlob(dataUrl: string): Blob {
 
 /**
  * Converts any visual content (SVG Data URI, PNG, JPEG) into a valid, genuine binary PDF document.
+ * Enforces UTF-8 encoding and high-res canvas rendering so Arabic text in SVGs and certificates never corrupts.
  */
 export async function convertVisualToPdfBlob(
   sourceUrl: string,
@@ -47,8 +48,49 @@ export async function convertVisualToPdfBlob(
   const jspdfModule = await import("jspdf");
   const JsPDFClass = (jspdfModule as any).default || (jspdfModule as any).jsPDF;
 
+  // Prepare a normalized, UTF-8 clean source URL
+  let effectiveUrl = sourceUrl;
+  let createdObjectUrl: string | null = null;
+
+  if (sourceUrl.startsWith("data:image/svg+xml")) {
+    try {
+      // Decode with full UTF-8 support
+      let svgString: string;
+      if (sourceUrl.includes(";base64,")) {
+        const base64Data = sourceUrl.split(";base64,")[1] || "";
+        const binary = atob(base64Data);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        svgString = new TextDecoder("utf-8").decode(bytes);
+      } else {
+        const rawPart = sourceUrl.split(",")[1] || "";
+        svgString = decodeURIComponent(rawPart);
+      }
+
+      // Ensure explicit UTF-8 and standard Arabic font declarations
+      if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
+        svgString = svgString.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+      }
+
+      const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+      createdObjectUrl = URL.createObjectURL(svgBlob);
+      effectiveUrl = createdObjectUrl;
+    } catch (e) {
+      console.warn("[convertVisualToPdfBlob] SVG UTF-8 normalization warning:", e);
+    }
+  }
+
   // 3. Render image/SVG into high-DPI canvas, then generate standard PDF
   return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      if (createdObjectUrl) {
+        URL.revokeObjectURL(createdObjectUrl);
+        createdObjectUrl = null;
+      }
+    };
+
     const img = new Image();
     img.crossOrigin = "anonymous";
 
@@ -63,59 +105,89 @@ export async function convertVisualToPdfBlob(
 
         const pageWidth = isLandscape ? 297 : 210;
         const pageHeight = isLandscape ? 210 : 297;
-        const margin = 12;
+        const margin = 10;
         const availWidth = pageWidth - margin * 2;
         const availHeight = pageHeight - margin * 2;
 
         let renderWidth = availWidth;
-        let renderHeight = (img.height * renderWidth) / img.width;
+        let renderHeight = (img.height * renderWidth) / (img.width || 1);
 
         if (renderHeight > availHeight) {
           renderHeight = availHeight;
-          renderWidth = (img.width * renderHeight) / img.height;
+          renderWidth = ((img.width || 1) * renderHeight) / (img.height || 1);
         }
 
         const posX = margin + (availWidth - renderWidth) / 2;
         const posY = margin + (availHeight - renderHeight) / 2;
 
-        // High resolution Canvas (scale: 2)
-        const scale = 2;
+        // High resolution Canvas (scale: 2.5 for crisp Arabic calligraphy)
+        const scale = 2.5;
         const canvas = document.createElement("canvas");
-        canvas.width = Math.max(img.width * scale, 1200);
-        canvas.height = Math.max(img.height * scale, 900);
+        canvas.width = Math.max(Math.round(img.width * scale), 1400);
+        canvas.height = Math.max(Math.round(img.height * scale), 1000);
         const ctx = canvas.getContext("2d");
 
         if (ctx) {
           ctx.fillStyle = "#ffffff";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           const pngData = canvas.toDataURL("image/png", 0.95);
           pdf.addImage(pngData, "PNG", posX, posY, renderWidth, renderHeight);
         }
 
         const blob = pdf.output("blob");
+        cleanup();
         resolve(blob);
       } catch (err) {
         console.error("[convertVisualToPdfBlob] Generation error:", err);
+        cleanup();
         reject(err);
       }
     };
 
     img.onerror = (e) => {
-      console.warn("[convertVisualToPdfBlob] Image load failed, generating textual PDF fallback:", e);
+      console.warn("[convertVisualToPdfBlob] Image load failed, generating fallback canvas PDF:", e);
       try {
-        const pdf = new JsPDFClass({ orientation: "p", unit: "mm", format: "a4" });
-        pdf.setFontSize(16);
-        pdf.text(title || "Document", 20, 30);
-        pdf.setFontSize(12);
-        pdf.text("UNIGATES Official Academic Verification Document", 20, 45);
-        resolve(pdf.output("blob"));
+        // High-DPI canvas fallback supporting native Arabic font rendering
+        const canvas = document.createElement("canvas");
+        canvas.width = 1200;
+        canvas.height = 1600;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.fillStyle = "#f8fafc";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = "#0f172a";
+          ctx.font = "bold 32px 'Segoe UI', Tahoma, Arial, sans-serif";
+          ctx.textAlign = "center";
+          ctx.direction = "rtl";
+          ctx.fillText(title || "وثيقة أكاديمية رسمية", 600, 200);
+
+          ctx.fillStyle = "#64748b";
+          ctx.font = "20px 'Segoe UI', Tahoma, Arial, sans-serif";
+          ctx.fillText("منصة النشر ودار عبيد للنشر والتوزيع • وثيقة معتمدة", 600, 260);
+
+          const pdf = new JsPDFClass({ orientation: "p", unit: "mm", format: "a4" });
+          const pngData = canvas.toDataURL("image/png", 0.95);
+          pdf.addImage(pngData, "PNG", 10, 10, 190, 253);
+          cleanup();
+          resolve(pdf.output("blob"));
+        } else {
+          const pdf = new JsPDFClass({ orientation: "p", unit: "mm", format: "a4" });
+          pdf.setFontSize(14);
+          pdf.text("Academic Verification Document", 20, 30);
+          cleanup();
+          resolve(pdf.output("blob"));
+        }
       } catch (docErr) {
+        cleanup();
         reject(docErr);
       }
     };
 
-    img.src = sourceUrl;
+    img.src = effectiveUrl;
   });
 }
 

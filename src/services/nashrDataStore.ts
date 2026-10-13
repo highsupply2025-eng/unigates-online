@@ -1264,7 +1264,7 @@ export class NashrDataStore {
         }
       }
 
-      // Filter out old test accounts requested for deletion by admin
+      // Filter out old test accounts and university platform roles (رئيس قسم، عميد، وكيل، طالب)
       const filtered = list.filter(a => {
         if (!a || !a.id) return false;
         const code = (a.authorCode || "").trim().toUpperCase();
@@ -1272,6 +1272,27 @@ export class NashrDataStore {
         const name = (a.fullName || "").trim();
         if (OLD_TEST_AUTHOR_CODES.includes(code) || OLD_TEST_AUTHOR_CODES.includes(id)) return false;
         if (name.includes("المنشاوي") || name === "ؤؤؤ" || name === "m" || name.includes("hgsd]")) return false;
+
+        // Strictly exclude university platform / academic administration accounts
+        const p = ((a.platform || "") as string).trim().toLowerCase();
+        if (p === "university" || p === "college" || p === "institute" || p === "academic") return false;
+
+        const specOrTitle = `${a.specialization || ""} ${a.academicTitleLabel || ""} ${name}`.toLowerCase();
+        if (
+          specOrTitle.includes("رئيس قسم") || 
+          specOrTitle.includes("عميد كلية") || 
+          specOrTitle.includes("وكيل كلية") || 
+          specOrTitle.includes("وكيل عميد")
+        ) {
+          // If not an official publishing author, exclude from publishing authors store
+          const isOfficialPublishingAuthor = 
+            code === "AUT-4714" || 
+            code === "AUT-5820" || 
+            id === "auth-4714" || 
+            id === "auth-loubna-hawary";
+          if (!isOfficialPublishingAuthor) return false;
+        }
+
         return true;
       });
 

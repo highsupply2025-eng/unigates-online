@@ -257,7 +257,15 @@ const App = () => (
               <Route path="/book-store/login" element={<BookStoreLogin />} />
               <Route path="/book-store/signup" element={<BookStoreSignup />} />
               <Route path="/book-store/reader-dashboard" element={<ReaderDashboard />} />
+              <Route path="/reader" element={<ReaderDashboard />} />
+              <Route path="/reader-dashboard" element={<ReaderDashboard />} />
               <Route path="/book-store/publisher-dashboard" element={<PublisherDashboard />} />
+              <Route path="/publisher" element={<PublisherDashboard />} />
+              <Route path="/publisher-dashboard" element={<PublisherDashboard />} />
+              <Route path="/publisher/contracts" element={<PublisherContractsPage />} />
+              <Route path="/publisher/promotions" element={<PublisherPromotionsPage />} />
+              <Route path="/publisher/analytics" element={<PublisherAnalyticsPage />} />
+              <Route path="/publisher/anti-counterfeit" element={<PublisherAntiCounterfeitPage />} />
               <Route path="/book-store/cart" element={<BookStoreCartCheckout />} />
               <Route path="/book-store/checkout" element={<BookStoreCartCheckout />} />
               <Route path="/book-store/payment" element={<BookStoreCartCheckout />} />

@@ -38,6 +38,10 @@ import {
   ScanLine,
   FileSpreadsheet,
   Crown,
+  Search,
+  Filter,
+  Users,
+  UserCheck,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,6 +56,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
+import { NashrDataStore } from "@/services/nashrDataStore";
+import { AuthorProfile } from "@/types/nashr";
 import { 
   PublisherProfile, 
   PublisherSaleRecord, 
@@ -77,6 +83,20 @@ export const PublisherDashboard: React.FC = () => {
   const financials = BookStoreDataStore.getPublisherFinancialSummary();
 
   const [activeTab, setActiveTab] = useState("overview");
+
+  // Registered Authors from Nashr DataStore
+  const [registeredAuthors, setRegisteredAuthors] = useState<AuthorProfile[]>(() => {
+    try {
+      return NashrDataStore.getAllAuthors();
+    } catch {
+      return [];
+    }
+  });
+  const [selectedAuthorCode, setSelectedAuthorCode] = useState<string>("custom");
+
+  // Sales Ledger Filters & Search
+  const [salesSearchQuery, setSalesSearchQuery] = useState("");
+  const [salesFormatFilter, setSalesFormatFilter] = useState<"all" | "digital" | "print">("all");
 
   // New Book Upload Form
   const [titleAr, setTitleAr] = useState("");
@@ -201,6 +221,93 @@ export const PublisherDashboard: React.FC = () => {
       description: isRtl
         ? `تم إرسال طلب سحب بقيمة ${numAmount} EGP، وستتم المعالجة والإيداع خلال 24 ساعة عمل.`
         : `Payout request for ${numAmount} EGP has been submitted for review.`,
+    });
+  };
+
+  // Author Selection Handler
+  const handleAuthorSelect = (code: string) => {
+    setSelectedAuthorCode(code);
+    if (code === "custom") {
+      return;
+    }
+    const found = registeredAuthors.find((a) => a.authorCode === code || a.id === code);
+    if (found) {
+      setAuthorAr(found.fullName);
+      if (!authorEn) {
+        setAuthorEn(found.fullName);
+      }
+      toast({
+        title: isRtl ? "تم ربط المؤلف المعتمد بنجاح ✍️" : "Author Profile Linked ✍️",
+        description: isRtl
+          ? `تم ربط «${found.fullName}» (${found.authorCode || "معتمد"}) بالكتاب وإدراجه بالكتالوج.`
+          : `Linked to registered author ${found.fullName}`,
+      });
+    }
+  };
+
+  // Filtered Sales Logic
+  const filteredSales = sales.filter((sale) => {
+    const matchesFormat = salesFormatFilter === "all" || sale.format === salesFormatFilter;
+    const q = salesSearchQuery.trim().toLowerCase();
+    const matchesQuery =
+      !q ||
+      sale.bookTitle.toLowerCase().includes(q) ||
+      sale.orderNumber.toLowerCase().includes(q) ||
+      sale.buyerName.toLowerCase().includes(q);
+    return matchesFormat && matchesQuery;
+  });
+
+  // Export Sales Ledger as CSV with UTF-8 BOM
+  const handleExportSalesCsv = () => {
+    if (filteredSales.length === 0) {
+      toast({
+        title: isRtl ? "لا توجد مبيعات لتصديرها" : "No Sales Records Found",
+        description: isRtl ? "لا توجد عمليات مبيعات مطابقة لمعايير البحث الحالية." : "Filter yields no rows.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const headers = [
+      "رقم الطلب",
+      "عنوان الكتاب",
+      "الصيغة",
+      "المشتري",
+      "تاريخ الطلب",
+      "إجمالي البيع (ج.م)",
+      "صافي الدار 80% (ج.م)",
+      "عمولة المنصة 20% (ج.م)",
+      "الحالة",
+    ];
+
+    const rows = filteredSales.map((s) => [
+      `"${s.orderNumber}"`,
+      `"${s.bookTitle.replace(/"/g, '""')}"`,
+      `"${s.format === "digital" ? "رقمي (E-Book)" : "ورقي (Print)"}"`,
+      `"${s.buyerName.replace(/"/g, '""')}"`,
+      `"${s.orderDate}"`,
+      s.grossAmount,
+      s.publisherShare,
+      s.platformShare,
+      `"${s.status === "completed" ? "مكتمل ومودع" : "قيد التسوية"}"`,
+    ]);
+
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `UNIGATES_Publisher_Sales_Ledger_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: isRtl ? "تم تصدير سجل المبيعات بنجاح 📊" : "Sales Ledger Exported 📊",
+      description: isRtl
+        ? `تم تنزيل ${filteredSales.length} حركة بيع بصيغة CSV المتوافقة مع Microsoft Excel.`
+        : `Downloaded ${filteredSales.length} records.`,
     });
   };
 
@@ -464,69 +571,124 @@ export const PublisherDashboard: React.FC = () => {
           {/* TAB 1: Sales & Orders Overview */}
           <TabsContent value="overview" className="space-y-6 mt-0">
             <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-border/40">
                 <div>
-                  <h3 className="text-lg font-black text-foreground">
-                    {isRtl ? "سجل المبيعات وتوزيع الإيرادات (80% / 20%)" : "Sales Ledger & Revenue Share"}
+                  <h3 className="text-lg font-black text-foreground flex items-center gap-2">
+                    <span>{isRtl ? "سجل المبيعات وتوزيع الإيرادات (80% / 20%)" : "Sales Ledger & Revenue Share"}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {filteredSales.length} {isRtl ? "عملية" : "orders"}
+                    </Badge>
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {isRtl
-                      ? "كافة عمليات شراء الكتب الرقمية والورقية الصادرة من متجر الكتب مع رصد الحصة بدقة."
+                      ? "كافة عمليات شراء الكتب الرقمية والورقية الصادرة من متجر الكتب مع رصد الحصة بدقة وتصديرها."
                       : "Detailed transaction log with automated 80% publisher / 20% platform revenue split."}
                   </p>
                 </div>
+
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <Button
+                    onClick={handleExportSalesCsv}
+                    variant="outline"
+                    size="sm"
+                    className="font-bold text-xs gap-1.5 h-9 rounded-xl border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>{isRtl ? "تصدير سجل المبيعات (CSV)" : "Export CSV"}</span>
+                  </Button>
+                </div>
               </div>
 
+              {/* Filters & Search Toolbar */}
+              <div className="flex flex-col sm:flex-row items-center gap-3 mb-5">
+                <div className="relative flex-1 w-full">
+                  <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={salesSearchQuery}
+                    onChange={(e) => setSalesSearchQuery(e.target.value)}
+                    placeholder={isRtl ? "ابحث باسم الكتاب، رقم الطلب، أو المشتري..." : "Search by title, order #, or buyer..."}
+                    className="ps-9 h-10 text-xs rounded-xl"
+                  />
+                </div>
+
+                <div className="w-full sm:w-48 shrink-0">
+                  <Select value={salesFormatFilter} onValueChange={(v: "all" | "digital" | "print") => setSalesFormatFilter(v)}>
+                    <SelectTrigger className="h-10 text-xs rounded-xl">
+                      <Filter className="w-3.5 h-3.5 me-2 text-muted-foreground" />
+                      <SelectValue placeholder={isRtl ? "تصفية الصيغة" : "Filter Format"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{isRtl ? "جميع الصيغ (الكل)" : "All Formats"}</SelectItem>
+                      <SelectItem value="digital">{isRtl ? "رقمي فقط (E-Book)" : "Digital Only"}</SelectItem>
+                      <SelectItem value="print">{isRtl ? "ورقي فقط (Print)" : "Print Only"}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Sales List */}
               <div className="space-y-3">
-                {sales.map((sale) => (
-                  <Card key={sale.id} className="p-4 border-border/60 hover:border-border transition-all bg-card/50">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-xs">
-                          {sale.format === "digital" ? "E-BK" : "PRINT"}
-                        </div>
-                        <div>
-                          <p className="text-sm font-black text-foreground">{sale.bookTitle}</p>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                            <span>{isRtl ? "رقم الطلب:" : "Order:"} {sale.orderNumber}</span>
-                            <span>•</span>
-                            <span>{isRtl ? "المشتري:" : "Buyer:"} {sale.buyerName}</span>
-                            <span>•</span>
-                            <span>{sale.orderDate}</span>
+                {filteredSales.length === 0 ? (
+                  <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-border/70 bg-muted/20">
+                    <Package className="w-10 h-10 text-muted-foreground mx-auto mb-2 opacity-60" />
+                    <p className="text-sm font-bold text-foreground">
+                      {isRtl ? "لا توجد حركات مبيعات مطابقة" : "No Matching Sales Records"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {isRtl ? "جرّب تغيير عبارة البحث أو إعادة ضبط فلتر الصيغة." : "Try clearing your search query or format filter."}
+                    </p>
+                  </div>
+                ) : (
+                  filteredSales.map((sale) => (
+                    <Card key={sale.id} className="p-4 border-border/60 hover:border-border transition-all bg-card/50">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-xs">
+                            {sale.format === "digital" ? "E-BK" : "PRINT"}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-foreground">{sale.bookTitle}</p>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                              <span>{isRtl ? "رقم الطلب:" : "Order:"} {sale.orderNumber}</span>
+                              <span>•</span>
+                              <span>{isRtl ? "المشتري:" : "Buyer:"} {sale.buyerName}</span>
+                              <span>•</span>
+                              <span>{sale.orderDate}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center gap-4 text-xs font-semibold">
-                        <div className="text-end">
-                          <p className="text-muted-foreground">{isRtl ? "إجمالي البيع:" : "Gross:"} {sale.grossAmount} EGP</p>
-                          <p className="text-emerald-600 dark:text-emerald-400 font-bold">
-                            {isRtl ? "صافي الدار (80%):" : "Net 80%:"} {sale.publisherShare} EGP
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">
-                            {isRtl ? "عمولة المتجر (20%):" : "20% Platform:"} {sale.platformShare} EGP
-                          </p>
+                        <div className="flex items-center gap-4 text-xs font-semibold">
+                          <div className="text-end">
+                            <p className="text-muted-foreground">{isRtl ? "إجمالي البيع:" : "Gross:"} {sale.grossAmount} EGP</p>
+                            <p className="text-emerald-600 dark:text-emerald-400 font-bold">
+                              {isRtl ? "صافي الدار (80%):" : "Net 80%:"} {sale.publisherShare} EGP
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {isRtl ? "عمولة المتجر (20%):" : "20% Platform:"} {sale.platformShare} EGP
+                            </p>
+                          </div>
+
+                          <Badge
+                            className={
+                              sale.status === "completed"
+                                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                                : "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                            }
+                          >
+                            {sale.status === "completed"
+                              ? isRtl
+                                ? "مكتمل ومودع"
+                                : "Completed"
+                              : isRtl
+                              ? "قيد التسوية"
+                              : "Pending"}
+                          </Badge>
                         </div>
-
-                        <Badge
-                          className={
-                            sale.status === "completed"
-                              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                              : "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                          }
-                        >
-                          {sale.status === "completed"
-                            ? isRtl
-                              ? "مكتمل ومودع"
-                              : "Completed"
-                            : isRtl
-                            ? "قيد التسوية"
-                            : "Pending"}
-                        </Badge>
                       </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  ))
+                )}
               </div>
             </Card>
           </TabsContent>
@@ -566,6 +728,40 @@ export const PublisherDashboard: React.FC = () => {
                       className="h-10 text-xs rounded-xl"
                     />
                   </div>
+                </div>
+
+                {/* Author Selection Selector */}
+                <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      <Label className="text-xs font-bold text-foreground">
+                        {isRtl ? "اختيار المؤلف (من المؤلفين المسجلين في منصة نشر أو إدخال يدوي)" : "Author Selection (From Nashr Registry or Custom)"}
+                      </Label>
+                    </div>
+                    {selectedAuthorCode !== "custom" && (
+                      <Badge className="bg-emerald-600 text-white text-[10px] font-bold gap-1">
+                        <UserCheck className="w-3 h-3" />
+                        <span>{isRtl ? "مؤلف مسجل ومعتمد" : "Verified Author"}</span>
+                      </Badge>
+                    )}
+                  </div>
+
+                  <Select value={selectedAuthorCode} onValueChange={handleAuthorSelect}>
+                    <SelectTrigger className="h-10 text-xs rounded-xl bg-card">
+                      <SelectValue placeholder={isRtl ? "اختر مؤلفاً من المنصة أو كتابة يدوية" : "Choose author"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="custom">
+                        {isRtl ? "✍️ إدخال يدوي / مؤلف خارجي (كتابة الاسم بحرية)" : "✍️ Manual Entry / External Author"}
+                      </SelectItem>
+                      {registeredAuthors.map((auth) => (
+                        <SelectItem key={auth.id || auth.authorCode} value={auth.authorCode || auth.id}>
+                          {auth.fullName} ({auth.authorCode || "AUT-SEED"}) {auth.specialization ? `• ${auth.specialization}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

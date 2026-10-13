@@ -176,6 +176,8 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [countryCode, setCountryCode] = useState("+20");
+  const [idType, setIdType] = useState<"national_id" | "passport">("national_id");
+  const [idNumber, setIdNumber] = useState("");
 
   const [idPhoto, setIdPhoto] = useState<File | null>(null);
   const [idPhotoPreview, setIdPhotoPreview] = useState<string | null>(null);
@@ -255,6 +257,21 @@ const Signup = () => {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.errorFillFields, variant: "destructive" });
       return;
     }
+    if (idNumber.trim()) {
+      const cleanId = idNumber.trim().toUpperCase();
+      const idRegex = /^[A-Z0-9\u0621-\u064A-]{5,15}$/i;
+      if (!idRegex.test(cleanId)) {
+        toast({ 
+          title: t.signupPage.errorGeneric, 
+          description: language === "ar" 
+            ? "رقم وثيقة إثبات الشخصية (الهوية أو جواز السفر) يجب أن يتكون من 5 إلى 15 حرفاً أو رقماً."
+            : "Document number must be between 5 and 15 alphanumeric characters.", 
+          variant: "destructive" 
+        });
+        return;
+      }
+    }
+
     if (!PASSWORD_REGEX.test(password)) {
       toast({ title: t.signupPage.errorGeneric, description: t.signupPage.passwordWeak, variant: "destructive" });
       return;
@@ -287,8 +304,10 @@ const Signup = () => {
         additionalCertUrls.push(await uploadFile(cert, userId, "additional-certs"));
       }
 
+      const isForeign = countryCode !== "+966" || idType === "passport";
+
       // Use RPC to create profile & role (works without session)
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('complete_signup', {
+      const { data: rpcResult, error: rpcError } = await supabase.rpc('complete_signup' as any, {
         p_user_id: userId,
         p_role: role,
         p_full_name: fullName,
@@ -299,6 +318,12 @@ const Signup = () => {
         p_university_cert_url: uniCertUrl || null,
         p_additional_certs_urls: additionalCertUrls,
         p_live_photo_url: livePhotoUrl || null,
+        p_country_code: countryCode,
+        p_country: isForeign ? "OTHER" : "SA",
+        p_is_foreign: isForeign,
+        p_id_type: idType,
+        p_id_number: idNumber.trim() || null,
+        p_verification_status: isForeign ? "pending_review" : (role === "personal" ? "approved" : "pending_review"),
       });
       if (rpcError) throw rpcError;
       const result = rpcResult as any;
@@ -591,6 +616,51 @@ const Signup = () => {
               </div>
 
               <Separator className="bg-primary/10" />
+
+              {/* Universal Identity Document Selection (National ID or Passport) */}
+              <div className="space-y-3 p-4 rounded-2xl bg-primary/5 border-2 border-primary/10">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="idType" className="font-bold text-foreground text-sm">
+                    {language === "ar" ? "نوع وثيقة إثبات الشخصية" : "Identity Document Type"} <span className="text-destructive">{t.signupPage.required}</span>
+                  </Label>
+                  <span className="text-xs text-primary font-bold">
+                    {language === "ar" ? "متاح لجميع الجنسيات دولياً 🌍" : "Universal Support 🌍"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Select value={idType} onValueChange={(val: any) => setIdType(val)}>
+                    <SelectTrigger id="idType" className="h-12 rounded-xl border-2 border-primary/10 focus:border-primary/40 bg-white shadow-sm font-bold text-xs sm:text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="national_id" className="text-xs sm:text-sm font-bold">
+                        🆔 {language === "ar" ? "بطاقة الرقم القومي / الهوية الوطنية (National ID)" : "National Identity Card"}
+                      </SelectItem>
+                      <SelectItem value="passport" className="text-xs sm:text-sm font-bold">
+                        🛂 {language === "ar" ? "جواز السفر الدولي (International Passport)" : "International Passport"}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Input
+                    id="idNumber"
+                    type="text"
+                    placeholder={idType === "passport" 
+                      ? (language === "ar" ? "رقم الجواز (مثال: A12345678)" : "Passport Number (e.g. A12345678)")
+                      : (language === "ar" ? "رقم الهوية / القومي (5-15 خانة)" : "ID Number (5-15 chars)")}
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
+                    maxLength={15}
+                    className="h-12 rounded-xl border-2 border-primary/10 focus:border-primary/40 bg-white shadow-sm font-mono text-xs sm:text-sm"
+                    dir="ltr"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {language === "ar"
+                    ? "يقبل النظام أرقام الهويات وجوازات السفر العالمية من 5 إلى 15 حرفاً أو رقماً لجميع المستخدمين."
+                    : "The system accepts 5 to 15 alphanumeric characters for all nationalities globally."}
+                </p>
+              </div>
 
               {/* File Uploads */}
               <div className="space-y-5">

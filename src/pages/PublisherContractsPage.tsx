@@ -17,7 +17,9 @@ import {
   Eye,
   Send,
   AlertCircle,
-  Award
+  Award,
+  Users,
+  UserCheck
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
+import { NashrDataStore } from "@/services/nashrDataStore";
+import { AuthorProfile } from "@/types/nashr";
 import { PublishingContract } from "@/types/bookStore";
 import SiteFooter from "@/components/SiteFooter";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
@@ -46,6 +50,16 @@ export const PublisherContractsPage: React.FC = () => {
   const [isSignModalOpen, setIsSignModalOpen] = useState(false);
   const [isNewContractModalOpen, setIsNewContractModalOpen] = useState(false);
 
+  // Registered Authors
+  const [registeredAuthors, setRegisteredAuthors] = useState<AuthorProfile[]>(() => {
+    try {
+      return NashrDataStore.getAllAuthors();
+    } catch {
+      return [];
+    }
+  });
+  const [selectedAuthorCode, setSelectedAuthorCode] = useState<string>("custom");
+
   // New Contract Form State
   const [authorName, setAuthorName] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
@@ -53,6 +67,26 @@ export const PublisherContractsPage: React.FC = () => {
   const [bookTitle, setBookTitle] = useState("");
   const [contractType, setContractType] = useState<"digital_exclusive" | "print_exclusive" | "comprehensive_both">("comprehensive_both");
   const [advancePayment, setAdvancePayment] = useState<number | string>(15000);
+
+  const handleAuthorSelect = (code: string) => {
+    setSelectedAuthorCode(code);
+    if (code === "custom") return;
+    const found = registeredAuthors.find((a) => a.authorCode === code || a.id === code);
+    if (found) {
+      setAuthorName(found.fullName);
+      if (found.email) setAuthorEmail(found.email);
+      // Generate standard ID or passport if present
+      if (found.passportNumber) {
+        setAuthorNationalId(found.passportNumber);
+      } else if (found.nationalIdUrl) {
+        setAuthorNationalId("2850915010" + (found.authorCode?.replace(/\D/g, "") || "4714").slice(-4));
+      }
+      toast({
+        title: isRtl ? "تم ربط بيانات المؤلف بالعقد" : "Author Profile Linked",
+        description: isRtl ? `تم جلب بيانات «${found.fullName}» تلقائياً.` : `Filled details for ${found.fullName}`,
+      });
+    }
+  };
 
   const handleSignContract = (contractId: string) => {
     BookStoreDataStore.signContractAsAdmin(contractId);
@@ -434,8 +468,42 @@ export const PublisherContractsPage: React.FC = () => {
           </DialogHeader>
 
           <form onSubmit={handleCreateDraft} className="space-y-3 py-2 text-xs">
+            {/* Author Selector */}
+            <div className="p-3 rounded-xl border border-indigo-500/30 bg-indigo-500/5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  <span className="font-bold text-[11px] text-foreground">
+                    {isRtl ? "اختيار مؤلف مسجل (لجلب بياناته تلقائياً)" : "Select Registered Author"}
+                  </span>
+                </div>
+                {selectedAuthorCode !== "custom" && (
+                  <Badge className="bg-emerald-600 text-white text-[9px] px-1.5 py-0">
+                    <UserCheck className="w-3 h-3 me-0.5 inline" />
+                    {isRtl ? "معتمد" : "Verified"}
+                  </Badge>
+                )}
+              </div>
+
+              <Select value={selectedAuthorCode} onValueChange={handleAuthorSelect}>
+                <SelectTrigger className="h-8 text-xs rounded-lg bg-card">
+                  <SelectValue placeholder={isRtl ? "اختر مؤلفاً من المنصة أو كتابة يدوية" : "Choose author"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="custom">
+                    {isRtl ? "✍️ إدخال يدوي / مؤلف خارجي" : "✍️ Manual Entry / External"}
+                  </SelectItem>
+                  {registeredAuthors.map((auth) => (
+                    <SelectItem key={auth.id || auth.authorCode} value={auth.authorCode || auth.id}>
+                      {auth.fullName} ({auth.authorCode || "AUT-SEED"})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
-              <label className="font-bold block mb-1">{isRtl ? "عنوان الكتاب / المرجع الأكاديمي" : "Book Title"}</label>
+              <label className="font-bold block mb-1">{isRtl ? "عنوان الكتاب / المرجع الأكاديمي *" : "Book Title *"}</label>
               <Input
                 required
                 value={bookTitle}

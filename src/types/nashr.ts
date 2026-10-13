@@ -9,7 +9,12 @@ export type AcademicTitle =
 
 export type PublishType = "digital" | "print" | "both";
 
-export type AuthorVerificationStatus = "pending_review" | "approved" | "rejected";
+export type AuthorVerificationStatus = 
+  | "pending_review" 
+  | "approved" 
+  | "rejected" 
+  | "unverified" 
+  | "under_review";
 
 export interface AuthorDocumentItem {
   id?: string;
@@ -45,6 +50,11 @@ export interface AuthorProfile {
   verificationDate?: string;
   verificationNotes?: string;
   joinedDate: string;
+  // International / Foreign Registration
+  isForeign?: boolean;
+  idType?: "national_id" | "passport";
+  passportNumber?: string;
+  countryOfResidence?: string;
   bankDetails?: {
     accountHolder: string;
     bankName: string;

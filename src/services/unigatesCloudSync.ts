@@ -329,10 +329,11 @@ class UnigatesCloudSyncEngine {
    */
   public async fetchCloudAuthorsFromSupabase(): Promise<AuthorProfile[]> {
     try {
+      // Pull all authors/publishers, or anyone currently pending review / unverified across the platform
       const { data: profilesData, error } = await supabase
         .from("profiles")
         .select("*")
-        .or("platform.ilike.nashr%,platform.eq.publishing,role.eq.publisher")
+        .or("platform.ilike.nashr%,platform.eq.publishing,role.eq.publisher,role.eq.author,verification_status.eq.pending_review,verification_status.eq.unverified,verification_status.eq.under_review,verification_status.eq.pending")
         .order("created_at", { ascending: false });
 
       if (error || !profilesData) return [];
@@ -346,12 +347,26 @@ class UnigatesCloudSyncEngine {
           } catch {
             // fallback
           }
-        } else if (row.platform !== "nashr" && row.platform !== "publishing") {
-          // Skip non-Nashr publishers if they belong to another platform unless they have nashr prefix
+        }
+
+        // Include if publishing/nashr role OR if account is under review/pending/unverified
+        const isNashrRole = row.role === "publisher" || row.role === "author";
+        const isNashrPlatform = row.platform === "nashr" || row.platform === "publishing" || (row.platform && row.platform.startsWith("nashr:"));
+        const vStatus = (row.verification_status || parsedMeta.verificationStatus || "").toLowerCase();
+        const isPendingOrUnderReview = 
+          vStatus === "pending_review" || 
+          vStatus === "unverified" || 
+          vStatus === "under_review" || 
+          vStatus === "pending";
+
+        if (!isNashrRole && !isNashrPlatform && !isPendingOrUnderReview) {
           continue;
         }
 
         const authorCode = parsedMeta.authorCode || `AUT-${row.user_id.substring(0, 4).toUpperCase()}`;
+        const isForeign = parsedMeta.isForeign || false;
+        const idType = parsedMeta.idType || (isForeign ? "passport" : "national_id");
+
         cloudAuthors.push({
           id: parsedMeta.id || `auth-${row.user_id}`,
           authorCode,
@@ -363,10 +378,19 @@ class UnigatesCloudSyncEngine {
           email: (row.email || parsedMeta.email || "").toLowerCase(),
           phone: row.phone || parsedMeta.phone || "",
           bio: parsedMeta.bio || "مؤلف وباحث مسجل عبر منصة نشر الموحدة.",
+          avatarUrl: parsedMeta.avatarUrl || undefined,
+          nationalIdUrl: parsedMeta.nationalIdUrl || undefined,
+          nationalIdName: parsedMeta.nationalIdName || undefined,
+          qualificationUrls: parsedMeta.qualificationUrls || [],
+          qualificationDocuments: parsedMeta.qualificationDocuments || [],
           isTemporaryPassword: parsedMeta.isTemporaryPassword ?? row.must_change_password ?? false,
           tempPassword: parsedMeta.tempPassword,
-          verificationStatus: parsedMeta.verificationStatus || "pending_review",
-          joinedDate: parsedMeta.joinedDate || (row.created_at ? row.created_at.split("T")[0] : new Date().toISOString().split("T")[0])
+          verificationStatus: (parsedMeta.verificationStatus as any) || "pending_review",
+          joinedDate: parsedMeta.joinedDate || (row.created_at ? row.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+          isForeign,
+          idType,
+          passportNumber: parsedMeta.passportNumber,
+          countryOfResidence: parsedMeta.countryOfResidence
         });
       }
 

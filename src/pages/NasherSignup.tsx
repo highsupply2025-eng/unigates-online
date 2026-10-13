@@ -75,6 +75,47 @@ const SPECIALIZATIONS = [
   "العلوم الأساسية (رياضيات، فيزياء، كيمياء، أحياء)"
 ];
 
+export const COUNTRY_CODES = [
+  { code: "+20", flag: "🇪🇬", nameAr: "مصر", nameEn: "Egypt" },
+  { code: "+966", flag: "🇸🇦", nameAr: "السعودية", nameEn: "Saudi Arabia" },
+  { code: "+971", flag: "🇦🇪", nameAr: "الإمارات", nameEn: "UAE" },
+  { code: "+965", flag: "🇰🇼", nameAr: "الكويت", nameEn: "Kuwait" },
+  { code: "+974", flag: "🇶🇦", nameAr: "قطر", nameEn: "Qatar" },
+  { code: "+968", flag: "🇴🇲", nameAr: "عُمان", nameEn: "Oman" },
+  { code: "+973", flag: "🇧🇭", nameAr: "البحرين", nameEn: "Bahrain" },
+  { code: "+962", flag: "🇯🇴", nameAr: "الأردن", nameEn: "Jordan" },
+  { code: "+964", flag: "🇮🇶", nameAr: "العراق", nameEn: "Iraq" },
+  { code: "+961", flag: "🇱🇧", nameAr: "لبنان", nameEn: "Lebanon" },
+  { code: "+963", flag: "🇸🇾", nameAr: "سوريا", nameEn: "Syria" },
+  { code: "+970", flag: "🇵🇸", nameAr: "فلسطين", nameEn: "Palestine" },
+  { code: "+967", flag: "🇾🇪", nameAr: "اليمن", nameEn: "Yemen" },
+  { code: "+249", flag: "🇸🇩", nameAr: "السودان", nameEn: "Sudan" },
+  { code: "+218", flag: "🇱🇾", nameAr: "ليبيا", nameEn: "Libya" },
+  { code: "+216", flag: "🇹🇳", nameAr: "تونس", nameEn: "Tunisia" },
+  { code: "+213", flag: "🇩🇿", nameAr: "الجزائر", nameEn: "Algeria" },
+  { code: "+212", flag: "🇲🇦", nameAr: "المغرب", nameEn: "Morocco" },
+  { code: "+222", flag: "🇲🇷", nameAr: "موريتانيا", nameEn: "Mauritania" },
+  { code: "+1", flag: "🇺🇸", nameAr: "أمريكا / كندا", nameEn: "USA / Canada" },
+  { code: "+44", flag: "🇬🇧", nameAr: "المملكة المتحدة", nameEn: "United Kingdom" },
+  { code: "+49", flag: "🇩🇪", nameAr: "ألمانيا", nameEn: "Germany" },
+  { code: "+33", flag: "🇫🇷", nameAr: "فرنسا", nameEn: "France" },
+  { code: "+39", flag: "🇮🇹", nameAr: "إيطاليا", nameEn: "Italy" },
+  { code: "+34", flag: "🇪🇸", nameAr: "إسبانيا", nameEn: "Spain" },
+  { code: "+90", flag: "🇹🇷", nameAr: "تركيا", nameEn: "Turkey" },
+  { code: "+60", flag: "🇲🇾", nameAr: "ماليزيا", nameEn: "Malaysia" },
+  { code: "+62", flag: "🇮🇩", nameAr: "إندونيسيا", nameEn: "Indonesia" },
+  { code: "+91", flag: "🇮🇳", nameAr: "الهند", nameEn: "India" },
+  { code: "+92", flag: "🇵🇰", nameAr: "باكستان", nameEn: "Pakistan" },
+  { code: "+61", flag: "🇦🇺", nameAr: "أستراليا", nameEn: "Australia" },
+  { code: "+86", flag: "🇨🇳", nameAr: "الصين", nameEn: "China" },
+  { code: "+81", flag: "🇯🇵", nameAr: "اليابان", nameEn: "Japan" },
+  { code: "+7", flag: "🇷🇺", nameAr: "روسيا", nameEn: "Russia" },
+  { code: "+41", flag: "🇨🇭", nameAr: "سويسرا", nameEn: "Switzerland" },
+  { code: "+46", flag: "🇸🇪", nameAr: "السويد", nameEn: "Sweden" },
+  { code: "+31", flag: "🇳🇱", nameAr: "هولندا", nameEn: "Netherlands" },
+  { code: "+999", flag: "🌍", nameAr: "دولة أخرى (دولي)", nameEn: "Other International" },
+];
+
 const generateTempPassword = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let str = "NSR-";
@@ -181,6 +222,11 @@ const getDocTypeInfo = (fileName: string) => {
 };
 
 const NasherSignup = () => {
+  // Registration Track: National vs International (Foreign Author)
+  const [registrationTrack, setRegistrationTrack] = useState<"national" | "international">("national");
+  const [passportNumber, setPassportNumber] = useState("");
+  const [countryOfResidence, setCountryOfResidence] = useState("");
+
   const [academicTitle, setAcademicTitle] = useState<AcademicTitle>("prof");
   const [fullName, setFullName] = useState("");
   const [specialization, setSpecialization] = useState(SPECIALIZATIONS[0]);
@@ -363,8 +409,9 @@ const NasherSignup = () => {
       return;
     }
 
-    // 5. Phone validation
-    if (!phone.trim() || phone.trim().length < 8) {
+    // 5. Phone validation (flexible for international numbers)
+    const minPhoneLen = registrationTrack === "international" ? 6 : 8;
+    if (!phone.trim() || phone.trim().length < minPhoneLen) {
       toast({
         title: isRtl ? "رقم الهاتف غير مكتمل" : "Incomplete Phone",
         description: isRtl ? "يرجى إدخال رقم هاتف / واتساب صحيح للتواصل الفوري." : "Please enter a valid phone number.",
@@ -386,8 +433,14 @@ const NasherSignup = () => {
     // 7. National ID / Passport (Mandatory)
     if (!nationalIdFile) {
       toast({
-        title: isRtl ? "صورة الهوية مطلوبة" : "National ID Required",
-        description: isRtl ? "يرجى إرفاق صورة بطاقة الرقم القومي أو جواز السفر لتوثيق الحساب." : "Please attach your national ID or passport for verification.",
+        title: isRtl 
+          ? (registrationTrack === "international" ? "صورة جواز السفر الدولي مطلوبة" : "صورة بطاقة الهوية / الرقم القومي مطلوبة")
+          : (registrationTrack === "international" ? "Passport Photo Required" : "National ID Required"),
+        description: isRtl 
+          ? (registrationTrack === "international"
+              ? "يرجى إرفاق صورة جواز السفر الدولي أو بطاقة الإقامة المعتمدة لتوثيق الحساب."
+              : "يرجى إرفاق صورة بطاقة الرقم القومي أو الهوية الوطنية لتوثيق الحساب.")
+          : "Please attach your national ID or passport for verification.",
         variant: "destructive"
       });
       return;
@@ -423,6 +476,7 @@ const NasherSignup = () => {
       const finalSpec = specialization === "other" ? customSpecialization : specialization;
       const authorCode = generateAuthorCode();
       const tempPassword = generateTempPassword();
+      const isForeign = registrationTrack === "international";
 
       const newProfile: AuthorProfile = {
         id: `auth-${Date.now()}`,
@@ -451,7 +505,11 @@ const NasherSignup = () => {
         agreedToTerms: true,
         isTemporaryPassword: true,
         tempPassword,
-        verificationStatus: "pending_review",
+        verificationStatus: isForeign ? "unverified" : "pending_review",
+        isForeign,
+        idType: isForeign ? "passport" : "national_id",
+        passportNumber: isForeign && passportNumber.trim() ? passportNumber.trim() : undefined,
+        countryOfResidence: isForeign && countryOfResidence.trim() ? countryOfResidence.trim() : undefined,
         joinedDate: new Date().toISOString().split("T")[0]
       };
 
@@ -834,6 +892,82 @@ const NasherSignup = () => {
 
               <CardContent className="p-6 sm:p-8">
                 <form onSubmit={handleSignup} className="space-y-6">
+
+                  {/* Track Switcher: National vs International */}
+                  <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-black text-foreground flex items-center gap-1.5">
+                        <span>🌍</span>
+                        <span>{isRtl ? "مسار التسجيل والتوثيق الأكاديمي:" : "Registration & Verification Track:"}</span>
+                      </Label>
+                      <Badge variant="outline" className="text-[10px] font-bold">
+                        {registrationTrack === "international" 
+                          ? (isRtl ? "مسار دولي (جواز سفر) 🌐" : "International Track 🌐") 
+                          : (isRtl ? "مسار محلي (هوية وطنية) 🆔" : "Domestic Track 🆔")}
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRegistrationTrack("national");
+                          setCountryCode("+20");
+                        }}
+                        className={`p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                          registrationTrack === "national"
+                            ? "bg-amber-500/15 border-amber-500 text-amber-700 dark:text-amber-300 shadow-xs"
+                            : "bg-card border-border/70 text-muted-foreground hover:bg-muted/50"
+                        }`}
+                      >
+                        <span>🇪🇬 🇸🇦</span>
+                        <span>{isRtl ? "الهوية الوطنية / الرقم القومي" : "National ID"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRegistrationTrack("international");
+                          if (countryCode === "+20") setCountryCode("+1");
+                        }}
+                        className={`p-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                          registrationTrack === "international"
+                            ? "bg-blue-500/15 border-blue-500 text-blue-700 dark:text-blue-300 shadow-xs"
+                            : "bg-card border-border/70 text-muted-foreground hover:bg-muted/50"
+                        }`}
+                      >
+                        <span>✈️ 🌐</span>
+                        <span>{isRtl ? "المسار الدولي (جواز السفر)" : "International (Passport)"}</span>
+                      </button>
+                    </div>
+
+                    {registrationTrack === "international" && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2.5 border-t border-border/50 animate-in fade-in-50">
+                        <div className="space-y-1">
+                          <Label className="text-[11px] font-bold text-foreground">
+                            {isRtl ? "رقم جواز السفر الدولي (Passport No.)" : "Passport Number"}
+                          </Label>
+                          <Input
+                            placeholder="e.g. A12345678"
+                            value={passportNumber}
+                            onChange={(e) => setPassportNumber(e.target.value)}
+                            className="h-10 text-xs rounded-xl border-border bg-background"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[11px] font-bold text-foreground">
+                            {isRtl ? "دولة الإقامة الحالية (Country of Residence)" : "Country of Residence"}
+                          </Label>
+                          <Input
+                            placeholder={isRtl ? "مثال: بريطانيا / ألمانيا / كندا / فرنسا" : "e.g. UK / Germany / France / Canada"}
+                            value={countryOfResidence}
+                            onChange={(e) => setCountryOfResidence(e.target.value)}
+                            className="h-10 text-xs rounded-xl border-border bg-background"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Row 1: Academic Title & Full Name */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -945,25 +1079,20 @@ const NasherSignup = () => {
                       </Label>
                       <div className="flex gap-2">
                         <Select value={countryCode} onValueChange={setCountryCode}>
-                          <SelectTrigger className="w-[100px] h-11 rounded-xl font-bold text-xs border-border bg-muted/30 shrink-0">
+                          <SelectTrigger className="w-[125px] sm:w-[145px] h-11 rounded-xl font-bold text-xs border-border bg-muted/30 shrink-0">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="+20">🇪🇬 +20</SelectItem>
-                            <SelectItem value="+966">🇸🇦 +966</SelectItem>
-                            <SelectItem value="+971">🇦🇪 +971</SelectItem>
-                            <SelectItem value="+965">🇰🇼 +965</SelectItem>
-                            <SelectItem value="+974">🇶🇦 +974</SelectItem>
-                            <SelectItem value="+968">🇴🇲 +968</SelectItem>
-                            <SelectItem value="+962">🇯🇴 +962</SelectItem>
-                            <SelectItem value="+964">🇮🇶 +964</SelectItem>
-                            <SelectItem value="+1">🇺🇸 +1</SelectItem>
-                            <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                          <SelectContent className="max-h-72">
+                            {COUNTRY_CODES.map((c) => (
+                              <SelectItem key={c.code} value={c.code} className="text-xs">
+                                <span>{c.flag} {c.code} ({isRtl ? c.nameAr : c.nameEn})</span>
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <Input 
                           type="tel"
-                          placeholder="01012345678"
+                          placeholder={registrationTrack === "international" ? "1234567890" : "01012345678"}
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           required
@@ -1065,7 +1194,11 @@ const NasherSignup = () => {
                         <div className="flex items-center justify-between">
                           <Label className="text-xs font-black flex items-center gap-1.5 text-foreground cursor-pointer">
                             <ShieldCheck className="w-4 h-4 text-rose-500" />
-                            <span>{isRtl ? "2. مستند أو صورة الهوية / جواز السفر (PDF / Word / صورة)" : "2. National ID / Passport (PDF / Word / Image)"}</span>
+                            <span>
+                              {registrationTrack === "international"
+                                ? (isRtl ? "2. صورة جواز السفر الدولي أو بطاقة الإقامة (PDF / Word / صورة)" : "2. International Passport / Residence Card (PDF/Word/Image)")
+                                : (isRtl ? "2. مستند أو صورة بطاقة الرقم القومي / الهوية الوطنية (PDF / Word / صورة)" : "2. National ID Document (PDF / Word / Image)")}
+                            </span>
                             <span className="text-destructive font-black">*</span>
                           </Label>
                           {nationalIdFile && (

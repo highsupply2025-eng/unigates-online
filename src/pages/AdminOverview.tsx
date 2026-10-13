@@ -16,7 +16,7 @@ import {
   ShoppingCart, CreditCard, Radio, Eye, Layers, RefreshCw, LayoutDashboard,
   Check, X, ClipboardList, ArrowRight, ShieldCheck, Landmark, MessageSquare,
   TrendingUp, BarChart3, PieChart, Activity, CheckCircle2, AlertCircle,
-  FileCheck, Calendar, DollarSign, ArrowUpRight, Search, Award, Sparkles
+  FileCheck, Calendar, DollarSign, ArrowUpRight, Search, Award, Sparkles, Globe
 } from "lucide-react";
 import { getWhatsAppDirectUrl, sendWhatsAppNotification, ADMIN_WHATSAPP_NUMBER } from "@/utils/whatsappNotifications";
 import { StudentPillActivityChart } from "@/components/StudentPillActivityChart";
@@ -24,7 +24,7 @@ import { LiveActivityTrends } from "@/components/LiveActivityTrends";
 import { TimeRangeToggle } from "@/components/TimeRangeToggle";
 import type { SectionDatum } from "@/components/SectionsActivityChart";
 
-type PendingKind = "lecturer" | "college" | "institute" | "school" | "department" | "payment_request";
+type PendingKind = "lecturer" | "international_user" | "college" | "institute" | "school" | "department" | "payment_request";
 
 interface PendingRow {
   kind: PendingKind;
@@ -38,6 +38,7 @@ interface PendingRow {
 }
 
 const kindMeta: Record<PendingKind, { ar: string; en: string; icon: typeof Users; color: string }> = {
+  international_user: { ar: "مستخدمين دوليين (جواز سفر)", en: "International Users", icon: Globe, color: "text-sky-500 bg-sky-50 dark:bg-sky-950/40 border-sky-200" },
   lecturer: { ar: "أعضاء هيئة تدريس", en: "Faculty", icon: GraduationCap, color: "text-blue-500 bg-blue-50 dark:bg-blue-950/40 border-blue-200" },
   college: { ar: "كليات جامعية", en: "Colleges", icon: Building2, color: "text-purple-500 bg-purple-50 dark:bg-purple-950/40 border-purple-200" },
   institute: { ar: "معاهد تخصصية", en: "Institutes", icon: School, color: "text-amber-500 bg-amber-50 dark:bg-amber-950/40 border-amber-200" },
@@ -146,8 +147,9 @@ export default function AdminOverview() {
   };
 
   const loadPending = async () => {
-    const [roles, colleges, institutes, schools, departments, paymentReqs] = await Promise.all([
-      supabase.from("user_roles").select("id,user_id,created_at").eq("role", "lecturer").eq("approved", false),
+    const [roles, pendingProfiles, colleges, institutes, schools, departments, paymentReqs] = await Promise.all([
+      supabase.from("user_roles").select("id,user_id,role,created_at").eq("approved", false),
+      supabase.from("profiles").select("user_id,full_name,email,phone,role,created_at,country_code,country,is_foreign,id_type,verification_status").or("verification_status.in.(pending,pending_review,unverified,under_review),is_foreign.eq.true"),
       supabase.from("college_registrations").select("id,college_name,city,phone,email,created_at").eq("status", "pending").eq("email_confirmed", true),
       supabase.from("institute_registrations" as any).select("id,institute_name,city,phone,email,created_at").eq("status", "pending").eq("email_confirmed", true),
       supabase.from("school_registrations").select("id,school_name,city,phone,email,created_at").eq("status", "pending"),
@@ -157,26 +159,73 @@ export default function AdminOverview() {
 
     const rows: PendingRow[] = [];
 
+    // Map profiles by user_id
+    const profsList = (pendingProfiles.data as any[]) || [];
+    const profMap = new Map<string, any>(profsList.map((p: any) => [p.user_id, p]));
+
+    // 1. Process unapproved user_roles
     const roleRows = roles.data || [];
     if (roleRows.length) {
-      const { data: profiles } = await supabase
-        .from("profiles").select("user_id,full_name,email,phone")
-        .in("user_id", roleRows.map((r) => r.user_id));
-      const byUser = new Map((profiles || []).map((p) => [p.user_id, p]));
+      const missingUserIds = roleRows.map((r) => r.user_id).filter((uid) => !profMap.has(uid));
+      if (missingUserIds.length) {
+        const { data: fetchedProfs } = await supabase
+          .from("profiles")
+          .select("user_id,full_name,email,phone,country_code,country,is_foreign,id_type,verification_status")
+          .in("user_id", missingUserIds);
+        (fetchedProfs || []).forEach((p: any) => profMap.set(p.user_id, p));
+      }
+
       roleRows.forEach((r) => {
-        const p = byUser.get(r.user_id);
+        const p = profMap.get(r.user_id);
+        const isForeign = Boolean(
+          p?.is_foreign ||
+          (p?.country_code && p?.country_code !== "+966") ||
+          (p?.country && p?.country !== "SA") ||
+          p?.id_type === "passport"
+        );
+
+        const kind: PendingKind = isForeign ? "international_user" : "lecturer";
+        const cCode = p?.country_code || (isForeign ? "🌍 دولي" : "+966");
+
         rows.push({
-          kind: "lecturer",
+          kind,
           id: r.id,
-          title: p?.full_name || ar("عضو هيئة تدريس", "Faculty Member"),
-          subtitle: p?.email || ar("طلب اعتماد تدريس جديد", "New Faculty Approval Request"),
+          title: p?.full_name || (isForeign ? ar("مستخدم دولي مسجل", "International User") : ar("عضو هيئة تدريس", "Faculty Member")),
+          subtitle: isForeign
+            ? `${p?.email || ""} · ${ar(`🌍 حساب دولي (${cCode}) - جواز سفر (قيد التدقيق)`, `🌍 International (${cCode}) - Passport Pending Review`)}`
+            : (p?.email || ar("طلب اعتماد تدريس جديد", "New Faculty Approval Request")),
           phone: p?.phone,
           email: p?.email,
           createdAt: r.created_at,
-          raw: r,
+          raw: { ...r, ...p },
         });
       });
     }
+
+    // 2. Also process any unverified/foreign profiles that didn't have an explicit user_roles row
+    profsList.forEach((p: any) => {
+      const alreadyAdded = rows.some((row) => row.raw?.user_id === p.user_id);
+      if (!alreadyAdded) {
+        const isForeign = Boolean(
+          p.is_foreign ||
+          (p.country_code && p.country_code !== "+966") ||
+          (p.country && p.country !== "SA") ||
+          p.id_type === "passport"
+        );
+        const cCode = p.country_code || "🌍";
+
+        rows.push({
+          kind: isForeign ? "international_user" : "lecturer",
+          id: `prof-${p.user_id}`,
+          title: p.full_name || (isForeign ? ar("مستخدم دولي مسجل", "International User") : ar("حساب بانتظار المراجعة", "Account Pending Review")),
+          subtitle: `${p.email || ""} · ${isForeign ? ar(`🌍 حساب دولي (${cCode})`, `🌍 International (${cCode})`) : ar("حساب غير مؤكد (بانتظار المراجعة)", "Unverified Account")}`,
+          phone: p.phone,
+          email: p.email,
+          createdAt: p.created_at,
+          raw: p,
+        });
+      }
+    });
 
     (colleges.data || []).forEach((c: any) =>
       rows.push({
@@ -269,11 +318,31 @@ export default function AdminOverview() {
     setBusyId(row.id);
     try {
       let error: any = null;
-      if (row.kind === "lecturer") {
-        const res = approve
-          ? await supabase.from("user_roles").update({ approved: true }).eq("id", row.id)
-          : await supabase.from("user_roles").delete().eq("id", row.id);
-        error = res.error;
+      if (row.kind === "international_user" || row.kind === "lecturer") {
+        const targetUserId = row.raw?.user_id;
+        if (approve) {
+          if (row.id && !row.id.startsWith("prof-")) {
+            const res = await supabase.from("user_roles").update({ approved: true }).eq("id", row.id);
+            error = res.error;
+          } else if (targetUserId) {
+            const res = await supabase.from("user_roles").update({ approved: true }).eq("user_id", targetUserId);
+            error = res.error;
+          }
+          if (targetUserId) {
+            await supabase.from("profiles").update({ verification_status: "approved" } as any).eq("user_id", targetUserId);
+          }
+        } else {
+          if (targetUserId) {
+            await supabase.from("profiles").update({ verification_status: "rejected" } as any).eq("user_id", targetUserId);
+          }
+          if (row.id && !row.id.startsWith("prof-")) {
+            const res = await supabase.from("user_roles").delete().eq("id", row.id);
+            error = res.error;
+          } else if (targetUserId) {
+            const res = await supabase.from("user_roles").update({ approved: false }).eq("user_id", targetUserId);
+            error = res.error;
+          }
+        }
       } else if (row.kind === "payment_request") {
         const rpcName = approve ? "approve_payment_request" : "reject_payment_request";
         const res = await supabase.rpc(rpcName as any, { _request_id: row.id });

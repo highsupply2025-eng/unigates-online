@@ -62,8 +62,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { supabase } from "@/integrations/supabase/client";
-import { NashrDataStore, generateSampleContractSvg } from "@/services/nashrDataStore";
+import { NashrDataStore, generateSampleContractSvg, OLD_TEST_AUTHOR_CODES } from "@/services/nashrDataStore";
 import { NashrFileStore } from "@/services/nashrFileStore";
+import { UserRegistrationController } from "@/services/userRegistrationController";
 import { AuthorProfile, ManuscriptSubmission, NashrInvoice, NashrMessage, AuthorContract } from "@/types/nashr";
 import { ReceiptAuditModal } from "@/components/nashr/ReceiptAuditModal";
 import { AttachmentViewerModal } from "@/components/nashr/AttachmentViewerModal";
@@ -434,6 +435,9 @@ export const AdminDashboard = () => {
 
   const loadAllData = () => {
     try {
+      // Auto-purge any orphaned test chat rooms or test messages
+      NashrDataStore.purgeUnregisteredChatConversations();
+
       const a = NashrDataStore.getAllAuthors();
       const s = NashrDataStore.getAllSubmissions();
       const i = NashrDataStore.getAllInvoices();
@@ -444,10 +448,43 @@ export const AdminDashboard = () => {
       setContracts(Array.isArray(c) ? c.filter(Boolean) : []);
 
       // Also pull & merge any newly registered authors from Supabase Cloud & Edge Sync
-      NashrDataStore.syncAuthorsFromCloud().then((mergedAuthors) => {
-        if (Array.isArray(mergedAuthors)) {
-          setAuthors(mergedAuthors.filter(Boolean));
+      NashrDataStore.syncAuthorsFromCloud().then(async (mergedAuthors) => {
+        let currentList = Array.isArray(mergedAuthors) ? mergedAuthors.filter(Boolean) : [];
+        
+        // Also query UserRegistrationController to guarantee all pending/unverified users from Supabase are pulled
+        try {
+          const pendingUsers = await UserRegistrationController.fetchAdminPendingUsers();
+          if (Array.isArray(pendingUsers) && pendingUsers.length > 0) {
+            for (const u of pendingUsers) {
+              const alreadyExists = currentList.some(
+                (a) => a.id === `auth-${u.userId}` || a.id === u.userId || (u.email && a.email?.toLowerCase() === u.email.toLowerCase())
+              );
+              if (!alreadyExists) {
+                currentList.unshift({
+                  id: `auth-${u.userId}`,
+                  authorCode: `AUT-${u.userId.substring(0, 4).toUpperCase()}`,
+                  fullName: u.fullName,
+                  academicTitle: "dr",
+                  academicTitleLabel: "دكتور / باحث مسجل",
+                  specialization: "الدراسات الأكاديمية والبحث العلمي",
+                  institution: u.country || "مؤسسة أكاديمية",
+                  email: u.email,
+                  phone: u.phone,
+                  verificationStatus: u.verificationStatus || "pending_review",
+                  isForeign: u.isForeign,
+                  idType: u.idType,
+                  passportNumber: u.idType === "passport" ? u.idNumber : undefined,
+                  countryOfResidence: u.country,
+                  joinedDate: u.createdAt ? u.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+                });
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("[AdminDashboard] fetchAdminPendingUsers warning:", e);
         }
+
+        setAuthors(currentList);
       }).catch(() => {});
     } catch (err) {
       console.error("[AdminDashboard] Error loading data:", err);
@@ -505,10 +542,12 @@ export const AdminDashboard = () => {
 
   const handlePurgeOldTestAuthors = () => {
     NashrDataStore.clearOldTestAuthors();
+    NashrDataStore.purgeUnregisteredChatConversations();
     loadAllData();
+    setChatMessagesVersion(v => v + 1);
     toast({
       title: isRtl ? "🧹 تم تنظيف وحذف الحسابات القديمة بنجاح" : "Old Accounts Cleared",
-      description: isRtl ? "تمت إزالة كافة الحسابات التجريبية والقديمة." : "Old test accounts have been deleted."
+      description: isRtl ? "تمت إزالة كافة الحسابات التجريبية والقديمة ومحادثاتها." : "Old test accounts and chats have been deleted."
     });
   };
 
@@ -827,9 +866,16 @@ export const AdminDashboard = () => {
       specialization.includes(search);
 
     const status = a.verificationStatus || "pending_review";
+    const isPendingLike = status === "pending_review" || status === "unverified" || status === "under_review";
+    const isForeignAccount = Boolean(
+      a.isForeign || 
+      (a.phone && !a.phone.startsWith("+966") && !a.phone.startsWith("00966")) || 
+      a.idType === "passport"
+    );
     const matchesStatus = 
       authorFilterStatus === "all" || 
-      (authorFilterStatus === "pending" && status === "pending_review") ||
+      (authorFilterStatus === "pending" && isPendingLike) ||
+      (authorFilterStatus === "foreign" && isForeignAccount) ||
       (authorFilterStatus === "approved" && status === "approved") ||
       (authorFilterStatus === "rejected" && status === "rejected");
     return matchesSearch && matchesStatus;
@@ -867,7 +913,10 @@ export const AdminDashboard = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const pendingAuthorsCount = safeAuthors.filter(a => (a?.verificationStatus || "pending_review") === "pending_review").length;
+  const pendingAuthorsCount = safeAuthors.filter(a => {
+    const s = a?.verificationStatus || "pending_review";
+    return s === "pending_review" || s === "unverified" || s === "under_review";
+  }).length;
   const pendingSubmissionsCount = safeSubmissions.filter(s => s?.status === "pending_review").length;
   const pendingInvoicesCount = safeInvoices.filter(i => i?.status === "under_review").length;
   const pendingStoreBooksCount = safeSubmissions.filter(s => s?.status === "ready_for_pricing" || (s?.status === "approved" && !s?.storeBookCode)).length;
@@ -876,7 +925,11 @@ export const AdminDashboard = () => {
   const allChatAuthorIds = Array.from(new Set([
     ...safeAuthors.map(a => a.id),
     ...NashrDataStore.getAllAuthorIdsWithMessages()
-  ]));
+  ])).filter(id => {
+    const syntheticCode = ("AUT-" + id.slice(-4)).toUpperCase();
+    if (OLD_TEST_AUTHOR_CODES.includes(id) || OLD_TEST_AUTHOR_CODES.includes(syntheticCode)) return false;
+    return true;
+  });
 
   const chatAuthorsList = allChatAuthorIds.map(id => {
     const existing = safeAuthors.find(a => a.id === id);
@@ -894,6 +947,14 @@ export const AdminDashboard = () => {
       phone: "",
       joinedDate: new Date().toISOString().split("T")[0]
     };
+  }).filter(author => {
+    const code = (author.authorCode || "").toUpperCase();
+    if (OLD_TEST_AUTHOR_CODES.includes(author.id) || OLD_TEST_AUTHOR_CODES.includes(code)) return false;
+    if (author.fullName === "مؤلف مسجل" || author.fullName === "Registered Author") {
+      const msgs = NashrDataStore.getMessages(author.id);
+      if (!msgs || msgs.length === 0) return false;
+    }
+    return true;
   });
 
   const authorsWithNewMessages = chatAuthorsList.filter(author => {
@@ -1238,7 +1299,7 @@ export const AdminDashboard = () => {
           <TabsContent value="authors" className="space-y-6 mt-0 animate-fade-in">
             
             {/* Quick Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between">
                 <div>
                   <span className="text-xs text-muted-foreground font-bold block">{isRtl ? "إجمالي المؤلفين المسجلين" : "Total Authors"}</span>
@@ -1256,6 +1317,18 @@ export const AdminDashboard = () => {
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 flex items-center justify-center font-bold">
                   ⏳
+                </div>
+              </Card>
+
+              <Card className="rounded-2xl border-2 border-sky-500/30 bg-sky-500/5 p-4 flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-sky-700 dark:text-sky-300 font-bold block">{isRtl ? "مؤلفون دوليون (خارج المملكة)" : "International Authors"}</span>
+                  <span className="text-2xl font-black text-sky-600 dark:text-sky-400">
+                    {safeAuthors.filter(a => Boolean(a?.isForeign || (a?.phone && !a?.phone.startsWith("+966") && !a?.phone.startsWith("00966")) || a?.idType === "passport")).length}
+                  </span>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-600 flex items-center justify-center font-bold text-base">
+                  🌍
                 </div>
               </Card>
 
@@ -1285,12 +1358,13 @@ export const AdminDashboard = () => {
                   />
                 </div>
                 <Select value={authorFilterStatus} onValueChange={setAuthorFilterStatus}>
-                  <SelectTrigger className="w-full sm:w-52 h-10 rounded-xl text-xs font-bold">
+                  <SelectTrigger className="w-full sm:w-56 h-10 rounded-xl text-xs font-bold">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">{isRtl ? "جميع الحالات" : "All Statuses"}</SelectItem>
                     <SelectItem value="pending">{isRtl ? "بانتظار التدقيق ⏳" : "Pending Review"}</SelectItem>
+                    <SelectItem value="foreign">{isRtl ? "مؤلفون دوليون (خارج المملكة) 🌍" : "International Authors 🌍"}</SelectItem>
                     <SelectItem value="approved">{isRtl ? "معتمد ومفعل ✅" : "Approved"}</SelectItem>
                     <SelectItem value="rejected">{isRtl ? "مرفوض ❌" : "Rejected"}</SelectItem>
                   </SelectContent>
@@ -1341,17 +1415,35 @@ export const AdminDashboard = () => {
                             <Badge variant="outline" className="font-mono text-[10px] font-bold">
                               {author.authorCode}
                             </Badge>
+                            {author.idType === "passport" ? (
+                              <Badge className="bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-[10px] font-bold">
+                                🛂 {isRtl ? "جواز سفر دولي" : "Passport"}{author.passportNumber ? `: ${author.passportNumber}` : ""}
+                              </Badge>
+                            ) : author.idType === "national_id" ? (
+                              <Badge variant="outline" className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700 text-[10px] font-bold">
+                                🆔 {isRtl ? "بطاقة رقم قومي / هوية" : "National ID"}
+                              </Badge>
+                            ) : null}
+                            {author.isForeign && author.idType !== "passport" && (
+                              <Badge className="bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30 text-[10px] font-bold">
+                                🌍 {isRtl ? "حساب دولي" : "International"}
+                              </Badge>
+                            )}
                             <Badge className={
                               author.verificationStatus === "approved"
                                 ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[10px]"
                                 : author.verificationStatus === "rejected"
                                 ? "bg-destructive/15 text-destructive border-destructive/30 text-[10px]"
+                                : author.verificationStatus === "unverified"
+                                ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 text-[10px] font-black animate-pulse"
                                 : "bg-amber-500/15 text-amber-600 border-amber-500/30 text-[10px]"
                             }>
                               {author.verificationStatus === "approved"
                                 ? (isRtl ? "معتمد ومفعل ✅" : "Approved")
                                 : author.verificationStatus === "rejected"
                                 ? (isRtl ? "مرفوض ❌" : "Rejected")
+                                : author.verificationStatus === "unverified"
+                                ? (isRtl ? "غير مؤكد - بانتظار التدقيق ⏳" : "Unverified - Pending Audit")
                                 : (isRtl ? "قيد المراجعة والتدقيق ⏳" : "Pending Review")}
                             </Badge>
                           </div>
@@ -2351,12 +2443,31 @@ export const AdminDashboard = () => {
                               </Badge>
                               <span className="truncate">{author.academicTitleLabel || author.specialization}</span>
                             </div>
-                            <p className={`text-[11px] truncate leading-tight ${
-                              isFromAuthor ? "text-purple-600 dark:text-purple-300 font-bold" : "text-muted-foreground"
-                            }`}>
-                              {isFromAuthor && "📩 "}
-                              {lastMsg ? lastMsg.text : (isRtl ? "بدء محادثة جديدة..." : "Start chat...")}
-                            </p>
+                            <div className="flex items-center justify-between gap-1">
+                              <p className={`text-[11px] truncate leading-tight flex-1 ${
+                                isFromAuthor ? "text-purple-600 dark:text-purple-300 font-bold" : "text-muted-foreground"
+                              }`}>
+                                {isFromAuthor && "📩 "}
+                                {lastMsg ? lastMsg.text : (isRtl ? "بدء محادثة جديدة..." : "Start chat...")}
+                              </p>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  NashrDataStore.deleteAuthorChatMessages(author.id);
+                                  setChatMessagesVersion(v => v + 1);
+                                  toast({
+                                    title: isRtl ? "تم حذف المحادثة" : "Chat Deleted",
+                                    description: isRtl ? `تمت إزالة سجل المحادثة مع ${author.fullName}.` : "Chat history cleared."
+                                  });
+                                }}
+                                className="w-6 h-6 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                                title={isRtl ? "حذف المحادثة" : "Delete Chat"}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       );
@@ -2994,6 +3105,36 @@ export const AdminDashboard = () => {
                       <div>🏛️ <strong className="text-foreground">{isRtl ? "الجامعة/الجهة:" : "Institution:"}</strong> {selectedAuthor.institution || (isRtl ? "مؤلف مستقل" : "Independent")}</div>
                       <div>📞 <strong className="text-foreground">{isRtl ? "الهاتف:" : "Phone:"}</strong> <span dir="ltr">{selectedAuthor.phone}</span></div>
                       <div>✉️ <strong className="text-foreground">{isRtl ? "البريد:" : "Email:"}</strong> {selectedAuthor.email}</div>
+                      {/* Document & Residency Meta */}
+                      <div className="sm:col-span-2 flex flex-wrap items-center gap-2 pt-1.5 border-t border-border/40 text-xs">
+                        {selectedAuthor.idType === "passport" ? (
+                          <Badge className="bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-[10px] font-bold">
+                            🛂 {isRtl ? "جواز سفر دولي (International Passport)" : "International Passport"}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700 text-[10px] font-bold">
+                            🆔 {isRtl ? "بطاقة رقم قومي / هوية وطنية (National ID)" : "National Identity Card"}
+                          </Badge>
+                        )}
+
+                        {selectedAuthor.passportNumber && (
+                          <span className="font-mono font-bold text-foreground">
+                            {isRtl ? "رقم الوثيقة:" : "Document #:"} {selectedAuthor.passportNumber}
+                          </span>
+                        )}
+
+                        {selectedAuthor.countryOfResidence && (
+                          <span className="text-muted-foreground">
+                            • {isRtl ? "دولة الإقامة:" : "Country:"} {selectedAuthor.countryOfResidence}
+                          </span>
+                        )}
+
+                        {selectedAuthor.isForeign && (
+                          <Badge className="bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30 text-[10px] font-bold">
+                            🌍 {isRtl ? "حساب دولي" : "International"}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

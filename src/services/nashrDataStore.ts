@@ -498,6 +498,12 @@ export const OLD_TEST_AUTHOR_CODES = [
   "AUT-4121",
   "AUT-4933",
   "AUT-9261",
+  "AUT-9470",
+  "AUT--001",
+  "AUT-8274",
+  "AUT-2378",
+  "AUT-4640",
+  "AUT-4490",
   "auth-2026-001",
   "author-demo-1"
 ];
@@ -1021,6 +1027,60 @@ export const OFFICIAL_SEED_AUTHORS: AuthorProfile[] = [
     permanentPassword: "NSR-9MT9QW",
     verificationStatus: "pending_review",
     joinedDate: "2026-10-10"
+  },
+  {
+    id: "auth-loubna-hawary",
+    authorCode: "AUT-5820",
+    fullName: "د. لبنى نظمي الهواري",
+    academicTitle: "dr",
+    academicTitleLabel: "دكتور (د.)",
+    specialization: "المناهج وطرق التدريس والعلوم التربوية",
+    institution: "جامعة حلوان - كلية التربية",
+    email: "dr.loubna.elhawary@gmail.com",
+    phone: "+20 112 345 6789",
+    bio: "دكتور وباحثة أكاديمية في المناهج وطرق التدريس وتطوير التعليم الجامعي والدراسات التربوية المعاصرة، مؤلفة دراسات ومراجع محكمة في القياس والتقويم وتطوير البرامج الأكاديمية.",
+    avatarUrl: generateSampleAuthorAvatarSvg("د. لبنى نظمي الهواري", "دكتور (د.)"),
+    avatarName: "د. لبنى نظمي الهواري.jpg",
+    nationalIdUrl: generateSampleNationalIdCardSvg("د. لبنى نظمي الهواري", "AUT-5820", "المناهج وطرق التدريس والعلوم التربوية"),
+    nationalIdName: "بطاقة الرقم القومي - د. لبنى نظمي الهواري.pdf",
+    nationalIdSize: "1.2 MB",
+    idType: "national_id",
+    isForeign: false,
+    countryOfResidence: "جمهورية مصر العربية",
+    qualificationDocuments: [
+      {
+        id: "qual-5820-phd",
+        name: "شهادة درجة الدكتوراه في المناهج وطرق التدريس.pdf",
+        url: generateSampleCertificateSvg("د. لبنى نظمي الهواري", "دكتور (د.)", "المناهج وطرق التدريس", "جامعة حلوان", "شهادة درجة دكتوراه الفلسفة في التربية"),
+        size: "2.1 MB",
+        type: "PDF"
+      },
+      {
+        id: "qual-5820-master",
+        name: "شهادة درجة الماجستير في العلوم التربوية.pdf",
+        url: generateSampleCertificateSvg("د. لبنى نظمي الهواري", "دكتور (د.)", "العلوم التربوية", "جامعة حلوان", "شهادة درجة الماجستير بتقدير ممتاز"),
+        size: "1.6 MB",
+        type: "PDF"
+      },
+      {
+        id: "qual-5820-license",
+        name: "وثيقة العضوية والترخيص المهني الأكاديمي.pdf",
+        url: generateSampleCertificateSvg("د. لبنى نظمي الهواري", "دكتور (د.)", "العلوم التربوية", "نقابة المهن التعليمية", "كارنيه القيد والترخيص الأكاديمي"),
+        size: "920 KB",
+        type: "PDF"
+      }
+    ],
+    qualificationUrls: [
+      generateSampleCertificateSvg("د. لبنى نظمي الهواري", "دكتور (د.)", "المناهج وطرق التدريس", "جامعة حلوان", "شهادة درجة دكتوراه الفلسفة في التربية"),
+      generateSampleCertificateSvg("د. لبنى نظمي الهواري", "دكتور (د.)", "العلوم التربوية", "جامعة حلوان", "شهادة درجة الماجستير بتقدير ممتاز"),
+      generateSampleCertificateSvg("د. لبنى نظمي الهواري", "دكتور (د.)", "العلوم التربوية", "نقابة المهن التعليمية", "كارنيه القيد والترخيص الأكاديمي")
+    ],
+    agreedToTerms: true,
+    isTemporaryPassword: false,
+    tempPassword: "NSR-LBN982",
+    permanentPassword: "NSR-LBN982",
+    verificationStatus: "pending_review",
+    joinedDate: "2026-10-12"
   }
 ];
 
@@ -1223,7 +1283,7 @@ export class NashrDataStore {
         return author;
       });
 
-      // Ensure official registered authors (such as Dr. Ayman AUT-4714) are ALWAYS present
+      // Ensure official registered authors (such as Dr. Ayman AUT-4714 and Dr. Loubna AUT-5820) are ALWAYS present
       OFFICIAL_SEED_AUTHORS.forEach(seed => {
         const exists = healedList.some(a => 
           (a.authorCode && a.authorCode.trim().toUpperCase() === seed.authorCode.toUpperCase()) ||
@@ -1235,6 +1295,26 @@ export class NashrDataStore {
           healedAny = true;
         }
       });
+
+      // Also ensure current active session author is included if present
+      const currentRaw = localStorage.getItem(STORAGE_KEYS.CURRENT_AUTHOR);
+      if (currentRaw) {
+        try {
+          const currentParsed = JSON.parse(currentRaw);
+          if (currentParsed && currentParsed.id) {
+            const exists = healedList.some(a => 
+              a.id === currentParsed.id ||
+              (a.authorCode && currentParsed.authorCode && a.authorCode.toUpperCase() === currentParsed.authorCode.toUpperCase()) ||
+              (a.email && currentParsed.email && a.email.toLowerCase() === currentParsed.email.toLowerCase())
+            );
+            if (!exists) {
+              const { author: healedCurrent } = healAuthorDocuments(currentParsed);
+              healedList.unshift(healedCurrent);
+              healedAny = true;
+            }
+          }
+        } catch {}
+      }
 
       // Synchronize back to storage if items were pruned or healed
       if (saved && (list.length !== filtered.length || healedAny)) {
@@ -1255,6 +1335,7 @@ export class NashrDataStore {
   static deleteAuthor(authorId: string): void {
     try {
       const all = this.getAllAuthors();
+      const target = all.find(a => a.id === authorId || a.authorCode === authorId);
       const updated = all.filter(a => a.id !== authorId && a.authorCode !== authorId);
       localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(updated));
 
@@ -1275,8 +1356,72 @@ export class NashrDataStore {
       const allInvs = this.getAllInvoices();
       const updatedInvs = allInvs.filter(i => i.authorId !== authorId);
       localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(updatedInvs));
+
+      // Clean chat messages for this author
+      this.deleteAuthorChatMessages(authorId);
+      if (target?.id && target.id !== authorId) {
+        this.deleteAuthorChatMessages(target.id);
+      }
+
+      // Clean sales records
+      localStorage.removeItem(`${STORAGE_KEYS.SALES}_${authorId}`);
+      if (target?.id) localStorage.removeItem(`${STORAGE_KEYS.SALES}_${target.id}`);
+
+      try {
+        UnigatesCloudSync.broadcast("AUTHOR_DELETED", authorId, { id: authorId, code: target?.authorCode });
+      } catch (e) {
+        console.warn("[deleteAuthor] cloud broadcast notice:", e);
+      }
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  static deleteAuthorChatMessages(authorId: string): void {
+    try {
+      localStorage.removeItem(`${STORAGE_KEYS.MESSAGES}_${authorId}`);
+      // Also scan any key matching this authorId
+      const prefix = `${STORAGE_KEYS.MESSAGES}_`;
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) {
+          const suffix = key.substring(prefix.length);
+          if (suffix === authorId || suffix.toLowerCase() === authorId.toLowerCase()) {
+            localStorage.removeItem(key);
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  static purgeUnregisteredChatConversations(): number {
+    try {
+      const knownAuthors = this.getAllAuthors();
+      const knownIds = new Set(knownAuthors.map(a => a.id));
+      const current = this.getAuthorProfile();
+      if (current?.id) knownIds.add(current.id);
+
+      const prefix = `${STORAGE_KEYS.MESSAGES}_`;
+      let deletedCount = 0;
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) {
+          const id = key.substring(prefix.length);
+          const syntheticCode = ("AUT-" + id.slice(-4)).toUpperCase();
+          const isOldCode = OLD_TEST_AUTHOR_CODES.includes(id) || OLD_TEST_AUTHOR_CODES.includes(syntheticCode);
+
+          if (!knownIds.has(id) || isOldCode) {
+            localStorage.removeItem(key);
+            deletedCount++;
+          }
+        }
+      }
+      return deletedCount;
+    } catch (e) {
+      console.error(e);
+      return 0;
     }
   }
 
@@ -1303,6 +1448,9 @@ export class NashrDataStore {
           localStorage.removeItem(STORAGE_KEYS.CURRENT_AUTHOR);
         }
       }
+
+      // Also purge any orphaned or old test chat conversations
+      this.purgeUnregisteredChatConversations();
     } catch (e) {
       console.error(e);
     }
@@ -1454,7 +1602,7 @@ export class NashrDataStore {
   }
 
   static setVerificationStatus(
-    status: "pending_review" | "approved" | "rejected", 
+    status: AuthorVerificationStatus, 
     notes?: string,
     authorId?: string
   ): AuthorProfile {

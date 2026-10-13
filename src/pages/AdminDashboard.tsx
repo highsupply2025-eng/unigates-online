@@ -849,13 +849,34 @@ export const AdminDashboard = () => {
 
   // Filters with defensive null/undefined checks - strictly for publishing platform (courses)
   const safeAuthors = (Array.isArray(authors) ? authors.filter(Boolean) : []).filter(a => {
-    if (!a) return false;
-    // If platform is defined on author, must be publishing platform (courses / nashr / publishing)
-    if (a.platform) {
-      const p = a.platform.trim().toLowerCase();
-      const isPublishing = p === "courses" || p === "publishing" || p.startsWith("nashr");
-      if (!isPublishing) return false;
+    if (!a || !a.id) return false;
+
+    // Strictly exclude university platform / academic administration accounts
+    const p = ((a.platform || "") as string).trim().toLowerCase();
+    if (p === "university" || p === "college" || p === "institute" || p === "academic" || p === "school") {
+      return false;
     }
+
+    const specOrTitle = `${a.specialization || ""} ${a.academicTitleLabel || ""} ${a.fullName || ""}`.toLowerCase();
+    if (
+      specOrTitle.includes("رئيس قسم") || 
+      specOrTitle.includes("عميد") || 
+      specOrTitle.includes("وكيل") || 
+      specOrTitle.includes("هيئة تدريس")
+    ) {
+      const code = (a.authorCode || "").trim().toUpperCase();
+      const isOfficial = code === "AUT-4714" || code === "AUT-5820" || a.id === "auth-4714" || a.id === "auth-loubna-hawary";
+      if (!isOfficial) return false;
+    }
+
+    // Must be publishing platform (courses, publishing, nashr) or official seed author
+    const isPublishingPlatform = p === "courses" || p === "publishing" || p.startsWith("nashr");
+    const isOfficialSeed = a.authorCode === "AUT-4714" || a.authorCode === "AUT-5820" || a.id === "auth-4714" || a.id === "auth-loubna-hawary";
+
+    if (p && !isPublishingPlatform && !isOfficialSeed) {
+      return false;
+    }
+
     return true;
   });
   const safeSubmissions = Array.isArray(submissions) ? submissions.filter(Boolean) : [];

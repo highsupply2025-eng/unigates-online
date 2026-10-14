@@ -357,7 +357,7 @@ const NasherLogin = () => {
                         <span>{isRtl ? "البريد الإلكتروني أو كود المؤلف" : "Email or Author Code"}</span>
                       </Label>
                       <Input 
-                        placeholder={isRtl ? "author@unigates.online أو AUT-7890" : "author@unigates.online or AUT-7890"}
+                        placeholder={isRtl ? "أدخل البريد الإلكتروني أو كود المؤلف" : "Enter email or author code"}
                         value={identifier}
                         onChange={(e) => setIdentifier(e.target.value)}
                         required

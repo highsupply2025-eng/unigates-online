@@ -475,7 +475,7 @@ export const AdminDashboard = () => {
                   platform: u.platform || "courses",
                   verificationStatus: u.verificationStatus || "pending_review",
                   isForeign: u.isForeign,
-                  idType: u.idType,
+                  idType: u.idType === "passport" ? "passport" : "national_id",
                   passportNumber: u.idType === "passport" ? u.idNumber : undefined,
                   countryOfResidence: u.country,
                   joinedDate: u.createdAt ? u.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],

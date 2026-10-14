@@ -349,9 +349,25 @@ class UnigatesCloudSyncEngine {
           }
         }
 
+        // Strict check: Never re-import hard-deleted or tombstoned accounts
+        let isTombstoned = false;
+        try {
+          const rawT = localStorage.getItem("nashr_deleted_authors_tombstones");
+          if (rawT) {
+            const tSet = new Set(JSON.parse(rawT));
+            if (row.user_id && (tSet.has(row.user_id.toLowerCase()) || tSet.has(`auth-${row.user_id.toLowerCase()}`))) isTombstoned = true;
+            if (row.email && tSet.has(row.email.toLowerCase())) isTombstoned = true;
+          }
+        } catch {}
+        if (isTombstoned) continue;
+
         // Strict platform filter: only accounts belonging to the publishing house platform (courses / nashr / publishing)
         // Completely exclude university platform ('university', 'college', 'institute', etc.)
         const pStr = (row.platform || "").trim().toLowerCase();
+        if (pStr === "university" || pStr === "college" || pStr === "institute" || pStr === "academic" || pStr === "school") {
+          continue;
+        }
+
         const isPublishingPlatform = 
           pStr === "courses" || 
           pStr === "publishing" || 

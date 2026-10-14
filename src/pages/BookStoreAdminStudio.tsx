@@ -520,15 +520,15 @@ export const BookStoreAdminStudio: React.FC = () => {
         {/* Action Controls & Navigation */}
         <div className="flex items-center gap-2 sm:gap-3">
           
-          {/* Quick link back to Publishing Platform Admin */}
-          <Link to="/admin/dashboard">
+          {/* Decoupled Navigation: Return to Unified Admin Overview */}
+          <Link to="/admin/overview">
             <Button 
               variant="outline" 
               size="sm" 
-              className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5 border-border hover:bg-muted"
+              className="h-9 px-3 rounded-xl text-xs font-bold gap-1.5 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
             >
-              <FileCheck className="w-3.5 h-3.5 text-amber-500" />
-              <span>{isRtl ? "لوحة إدارة النشر والتحكيم ✍️" : "Publishing Admin"}</span>
+              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+              <span>{isRtl ? "المنظومة المركزية 🏛️" : "Central Hub 🏛️"}</span>
             </Button>
           </Link>
 

@@ -11,6 +11,7 @@ import {
 import { NashrFileStore } from "./nashrFileStore";
 import { UnigatesCloudSync, type CloudSyncPayload } from "./unigatesCloudSync";
 import { DR_AYMAN_AVATAR_DATA_URL } from "@/assets/dr-ayman-avatar-dataurl";
+import { supabase } from "@/integrations/supabase/client";
 
 const STORAGE_KEYS = {
   CURRENT_AUTHOR: "nashr_current_author",
@@ -20,7 +21,8 @@ const STORAGE_KEYS = {
   MESSAGES: "nashr_messages",
   SALES: "nashr_book_sales",
   PAYOUTS: "nashr_payouts",
-  CONTRACTS: "nashr_author_contracts"
+  CONTRACTS: "nashr_author_contracts",
+  DELETED_AUTHORS: "nashr_deleted_authors_tombstones"
 };
 
 // Default Demo Author
@@ -1264,34 +1266,20 @@ export class NashrDataStore {
         }
       }
 
-      // Filter out old test accounts and university platform roles (رئيس قسم، عميد، وكيل، طالب)
+      // Tombstones & deleted accounts set
+      const tombstones = this.getDeletedAuthorTombstones();
+
+      // Filter out old test accounts, deleted authors, and university platform roles (رئيس قسم، عميد، وكيل، طالب)
       const filtered = list.filter(a => {
         if (!a || !a.id) return false;
+        if (this.isAuthorDeleted(a)) return false;
+        if (this.isUniversityAccount(a)) return false;
+
         const code = (a.authorCode || "").trim().toUpperCase();
         const id = (a.id || "").trim();
         const name = (a.fullName || "").trim();
         if (OLD_TEST_AUTHOR_CODES.includes(code) || OLD_TEST_AUTHOR_CODES.includes(id)) return false;
         if (name.includes("المنشاوي") || name === "ؤؤؤ" || name === "m" || name.includes("hgsd]")) return false;
-
-        // Strictly exclude university platform / academic administration accounts
-        const p = ((a.platform || "") as string).trim().toLowerCase();
-        if (p === "university" || p === "college" || p === "institute" || p === "academic") return false;
-
-        const specOrTitle = `${a.specialization || ""} ${a.academicTitleLabel || ""} ${name}`.toLowerCase();
-        if (
-          specOrTitle.includes("رئيس قسم") || 
-          specOrTitle.includes("عميد كلية") || 
-          specOrTitle.includes("وكيل كلية") || 
-          specOrTitle.includes("وكيل عميد")
-        ) {
-          // If not an official publishing author, exclude from publishing authors store
-          const isOfficialPublishingAuthor = 
-            code === "AUT-4714" || 
-            code === "AUT-5820" || 
-            id === "auth-4714" || 
-            id === "auth-loubna-hawary";
-          if (!isOfficialPublishingAuthor) return false;
-        }
 
         return true;
       });
@@ -1304,8 +1292,9 @@ export class NashrDataStore {
         return author;
       });
 
-      // Ensure official registered authors (such as Dr. Ayman AUT-4714 and Dr. Loubna AUT-5820) are ALWAYS present
+      // Ensure official registered authors (such as Dr. Ayman AUT-4714 and Dr. Loubna AUT-5820) are ALWAYS present unless explicitly deleted
       OFFICIAL_SEED_AUTHORS.forEach(seed => {
+        if (this.isAuthorDeleted(seed)) return;
         const exists = healedList.some(a => 
           (a.authorCode && a.authorCode.trim().toUpperCase() === seed.authorCode.toUpperCase()) ||
           a.id === seed.id ||
@@ -1317,12 +1306,12 @@ export class NashrDataStore {
         }
       });
 
-      // Also ensure current active session author is included if present
+      // Also ensure current active session author is included if present and NOT deleted or university
       const currentRaw = localStorage.getItem(STORAGE_KEYS.CURRENT_AUTHOR);
       if (currentRaw) {
         try {
           const currentParsed = JSON.parse(currentRaw);
-          if (currentParsed && currentParsed.id) {
+          if (currentParsed && currentParsed.id && !this.isAuthorDeleted(currentParsed) && !this.isUniversityAccount(currentParsed)) {
             const exists = healedList.some(a => 
               a.id === currentParsed.id ||
               (a.authorCode && currentParsed.authorCode && a.authorCode.toUpperCase() === currentParsed.authorCode.toUpperCase()) ||
@@ -1353,49 +1342,204 @@ export class NashrDataStore {
     }
   }
 
-  static deleteAuthor(authorId: string): void {
+  // -------------------------------------------------------------
+  // Persistent Tombstones & Hard Delete
+  // -------------------------------------------------------------
+  static getDeletedAuthorTombstones(): Set<string> {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.DELETED_AUTHORS);
+      if (!saved) return new Set();
+      const arr = JSON.parse(saved);
+      return new Set(Array.isArray(arr) ? arr.map((x: string) => String(x).trim().toLowerCase()) : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  static addDeletedAuthorTombstone(identifiers: string[]): void {
+    try {
+      const current = this.getDeletedAuthorTombstones();
+      identifiers.filter(Boolean).forEach(id => current.add(String(id).trim().toLowerCase()));
+      localStorage.setItem(STORAGE_KEYS.DELETED_AUTHORS, JSON.stringify(Array.from(current)));
+    } catch (e) {
+      console.warn("[addDeletedAuthorTombstone] error:", e);
+    }
+  }
+
+  static isAuthorDeleted(author: Partial<AuthorProfile> | string | any): boolean {
+    if (!author) return false;
+    const tombstones = this.getDeletedAuthorTombstones();
+    if (tombstones.size === 0) return false;
+
+    if (typeof author === "string") {
+      const val = author.trim().toLowerCase();
+      const raw = val.replace(/^auth-/, "");
+      return tombstones.has(val) || tombstones.has(raw);
+    }
+
+    const id = (author.id || "").trim().toLowerCase();
+    const rawId = id.replace(/^auth-/, "");
+    const code = (author.authorCode || "").trim().toLowerCase();
+    const email = (author.email || "").trim().toLowerCase();
+    const userId = (author.user_id || author.userId || "").trim().toLowerCase();
+
+    return (
+      (id && tombstones.has(id)) ||
+      (rawId && tombstones.has(rawId)) ||
+      (code && tombstones.has(code)) ||
+      (email && tombstones.has(email)) ||
+      (userId && tombstones.has(userId))
+    );
+  }
+
+  static isUniversityAccount(a: Partial<AuthorProfile> | any): boolean {
+    if (!a) return false;
+    const p = ((a.platform || "") as string).trim().toLowerCase();
+    if (p === "university" || p === "college" || p === "institute" || p === "academic" || p === "school") {
+      return true;
+    }
+    const role = ((a.role || "") as string).trim().toLowerCase();
+    if (["student", "dean", "vice_dean", "department_head", "faculty", "lecturer"].includes(role)) {
+      return true;
+    }
+    const combined = `${a.specialization || ""} ${a.academicTitleLabel || ""} ${a.fullName || ""}`.toLowerCase();
+    if (
+      combined.includes("رئيس قسم") || 
+      combined.includes("عميد") || 
+      combined.includes("وكيل") || 
+      combined.includes("هيئة تدريس")
+    ) {
+      const code = (a.authorCode || "").trim().toUpperCase();
+      const isOfficialPublishingAuthor = 
+        code === "AUT-4714" || 
+        code === "AUT-5820" || 
+        a.id === "auth-4714" || 
+        a.id === "auth-loubna-hawary";
+      if (!isOfficialPublishingAuthor) return true;
+    }
+    return false;
+  }
+
+  static purgeUniversityAccounts(): number {
     try {
       const all = this.getAllAuthors();
-      const target = all.find(a => a.id === authorId || a.authorCode === authorId);
-      const updated = all.filter(a => a.id !== authorId && a.authorCode !== authorId);
-      localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(updated));
+      const universityAccounts = all.filter(a => this.isUniversityAccount(a));
+      if (universityAccounts.length === 0) return 0;
 
-      // Also clean CURRENT_AUTHOR if matching
+      const idsToPurge = universityAccounts.flatMap(a => {
+        const list = [a.id];
+        if (a.authorCode) list.push(a.authorCode);
+        if (a.email) list.push(a.email);
+        const raw = a.id.replace(/^auth-/, "");
+        if (raw) list.push(raw);
+        return list;
+      });
+
+      this.addDeletedAuthorTombstone(idsToPurge);
+
+      const kept = all.filter(a => !this.isUniversityAccount(a) && !this.isAuthorDeleted(a));
+      localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(kept));
+
+      // Also clean any university author from CURRENT_AUTHOR
       const current = localStorage.getItem(STORAGE_KEYS.CURRENT_AUTHOR);
       if (current) {
         const parsed = JSON.parse(current);
-        if (parsed?.id === authorId || parsed?.authorCode === authorId) {
+        if (this.isUniversityAccount(parsed)) {
           localStorage.removeItem(STORAGE_KEYS.CURRENT_AUTHOR);
         }
       }
 
-      // Also clean submissions and invoices for this author
+      return universityAccounts.length;
+    } catch (e) {
+      console.warn("[purgeUniversityAccounts] error:", e);
+      return 0;
+    }
+  }
+
+  static async hardDeleteAuthor(authorId: string, authorCandidate?: AuthorProfile): Promise<void> {
+    try {
+      const all = this.getAllAuthors();
+      const target = authorCandidate || all.find(a => a.id === authorId || a.authorCode === authorId);
+
+      // 1. Mark in permanent tombstone set
+      const identifiers = [authorId];
+      if (target?.id) identifiers.push(target.id);
+      if (target?.authorCode) identifiers.push(target.authorCode);
+      if (target?.email) identifiers.push(target.email);
+      const rawId = (target?.id || authorId).replace(/^auth-/, "");
+      if (rawId) {
+        identifiers.push(rawId);
+        identifiers.push(`auth-${rawId}`);
+      }
+      this.addDeletedAuthorTombstone(identifiers);
+
+      // 2. Remove from LocalStorage ALL_AUTHORS
+      const updated = all.filter(a => !this.isAuthorDeleted(a));
+      localStorage.setItem(STORAGE_KEYS.ALL_AUTHORS, JSON.stringify(updated));
+
+      // 3. Clean CURRENT_AUTHOR if matching
+      const current = localStorage.getItem(STORAGE_KEYS.CURRENT_AUTHOR);
+      if (current) {
+        const parsed = JSON.parse(current);
+        if (this.isAuthorDeleted(parsed)) {
+          localStorage.removeItem(STORAGE_KEYS.CURRENT_AUTHOR);
+        }
+      }
+
+      // 4. Clean submissions and invoices for this author
       const allSubs = this.getAllSubmissions();
-      const updatedSubs = allSubs.filter(s => s.authorId !== authorId && s.authorCode !== authorId);
+      const updatedSubs = allSubs.filter(s => 
+        s.authorId !== authorId && 
+        s.authorCode !== authorId && 
+        (!target?.id || s.authorId !== target.id) &&
+        (!target?.authorCode || s.authorCode !== target.authorCode)
+      );
       localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify(updatedSubs));
 
       const allInvs = this.getAllInvoices();
-      const updatedInvs = allInvs.filter(i => i.authorId !== authorId);
+      const updatedInvs = allInvs.filter(i => 
+        i.authorId !== authorId && (!target?.id || i.authorId !== target.id)
+      );
       localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(updatedInvs));
 
-      // Clean chat messages for this author
+      // 5. Clean chat messages and sales records
       this.deleteAuthorChatMessages(authorId);
       if (target?.id && target.id !== authorId) {
         this.deleteAuthorChatMessages(target.id);
       }
-
-      // Clean sales records
       localStorage.removeItem(`${STORAGE_KEYS.SALES}_${authorId}`);
       if (target?.id) localStorage.removeItem(`${STORAGE_KEYS.SALES}_${target.id}`);
 
+      // 6. Hard delete from Supabase Database if UUID matches
+      try {
+        if (rawId && rawId.length >= 20) {
+          await Promise.allSettled([
+            supabase.from("profile_documents").delete().eq("user_id", rawId),
+            supabase.from("user_roles").delete().eq("user_id", rawId),
+            supabase.from("profiles").delete().eq("user_id", rawId)
+          ]);
+        }
+        if (target?.email && target.email.includes("@")) {
+          await supabase.from("profiles").delete().eq("email", target.email.trim().toLowerCase());
+        }
+      } catch (dbErr) {
+        console.warn("[hardDeleteAuthor] Database hard delete non-fatal warning:", dbErr);
+      }
+
+      // 7. Broadcast sync event
       try {
         UnigatesCloudSync.broadcast("AUTHOR_DELETED", authorId, { id: authorId, code: target?.authorCode });
       } catch (e) {
-        console.warn("[deleteAuthor] cloud broadcast notice:", e);
+        console.warn("[hardDeleteAuthor] Broadcast notice:", e);
       }
     } catch (e) {
-      console.error(e);
+      console.error("[hardDeleteAuthor] Error:", e);
     }
+  }
+
+  static deleteAuthor(authorId: string): void {
+    // Synchronously execute local removal & trigger async hard delete
+    this.hardDeleteAuthor(authorId);
   }
 
   static deleteAuthorChatMessages(authorId: string): void {
@@ -2744,6 +2888,9 @@ export class NashrDataStore {
 
         for (const rem of incomingAuthors) {
           if (!rem || (!rem.id && !rem.email)) continue;
+          if (this.isAuthorDeleted(rem)) continue;
+          if (this.isUniversityAccount(rem)) continue;
+
           const idx = currentAll.findIndex(a =>
             a.id === rem.id ||
             (rem.authorCode && a.authorCode?.toUpperCase() === rem.authorCode.toUpperCase()) ||

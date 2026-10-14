@@ -242,9 +242,21 @@ export class UserRegistrationController {
         p_platform: targetPlatform || null
       });
 
+      const isDeletedTombstone = (uid: string, email?: string) => {
+        try {
+          const raw = localStorage.getItem("nashr_deleted_authors_tombstones");
+          if (!raw) return false;
+          const set = new Set(JSON.parse(raw));
+          if (uid && (set.has(uid.toLowerCase()) || set.has(`auth-${uid.toLowerCase()}`))) return true;
+          if (email && set.has(email.toLowerCase())) return true;
+        } catch {}
+        return false;
+      };
+
       if (!rpcError && Array.isArray(rpcData) && rpcData.length > 0) {
         return rpcData
           .filter((row: any) => {
+            if (isDeletedTombstone(row.user_id, row.email)) return false;
             if (!targetPlatform) return true;
             const p = (row.platform || "").trim().toLowerCase();
             return p === targetPlatform || p === "publishing" || p.startsWith("nashr");
@@ -308,6 +320,7 @@ export class UserRegistrationController {
       const results: AdminUserListItem[] = [];
 
       for (const p of profiles) {
+        if (isDeletedTombstone(p.user_id, p.email)) continue;
         const pPlatform = (p.platform || "").trim().toLowerCase();
         // Strict exclusion of university platform or any non-publishing platform
         if (targetPlatform) {

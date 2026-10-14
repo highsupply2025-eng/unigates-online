@@ -592,6 +592,81 @@ export default function AdminOverview() {
           </div>
         </header>
 
+        {/* ── 3 Decoupled Management Studios Hub ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Studio 1: Publishing Platform (منصة نشر) */}
+          <div 
+            onClick={() => navigate("/admin/nashr")}
+            className="group cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-amber-950/40 via-slate-900/80 to-slate-950 border border-amber-500/30 hover:border-amber-400 hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all backdrop-blur-xl relative overflow-hidden"
+          >
+            <div className="flex items-start justify-between">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold">
+                {ar("وحدة مستقلة", "Standalone")}
+              </Badge>
+            </div>
+            <div className="mt-3">
+              <h3 className="font-black text-base text-white group-hover:text-amber-300 transition-colors flex items-center gap-1.5">
+                <span>{ar("استوديو منصة نشر", "Publishing Studio")}</span>
+                <ArrowRight className="w-4 h-4 rtl:rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                {ar("تدقيق واعتماد هويات المؤلفين، فحص المخطوطات الأكاديمية، الفواتير، وعقود النشر والتوزيع.", "Author KYC, manuscript reviews, publishing invoices, and contracts.")}
+              </p>
+            </div>
+          </div>
+
+          {/* Studio 2: Book Store Platform (متجر الكتب) */}
+          <div 
+            onClick={() => navigate("/admin/bookstore")}
+            className="group cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-orange-950/40 via-slate-900/80 to-slate-950 border border-orange-500/30 hover:border-orange-400 hover:shadow-[0_0_25px_rgba(249,115,22,0.25)] transition-all backdrop-blur-xl relative overflow-hidden"
+          >
+            <div className="flex items-start justify-between">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold">
+                <ShoppingCart className="w-5 h-5" />
+              </div>
+              <Badge className="bg-orange-500/20 text-orange-300 border border-orange-500/40 text-[10px] font-bold">
+                {ar("وحدة مستقلة", "Standalone")}
+              </Badge>
+            </div>
+            <div className="mt-3">
+              <h3 className="font-black text-base text-white group-hover:text-orange-300 transition-colors flex items-center gap-1.5">
+                <span>{ar("استوديو متجر الكتب", "Book Store Studio")}</span>
+                <ArrowRight className="w-4 h-4 rtl:rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                {ar("إدارة دليل الكتب، تسعير الإصدارات، استلام الطلبات الورقية والرقمية، ونسب أرباح المبيعات.", "Book catalog, pricing, orders fulfillment, and sales revenue distribution.")}
+              </p>
+            </div>
+          </div>
+
+          {/* Studio 3: Courses Platform (منصة دورات تعليمية) */}
+          <div 
+            onClick={() => navigate("/admin/courses")}
+            className="group cursor-pointer p-4 rounded-2xl bg-gradient-to-br from-purple-950/40 via-slate-900/80 to-slate-950 border border-purple-500/30 hover:border-purple-400 hover:shadow-[0_0_25px_rgba(168,85,247,0.25)] transition-all backdrop-blur-xl relative overflow-hidden"
+          >
+            <div className="flex items-start justify-between">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <Badge className="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] font-bold">
+                {ar("وحدة مستقلة", "Standalone")}
+              </Badge>
+            </div>
+            <div className="mt-3">
+              <h3 className="font-black text-base text-white group-hover:text-purple-300 transition-colors flex items-center gap-1.5">
+                <span>{ar("استوديو الدورات التعليمية", "Courses Studio")}</span>
+                <ArrowRight className="w-4 h-4 rtl:rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                {ar("إدارة وتدقيق الحقائب التدريبية، اعتماد المحاضرين ومراكز التدريب، واشتراكات الطلاب.", "Course catalog, instructor accreditation, and student subscriptions.")}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* 3 Main Pillars Selector Tabs */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           <button

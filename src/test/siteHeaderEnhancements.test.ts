@@ -4,7 +4,7 @@ describe("SiteHeader Modernization & Platform Navigation Tests", () => {
   it("should have all 6 platforms in header navigation in the correct order", () => {
     const platforms = [
       { to: "/university-platform", label: "منصة جامعية", color: "blue" },
-      { to: "/school-platform", label: "منصة مدرسة", color: "emerald" },
+      { to: "/school-platform", label: "منصة مدرسية", color: "emerald" },
       { to: "/nashr", label: "منصة نشر", color: "rose" },
       { to: "/book-store", label: "منصة متجر الكتب", color: "amber" },
       { to: "/courses", label: "منصة دورات تعليمية", color: "purple" },

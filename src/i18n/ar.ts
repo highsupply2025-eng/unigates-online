@@ -7,7 +7,7 @@ export const ar = {
   logout: "تسجيل الخروج",
   exploreCourses: "منصة دورات تعليمية",
   bookStore: "منصة متجر الكتب",
-  schoolPlatform: "منصة مدرسة",
+  schoolPlatform: "منصة مدرسية",
   universityPlatform: "منصة جامعية",
   nasherPlatform: "منصة نشر",
   careerPlatform: "منصة CAREER",

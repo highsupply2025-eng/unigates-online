@@ -435,8 +435,9 @@ export const AdminDashboard = () => {
 
   const loadAllData = () => {
     try {
-      // Auto-purge any orphaned test chat rooms or test messages
+      // Auto-purge any orphaned test chat rooms, old test messages, and duplicate university platform accounts
       NashrDataStore.purgeUnregisteredChatConversations();
+      NashrDataStore.purgeUniversityAccounts();
 
       const a = NashrDataStore.getAllAuthors();
       const s = NashrDataStore.getAllSubmissions();
@@ -456,6 +457,7 @@ export const AdminDashboard = () => {
           const pendingUsers = await UserRegistrationController.fetchAdminPendingUsers({ platform: "courses" });
           if (Array.isArray(pendingUsers) && pendingUsers.length > 0) {
             for (const u of pendingUsers) {
+              if (NashrDataStore.isAuthorDeleted(u.userId) || NashrDataStore.isAuthorDeleted(u.email)) continue;
               const alreadyExists = currentList.some(
                 (a) => a.id === `auth-${u.userId}` || a.id === u.userId || (u.email && a.email?.toLowerCase() === u.email.toLowerCase())
               );
@@ -473,7 +475,7 @@ export const AdminDashboard = () => {
                   platform: u.platform || "courses",
                   verificationStatus: u.verificationStatus || "pending_review",
                   isForeign: u.isForeign,
-                  idType: u.idType,
+                  idType: u.idType === "passport" ? "passport" : "national_id",
                   passportNumber: u.idType === "passport" ? u.idNumber : undefined,
                   countryOfResidence: u.country,
                   joinedDate: u.createdAt ? u.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
@@ -485,7 +487,7 @@ export const AdminDashboard = () => {
           console.warn("[AdminDashboard] fetchAdminPendingUsers warning:", e);
         }
 
-        setAuthors(currentList);
+        setAuthors(currentList.filter(a => !NashrDataStore.isAuthorDeleted(a) && !NashrDataStore.isUniversityAccount(a)));
       }).catch(() => {});
     } catch (err) {
       console.error("[AdminDashboard] Error loading data:", err);
@@ -527,15 +529,16 @@ export const AdminDashboard = () => {
     });
   };
 
-  const handleConfirmDeleteAuthor = () => {
+  const handleConfirmDeleteAuthor = async () => {
     if (!deleteAuthorCandidate) return;
-    NashrDataStore.deleteAuthor(deleteAuthorCandidate.id);
+    await NashrDataStore.hardDeleteAuthor(deleteAuthorCandidate.id, deleteAuthorCandidate);
+    NashrDataStore.purgeUniversityAccounts();
     loadAllData();
     setShowDeleteAuthorModal(false);
     toast({
-      title: isRtl ? "🗑️ تم حذف حساب المؤلف بنجاح" : "Author Account Deleted",
+      title: isRtl ? "🗑️ تم الحذف النهائي للحساب بنجاح" : "Author Account Permanently Deleted",
       description: isRtl 
-        ? `تم حذف حساب ${deleteAuthorCandidate.fullName} (${deleteAuthorCandidate.authorCode}) نهائياً من المنصة.` 
+        ? `تم حذف حساب ${deleteAuthorCandidate.fullName} (${deleteAuthorCandidate.authorCode}) نهائياً من قاعدة البيانات والمنظومة.` 
         : `Author account deleted permanently.`
     });
     setDeleteAuthorCandidate(null);
@@ -544,11 +547,12 @@ export const AdminDashboard = () => {
   const handlePurgeOldTestAuthors = () => {
     NashrDataStore.clearOldTestAuthors();
     NashrDataStore.purgeUnregisteredChatConversations();
+    NashrDataStore.purgeUniversityAccounts();
     loadAllData();
     setChatMessagesVersion(v => v + 1);
     toast({
       title: isRtl ? "🧹 تم تنظيف وحذف الحسابات القديمة بنجاح" : "Old Accounts Cleared",
-      description: isRtl ? "تمت إزالة كافة الحسابات التجريبية والقديمة ومحادثاتها." : "Old test accounts and chats have been deleted."
+      description: isRtl ? "تمت إزالة كافة الحسابات التجريبية والقديمة والحسابات الجامعية نهائياً." : "Old test accounts, chats, and university accounts deleted."
     });
   };
 
@@ -1186,19 +1190,15 @@ export const AdminDashboard = () => {
             <span className="hidden sm:inline">{isRtl ? "تحديث البيانات" : "Refresh"}</span>
           </Button>
 
-          {/* Direct Link to Book Store Management Studio */}
-          <Link to="/admin/bookstore">
+          {/* Decoupled Navigation: Return to Unified Admin Overview */}
+          <Link to="/admin/overview">
             <Button 
+              variant="outline"
               size="sm" 
-              className="h-9 px-3.5 rounded-xl font-black text-xs bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white shadow-md gap-1.5 cursor-pointer hover:scale-105 transition-all"
+              className="h-9 px-3.5 rounded-xl font-bold text-xs border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 gap-1.5 cursor-pointer transition-all"
             >
-              <Store className="w-3.5 h-3.5" />
-              <span>{isRtl ? "استوديو إدارة متجر الكتب 🏪" : "Book Store Studio 🏪"}</span>
-              {pendingStoreBooksCount > 0 && (
-                <Badge className="bg-white text-orange-600 font-mono text-[10px] font-black px-1.5 py-0 h-4 rounded-full">
-                  {pendingStoreBooksCount}
-                </Badge>
-              )}
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>{isRtl ? "المنظومة المركزية 🏛️" : "Central Hub 🏛️"}</span>
             </Button>
           </Link>
 
@@ -1882,15 +1882,10 @@ export const AdminDashboard = () => {
                           )}
 
                           {sub.status === "ready_for_pricing" && (
-                            <Link to={`/admin/bookstore?tab=intake&submissionId=${sub.id}`}>
-                              <Button 
-                                size="sm"
-                                className="h-9 px-3.5 rounded-xl font-black text-xs bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md gap-1.5 cursor-pointer animate-pulse"
-                              >
-                                <Tag className="w-3.5 h-3.5" />
-                                <span>{isRtl ? "تسعير الكتاب في استوديو المتجر ➔" : "Price in Store Studio ➔"}</span>
-                              </Button>
-                            </Link>
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold">
+                              <Tag className="w-3.5 h-3.5 text-amber-500" />
+                              <span>{isRtl ? "مُحال لمتجر الكتب (بانتظار التسعير في استوديو المتجر)" : "Staged for Store Pricing"}</span>
+                            </div>
                           )}
 
                           <Button 

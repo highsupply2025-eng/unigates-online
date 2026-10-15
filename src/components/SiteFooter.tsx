@@ -1,4 +1,4 @@
-import { Cloud, ExternalLink, ShieldCheck, Sparkles, Building2, School, BookOpen, Store, CheckCircle2 } from "lucide-react";
+import { Cloud, ExternalLink, ShieldCheck, Sparkles, Building2, School, BookOpen, Store, CheckCircle2, Mail, FileText, Shield, RotateCcw, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -267,6 +267,74 @@ const SiteFooter = () => {
           <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
             <CheckCircle2 className="w-4 h-4" />
             <span>{translate("بنية سحابية آمنة 99.9% High Availability", "99.9% High Availability Cloud")}</span>
+          </div>
+        </div>
+
+        {/* Official Support & Paddle Merchant of Record Compliance Banner */}
+        <div className="rounded-2xl border border-border/90 bg-muted/30 p-5 space-y-4">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-center lg:text-start">
+            {/* Support Email & Entity Details */}
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+                <span className="text-xs font-bold text-foreground">
+                  {translate("الدعم الفني وخدمة العملاء المعتمدة:", "Official Support & Customer Inquiries:")}
+                </span>
+                <a
+                  href="mailto:support@unigates.online"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>support@unigates.online</span>
+                </a>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                {isRtl
+                  ? "منظومة UNIGATES إحدى منصات شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. (Dar Obeid Publishing, Distribution & Printing LLC)."
+                  : "UNIGATES is an educational platform by Dar Obeid Publishing, Distribution & Printing LLC."}
+              </p>
+            </div>
+
+            {/* Merchant of Record & Payment Security Badge */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+              <div className="p-2.5 rounded-xl bg-card border border-border text-xs text-muted-foreground text-center sm:text-start max-w-sm">
+                <div className="flex items-center gap-1.5 font-bold text-foreground text-[11px] mb-0.5 justify-center sm:justify-start">
+                  <CreditCard className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                  <span>{translate("التاجر المسجل (Merchant of Record)", "Merchant of Record")}</span>
+                </div>
+                <p className="text-[10px] leading-tight text-muted-foreground">
+                  {isRtl
+                    ? "تتم معالجة المدفوعات والضرائب وإصدار الفواتير الرسمية بأمان تام بواسطة Paddle.com Market Ltd."
+                    : "Payments, taxes, and official billing are securely handled by Paddle.com Market Ltd."}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Legal Links Strip */}
+          <div className="pt-3 border-t border-border/60 flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs font-bold">
+            <Link
+              to="/terms"
+              className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+            >
+              <FileText className="w-3.5 h-3.5 text-primary" />
+              <span>{isRtl ? "شروط الاستخدام والخدمة" : "Terms of Service"}</span>
+            </Link>
+
+            <Link
+              to="/privacy"
+              className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Shield className="w-3.5 h-3.5 text-blue-500" />
+              <span>{isRtl ? "سياسة الخصوصية وحماية البيانات" : "Privacy Policy"}</span>
+            </Link>
+
+            <Link
+              to="/refund"
+              className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{isRtl ? "سياسة الاسترداد وإلغاء الاشتراكات" : "Refund & Cancellation Policy"}</span>
+            </Link>
           </div>
         </div>
 

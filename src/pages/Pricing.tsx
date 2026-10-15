@@ -1,17 +1,93 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Check, GraduationCap, School, PlayCircle, Gift, Loader2, CreditCard, ShieldCheck, Lock } from "lucide-react";
+import { 
+  Check, 
+  GraduationCap, 
+  School, 
+  PlayCircle, 
+  Gift, 
+  Loader2, 
+  CreditCard, 
+  ShieldCheck, 
+  Lock, 
+  BookOpen, 
+  BookCopy, 
+  Sparkles, 
+  Mail, 
+  Layers,
+  ArrowRight,
+  ArrowLeft
+} from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useSubscription } from "@/hooks/useSubscription";
-import { PLAN_PRICING, type BillingInterval, type PlanKey } from "@/lib/paddle";
+import { 
+  PLAN_PRICING, 
+  PADDLE_ACTIVE_PRODUCTS, 
+  type BillingInterval, 
+  type PlanKey 
+} from "@/lib/paddle";
 import PaymentTestModeBanner from "@/components/PaymentTestModeBanner";
+import SimpleHeader from "@/components/SimpleHeader";
+import SiteFooter from "@/components/SiteFooter";
+import SEO from "@/components/SEO";
 import { toast } from "sonner";
+
+const CATALOG_ITEMS = [
+  {
+    product: PADDLE_ACTIVE_PRODUCTS.COURSES_PLATFORM,
+    icon: PlayCircle,
+    color: "from-blue-500/10 to-indigo-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+    descAr: "منظومة الأكاديمية للدورات الاحترافية والمسارات المعتمدة مع البث المباشر وشهادات التخرج الرقمية.",
+    descEn: "Academy ecosystem for professional courses, live cohorts, and accredited certification tracks.",
+    route: "/academy",
+    actionAr: "استكشف الأكاديمية والدورات",
+    actionEn: "Explore Courses Academy",
+    badgeAr: "مُعتمد في Paddle Live",
+    badgeEn: "Live in Paddle Catalog",
+  },
+  {
+    product: PADDLE_ACTIVE_PRODUCTS.EBOOKS,
+    icon: BookOpen,
+    color: "from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    descAr: "مكتبة الكتب الرقمية والأكاديمية العالمية مع حماية الملكية الفكرية DRM وقراءة فورية تفاعلية.",
+    descEn: "Global digital & academic e-book library with DRM watermarking and instant cross-device reading.",
+    route: "/book-store",
+    actionAr: "تصفح الكتب الرقمية",
+    actionEn: "Browse E-Books",
+    badgeAr: "مُعتمد في Paddle Live",
+    badgeEn: "Live in Paddle Catalog",
+  },
+  {
+    product: PADDLE_ACTIVE_PRODUCTS.PHYSICAL_BOOKS,
+    icon: BookCopy,
+    color: "from-amber-500/10 to-orange-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    descAr: "شراء الكتب المطبوعة الورقية والمراجع الجامعية مع الشحن والتوصيل الدولي المباشر من دار عبيد.",
+    descEn: "Physical printed books, textbooks, and university monographs with global tracked shipping.",
+    route: "/book-store",
+    actionAr: "طلب الكتب الورقية",
+    actionEn: "Order Print Books",
+    badgeAr: "مُعتمد في Paddle Live",
+    badgeEn: "Live in Paddle Catalog",
+  },
+  {
+    product: PADDLE_ACTIVE_PRODUCTS.PUBLISHING_SERVICES,
+    icon: Sparkles,
+    color: "from-purple-500/10 to-pink-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+    descAr: "خدمات دار نشر والمؤلفات: الإيداع القانوني، التدقيق، وتصميم وإصدار ونشر الكتب بنسب أرباح تصل 70%.",
+    descEn: "Nashr author services: ISBN deposit, peer-review, layout design, and global distribution with up to 70% royalties.",
+    route: "/publish",
+    actionAr: "منصة نشر والمؤلفين",
+    actionEn: "Nashr Author Platform",
+    badgeAr: "مُعتمد في Paddle Live",
+    badgeEn: "Live in Paddle Catalog",
+  },
+];
 
 const PLANS: Array<{
   key: PlanKey;
@@ -134,7 +210,16 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
+      <SEO
+        title={isRtl ? "خطط الأسعار والكتالوج — UNIGATES" : "Pricing & Catalog Plans — UNIGATES"}
+        description={
+          isRtl
+            ? "خطط اشتراك يونيجيتس وكتالوج المنتجات المعتمدة لدى Paddle مع ضمان استرداد ٣٠ يوماً."
+            : "UNIGATES subscription plans and official Paddle catalog products with 30-day refund guarantee."
+        }
+      />
       <PaymentTestModeBanner />
+      <SimpleHeader />
 
       <main className="flex-1 w-full px-4 py-10">
         <header className="text-center max-w-3xl mx-auto mb-8">
@@ -279,12 +364,127 @@ const Pricing = () => {
           </div>
         </div>
 
+        {/* Official Paddle Catalog Products Section */}
+        <div className="max-w-6xl mx-auto mt-16 pt-12 border-t border-border/80">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-3">
+              <Layers className="w-3.5 h-3.5" />
+              <span>{isRtl ? "كتالوج منتجات يونيجيتس المعتمد" : "Official UNIGATES Catalog"}</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3">
+              {isRtl ? "المنتجات والخدمات المعتمدة عبر Paddle" : "Active Products on Paddle Merchant of Record"}
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              {isRtl
+                ? "تتكامل منصاتنا الأربع الرئيسية مباشرة مع بوابة الدفع Paddle لتوفير الفوترة الدولية والضرائب الآلية وحماية المشتريات."
+                : "All 4 core ecosystem products integrate directly with Paddle for automated tax calculation, global invoicing, and buyer protection."}
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {CATALOG_ITEMS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Card key={item.product.id} className="flex flex-col border hover:border-primary/40 transition-all hover:shadow-md">
+                  <CardContent className="p-6 flex flex-col gap-4 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center border shadow-sm`}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">
+                        {isRtl ? item.badgeAr : item.badgeEn}
+                      </Badge>
+                    </div>
+
+                    <div>
+                      <h3 className="font-bold text-base text-foreground mb-1">
+                        {isRtl ? item.product.nameAr : item.product.name}
+                      </h3>
+                      <div className="text-[11px] font-mono text-muted-foreground/80">
+                        ID: {item.product.id}
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground leading-relaxed flex-1">
+                      {isRtl ? item.descAr : item.descEn}
+                    </p>
+
+                    <Button asChild variant="outline" size="sm" className="w-full mt-2 group">
+                      <Link to={item.route} className="flex items-center justify-center gap-2">
+                        <span>{isRtl ? item.actionAr : item.actionEn}</span>
+                        {isRtl ? (
+                          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+                        ) : (
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        )}
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Official Support & Legal Governance Card */}
+        <div className="max-w-4xl mx-auto mt-12 p-6 md:p-8 rounded-2xl bg-card border-2 border-primary/20 shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Mail className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-foreground">
+                  {isRtl ? "فريق الدعم الفني والمالي المعتمد" : "Official Support & Billing Desk"}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {isRtl
+                    ? "لأي استفسارات حول الفواتير أو الاشتراك أو استرداد الأموال، نحن متاحون على مدار الساعة."
+                    : "For any inquiries regarding billing, invoices, activation, or refunds, our support desk is active 24/7."}
+                </p>
+              </div>
+            </div>
+
+            <a
+              href="mailto:support@unigates.online"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-mono text-sm font-bold shadow hover:bg-primary/90 transition-colors"
+            >
+              <Mail className="w-4 h-4" />
+              <span>support@unigates.online</span>
+            </a>
+          </div>
+
+          <div className="pt-4 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+            <div>
+              {isRtl
+                ? "التاجر المسجل المعتمد عالمياً: Paddle.com Market Ltd — ضمان استرداد كامل خلال ٣٠ يوماً."
+                : "Official Merchant of Record: Paddle.com Market Ltd — Full 30-day money-back guarantee."}
+            </div>
+
+            <div className="flex items-center gap-3 font-semibold text-foreground">
+              <Link to="/terms" className="hover:text-primary transition-colors">
+                {isRtl ? "شروط الخدمة" : "Terms"}
+              </Link>
+              <span>•</span>
+              <Link to="/privacy" className="hover:text-primary transition-colors">
+                {isRtl ? "سياسة الخصوصية" : "Privacy"}
+              </Link>
+              <span>•</span>
+              <Link to="/refund" className="hover:text-primary transition-colors">
+                {isRtl ? "سياسة الاسترداد" : "Refund Policy"}
+              </Link>
+            </div>
+          </div>
+        </div>
+
         <p className="text-center text-xs text-muted-foreground mt-8 max-w-2xl mx-auto">
           {isRtl
             ? "الإلغاء يحفظ وصولك حتى نهاية المدة المدفوعة، والترقية تُطبَّق فورًا بتقسيط نسبي. الشهر المجاني متاح مرة واحدة لكل جهاز وحساب."
             : "Cancelling keeps access until the end of the paid period, and upgrades apply immediately with pro-rated billing. The free month is available once per device and account."}
         </p>
       </main>
+
+      <SiteFooter />
     </div>
   );
 };

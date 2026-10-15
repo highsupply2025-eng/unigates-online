@@ -157,8 +157,8 @@ const Privacy = () => {
     }
   };
 
-  const c = content[language];
-  const gmailUrl = "https://mail.google.com/mail/?view=cm&fs=1&to=darobaid@unigates.online&su=" + 
+  const c = content[language] ?? (isRtl ? content.ar : content.en);
+  const gmailUrl = "https://mail.google.com/mail/?view=cm&fs=1&to=support@unigates.online&su=" + 
     encodeURIComponent(isRtl ? "استفسار بخصوص سياسة الخصوصية وأمان البيانات — UNIGATES" : "Privacy & Data Protection Inquiry — UNIGATES");
   const whatsappUrl = "https://wa.me/966563057356?text=" + 
     encodeURIComponent(isRtl ? "مرحباً، أود الاستفسار بخصوص سياسة الخصوصية وأمان البيانات في منظومة UNIGATES." : "Hello, I have an inquiry regarding UNIGATES Privacy & Data Protection Policy.");
@@ -227,7 +227,7 @@ const Privacy = () => {
                       </div>
                       <div className="overflow-hidden">
                         <div className="text-xs text-foreground/60">{s.emailNote}</div>
-                        <div className="text-sm font-bold text-foreground truncate">darobaid@unigates.online</div>
+                        <div className="text-sm font-bold text-foreground truncate">support@unigates.online</div>
                       </div>
                     </a>
 

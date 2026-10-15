@@ -1,4 +1,5 @@
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Mail, ExternalLink, ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SimpleHeader from "@/components/SimpleHeader";
 import SEO from "@/components/SEO";
@@ -81,7 +82,7 @@ const Refund = () => {
     },
   };
 
-  const c = content[language] ?? content.en;
+  const c = content[language] ?? (isRtl ? content.ar : content.en);
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
@@ -108,13 +109,85 @@ const Refund = () => {
         </section>
 
         <section className="py-16 px-6">
-          <div className="max-w-3xl mx-auto space-y-8">
+          <div className="max-w-4xl mx-auto space-y-8">
             {c.sections.map((s, i) => (
-              <div key={i} className="bg-card border border-primary/10 rounded-xl p-6">
+              <div key={i} className="bg-card border border-primary/10 rounded-xl p-6 shadow-sm">
                 <h2 className="text-xl font-bold text-foreground mb-3">{s.title}</h2>
                 <p className="text-foreground/70 leading-relaxed">{s.text}</p>
               </div>
             ))}
+
+            {/* Official Support & Paddle Assistance Card */}
+            <div className="p-6 md:p-8 rounded-2xl bg-card border-2 border-primary/20 shadow-md space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">
+                    {isRtl ? "ضمان الاسترداد والدعم الرسمي" : "Refund Guarantee & Official Support"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {isRtl
+                      ? "نحن نضمن حقوقك بالكامل خلال ٣٠ يوماً من تاريخ الدفع بالتعاون مع Paddle.com"
+                      : "Your rights are fully protected within 30 days of payment in partnership with Paddle.com"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <a
+                  href="mailto:support@unigates.online"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/20 transition-colors group"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">
+                      {isRtl ? "راسل فريق الدعم الرسمي:" : "Official Support Team:"}
+                    </div>
+                    <div className="text-sm font-bold text-foreground font-mono">support@unigates.online</div>
+                  </div>
+                </a>
+
+                <a
+                  href="https://paddle.net"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-muted/40 hover:bg-muted/70 border border-border transition-colors group"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-foreground group-hover:bg-primary group-hover:text-white transition-colors">
+                    <ExternalLink className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">
+                      {isRtl ? "البوابة المباشرة لفواتير Paddle:" : "Paddle Direct Buyer Portal:"}
+                    </div>
+                    <div className="text-sm font-bold text-primary font-mono flex items-center gap-1">
+                      paddle.net <ExternalLink className="w-3 h-3" />
+                    </div>
+                  </div>
+                </a>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border/60">
+                <div className="text-xs text-muted-foreground">
+                  {isRtl
+                    ? "التاجر المسجل (MoR): Paddle.com Market Ltd"
+                    : "Merchant of Record (MoR): Paddle.com Market Ltd"}
+                </div>
+
+                <div className="flex items-center gap-3 text-xs font-bold">
+                  <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">
+                    {isRtl ? "شروط الخدمة ➔" : "Terms of Service ➔"}
+                  </Link>
+                  <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
+                    {isRtl ? "سياسة الخصوصية ➔" : "Privacy Policy ➔"}
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>

@@ -397,8 +397,11 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/help-center" element={<HelpCenter />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/terms-of-service" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/privacy-policy" element={<Privacy />} />
               <Route path="/refund" element={<Refund />} />
+              <Route path="/refund-policy" element={<Refund />} />
 
               <Route path="/contact" element={<Contact />} />
               <Route path="/career" element={<CareerPlatform />} />

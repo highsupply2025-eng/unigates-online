@@ -98,7 +98,7 @@ const Terms = () => {
     },
   };
 
-  const c = content[language];
+  const c = content[language as "ar" | "en"] ?? (isRtl ? content.ar : content.en);
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
@@ -122,11 +122,71 @@ const Terms = () => {
         <section className="py-16 px-6">
           <div className="max-w-3xl mx-auto space-y-8">
             {c.sections.map((s, i) => (
-              <div key={i} className="bg-card border border-primary/10 rounded-xl p-6">
+              <div key={i} className="bg-card border border-primary/10 rounded-xl p-6 shadow-xs">
                 <h2 className="text-xl font-bold text-foreground mb-3">{s.title}</h2>
-                <p className="text-foreground/70 leading-relaxed">{s.text}</p>
+                <p className="text-foreground/70 leading-relaxed text-sm sm:text-base">{s.text}</p>
               </div>
             ))}
+
+            {/* Merchant of Record & Official Support Card */}
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/5 via-card to-background border-2 border-primary/20 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                  ⚖️
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-foreground">
+                    {isRtl ? "بيانات البائع ومعالج المدفوعات والاتصال الرسمي" : "Seller & Merchant of Record Information"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {isRtl ? "المعلومات القانونية الرسمية لخدمة المشتركين" : "Official legal and compliance contacts"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-2">
+                <div className="p-4 rounded-xl bg-muted/40 border border-border/80 space-y-1">
+                  <span className="font-bold text-foreground block">
+                    {isRtl ? "الشركة المشغلة والمالكة:" : "Operating Entity:"}
+                  </span>
+                  <p className="text-muted-foreground">
+                    {isRtl
+                      ? "شركة دار عبيد للنشر والتوزيع والطباعة ش.ذ.م.م. (جمهورية مصر العربية)"
+                      : "Dar Obeid Publishing, Distribution & Printing LLC (Egypt)"}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-muted/40 border border-border/80 space-y-1">
+                  <span className="font-bold text-foreground block">
+                    {isRtl ? "التاجر المسجل المعتمد (MoR):" : "Merchant of Record (MoR):"}
+                  </span>
+                  <p className="text-muted-foreground">
+                    Paddle.com Market Ltd (Judd House, 18-29 Mora Street, London, EC1V 8BT, UK)
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border/60">
+                <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                  <span>{isRtl ? "البريد الإلكتروني المعتمد للدعم:" : "Official Support Email:"}</span>
+                  <a
+                    href="mailto:support@unigates.online"
+                    className="text-primary hover:underline font-mono"
+                  >
+                    support@unigates.online
+                  </a>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs font-bold">
+                  <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
+                    {isRtl ? "سياسة الخصوصية ➔" : "Privacy Policy ➔"}
+                  </Link>
+                  <Link to="/refund" className="text-muted-foreground hover:text-primary transition-colors">
+                    {isRtl ? "سياسة الاسترداد ➔" : "Refund Policy ➔"}
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>

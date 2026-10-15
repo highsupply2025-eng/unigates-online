@@ -33,7 +33,7 @@ const Refund = () => {
         },
         {
           title: "5. كيف تطلب الاسترداد",
-          text: "أرسل طلبك من البريد المرتبط بحسابك إلى support@unigates.online مع رقم العملية أو تاريخ الدفع. يمكنك أيضًا التواصل مع Paddle مباشرة عبر paddle.net. لا نحتفظ بأي رسوم إدارية على الاسترداد.",
+          text: "أرسل طلبك من البريد المرتبط بحسابك إلى darobaid@unigates.online مع رقم العملية أو تاريخ الدفع. يمكنك أيضًا التواصل مع Paddle مباشرة عبر paddle.net. لا نحتفظ بأي رسوم إدارية على الاسترداد.",
         },
         {
           title: "6. الاستثناءات",
@@ -68,7 +68,7 @@ const Refund = () => {
         },
         {
           title: "5. How to Request a Refund",
-          text: "Email support@unigates.online from the address linked to your account, including the transaction ID or payment date. You may also contact Paddle directly at paddle.net. No administrative fee is withheld from refunds.",
+          text: "Email darobaid@unigates.online from the address linked to your account, including the transaction ID or payment date. You may also contact Paddle directly at paddle.net. No administrative fee is withheld from refunds.",
         },
         {
           title: "6. Exceptions",
@@ -137,7 +137,7 @@ const Refund = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <a
-                  href="mailto:support@unigates.online"
+                  href="mailto:darobaid@unigates.online"
                   className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/20 transition-colors group"
                 >
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
@@ -147,7 +147,7 @@ const Refund = () => {
                     <div className="text-muted-foreground">
                       {isRtl ? "راسل فريق الدعم الرسمي:" : "Official Support Team:"}
                     </div>
-                    <div className="text-sm font-bold text-foreground font-mono">support@unigates.online</div>
+                    <div className="text-sm font-bold text-foreground font-mono">darobaid@unigates.online</div>
                   </div>
                 </a>
 

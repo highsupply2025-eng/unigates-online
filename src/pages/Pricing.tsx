@@ -446,11 +446,11 @@ const Pricing = () => {
             </div>
 
             <a
-              href="mailto:support@unigates.online"
+              href="mailto:darobaid@unigates.online"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-mono text-sm font-bold shadow hover:bg-primary/90 transition-colors"
             >
               <Mail className="w-4 h-4" />
-              <span>support@unigates.online</span>
+              <span>darobaid@unigates.online</span>
             </a>
           </div>
 

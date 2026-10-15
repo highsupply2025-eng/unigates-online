@@ -170,10 +170,10 @@ const Terms = () => {
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
                   <span>{isRtl ? "البريد الإلكتروني المعتمد للدعم:" : "Official Support Email:"}</span>
                   <a
-                    href="mailto:support@unigates.online"
+                    href="mailto:darobaid@unigates.online"
                     className="text-primary hover:underline font-mono"
                   >
-                    support@unigates.online
+                    darobaid@unigates.online
                   </a>
                 </div>
 

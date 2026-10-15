@@ -280,11 +280,11 @@ const SiteFooter = () => {
                   {translate("الدعم الفني وخدمة العملاء المعتمدة:", "Official Support & Customer Inquiries:")}
                 </span>
                 <a
-                  href="mailto:support@unigates.online"
+                  href="mailto:darobaid@unigates.online"
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs transition-colors"
                 >
                   <Mail className="w-3.5 h-3.5" />
-                  <span>support@unigates.online</span>
+                  <span>darobaid@unigates.online</span>
                 </a>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">

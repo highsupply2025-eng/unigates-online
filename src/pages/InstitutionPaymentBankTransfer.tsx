@@ -145,7 +145,7 @@ const InstitutionPaymentBankTransfer = () => {
     doc.setFontSize(9);
     doc.setFont("helvetica", "italic");
     doc.setTextColor(128, 128, 128);
-    doc.text("Please send this receipt along with proof of transfer to admin@unigates.online", 105, 280, { align: "center" });
+    doc.text("Please send this receipt along with proof of transfer to darobaid@unigates.online", 105, 280, { align: "center" });
 
     // Save
     doc.save(`UNIGATES_Bank_Transfer_${totalAmount}EGP.pdf`);
@@ -421,9 +421,9 @@ const InstitutionPaymentBankTransfer = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold">{isRtl ? "البريد الإلكتروني" : "Email"}</p>
-                    <p className="text-sm text-muted-foreground truncate">admin@unigates.online</p>
+                    <p className="text-sm text-muted-foreground truncate">darobaid@unigates.online</p>
                   </div>
-                  <Button variant="ghost" size="icon" className="shrink-0" onClick={() => copyToClipboard("admin@unigates.online")}>
+                  <Button variant="ghost" size="icon" className="shrink-0" onClick={() => copyToClipboard("darobaid@unigates.online")}>
                     <Copy className="w-4 h-4" />
                   </Button>
                 </div>

@@ -134,11 +134,15 @@ const ResetPassword = () => {
               <Button
                 type="button"
                 size="sm"
-                variant="outline"
-                className="h-9 px-3 sm:px-3.5 rounded-xl font-bold text-xs gap-1.5 border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
+                variant="ghost"
+                className="h-9 px-2.5 sm:px-3.5 rounded-xl font-bold text-xs gap-2 border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
               >
-                <LogIn className="w-4 h-4 text-teal-300 shrink-0" strokeWidth={2.2} />
-                <span className="hidden sm:inline">{t.loginPage?.backToLogin || t.login || "تسجيل الدخول"}</span>
+                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 p-0.5 shadow-sm shadow-emerald-500/30 flex items-center justify-center shrink-0">
+                  <div className="w-full h-full rounded-[6px] bg-slate-950/70 flex items-center justify-center">
+                    <LogIn className="w-3.5 h-3.5 text-teal-300 shrink-0" strokeWidth={2.4} />
+                  </div>
+                </div>
+                <span className="hidden sm:inline font-bold text-white text-xs">{t.loginPage?.backToLogin || t.login || (isRtl ? "تسجيل الدخول" : "Sign In")}</span>
               </Button>
             </Link>
 
@@ -147,36 +151,44 @@ const ResetPassword = () => {
               <Button
                 type="button"
                 size="sm"
-                variant="outline"
-                className="h-9 px-3 rounded-xl font-bold text-xs gap-1.5 border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
+                variant="ghost"
+                className="h-9 px-2.5 sm:px-3 rounded-xl font-bold text-xs gap-2 border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
               >
-                <Search className="w-4 h-4 text-teal-300 shrink-0" strokeWidth={2.2} />
-                <span className="hidden md:inline">{isRtl ? "بحث" : "Search"}</span>
+                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-cyan-400 via-teal-500 to-blue-600 p-0.5 shadow-sm shadow-cyan-500/30 flex items-center justify-center shrink-0">
+                  <div className="w-full h-full rounded-[6px] bg-slate-950/70 flex items-center justify-center">
+                    <Search className="w-3.5 h-3.5 text-teal-300 shrink-0" strokeWidth={2.4} />
+                  </div>
+                </div>
+                <span className="hidden md:inline font-bold text-white text-xs">{isRtl ? "بحث" : "Search"}</span>
               </Button>
             </Link>
 
             {/* Home Navigation */}
-            <Link to="/" title={t.home} className="inline-flex">
+            <Link to="/" title={t.home || (isRtl ? "الرئيسية" : "Home")} className="inline-flex">
               <Button
                 type="button"
                 size="sm"
-                variant="outline"
-                className="h-9 px-3 rounded-xl font-bold text-xs gap-1.5 border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
+                variant="ghost"
+                className="h-9 px-2.5 sm:px-3 rounded-xl font-bold text-xs gap-2 border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
               >
-                <Home className="w-4 h-4 text-teal-300 shrink-0" strokeWidth={2.2} />
-                <span className="hidden md:inline">{isRtl ? "الرئيسية" : "Home"}</span>
+                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-teal-400 via-emerald-500 to-indigo-600 p-0.5 shadow-sm shadow-teal-500/30 flex items-center justify-center shrink-0">
+                  <div className="w-full h-full rounded-[6px] bg-slate-950/70 flex items-center justify-center">
+                    <Home className="w-3.5 h-3.5 text-teal-300 shrink-0" strokeWidth={2.4} />
+                  </div>
+                </div>
+                <span className="hidden md:inline font-bold text-white text-xs">{isRtl ? "الرئيسية" : "Home"}</span>
               </Button>
             </Link>
 
             {/* Theme Toggle */}
             <ThemeToggle
               variant="dropdown"
-              className="h-9 px-2.5 sm:px-3 rounded-xl border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
+              className="h-9 px-2.5 sm:px-3 rounded-xl border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
             />
 
             {/* Language Selector */}
             <LanguageSelectorDropdown
-              className="h-9 px-2.5 sm:px-3 rounded-xl border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
+              className="h-9 px-2.5 sm:px-3 rounded-xl border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
             />
           </div>
         </div>

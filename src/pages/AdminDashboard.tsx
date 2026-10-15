@@ -77,6 +77,7 @@ import {
 } from "@/services/nashrReceiptHelper";
 import { downloadDocumentProperly, openDocumentInNewTabProperly } from "@/utils/documentDownloadHelper";
 import TestAccountsPanel from "@/components/TestAccountsPanel";
+import AdminPreviewLinks from "@/components/AdminPreviewLinks";
 
 function dataUrlToBlob(dataUrl: string): Blob {
   try {
@@ -1241,6 +1242,7 @@ export const AdminDashboard = () => {
       {/* ── Main Dashboard Workspace ── */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-6 pb-20">
         {import.meta.env.DEV && <TestAccountsPanel ar={ar} />}
+        {import.meta.env.DEV && <AdminPreviewLinks />}
 
         {/* Section Header Notice */}
         <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent border-2 border-amber-500/20 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">

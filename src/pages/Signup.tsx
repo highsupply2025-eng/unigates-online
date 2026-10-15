@@ -397,30 +397,38 @@ const Signup = () => {
 
           {/* Action Hub */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <Button
-              type="button"
-              onClick={goBack}
-              variant="outline"
-              size="sm"
-              className="h-9 px-3.5 rounded-xl font-bold text-xs bg-background/80 hover:bg-muted border-border text-foreground shadow-xs gap-1.5 transition-all"
-              title={t.home}
-            >
-              <Home className="w-3.5 h-3.5 text-primary" />
-              <span>{t.home}</span>
-            </Button>
-
-            <Link to="/login">
+            <Link to="/" title={t.home || (language === "ar" ? "الرئيسية" : "Home")} className="inline-flex">
               <Button
-                variant="outline"
+                type="button"
                 size="sm"
-                className="h-9 px-3.5 rounded-xl font-bold text-xs bg-background/80 hover:bg-muted border-border text-foreground shadow-xs gap-1.5 transition-all"
+                variant="ghost"
+                className="h-9 px-2.5 sm:px-3 rounded-xl font-bold text-xs gap-2 border border-border/80 bg-card/80 hover:bg-card text-foreground shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
               >
-                <LogIn className="w-3.5 h-3.5 text-primary" />
-                <span className="hidden sm:inline">{t.login}</span>
+                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-teal-400 via-emerald-500 to-indigo-600 p-0.5 shadow-sm shadow-teal-500/30 flex items-center justify-center shrink-0">
+                  <div className="w-full h-full rounded-[6px] bg-card/90 flex items-center justify-center">
+                    <Home className="w-3.5 h-3.5 text-teal-600 dark:text-teal-300 shrink-0" strokeWidth={2.4} />
+                  </div>
+                </div>
+                <span className="hidden md:inline font-bold text-xs">{t.home || (language === "ar" ? "الرئيسية" : "Home")}</span>
               </Button>
             </Link>
-            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-background/60 border-primary/20" />
-            <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
+
+            <Link to="/login" title={t.login} className="inline-flex">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 px-2.5 sm:px-3 rounded-xl font-bold text-xs gap-2 border border-border/80 bg-card/80 hover:bg-card text-foreground shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
+              >
+                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 p-0.5 shadow-sm shadow-emerald-500/30 flex items-center justify-center shrink-0">
+                  <div className="w-full h-full rounded-[6px] bg-card/90 flex items-center justify-center">
+                    <LogIn className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300 shrink-0" strokeWidth={2.4} />
+                  </div>
+                </div>
+                <span className="hidden sm:inline font-bold text-xs">{t.login}</span>
+              </Button>
+            </Link>
+            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-card/80 border-border/80" />
+            <ThemeToggle className="h-9 px-2.5 sm:px-3 rounded-xl border-border/80 bg-card/80" />
           </div>
         </div>
       </header>

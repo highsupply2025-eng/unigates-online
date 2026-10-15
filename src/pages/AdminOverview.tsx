@@ -391,8 +391,8 @@ export default function AdminOverview() {
   }, [pending, searchPending]);
 
   const groups = useMemo(() => {
-    const map: Record<PendingKind, PendingRow[]> = { lecturer: [], college: [], institute: [], school: [], department: [], payment_request: [] };
-    filteredPending.forEach((r) => map[r.kind].push(r));
+    const map: Record<PendingKind, PendingRow[]> = { lecturer: [], college: [], institute: [], school: [], department: [], payment_request: [], international_user: [] };
+    filteredPending.forEach((r) => map[r.kind]?.push(r));
     return map;
   }, [filteredPending]);
 

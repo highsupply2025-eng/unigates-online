@@ -45,7 +45,8 @@ import {
   UploadCloud,
   Paperclip,
   Camera,
-  Loader2
+  Loader2,
+  LayoutDashboard
 } from "lucide-react";
 import { ChatCameraModal } from "@/components/messaging/ChatCameraModal";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

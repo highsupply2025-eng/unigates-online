@@ -1395,15 +1395,25 @@ export class NashrDataStore {
   static isUniversityAccount(a: Partial<AuthorProfile> | any): boolean {
     if (!a) return false;
     const p = ((a.platform || "") as string).trim().toLowerCase();
-    if (p === "university" || p === "college" || p === "institute" || p === "academic" || p === "school") {
-      return true;
-    }
     const role = ((a.role || "") as string).trim().toLowerCase();
-    if (["student", "dean", "vice_dean", "department_head", "faculty", "lecturer"].includes(role)) {
-      return true;
+
+    // Any non-publishing platform unless strictly author or publisher
+    if (["courses", "university", "college", "institute", "academic", "school", "bookstore"].includes(p)) {
+      if (role !== "publisher" && role !== "author") {
+        return true;
+      }
     }
+
+    // Any role that belongs to other platforms (students, university faculty/deans, etc.)
+    if (["student", "dean", "vice_dean", "department_head", "faculty", "lecturer", "user"].includes(role)) {
+      if (p !== "publishing" && !p.startsWith("nashr")) {
+        return true;
+      }
+    }
+
     const combined = `${a.specialization || ""} ${a.academicTitleLabel || ""} ${a.fullName || ""}`.toLowerCase();
     if (
+      combined.includes("طالب") || 
       combined.includes("رئيس قسم") || 
       combined.includes("عميد") || 
       combined.includes("وكيل") || 
@@ -1414,7 +1424,8 @@ export class NashrDataStore {
         code === "AUT-4714" || 
         code === "AUT-5820" || 
         a.id === "auth-4714" || 
-        a.id === "auth-loubna-hawary";
+        a.id === "auth-loubna-hawary" ||
+        a.id === "auth-2026-001";
       if (!isOfficialPublishingAuthor) return true;
     }
     return false;

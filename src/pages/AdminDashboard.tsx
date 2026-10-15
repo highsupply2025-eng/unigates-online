@@ -453,12 +453,13 @@ export const AdminDashboard = () => {
       NashrDataStore.syncAuthorsFromCloud().then(async (mergedAuthors) => {
         let currentList = Array.isArray(mergedAuthors) ? mergedAuthors.filter(Boolean) : [];
         
-        // Also query UserRegistrationController to guarantee all pending/unverified users from Supabase are pulled (strictly platform = 'courses')
+        // Also query UserRegistrationController to guarantee all pending/unverified authors from Supabase are pulled (strictly platform = 'publishing')
         try {
-          const pendingUsers = await UserRegistrationController.fetchAdminPendingUsers({ platform: "courses" });
+          const pendingUsers = await UserRegistrationController.fetchAdminPendingUsers({ platform: "publishing" });
           if (Array.isArray(pendingUsers) && pendingUsers.length > 0) {
             for (const u of pendingUsers) {
               if (NashrDataStore.isAuthorDeleted(u.userId) || NashrDataStore.isAuthorDeleted(u.email)) continue;
+              if (NashrDataStore.isUniversityAccount(u)) continue;
               const alreadyExists = currentList.some(
                 (a) => a.id === `auth-${u.userId}` || a.id === u.userId || (u.email && a.email?.toLowerCase() === u.email.toLowerCase())
               );
@@ -468,12 +469,12 @@ export const AdminDashboard = () => {
                   authorCode: `AUT-${u.userId.substring(0, 4).toUpperCase()}`,
                   fullName: u.fullName,
                   academicTitle: "dr",
-                  academicTitleLabel: "دكتور / باحث مسجل",
-                  specialization: "الدراسات الأكاديمية والبحث العلمي",
-                  institution: u.country || "مؤسسة أكاديمية",
+                  academicTitleLabel: "مؤلف / باحث دولي",
+                  specialization: "الدراسات الأكاديمية والبحث العلمي والنشر",
+                  institution: u.country || "مؤلف دولي",
                   email: u.email,
                   phone: u.phone,
-                  platform: u.platform || "courses",
+                  platform: u.platform || "publishing",
                   verificationStatus: u.verificationStatus || "pending_review",
                   isForeign: u.isForeign,
                   idType: u.idType === "passport" ? "passport" : "national_id",
@@ -488,7 +489,8 @@ export const AdminDashboard = () => {
           console.warn("[AdminDashboard] fetchAdminPendingUsers warning:", e);
         }
 
-        setAuthors(currentList.filter(a => !NashrDataStore.isAuthorDeleted(a) && !NashrDataStore.isUniversityAccount(a)));
+        const filteredFinal = currentList.filter(a => !NashrDataStore.isAuthorDeleted(a) && !NashrDataStore.isUniversityAccount(a));
+        setAuthors(filteredFinal);
       }).catch(() => {});
     } catch (err) {
       console.error("[AdminDashboard] Error loading data:", err);
@@ -1354,7 +1356,7 @@ export const AdminDashboard = () => {
 
               <Card className="rounded-2xl border-2 border-sky-500/30 bg-sky-500/5 p-4 flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-sky-700 dark:text-sky-300 font-bold block">{isRtl ? "مؤلفون دوليون (خارج المملكة)" : "International Authors"}</span>
+                  <span className="text-xs text-sky-700 dark:text-sky-300 font-bold block">{isRtl ? "مؤلفون دوليون (حول العالم)" : "International Authors"}</span>
                   <span className="text-2xl font-black text-sky-600 dark:text-sky-400">
                     {safeAuthors.filter(a => Boolean(a?.isForeign || (a?.phone && !a?.phone.startsWith("+966") && !a?.phone.startsWith("00966")) || a?.idType === "passport")).length}
                   </span>
@@ -1396,7 +1398,7 @@ export const AdminDashboard = () => {
                   <SelectContent>
                     <SelectItem value="all">{isRtl ? "جميع الحالات" : "All Statuses"}</SelectItem>
                     <SelectItem value="pending">{isRtl ? "بانتظار التدقيق ⏳" : "Pending Review"}</SelectItem>
-                    <SelectItem value="foreign">{isRtl ? "مؤلفون دوليون (خارج المملكة) 🌍" : "International Authors 🌍"}</SelectItem>
+                    <SelectItem value="foreign">{isRtl ? "مؤلفون دوليون (حول العالم) 🌍" : "International Authors 🌍"}</SelectItem>
                     <SelectItem value="approved">{isRtl ? "معتمد ومفعل ✅" : "Approved"}</SelectItem>
                     <SelectItem value="rejected">{isRtl ? "مرفوض ❌" : "Rejected"}</SelectItem>
                   </SelectContent>

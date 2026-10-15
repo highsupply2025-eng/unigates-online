@@ -329,11 +329,11 @@ class UnigatesCloudSyncEngine {
    */
   public async fetchCloudAuthorsFromSupabase(): Promise<AuthorProfile[]> {
     try {
-      // Pull authors/publishers belonging to publishing platform (courses / nashr / publishing)
+      // Pull authors/publishers strictly belonging to publishing platform (nashr / publishing / author / publisher)
       const { data: profilesData, error } = await supabase
         .from("profiles")
         .select("*")
-        .or("platform.ilike.nashr%,platform.eq.publishing,platform.eq.courses,role.eq.publisher,role.eq.author")
+        .or("platform.ilike.nashr%,platform.eq.publishing,role.eq.publisher,role.eq.author")
         .order("created_at", { ascending: false });
 
       if (error || !profilesData) return [];
@@ -361,19 +361,24 @@ class UnigatesCloudSyncEngine {
         } catch {}
         if (isTombstoned) continue;
 
-        // Strict platform filter: only accounts belonging to the publishing house platform (courses / nashr / publishing)
-        // Completely exclude university platform ('university', 'college', 'institute', etc.)
+        // Strict platform filter: only accounts belonging to the publishing house platform (nashr / publishing / author / publisher)
+        // Completely exclude university / courses / school platforms unless the role is strictly publisher/author
         const pStr = (row.platform || "").trim().toLowerCase();
-        if (pStr === "university" || pStr === "college" || pStr === "institute" || pStr === "academic" || pStr === "school") {
+        const roleStr = (row.role || "").trim().toLowerCase();
+        if (["university", "college", "institute", "academic", "school", "courses", "bookstore"].includes(pStr)) {
+          if (roleStr !== "publisher" && roleStr !== "author") {
+            continue;
+          }
+        }
+        if (["student", "dean", "vice_dean", "department_head", "faculty", "lecturer"].includes(roleStr)) {
           continue;
         }
 
         const isPublishingPlatform = 
-          pStr === "courses" || 
           pStr === "publishing" || 
           pStr.startsWith("nashr") || 
-          row.role === "publisher" || 
-          row.role === "author";
+          roleStr === "publisher" || 
+          roleStr === "author";
 
         if (!isPublishingPlatform) {
           continue;

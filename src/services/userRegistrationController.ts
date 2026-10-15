@@ -259,7 +259,12 @@ export class UserRegistrationController {
             if (isDeletedTombstone(row.user_id, row.email)) return false;
             if (!targetPlatform) return true;
             const p = (row.platform || "").trim().toLowerCase();
-            return p === targetPlatform || p === "publishing" || p.startsWith("nashr");
+            const r = (row.role || "").trim().toLowerCase();
+            if (targetPlatform === "publishing" || targetPlatform === "nashr") {
+              if (["student", "dean", "vice_dean", "department_head", "faculty", "lecturer"].includes(r)) return false;
+              return p === "publishing" || p.startsWith("nashr") || r === "publisher" || r === "author";
+            }
+            return p === targetPlatform;
           })
           .map((row: any) => ({
             userId: row.user_id,
@@ -267,7 +272,7 @@ export class UserRegistrationController {
             email: row.email || "",
             phone: row.phone || "",
             role: row.role || "user",
-            platform: row.platform || "courses",
+            platform: row.platform || targetPlatform || "publishing",
             countryCode: row.country_code || "+966",
             country: row.country || "SA",
             isForeign: Boolean(row.is_foreign),
@@ -282,7 +287,7 @@ export class UserRegistrationController {
           }));
       }
 
-      // 2. Direct query fallback across profiles and user_roles strictly filtered by platform = 'courses'
+      // 2. Direct query fallback across profiles and user_roles strictly filtered by targetPlatform
       let query = supabase
         .from("profiles")
         .select(`
@@ -297,7 +302,11 @@ export class UserRegistrationController {
         .order("created_at", { ascending: false });
 
       if (targetPlatform) {
-        query = query.or(`platform.eq.${targetPlatform},platform.eq.publishing,platform.ilike.nashr%`);
+        if (targetPlatform === "publishing" || targetPlatform === "nashr") {
+          query = query.or(`platform.eq.publishing,platform.ilike.nashr%,role.eq.publisher,role.eq.author`);
+        } else {
+          query = query.eq("platform", targetPlatform);
+        }
       }
 
       if (options?.searchQuery?.trim()) {
@@ -322,16 +331,20 @@ export class UserRegistrationController {
       for (const p of profiles) {
         if (isDeletedTombstone(p.user_id, p.email)) continue;
         const pPlatform = (p.platform || "").trim().toLowerCase();
-        // Strict exclusion of university platform or any non-publishing platform
+        const userRole = rolesMap.get(p.user_id);
+        const pRole = (userRole?.role || p.role || "").trim().toLowerCase();
+
+        // Strict platform filter
         if (targetPlatform) {
-          const isAllowedPlatform = 
-            pPlatform === targetPlatform || 
-            pPlatform === "publishing" || 
-            pPlatform.startsWith("nashr");
-          if (!isAllowedPlatform) continue;
+          if (targetPlatform === "publishing" || targetPlatform === "nashr") {
+            const isPublishing = pPlatform === "publishing" || pPlatform.startsWith("nashr") || pRole === "publisher" || pRole === "author";
+            if (!isPublishing) continue;
+            if (["student", "dean", "vice_dean", "department_head", "faculty", "lecturer"].includes(pRole)) continue;
+          } else if (pPlatform !== targetPlatform) {
+            continue;
+          }
         }
 
-        const userRole = rolesMap.get(p.user_id);
         const isApproved = userRole?.approved ?? false;
 
         // Infer international status from phone prefix or platform metadata

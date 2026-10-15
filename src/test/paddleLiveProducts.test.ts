@@ -4,6 +4,8 @@ import { PaddleProductGateway } from "@/services/paddleProductGateway";
 import { PaddleProvisioningService } from "@/services/paddleProvisioningService";
 import { NashrDataStore } from "@/services/nashrDataStore";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
+import { PaddleLiveClient } from "@/services/paddleLiveClient";
+
 
 describe("Live Production Paddle Products Gateway", () => {
   let mockStorage: Record<string, string> = {};
@@ -104,4 +106,17 @@ describe("Live Production Paddle Products Gateway", () => {
     const order = BookStoreDataStore.getOrders().find(o => o.orderNumber === orderNumber);
     expect(order?.status).toBe("completed");
   });
+
+  it("should configure PaddleLiveClient for paddle-live HTTP and reference MCP server correctly", () => {
+    const mcpRef = PaddleLiveClient.getMcpServerReference();
+    expect(mcpRef.serverName).toBe("paddle-live");
+    expect(mcpRef.type).toBe("http");
+    expect(mcpRef.url).toBe("https://mcp.paddle.com/mcp");
+    expect(mcpRef.apiUrl).toBe("https://api.paddle.com");
+    expect(mcpRef.publishedDomain).toBe("https://unigates.online");
+    expect(mcpRef.environment).toBe("live");
+    expect(mcpRef.authHeader).toContain("pdl_live_apikey_");
+    expect(PaddleLiveClient.isLiveProduction()).toBe(true);
+  });
 });
+

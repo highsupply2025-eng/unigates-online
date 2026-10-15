@@ -19,42 +19,73 @@ function connectionKey(env: PaddleEnv): string {
   return key;
 }
 
-function lovableKey(): string {
-  const key = Deno.env.get("LOVABLE_API_KEY");
-  if (!key) throw new Error("LOVABLE_API_KEY is not configured");
-  return key;
-}
+const DIRECT_PADDLE_URL: Record<PaddleEnv, string> = {
+  live: "https://api.paddle.com",
+  sandbox: "https://sandbox-api.paddle.com",
+};
 
 export async function gatewayFetch(
   env: PaddleEnv,
   path: string,
   init: RequestInit = {},
 ): Promise<Response> {
-  const response = await fetch(`${GATEWAY_URL}${path}`, {
+  const token = connectionKey(env);
+  const lovable = Deno.env.get("LOVABLE_API_KEY");
+
+  // Attempt Lovable connector gateway if available, or fall back directly to Paddle HTTP API
+  if (lovable) {
+    try {
+      const response = await fetch(`${GATEWAY_URL}${path}`, {
+        ...init,
+        headers: {
+          Authorization: `Bearer ${lovable}`,
+          "X-Connection-Api-Key": token,
+          "Content-Type": "application/json",
+          ...(init.headers ?? {}),
+        },
+      });
+      if (response.ok) return response;
+    } catch {
+      // Proceed to direct Paddle HTTP API below
+    }
+  }
+
+  // Direct official Paddle HTTP API connection (paddle-live / paddle-sandbox)
+  const baseUrl = DIRECT_PADDLE_URL[env] || DIRECT_PADDLE_URL.live;
+  const response = await fetch(`${baseUrl}${path}`, {
     ...init,
     headers: {
-      Authorization: `Bearer ${lovableKey()}`,
-      "X-Connection-Api-Key": connectionKey(env),
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
       ...(init.headers ?? {}),
     },
   });
+
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Paddle gateway request failed [${response.status}]: ${body}`);
+    throw new Error(`Paddle HTTP API request failed [${response.status}]: ${body}`);
   }
   return response;
 }
 
 export function getPaddleClient(env: PaddleEnv): Paddle {
-  return new Paddle(connectionKey(env), {
+  const key = connectionKey(env);
+  const lovable = Deno.env.get("LOVABLE_API_KEY");
+  
+  if (lovable) {
+    return new Paddle(key, {
+      environment: env === "live" ? Environment.production : Environment.sandbox,
+      customHeaders: {
+        Authorization: `Bearer ${lovable}`,
+        "X-Connection-Api-Key": key,
+      },
+      baseUrl: GATEWAY_URL,
+    } as unknown as Record<string, unknown>);
+  }
+
+  return new Paddle(key, {
     environment: env === "live" ? Environment.production : Environment.sandbox,
-    customHeaders: {
-      Authorization: `Bearer ${lovableKey()}`,
-      "X-Connection-Api-Key": connectionKey(env),
-    },
-    baseUrl: GATEWAY_URL,
-  } as unknown as Record<string, unknown>);
+  });
 }
 
 export async function verifyWebhook(req: Request, env: PaddleEnv) {

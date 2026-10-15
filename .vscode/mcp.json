@@ -1,0 +1,44 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schema.json",
+  "mcpServers": {
+    "paddle-live": {
+      "type": "http",
+      "url": "https://mcp.paddle.com/mcp",
+      "headers": {
+        "Authorization": "Bearer pdl_live_apikey_01m4zcd3cc733z3cdxc326c1n2_v6nh5CWrWvqNGgcKx7CFZ9_AfN",
+        "X-Domain": "https://unigates.online"
+      },
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.paddle.com/mcp",
+        "--header",
+        "Authorization: Bearer pdl_live_apikey_01m4zcd3cc733z3cdxc326c1n2_v6nh5CWrWvqNGgcKx7CFZ9_AfN"
+      ],
+      "env": {
+        "PADDLE_ENV": "live",
+        "PADDLE_API_KEY": "pdl_live_apikey_01m4zcd3cc733z3cdxc326c1n2_v6nh5CWrWvqNGgcKx7CFZ9_AfN",
+        "PADDLE_CLIENT_TOKEN": "live_ed63bc96090a362134c6242a552",
+        "PUBLISHED_DOMAIN": "https://unigates.online"
+      }
+    },
+    "paddle-sandbox": {
+      "type": "http",
+      "url": "https://sandbox-mcp.paddle.com/mcp",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://sandbox-mcp.paddle.com/mcp"
+      ]
+    },
+    "unigates-mcp": {
+      "type": "http",
+      "url": "https://tgdkxzzkvfyazmnawkpw.supabase.co/functions/v1/mcp",
+      "headers": {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZGt4enprdmZ5YXptbmF3a3B3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDM1NDQsImV4cCI6MjA4NzUxOTU0NH0.VTVwjsNoFhNFs-3LOpvYZtMdX64NCe4e_oXT-BtBVQQ"
+      }
+    }
+  }
+}

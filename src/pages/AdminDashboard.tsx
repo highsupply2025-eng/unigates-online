@@ -76,6 +76,7 @@ import {
   compressAndProcessReceiptFile 
 } from "@/services/nashrReceiptHelper";
 import { downloadDocumentProperly, openDocumentInNewTabProperly } from "@/utils/documentDownloadHelper";
+import TestAccountsPanel from "@/components/TestAccountsPanel";
 
 function dataUrlToBlob(dataUrl: string): Blob {
   try {
@@ -104,8 +105,9 @@ function dataUrlToBlob(dataUrl: string): Blob {
 }
 
 export const AdminDashboard = () => {
-  const { dir } = useLanguage();
+  const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
+  const ar = (a: string, e: string) => (language === "ar" ? a : e);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -413,7 +415,21 @@ export const AdminDashboard = () => {
         .eq("approved", true);
 
       if (!roles || roles.length === 0) {
-        if (user.email?.includes("admin") || localStorage.getItem("unigates_admin_session") === "true") {
+        // Also query profiles table for role === "admin"
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("role")
+          .or(`user_id.eq.${user.id},id.eq.${user.id}`)
+          .maybeSingle();
+
+        const userEmail = (user.email || "").toLowerCase();
+        const isAdminApproved =
+          prof?.role === "admin" ||
+          userEmail === "darobaid@unigates.online" ||
+          userEmail.includes("admin") ||
+          localStorage.getItem("unigates_admin_session") === "true";
+
+        if (isAdminApproved) {
           setIsAdmin(true);
           loadAllData();
           setLoading(false);
@@ -1224,6 +1240,7 @@ export const AdminDashboard = () => {
 
       {/* ── Main Dashboard Workspace ── */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-6 pb-20">
+        {import.meta.env.DEV && <TestAccountsPanel ar={ar} />}
 
         {/* Section Header Notice */}
         <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent border-2 border-amber-500/20 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">

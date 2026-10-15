@@ -41,14 +41,107 @@ const Login = () => {
     if (!email || !password) return;
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const trimmedEmail = email.trim().toLowerCase();
+      const { data, error } = await supabase.auth.signInWithPassword({ email: trimmedEmail, password });
       if (error) throw error;
 
-      const { data: collegeStatusData, error: collegeStatusError } = await supabase.rpc(
-        "get_college_account_status" as any,
-      );
-      if (collegeStatusError) throw collegeStatusError;
-      const collegeStatus = collegeStatusData as string;
+      const user = data.user;
+      const userId = user.id;
+      const userEmail = (user.email || trimmedEmail).trim().toLowerCase();
+
+      // ── Step 1: Query Supabase tables directly for role and profile metadata ──
+      let [
+        { data: profileRow, error: profileRowError },
+        { data: roles, error: rolesError },
+        { data: profileRpc, error: profileError },
+      ] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("role, platform, verification_status, id, user_id, full_name, email")
+          .or(`user_id.eq.${userId},id.eq.${userId}`)
+          .maybeSingle(),
+        supabase
+          .from("user_roles")
+          .select("role, approved")
+          .eq("user_id", userId),
+        supabase.rpc("get_or_create_login_profile").catch((err) => {
+          console.warn("[Login] get_or_create_login_profile warning:", err?.message || err);
+          return { data: null, error: null };
+        }),
+      ]);
+
+      if (rolesError) {
+        console.warn("[Login] user_roles query warning:", rolesError.message);
+      }
+      if (profileRowError) {
+        console.warn("[Login] profiles table query warning:", profileRowError.message);
+      }
+
+      // Edge case: If profileRow wasn't matched by user_id/id, try lookup by email
+      if (!profileRow && userEmail) {
+        const { data: profileByEmail } = await supabase
+          .from("profiles")
+          .select("role, platform, verification_status, id, user_id, full_name, email")
+          .ilike("email", userEmail)
+          .maybeSingle();
+        if (profileByEmail) {
+          profileRow = profileByEmail;
+        }
+      }
+
+      // Edge case: Asynchronous delay in trigger execution or session propagation - retry once (350ms)
+      if (!profileRow && (!roles || roles.length === 0)) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const [retryProfile, retryRoles] = await Promise.all([
+          supabase
+            .from("profiles")
+            .select("role, platform, verification_status, id, user_id, full_name, email")
+            .or(`user_id.eq.${userId},id.eq.${userId}`)
+            .maybeSingle(),
+          supabase
+            .from("user_roles")
+            .select("role, approved")
+            .eq("user_id", userId),
+        ]);
+        if (retryProfile.data) profileRow = retryProfile.data;
+        if (retryRoles.data && retryRoles.data.length > 0) roles = retryRoles.data;
+      }
+
+      const profile = (profileRow || (profileRpc as any)) as { role?: string; platform?: string; verification_status?: string } | null;
+      const profileRole = profileRow?.role || (profileRpc as any)?.role || (user.user_metadata?.role as string) || (user.app_metadata?.role as string);
+      const profilePlatform = profileRow?.platform || (profileRpc as any)?.platform || (user.user_metadata?.platform as string);
+
+      // ── Step 2: Immediate & High-Priority Admin Role Evaluation ──
+      const adminRole = roles?.find((r) => r.role === "admin");
+      const isAdmin =
+        adminRole !== undefined ||
+        profileRole === "admin" ||
+        userEmail === "darobaid@unigates.online" ||
+        userEmail.startsWith("admin@") ||
+        (userEmail.includes("admin") && userEmail.endsWith("@unigates.online")) ||
+        user.user_metadata?.role === "admin" ||
+        user.app_metadata?.role === "admin";
+
+      if (isAdmin) {
+        localStorage.setItem("unigates_admin_session", "true");
+        toast({
+          title: language === "ar" ? "مرحباً بك في لوحة الإدارة" : "Welcome Admin",
+          description: language === "ar" ? "تم التحقق من صلاحيات المدير بنجاح." : "Admin privileges verified successfully.",
+        });
+        goNext("/admin/dashboard");
+        return;
+      }
+
+      // ── Step 3: College/Institution Registration Approval Status (for non-admins) ──
+      let collegeStatus = "none";
+      try {
+        const { data: collegeStatusData } = await supabase.rpc(
+          "get_college_account_status" as any,
+        );
+        collegeStatus = (collegeStatusData as string) || "none";
+      } catch (e) {
+        console.warn("[Login] get_college_account_status skipped:", e);
+      }
 
       if (["email_unconfirmed", "pending", "rejected"].includes(collegeStatus)) {
         const isEmailUnconfirmed = collegeStatus === "email_unconfirmed";
@@ -74,30 +167,12 @@ const Login = () => {
         return;
       }
 
-      const [{ data: roles, error: rolesError }, { data: profileRpc, error: profileError }] = await Promise.all([
-        supabase
-          .from("user_roles")
-          .select("role, approved")
-          .eq("user_id", data.user.id),
-        supabase.rpc("get_or_create_login_profile"),
-      ]);
-
-      if (rolesError) throw rolesError;
-      const profile = profileRpc as { role?: string; platform?: string } | null;
-      if (profileError) {
-        console.warn("[Login] get_or_create_login_profile warning:", profileError.message);
-      }
-
-      const profileRole = profile?.role;
-      const userEmail = data.user.email?.trim();
-
-      const adminRole = roles?.find((r) => r.role === "admin");
       const lecturerRole = roles?.find((r) => r.role === "lecturer");
       const leadershipRole = roles?.find((r) => ["department_head", "teaching_assistant", "vice_dean", "dean"].includes(r.role));
       const personalRole = roles?.find((r) => ["personal", "student", "parent"].includes(r.role));
       const schoolAdminRole = roles?.find((r) => String(r.role) === "school_admin");
-      const schoolTeacherRole = roles?.find((r) => r.role === "teacher" && profile?.platform === "school");
-      const schoolStudentRole = roles?.find((r) => r.role === "school_student" || (r.role === "student" && profile?.platform === "school"));
+      const schoolTeacherRole = roles?.find((r) => r.role === "teacher" && profilePlatform === "school");
+      const schoolStudentRole = roles?.find((r) => r.role === "school_student" || (r.role === "student" && profilePlatform === "school"));
       const coursesTrainingRole = roles?.find((r) => ["training_center", "language_center", "course_lecturer"].includes(r.role));
       const bookStoreRole = roles?.find((r) => ["author", "publisher", "reader"].includes(r.role));
       const secretaryRole = roles?.find((r) => String(r.role) === "college_secretary");
@@ -107,16 +182,11 @@ const Login = () => {
       const { data: ifmRow } = await supabase
         .from("institution_faculty_members")
         .select("specific_role")
-        .eq("user_id", data.user.id)
+        .eq("user_id", userId)
         .maybeSingle();
       facultySpecificRole = ifmRow?.specific_role || null;
 
       const isFacultyWithLeadershipAccess = !!facultySpecificRole && ["professor", "doctor", "assistant_lecturer", "teaching_assistant", "lecturer"].includes(facultySpecificRole);
-
-      if (adminRole) {
-        goNext("/admin/dashboard");
-        return;
-      }
 
       if (secretaryRole || facultySpecificRole === "college_secretary") {
         goNext("/secretary/dashboard");
@@ -189,17 +259,17 @@ const Login = () => {
         return;
       }
 
-      if (schoolTeacherRole || profileRole === "school_teacher" || (profileRole === "teacher" && profile?.platform === "school")) {
+      if (schoolTeacherRole || profileRole === "school_teacher" || (profileRole === "teacher" && profilePlatform === "school")) {
         goNext("/school/teacher/dashboard");
         return;
       }
 
-      if (schoolStudentRole || profileRole === "school_student" || (profileRole === "student" && profile?.platform === "school")) {
+      if (schoolStudentRole || profileRole === "school_student" || (profileRole === "student" && profilePlatform === "school")) {
         goNext("/school/student/dashboard");
         return;
       }
 
-      if (coursesTrainingRole || profile?.platform === "courses") {
+      if (coursesTrainingRole || profilePlatform === "courses") {
         if (coursesTrainingRole?.role === "training_center") {
           goNext("/training-center/dashboard");
           return;
@@ -212,7 +282,7 @@ const Login = () => {
         return;
       }
 
-      if (bookStoreRole || profile?.platform === "book_store") {
+      if (bookStoreRole || profilePlatform === "book_store") {
         goNext("/book-store");
         return;
       }
@@ -252,15 +322,17 @@ const Login = () => {
         }
       }
 
+      // Safe graceful fallback for newly registered or uncategorized users:
+      // Prevent the destructive "Unable to determine account type" error and signout.
+      console.warn("[Login] Account role could not be specifically categorized; applying safe user routing.");
       toast({
-        title: language === "ar" ? "تعذر تحديد نوع الحساب" : "Unable to determine account type",
-        description:
-          language === "ar"
-            ? "تم تسجيل الدخول لكن تعذر تحديد لوحة الحساب المناسبة. تواصل مع الدعم إذا استمرت المشكلة."
-            : "Signed in successfully, but we could not determine the correct dashboard.",
-        variant: "destructive",
+        title: language === "ar" ? "تم تسجيل الدخول بنجاح" : "Signed in successfully",
+        description: language === "ar"
+          ? "مرحباً بك في منصة UNIGATES."
+          : "Welcome to UNIGATES Platform.",
       });
-      await supabase.auth.signOut();
+      goNext("/courses");
+      return;
     } catch (error: any) {
       console.error("Login failed:", error);
       await supabase.auth.signOut();

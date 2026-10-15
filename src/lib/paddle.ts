@@ -1,6 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
+const clientToken = 
+  (import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined) || 
+  "live_ed63bc96090a362134c6242a552";
 
 declare global {
   interface Window {
@@ -17,7 +19,7 @@ let paddleInitialized = false;
 let initializedCustomerId: string | null = null;
 
 /**
- * Loads and initializes Paddle.js.
+ * Loads and initializes Paddle.js SDK v2 with customized responsive overlay settings.
  *
  * `paddleCustomerId` must be the signed-in user's Paddle customer ID (`ctm_...`),
  * never an internal user ID or email. It is passed to Paddle.Initialize as
@@ -25,11 +27,30 @@ let initializedCustomerId: string | null = null;
  */
 export async function initializePaddle(paddleCustomerId?: string | null) {
   const pwCustomer = paddleCustomerId?.startsWith("ctm_") ? paddleCustomerId : null;
+  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  const isRtl = typeof document !== "undefined" && document.documentElement.dir === "rtl";
 
-  if (paddleInitialized) {
+  const defaultCheckoutSettings = {
+    displayMode: "overlay",
+    theme: isDark ? "dark" : "light",
+    locale: isRtl ? "ar" : "en",
+    variant: "one-page",
+    allowLogout: false,
+    showAddTaxId: true,
+    showAddDiscounts: true,
+    allowedPaymentMethods: ["card", "paypal"],
+    frameStyle: "width: 100%; min-width: 312px; background-color: transparent; border: none;",
+    frameInitialHeight: 480,
+  };
+
+  if (paddleInitialized && typeof window !== "undefined" && window.Paddle) {
     // Re-run Initialize only when a customer identity became available (or changed).
-    if (pwCustomer && pwCustomer !== initializedCustomerId && window.Paddle) {
-      window.Paddle.Initialize({ token: clientToken, pwCustomer: { id: pwCustomer } });
+    if (pwCustomer && pwCustomer !== initializedCustomerId) {
+      window.Paddle.Initialize({ 
+        token: clientToken, 
+        pwCustomer: { id: pwCustomer },
+        checkout: { settings: defaultCheckoutSettings }
+      });
       initializedCustomerId = pwCustomer;
     }
     return;
@@ -40,20 +61,39 @@ export async function initializePaddle(paddleCustomerId?: string | null) {
   }
 
   return new Promise<void>((resolve, reject) => {
+    if (typeof window !== "undefined" && window.Paddle) {
+      const env = getPaddleEnvironment() === "sandbox" ? "sandbox" : "production";
+      window.Paddle.Environment.set(env);
+      window.Paddle.Initialize({
+        token: clientToken,
+        ...(pwCustomer ? { pwCustomer: { id: pwCustomer } } : {}),
+        checkout: { settings: defaultCheckoutSettings },
+      });
+      initializedCustomerId = pwCustomer;
+      paddleInitialized = true;
+      resolve();
+      return;
+    }
+
     const script = document.createElement("script");
     script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
+    script.async = true;
     script.onload = () => {
       const env = getPaddleEnvironment() === "sandbox" ? "sandbox" : "production";
       window.Paddle.Environment.set(env);
       window.Paddle.Initialize({
         token: clientToken,
         ...(pwCustomer ? { pwCustomer: { id: pwCustomer } } : {}),
+        checkout: { settings: defaultCheckoutSettings },
       });
       initializedCustomerId = pwCustomer;
       paddleInitialized = true;
       resolve();
     };
-    script.onerror = reject;
+    script.onerror = (err) => {
+      console.error("[Paddle] Failed to load Paddle JS SDK:", err);
+      reject(new Error("Failed to load Paddle JS SDK. Please check your connection."));
+    };
     document.head.appendChild(script);
   });
 }

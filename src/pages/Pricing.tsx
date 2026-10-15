@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Check, GraduationCap, School, PlayCircle, Gift, Loader2 } from "lucide-react";
+import { Check, GraduationCap, School, PlayCircle, Gift, Loader2, CreditCard, ShieldCheck, Lock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
@@ -240,6 +240,43 @@ const Pricing = () => {
               </Card>
             );
           })}
+        </div>
+
+        {/* Paddle Secure Checkout & Supported Payment Options */}
+        <div className="max-w-4xl mx-auto mt-10 p-5 rounded-2xl bg-card border border-border/80 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-start">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-foreground">
+                  {isRtl ? "دفع آمن ومشفر عالمياً عبر Paddle" : "Secure Global Checkout via Paddle"}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {isRtl
+                    ? "يتم فتح نافذة الدفع الذكية (Overlay Popup) لدفع الاشتراك بأمان تام ومعتمد كتاجر مسجل (Merchant of Record)."
+                    : "Responsive checkout overlay with bank-grade encryption handled securely by Paddle as Merchant of Record."}
+                </p>
+              </div>
+            </div>
+
+            {/* Payment Method Badges: Card & PayPal */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/60 border border-border text-xs font-bold text-foreground">
+                <CreditCard className="w-4 h-4 text-primary" />
+                <span>{isRtl ? "البطاقات البنكية (Card)" : "Credit / Debit Cards"}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-xs font-bold text-blue-600 dark:text-blue-400">
+                <span className="font-black">🅿️</span>
+                <span>PayPal</span>
+              </div>
+              <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                <Lock className="w-3.5 h-3.5" />
+                <span>SSL 256-bit</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-8 max-w-2xl mx-auto">

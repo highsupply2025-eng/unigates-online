@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const clientToken = 
   (import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined) || 
+  (import.meta.env.PADDLE_CLIENT_TOKEN as string | undefined) ||
   "live_ed63bc96090a362134c6242a552";
 
 declare global {
@@ -164,3 +165,28 @@ export const PLAN_PRICING: Record<PlanKey, Record<BillingInterval, { priceId: st
     annual: { priceId: "courses_annual", amount: 64.8 },
   },
 };
+
+export const PADDLE_ACTIVE_PRODUCTS = {
+  EBOOKS: {
+    id: "unigates_ebooks",
+    name: "Unigates E-Books",
+    nameAr: "منصة يونيجيتس للكتب الرقمية",
+  },
+  PHYSICAL_BOOKS: {
+    id: "unigates_physical_books",
+    name: "Unigates Physical Books",
+    nameAr: "منصة يونيجيتس للكتب الورقية المطبوعة",
+  },
+  PUBLISHING_SERVICES: {
+    id: "unigates_publishing_services",
+    name: "Unigates Publishing Services",
+    nameAr: "خدمات دار يونيجيتس للنشر والتوزيع",
+  },
+  COURSES_PLATFORM: {
+    id: "unigates_courses_platform",
+    name: "Unigates Courses Platform",
+    nameAr: "منصة كورسات ودورات يونيجيتس",
+  },
+} as const;
+
+export type PaddleProductKey = keyof typeof PADDLE_ACTIVE_PRODUCTS;

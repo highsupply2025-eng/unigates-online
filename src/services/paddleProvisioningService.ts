@@ -1,7 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
-import { getPaddleEnvironment, COURSES_PLATFORM_PRODUCT } from "@/lib/paddle";
+import { getPaddleEnvironment, COURSES_PLATFORM_PRODUCT, PADDLE_ACTIVE_PRODUCTS } from "@/lib/paddle";
 import { CourseLedgerService } from "@/services/courseLedgerService";
 import { clearCourseReferral } from "@/services/courseReferralTracker";
+import { NashrDataStore } from "@/services/nashrDataStore";
+import { BookStoreDataStore } from "@/services/bookStoreDataStore";
 
 export interface ProvisioningPayload {
   transactionId: string;
@@ -158,8 +160,46 @@ export class PaddleProvisioningService {
           console.warn("[PaddleProvisioningService] Course ledger recording notice:", ledgerErr);
         }
       }
+      
+      // 4. Publishing Services: Settle author invoice & mark paid
+      const isPublishingServices = 
+        customData?.productContext === PADDLE_ACTIVE_PRODUCTS.PUBLISHING_SERVICES.name ||
+        customData?.productContext === "Unigates Publishing Services" ||
+        customData?.productId === PADDLE_ACTIVE_PRODUCTS.PUBLISHING_SERVICES.id ||
+        Boolean(customData?.invoiceId);
 
-      // 4. Provision Database: Update User Profile Metadata / Tier if userId is present
+      if (isPublishingServices && customData?.invoiceId) {
+        try {
+          NashrDataStore.verifyInvoiceReceipt(customData.invoiceId, true);
+          console.info("[PaddleProvisioningService] Publishing invoice verified & paid:", customData.invoiceId);
+        } catch (nashrErr) {
+          console.warn("[PaddleProvisioningService] Nashr invoice update notice:", nashrErr);
+        }
+      }
+
+      // 5. Book Store (E-Books & Physical Books): Settle reader library and store order
+      const isBookTransaction = 
+        customData?.productContext === PADDLE_ACTIVE_PRODUCTS.EBOOKS.name ||
+        customData?.productContext === PADDLE_ACTIVE_PRODUCTS.PHYSICAL_BOOKS.name ||
+        customData?.productId === PADDLE_ACTIVE_PRODUCTS.EBOOKS.id ||
+        customData?.productId === PADDLE_ACTIVE_PRODUCTS.PHYSICAL_BOOKS.id;
+
+      if (isBookTransaction && customData?.orderNumber) {
+        try {
+          const orders = BookStoreDataStore.getOrders();
+          const existing = orders.find(o => o.orderNumber === customData.orderNumber);
+          if (existing) {
+            existing.status = "completed";
+            existing.paymentMethod = "credit_card";
+            localStorage.setItem("unigates_bookstore_orders", JSON.stringify(orders));
+          }
+          console.info("[PaddleProvisioningService] Book order completed:", customData.orderNumber);
+        } catch (bookErr) {
+          console.warn("[PaddleProvisioningService] Book store order update notice:", bookErr);
+        }
+      }
+
+      // 6. Provision Database: Update User Profile Metadata / Tier if userId is present
       if (userId) {
         try {
           const env = getPaddleEnvironment();

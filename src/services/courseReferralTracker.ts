@@ -161,6 +161,14 @@ export function getCourseReferralInfo(): StudentReferralStatus {
 }
 
 /**
+ * Convenience helper to get the raw active referral token string if present.
+ */
+export function getCourseReferralToken(): string | null {
+  return getCourseReferralInfo().referralToken;
+}
+
+
+/**
  * Clears stored referral data (e.g. after successful redemption or expiration).
  */
 export function clearCourseReferral(): void {

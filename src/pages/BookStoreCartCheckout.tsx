@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
+import { PaddleProductGateway } from "@/services/paddleProductGateway";
 import { CartItem, ShippingAddress, BookOrder } from "@/types/bookStore";
 import SiteFooter from "@/components/SiteFooter";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
@@ -89,7 +90,7 @@ export const BookStoreCartCheckout: React.FC = () => {
     setCart(BookStoreDataStore.getCart());
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) return;
     setIsProcessing(true);
 
@@ -98,8 +99,8 @@ export const BookStoreCartCheckout: React.FC = () => {
     const newOrder: BookOrder = {
       id: `ord-${Date.now()}`,
       orderNumber,
-      userId: "reader-demo",
-      userEmail: "reader@unigates.online",
+      userId: currentSession?.id || "reader-demo",
+      userEmail: currentSession?.email || "reader@unigates.online",
       userName: fullName || "قارئ متميز",
       items: cart.map((item) => ({
         bookId: item.book.id,
@@ -116,7 +117,7 @@ export const BookStoreCartCheckout: React.FC = () => {
       platformFee: Math.round(subtotal * 0.20), // 20% platform share
       totalAmount: total,
       currency: "EGP",
-      status: "completed",
+      status: paymentMethod === "credit_card" ? "pending" : "completed",
       paymentMethod,
       shippingAddress: hasPhysicalBooks
         ? {
@@ -134,7 +135,43 @@ export const BookStoreCartCheckout: React.FC = () => {
     // 1. Save to orders
     BookStoreDataStore.createOrder(newOrder);
 
-    // 2. Add digital books to Reader Library
+    // 2. If Credit Card, launch live Paddle production overlay checkout
+    if (paymentMethod === "credit_card") {
+      try {
+        const productType = hasPhysicalBooks ? "physical_books" : "ebooks";
+        const usdGross = Math.max(1, Math.round((total / 50) * 100) / 100);
+        await PaddleProductGateway.openLiveProductCheckout({
+          productType,
+          grossAmount: usdGross,
+          currency: "USD",
+          orderNumber,
+          userId: currentSession?.id || "reader-demo",
+          userEmail: currentSession?.email || "reader@unigates.online",
+          metadata: {
+            hasPhysicalBooks: String(hasPhysicalBooks),
+            orderNumber,
+            totalEGP: String(total),
+          },
+          successUrl: `${window.location.origin}/payment-success?product=${productType}&order=${orderNumber}`,
+        });
+
+        // Add digital books to Reader Library immediately upon initiating session
+        cart.forEach((item) => {
+          if (item.format === "digital") {
+            BookStoreDataStore.addPurchasedBook(item.book, "digital", orderNumber, item.book.price_digital);
+          }
+        });
+
+        BookStoreDataStore.clearCart();
+        setCart([]);
+        setIsProcessing(false);
+        return;
+      } catch (paddleErr) {
+        console.warn("[Paddle Book Checkout Launch Notice]:", paddleErr);
+      }
+    }
+
+    // 3. For local / offline payments, complete order immediately
     cart.forEach((item) => {
       if (item.format === "digital") {
         BookStoreDataStore.addPurchasedBook(item.book, "digital", orderNumber, item.book.price_digital);

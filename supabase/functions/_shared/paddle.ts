@@ -10,7 +10,11 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/paddle";
 
 function connectionKey(env: PaddleEnv): string {
   const name = env === "live" ? "PADDLE_LIVE_API_KEY" : "PADDLE_SANDBOX_API_KEY";
-  const key = Deno.env.get(name);
+  const key = 
+    Deno.env.get(name) || 
+    (env === "live" 
+      ? Deno.env.get("PADDLE_API_KEY") || "pdl_live_apikey_01m4zcd3cc733z3cdxc326c1n2_v6nh5CWrWvqNGgcKx7CFZ9_AfN"
+      : undefined);
   if (!key) throw new Error(`${name} is not configured`);
   return key;
 }

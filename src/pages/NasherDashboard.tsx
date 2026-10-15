@@ -109,6 +109,7 @@ import {
   compressAndProcessReceiptFile 
 } from "@/services/nashrReceiptHelper";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
+import { PaddleProductGateway } from "@/services/paddleProductGateway";
 import { BookStoreItem } from "@/types/bookStore";
 import { BookSaleInvoiceModal } from "@/components/bookstore/BookSaleInvoiceModal";
 import { generateOfficialBookSaleInvoiceSvg } from "@/services/bookSaleInvoiceHelper";
@@ -608,6 +609,31 @@ const NasherDashboard = () => {
         description: isRtl ? "تم إرسال إيصال السداد للإدارة المالية للمطابقة والاعتماد." : "Payment proof sent for financial verification."
       });
     }, 600);
+  };
+
+  // Launch Live Paddle Overlay Checkout for Academic Publishing Services
+  const handlePaddleLiveInvoicePayment = async (inv: NashrInvoice) => {
+    try {
+      setSelectedInvoice(null);
+      // In Paddle, live catalog expects USD; if invoice is EGP, convert 1 USD ≈ 50 EGP
+      const grossAmount = inv.currency === "EGP" ? Math.max(1, Math.round((inv.amount / 50) * 100) / 100) : inv.amount;
+      await PaddleProductGateway.checkoutPublishingServices({
+        grossAmount,
+        currency: "USD",
+        invoiceId: inv.id,
+        invoiceNumber: inv.invoiceNumber,
+        userId: inv.authorId || currentAuthor?.id || "author-demo",
+        userEmail: currentAuthor?.email || "author@unigates.online",
+        serviceName: inv.manuscriptTitle || "خدمات نشر وتحكيم أكاديمي",
+      });
+    } catch (err) {
+      console.warn("[Paddle Publishing Payment Notice]:", err);
+      toast({
+        title: isRtl ? "خطأ في بوابة الدفع" : "Payment Gateway Notice",
+        description: isRtl ? "تعذر فتح نافذة الدفع، يرجى المحاولة مرة أخرى." : "Could not open checkout session.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Handle file selection and compress/read safely
@@ -3146,17 +3172,29 @@ const NasherDashboard = () => {
                               </Button>
 
                               {inv.status === "unpaid" && (
-                                <Button 
-                                  onClick={() => {
-                                    setTransferInvoiceTarget(inv.id);
-                                    setTransferAmountInput(inv.amount.toString());
-                                    window.scrollTo({ top: 380, behavior: "smooth" });
-                                  }}
-                                  size="sm" 
-                                  className="h-8 px-3.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
-                                >
-                                  {isRtl ? "رفع إيصال هذه الفاتورة ➔" : "Pay & Upload Receipt"}
-                                </Button>
+                                <>
+                                  <Button 
+                                    size="sm"
+                                    onClick={() => handlePaddleLiveInvoicePayment(inv)}
+                                    className="h-8 px-3 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-xs"
+                                    title={isRtl ? "سداد إلكتروني فوري عبر البطاقة أو بايبال (بوابة Paddle المباشرة)" : "Instant Card/PayPal Payment (Live Paddle)"}
+                                  >
+                                    <CreditCard className="w-3.5 h-3.5" />
+                                    <span>{isRtl ? "دفع بالبطاقة / PayPal" : "Pay via Paddle"}</span>
+                                  </Button>
+                                  <Button 
+                                    onClick={() => {
+                                      setTransferInvoiceTarget(inv.id);
+                                      setTransferAmountInput(inv.amount.toString());
+                                      window.scrollTo({ top: 380, behavior: "smooth" });
+                                    }}
+                                    size="sm" 
+                                    variant="outline"
+                                    className="h-8 px-3.5 rounded-xl font-bold text-xs border-amber-500/50 text-amber-600 hover:bg-amber-500/10 shadow-xs"
+                                  >
+                                    {isRtl ? "تحويل بنكي / إنستاباي ➔" : "Bank Transfer Slip"}
+                                  </Button>
+                                </>
                               )}
                             </div>
                           </div>
@@ -4351,17 +4389,29 @@ const NasherDashboard = () => {
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setSelectedInvoice(null)} className="rounded-xl text-xs font-bold">
-              {isRtl ? "إلغاء" : "Cancel"}
-            </Button>
-            <Button 
-              onClick={handleConfirmPaymentReceipt} 
-              disabled={uploadingReceipt}
-              className="rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-white"
-            >
-              {isRtl ? "تأكيد وإرسال الإيصال للإدارة" : "Submit Receipt"}
-            </Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            {selectedInvoice && (
+              <Button
+                type="button"
+                onClick={() => handlePaddleLiveInvoicePayment(selectedInvoice)}
+                className="rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 w-full sm:w-auto"
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>{isRtl ? "سداد فوري بالبطاقة / PayPal (Paddle)" : "Pay with Card / PayPal (Paddle)"}</span>
+              </Button>
+            )}
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <Button variant="outline" onClick={() => setSelectedInvoice(null)} className="rounded-xl text-xs font-bold">
+                {isRtl ? "إلغاء" : "Cancel"}
+              </Button>
+              <Button 
+                onClick={handleConfirmPaymentReceipt} 
+                disabled={uploadingReceipt}
+                className="rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-white"
+              >
+                {isRtl ? "إرسال الإيصال للإدارة" : "Submit Receipt"}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

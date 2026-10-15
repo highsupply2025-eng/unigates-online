@@ -160,7 +160,7 @@ const SiteHeader = () => {
               type="button"
               size="sm"
               variant="outline"
-              className="h-9 px-4 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/20 text-white border-white/20 shadow-xs backdrop-blur-md gap-1.5 transition-all"
+              className="h-9 px-4 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/20 text-white border-white/20 shadow-xs backdrop-blur-md gap-1.5 transition-all flex items-center justify-center shrink-0"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>{t.login}</span>
@@ -168,21 +168,21 @@ const SiteHeader = () => {
           </Link>
 
           {/* Multi-Language Selector Dropdown */}
-          <LanguageSelectorDropdown />
+          <LanguageSelectorDropdown className="h-9 px-3 rounded-xl border-white/20 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md shadow-xs flex items-center justify-center shrink-0" />
 
           {/* Theme & Brightness Switcher */}
-          <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
+          <ThemeToggle className="h-9 px-2.5 rounded-xl border-white/20 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md shadow-xs flex items-center justify-center shrink-0" />
         </div>
 
         {/* Mobile Hamburger & Actions */}
         <div className="flex lg:hidden items-center gap-2">
-          <ThemeToggle className="h-9 w-9 p-0 rounded-xl" />
-          <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2.5" />
+          <ThemeToggle className="h-9 px-2.5 rounded-xl border-white/20 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shrink-0" />
+          <LanguageSelectorDropdown showNativeName={false} className="h-9 px-2.5 rounded-xl border-white/20 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shrink-0" />
 
           <Button
             type="button"
             size="sm"
-            className="bg-white/10 text-white border border-white/20 hover:bg-white/20 h-9 w-9 p-0 rounded-xl"
+            className="bg-white/10 text-white border border-white/20 hover:bg-white/20 h-9 w-9 p-0 rounded-xl flex items-center justify-center shrink-0"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle navigation menu"
           >

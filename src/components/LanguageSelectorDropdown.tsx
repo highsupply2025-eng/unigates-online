@@ -38,14 +38,14 @@ export const LanguageSelectorDropdown = ({
           variant="outline"
           className={cn(
             "h-9 px-3 rounded-xl font-black text-xs transition-all duration-200 select-none gap-2",
-            "bg-card/90 hover:bg-muted text-foreground border-border hover:border-primary/50 shadow-sm backdrop-blur-xl group",
+            "bg-card/90 hover:bg-muted text-foreground border-border hover:border-primary/50 shadow-sm backdrop-blur-xl group flex items-center justify-center shrink-0",
             className
           )}
           aria-label={typeof tText === "function" ? tText("اختر اللغة", "Select Language") : "اختر اللغة"}
         >
           {/* Glowing Vivid 3D Globe Icon Badge */}
           <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-teal-400 via-emerald-500 to-cyan-500 p-0.5 shadow-sm shadow-teal-500/30 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform">
-            <div className="w-full h-full rounded-[6px] bg-card flex items-center justify-center">
+            <div className="w-full h-full rounded-[6px] bg-card/80 flex items-center justify-center">
               <Globe className="w-3.5 h-3.5 text-primary shrink-0" strokeWidth={2.6} />
             </div>
           </div>
@@ -53,7 +53,7 @@ export const LanguageSelectorDropdown = ({
           <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 shrink-0 uppercase tracking-wider">
             {langInfo.flag || langInfo.code.toUpperCase()}
           </span>
-          <span className="font-black text-foreground group-hover:text-primary tracking-wide">
+          <span className="font-black tracking-wide group-hover:text-primary">
             {showNativeName ? langInfo.nativeName : langInfo.code.toUpperCase()}
           </span>
         </Button>

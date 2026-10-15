@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 
 interface ThemeToggleProps {
   variant?: "button" | "icon" | "dropdown";
@@ -84,10 +85,13 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
           type="button"
           variant="outline"
           size="sm"
-          className={`relative h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl sm:rounded-2xl font-bold text-xs gap-1.5 border-border/80 bg-card/80 hover:bg-card text-foreground backdrop-blur-md transition-all shadow-xs ring-1 ring-primary/20 hover:ring-primary/40 active:scale-95 ${className}`}
+          className={cn(
+            "relative h-9 px-2.5 sm:px-3 rounded-xl font-bold text-xs gap-1.5 border-border/80 bg-card/80 hover:bg-card text-foreground backdrop-blur-md transition-all shadow-xs flex items-center justify-center shrink-0 active:scale-95",
+            className
+          )}
           title={translate("السطوع والمظهر", "Toggle theme and brightness")}
         >
-          <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-amber-400 via-orange-500 to-yellow-500 flex items-center justify-center text-white shadow-xs">
+          <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-amber-400 via-orange-500 to-yellow-500 flex items-center justify-center text-white shadow-xs shrink-0">
             {mounted && isSelectedSystem ? (
               <SunMoon className="w-3.5 h-3.5" />
             ) : mounted && isEffectivelyDark ? (

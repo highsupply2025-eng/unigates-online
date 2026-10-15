@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Loader2, Eye, EyeOff, CheckCircle2, ArrowLeft, ArrowRight,
-  Lock, KeyRound, ShieldCheck, LogIn, Check, X, Sparkles
+  Lock, KeyRound, ShieldCheck, LogIn, Check, X, Sparkles, Search, Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import ugLogo from "@/assets/ug-logo.png";
 
 const ResetPassword = () => {
@@ -127,20 +128,56 @@ const ResetPassword = () => {
             </div>
           </Link>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/login">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* User Login Navigation */}
+            <Link to="/login" className="inline-flex">
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                className="font-bold gap-1.5 h-9 px-3.5 rounded-xl border-white/20 bg-white/5 hover:bg-white/15 text-white shadow-xs backdrop-blur-md"
+                className="h-9 px-3 sm:px-3.5 rounded-xl font-bold text-xs gap-1.5 border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
               >
-                <LogIn className="w-4 h-4 text-teal-300" />
-                <span>{t.loginPage?.backToLogin || t.login || "تسجيل الدخول"}</span>
+                <LogIn className="w-4 h-4 text-teal-300 shrink-0" strokeWidth={2.2} />
+                <span className="hidden sm:inline">{t.loginPage?.backToLogin || t.login || "تسجيل الدخول"}</span>
               </Button>
             </Link>
 
-            <LanguageSelectorDropdown />
+            {/* Search & Explore */}
+            <Link to="/courses" title={isRtl ? "البحث واستكشاف المنظومة" : "Search & Explore"} className="inline-flex">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-9 px-3 rounded-xl font-bold text-xs gap-1.5 border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
+              >
+                <Search className="w-4 h-4 text-teal-300 shrink-0" strokeWidth={2.2} />
+                <span className="hidden md:inline">{isRtl ? "بحث" : "Search"}</span>
+              </Button>
+            </Link>
+
+            {/* Home Navigation */}
+            <Link to="/" title={t.home} className="inline-flex">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-9 px-3 rounded-xl font-bold text-xs gap-1.5 border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
+              >
+                <Home className="w-4 h-4 text-teal-300 shrink-0" strokeWidth={2.2} />
+                <span className="hidden md:inline">{isRtl ? "الرئيسية" : "Home"}</span>
+              </Button>
+            </Link>
+
+            {/* Theme Toggle */}
+            <ThemeToggle
+              variant="dropdown"
+              className="h-9 px-2.5 sm:px-3 rounded-xl border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
+            />
+
+            {/* Language Selector */}
+            <LanguageSelectorDropdown
+              className="h-9 px-2.5 sm:px-3 rounded-xl border-white/15 bg-white/10 hover:bg-white/20 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
+            />
           </div>
         </div>
       </header>

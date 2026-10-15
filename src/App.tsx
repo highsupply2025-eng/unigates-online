@@ -34,6 +34,7 @@ const ChoosePlan = lazy(() => import("./pages/ChoosePlan"));
 const Payment = lazy(() => import("./pages/Payment"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const CheckoutSuccess = lazy(() => import("./pages/CheckoutSuccess"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const LiveStreams = lazy(() => import("./pages/LiveStreams"));
@@ -392,6 +393,7 @@ const App = () => (
               
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/checkout/success" element={<CheckoutSuccess />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/about" element={<About />} />
               <Route path="/help-center" element={<HelpCenter />} />
               <Route path="/terms" element={<Terms />} />

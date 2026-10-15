@@ -43,24 +43,24 @@ export const CREDIT_TIERS: CreditPackage[] = [
   {
     id: "starter_5",
     credits: 5,
-    pricePerCredit: 1.2,
-    totalPrice: 6.0,
+    pricePerCredit: 2.4,
+    totalPrice: 12.0,
     badgeAr: "مساحة مصغرة",
     badgeEn: "Starter Space",
   },
   {
     id: "basic_10",
     credits: 10,
-    pricePerCredit: 1.2,
-    totalPrice: 12.0,
+    pricePerCredit: 2.4,
+    totalPrice: 24.0,
     badgeAr: "مساحة أساسية",
     badgeEn: "Basic Space",
   },
   {
     id: "pro_20",
     credits: 20,
-    pricePerCredit: 1.2,
-    totalPrice: 24.0,
+    pricePerCredit: 2.4,
+    totalPrice: 48.0,
     badgeAr: "الأكثر طلباً",
     badgeEn: "Most Popular",
     isPopular: true,
@@ -68,24 +68,24 @@ export const CREDIT_TIERS: CreditPackage[] = [
   {
     id: "growth_50",
     credits: 50,
-    pricePerCredit: 1.2,
-    totalPrice: 60.0,
+    pricePerCredit: 2.4,
+    totalPrice: 120.0,
     badgeAr: "توسع سريع",
     badgeEn: "Fast Growth",
   },
   {
     id: "academic_100",
     credits: 100,
-    pricePerCredit: 1.2,
-    totalPrice: 120.0,
+    pricePerCredit: 2.4,
+    totalPrice: 240.0,
     badgeAr: "باقة أكاديمية",
     badgeEn: "Academic Tier",
   },
   {
     id: "enterprise_500",
     credits: 500,
-    pricePerCredit: 1.2,
-    totalPrice: 600.0,
+    pricePerCredit: 2.4,
+    totalPrice: 1200.0,
     badgeAr: "للكليات والمراكز الكبرى",
     badgeEn: "Enterprise Tier",
   },
@@ -104,10 +104,29 @@ export const CreditRentalSelector: React.FC<CreditRentalSelectorProps> = ({
 }) => {
   const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
-  const [customCredits, setCustomCredits] = useState<number>(20);
-  const [isCustomMode, setIsCustomMode] = useState<boolean>(false);
+  const isInitialCustom = selectedPackageId?.startsWith("custom_");
+  const [customCredits, setCustomCredits] = useState<number>(() => {
+    if (isInitialCustom) {
+      const parsed = parseInt(selectedPackageId.replace("custom_", ""), 10);
+      return !isNaN(parsed) && parsed > 0 ? parsed : 20;
+    }
+    return 20;
+  });
+  const [isCustomMode, setIsCustomMode] = useState<boolean>(() => Boolean(isInitialCustom));
 
-  const customPrice = Number((customCredits * 1.2).toFixed(2));
+  React.useEffect(() => {
+    if (selectedPackageId?.startsWith("custom_")) {
+      const parsed = parseInt(selectedPackageId.replace("custom_", ""), 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        setCustomCredits(parsed);
+        setIsCustomMode(true);
+      }
+    } else if (CREDIT_TIERS.some((t) => t.id === selectedPackageId)) {
+      setIsCustomMode(false);
+    }
+  }, [selectedPackageId]);
+
+  const customPrice = Number((customCredits * 2.4).toFixed(2));
 
   const handleCustomChange = (val: number) => {
     const validVal = Math.min(1000, Math.max(1, val));
@@ -116,8 +135,8 @@ export const CreditRentalSelector: React.FC<CreditRentalSelectorProps> = ({
     onSelectPackage({
       id: `custom_${validVal}`,
       credits: validVal,
-      pricePerCredit: 1.2,
-      totalPrice: Number((validVal * 1.2).toFixed(2)),
+      pricePerCredit: 2.4,
+      totalPrice: Number((validVal * 2.4).toFixed(2)),
       badgeAr: "باقة مخصصة",
       badgeEn: "Custom Plan",
     });
@@ -174,8 +193,8 @@ export const CreditRentalSelector: React.FC<CreditRentalSelectorProps> = ({
             <DollarSign className="w-5 h-5 font-bold" />
           </div>
           <div className="space-y-0.5">
-            <p className="text-xs font-black text-foreground">{isRtl ? "1.20$ لكل 1 كريدت / مقعد" : "$1.20 per 1 Credit / Seat"}</p>
-            <p className="text-[11px] text-muted-foreground">{isRtl ? "سعر ثابت وعادل للكريدت الإضافي" : "Transparent scalable pricing"}</p>
+            <p className="text-xs font-black text-foreground">{isRtl ? "2.40$ لكل 1 كريدت / مقعد" : "$2.40 per 1 Credit / Seat"}</p>
+            <p className="text-[11px] text-muted-foreground">{isRtl ? "سعر ثابت وميسر للكريدت الإضافي" : "Transparent scalable pricing"}</p>
           </div>
         </div>
 

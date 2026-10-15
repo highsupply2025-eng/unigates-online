@@ -18,6 +18,37 @@ export function getPaddleEnvironment(): "sandbox" | "live" {
 let paddleInitialized = false;
 let initializedCustomerId: string | null = null;
 
+import { PaddleProvisioningService } from "@/services/paddleProvisioningService";
+
+type PaddleEventListener = (event: any) => void;
+const paddleEventListeners: Set<PaddleEventListener> = new Set();
+
+/**
+ * Register a listener for Paddle checkout events (checkout.completed, checkout.loaded, checkout.closed, etc.)
+ */
+export function onPaddleEvent(listener: PaddleEventListener): () => void {
+  paddleEventListeners.add(listener);
+  return () => paddleEventListeners.delete(listener);
+}
+
+function handleGlobalPaddleEvent(event: any) {
+  console.info("[Paddle Event]:", event?.name, event);
+
+  // Notify registered callbacks
+  paddleEventListeners.forEach((listener) => {
+    try {
+      listener(event);
+    } catch (err) {
+      console.warn("[Paddle Event Callback Error]:", err);
+    }
+  });
+
+  // Handle successful transaction provisioning and redirect to /payment-success
+  if (event?.name === "checkout.completed") {
+    PaddleProvisioningService.onCheckoutComplete(event?.data);
+  }
+}
+
 /**
  * Loads and initializes Paddle.js SDK v2 with customized responsive overlay settings.
  *
@@ -49,7 +80,8 @@ export async function initializePaddle(paddleCustomerId?: string | null) {
       window.Paddle.Initialize({ 
         token: clientToken, 
         pwCustomer: { id: pwCustomer },
-        checkout: { settings: defaultCheckoutSettings }
+        checkout: { settings: defaultCheckoutSettings },
+        eventCallback: handleGlobalPaddleEvent
       });
       initializedCustomerId = pwCustomer;
     }
@@ -68,6 +100,7 @@ export async function initializePaddle(paddleCustomerId?: string | null) {
         token: clientToken,
         ...(pwCustomer ? { pwCustomer: { id: pwCustomer } } : {}),
         checkout: { settings: defaultCheckoutSettings },
+        eventCallback: handleGlobalPaddleEvent,
       });
       initializedCustomerId = pwCustomer;
       paddleInitialized = true;
@@ -85,6 +118,7 @@ export async function initializePaddle(paddleCustomerId?: string | null) {
         token: clientToken,
         ...(pwCustomer ? { pwCustomer: { id: pwCustomer } } : {}),
         checkout: { settings: defaultCheckoutSettings },
+        eventCallback: handleGlobalPaddleEvent,
       });
       initializedCustomerId = pwCustomer;
       paddleInitialized = true;

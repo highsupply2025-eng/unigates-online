@@ -10,7 +10,7 @@ import {
   ShieldCheck, MessageSquare, CalendarCheck, Layers,
   Sparkles, Trophy, Zap, Check, ChevronDown, CheckCircle2,
   Menu, X, ExternalLink, HelpCircle, Lock, ArrowUpRight,
-  Building2, Languages
+  Building2, Languages, RotateCcw, DollarSign, Gift
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,13 +21,31 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { useCountUp } from "@/hooks/useCountUp";
 import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
+import CreditRentalSelector, { CreditPackage } from "@/components/CreditRentalSelector";
 
 const UniversityPlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedRentalPackage, setSelectedRentalPackage] = useState<string>("welcome_gift");
+  const [activeInstitutionType, setActiveInstitutionType] = useState<"college" | "institute" | "training_center" | "language_center">("college");
   const navigate = useNavigate();
   const { t, dir, toggleLanguage } = useLanguage();
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
+
+  const getRegistrationLink = () => {
+    switch (activeInstitutionType) {
+      case "college":
+        return `/signup/college/admin?plan=${selectedRentalPackage}`;
+      case "institute":
+        return `/signup/institute/admin?plan=${selectedRentalPackage}`;
+      case "training_center":
+        return `/signup/training-center/admin?plan=${selectedRentalPackage}`;
+      case "language_center":
+        return `/signup/language-center/admin?plan=${selectedRentalPackage}`;
+      default:
+        return `/signup/college/admin?plan=${selectedRentalPackage}`;
+    }
+  };
 
   const { data: stats } = usePlatformStats("university");
 
@@ -219,6 +237,18 @@ const UniversityPlatform = () => {
       aAr: "تتيح المنصة في لوحات القيادة ولوحات المحاضرين تصدير كشوف الدرجات بنقرة زر واحدة بتنسيق PDF مهيأ للطباعة الرسمية متضمناً شعار المؤسسة، بيانات المقرر، وكافة درجات ونسب نجاح الطلاب.",
       aEn: "Both leadership and faculty dashboards provide one-click formatted PDF export ready for official printouts, complete with institution headers, course stats, and student grade rosters.",
     },
+    {
+      qAr: "كيف يعمل نموذج تأجير المساحات الافتراضية بنظام الكريدت (2.40$)؟",
+      qEn: "How does the virtual space credit rental model work ($2.40/credit)?",
+      aAr: "يعتمد النموذج على توفير مرونة اقتصادية وسحابية مطلقة؛ تستأجر المؤسسة (كلية، معهد، مركز تدريب أو لغات) مساحة سحابية بعدد الكريدت المطلوب، حيث يعادل كل 1 كريدت مقعداً دراسياً متكاملاً لطالب/متدرب شهرياً بسعر 2.40$ فقط. كما تحصل كافة المؤسسات الجديدة على 20 كريدت سحابي مجاناً لأول 30 يوماً بكامل الصلاحيات.",
+      aEn: "The model provides complete cloud and financial elasticity: institutions rent space via credits, where 1 credit equals 1 complete student seat monthly at just $2.40. All new institutions receive 20 free credits for their first 30 days.",
+    },
+    {
+      qAr: "ما هي ميزة ترحيل الرصيد غير المستهلك (Credit Rollover)؟",
+      qEn: "What is the Credit Rollover feature?",
+      aAr: "إذا لم يتم استهلاك كامل رصيد الكريدت المستأجر خلال الشهر (نتيجة إجازات أو تفاوت في أعداد المقيدين)، فإن الرصيد المتبقي يُرحّل تلقائياً إلى الشهر التالي دون أي هدر أو مصادرة، مما يضمن كفاءة استثمارية 100% لمؤسستك.",
+      aEn: "Any unused credits at month end automatically rollover to the next billing period, eliminating budget waste and maximizing institutional ROI.",
+    },
   ];
 
   return (
@@ -368,6 +398,13 @@ const UniversityPlatform = () => {
                 {isRtl ? "🌐 تسجيل مركز لغات" : "Register Language Center"}
               </Button>
             </Link>
+
+            <a href="#virtual-rental-spaces">
+              <Button size="lg" className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 shadow-xl backdrop-blur-md gap-2 hover:scale-105 transition-all">
+                <Gift className="w-5 h-5 text-emerald-300 animate-bounce" />
+                <span>{isRtl ? "☁️ باقات تأجير المساحات (2.40$)" : "☁️ Rental Spaces ($2.40)"}</span>
+              </Button>
+            </a>
           </div>
 
           {/* Live Platform Stats Cards */}
@@ -440,6 +477,106 @@ const UniversityPlatform = () => {
 
       {/* Verified Registered Colleges and Institutes Showcase */}
       <RegisteredUniversitiesSection />
+
+      {/* Virtual Space Rental & Credit Infrastructure Section */}
+      <section id="virtual-rental-spaces" className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-gradient-to-b from-card/60 via-card/90 to-background border-b border-border/60">
+        <div className="max-w-6xl mx-auto space-y-10">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold border border-emerald-500/20">
+              <Gift className="w-4 h-4 text-emerald-500 animate-pulse" />
+              <span>{isRtl ? "تأجير المساحات الافتراضية السحابية بنظام الكريدت" : "Cloud Virtual Space Rental & Credit Infrastructure"}</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight">
+              {isRtl ? "استأجر مساحتك الأكاديمية الذكية بسعر 2.40$ فقط لكل مقعد شهرياً" : "Rent Your Academic Space at $2.40 / Student Seat"}
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              {isRtl
+                ? "بنية تحتية سحابية مرنة مصممة خصيصاً للكليات والمعاهد ومراكز التدريب واللغات. ادفع فقط حسب استيعابك، مع هدية ترحيبية 20 كريدت مجاناً لأول 30 يوماً وترحيل تلقائي للرصيد غير المستهلك (Rollover)."
+                : "Elastic cloud infrastructure designed for colleges, institutes, and centers. Pay only for what you teach, with a 20-credit free trial for 30 days and automatic credit rollover."}
+            </p>
+          </div>
+
+          {/* Institution Switcher Tabs */}
+          <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto p-1.5 bg-muted/60 backdrop-blur-md rounded-2xl border border-border">
+            <button
+              onClick={() => setActiveInstitutionType("college")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all ${
+                activeInstitutionType === "college"
+                  ? "bg-amber-500 text-white shadow-md shadow-amber-500/20"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Landmark className="w-4 h-4" />
+              <span>{isRtl ? "🏛️ الكليات الجامعية" : "Colleges"}</span>
+            </button>
+            <button
+              onClick={() => setActiveInstitutionType("institute")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all ${
+                activeInstitutionType === "institute"
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              <span>{isRtl ? "🏢 المعاهد العليا" : "Institutes"}</span>
+            </button>
+            <button
+              onClick={() => setActiveInstitutionType("training_center")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all ${
+                activeInstitutionType === "training_center"
+                  ? "bg-orange-600 text-white shadow-md shadow-orange-600/20"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <GraduationCap className="w-4 h-4" />
+              <span>{isRtl ? "🎯 مراكز التدريب" : "Training Centers"}</span>
+            </button>
+            <button
+              onClick={() => setActiveInstitutionType("language_center")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all ${
+                activeInstitutionType === "language_center"
+                  ? "bg-rose-600 text-white shadow-md shadow-rose-600/20"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Languages className="w-4 h-4" />
+              <span>{isRtl ? "🌐 مراكز اللغات" : "Language Centers"}</span>
+            </button>
+          </div>
+
+          {/* Interactive Credit Selector */}
+          <Card className="border-2 border-emerald-500/30 bg-card shadow-2xl rounded-3xl overflow-hidden">
+            <CardContent className="p-6 sm:p-8 space-y-6">
+              <CreditRentalSelector
+                selectedPackageId={selectedRentalPackage}
+                onSelectPackage={(pkg) => setSelectedRentalPackage(pkg.id)}
+                institutionType={activeInstitutionType}
+              />
+
+              {/* Action Bar */}
+              <div className="pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-xs text-muted-foreground flex items-center gap-2 text-center sm:text-start">
+                  <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>
+                    {isRtl
+                      ? "تفعيل سحابي فوري بكامل ميزات البث، الاعتماد الأكاديمي الرقمي، وبنوك الأسئلة دون أي بطاقة ائتمان مطلوبة في البداية."
+                      : "Instant provisioning with live streaming, digital approvals, and question banks. No upfront credit card required."}
+                  </span>
+                </div>
+                <Link to={getRegistrationLink()} className="w-full sm:w-auto shrink-0">
+                  <Button
+                    size="lg"
+                    className="w-full sm:w-auto h-12 px-8 font-black text-sm rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/25 gap-2 hover:scale-105 transition-all"
+                  >
+                    <span>{isRtl ? "بدء استئجار المساحة وحجز المقاعد" : "Start Rental Space Registration"}</span>
+                    <ArrowIcon className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Core Innovation & Governance Features */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/30 border-b border-border/60">

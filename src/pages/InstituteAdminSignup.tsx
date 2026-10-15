@@ -43,7 +43,7 @@ const InstituteAdminSignup = () => {
   const [searchParams] = useSearchParams();
   const planParam = searchParams.get("plan");
   const [subscriptionPlan, setSubscriptionPlan] = useState(
-    ["free", "monthly", "annual"].includes(planParam || "") || CREDIT_TIERS.some((t) => t.id === planParam) ? planParam! : "welcome_gift"
+    ["free", "monthly", "annual"].includes(planParam || "") || CREDIT_TIERS.some((t) => t.id === planParam) || (planParam && planParam.startsWith("custom_")) ? planParam! : "welcome_gift"
   );
 
   const [instituteName, setInstituteName] = useState("");

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { initializePaddle, getPaddlePriceId } from "@/lib/paddle";
+import { initializePaddle, getPaddlePriceId, onPaddleEvent } from "@/lib/paddle";
 
 export interface OpenCheckoutOptions {
   priceId: string;
@@ -11,6 +11,7 @@ export interface OpenCheckoutOptions {
   successUrl?: string;
   theme?: "light" | "dark";
   locale?: string;
+  onCheckoutComplete?: (data: any) => void;
 }
 
 export function usePaddleCheckout() {
@@ -32,6 +33,19 @@ export function usePaddleCheckout() {
         throw new Error("Paddle Checkout SDK is not loaded. Please try again.");
       }
 
+      // If caller passed a custom onCheckoutComplete handler, register it
+      if (options.onCheckoutComplete) {
+        const unsubscribe = onPaddleEvent((event) => {
+          if (event?.name === "checkout.completed") {
+            try {
+              options.onCheckoutComplete?.(event?.data);
+            } finally {
+              unsubscribe();
+            }
+          }
+        });
+      }
+
       const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
       const isRtl = typeof document !== "undefined" && document.documentElement.dir === "rtl";
 
@@ -50,7 +64,7 @@ export function usePaddleCheckout() {
           allowedPaymentMethods: ["card", "paypal"],
           frameStyle: "width: 100%; min-width: 312px; background-color: transparent; border: none;",
           frameInitialHeight: 480,
-          successUrl: options.successUrl || `${window.location.origin}/checkout/success`,
+          successUrl: options.successUrl || `${window.location.origin}/payment-success`,
         },
       });
     } finally {

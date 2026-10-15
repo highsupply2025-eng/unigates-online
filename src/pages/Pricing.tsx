@@ -125,7 +125,7 @@ const Pricing = () => {
           ...(institutionId ? { institutionId } : {}),
           ...(institutionType ? { institutionType } : {}),
         },
-        successUrl: `${window.location.origin}/checkout/success`,
+        successUrl: `${window.location.origin}/payment-success`,
       });
     } catch (e) {
       toast.error(isRtl ? "تعذر فتح صفحة الدفع" : "Could not open checkout");

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   GraduationCap,
@@ -23,6 +23,7 @@ import {
   Check,
   Zap,
 } from "lucide-react";
+import { captureCourseReferralFromUrl, getCourseReferralInfo } from "@/services/courseReferralTracker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -131,10 +132,16 @@ const CoursesSignup = () => {
   const isRtl = dir === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
+  const storedReferral = useMemo(() => getCourseReferralInfo(), []);
+
+  useEffect(() => {
+    captureCourseReferralFromUrl();
+  }, []);
+
   const [role, setRole] = useState<RoleValue | null>(
-    ROLES.some((r) => r.value === preRole) ? preRole : (affiliateRef ? "lecturer" : null)
+    ROLES.some((r) => r.value === preRole) ? preRole : (affiliateRef || storedReferral.referralToken ? "lecturer" : null)
   );
-  const [referralCode, setReferralCode] = useState(affiliateRef);
+  const [referralCode, setReferralCode] = useState(affiliateRef || storedReferral.referralToken || "");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [countryCode, setCountryCode] = useState("+966");
@@ -210,10 +217,22 @@ const CoursesSignup = () => {
       const cleanEmail = email.trim().toLowerCase();
       const fullPhone = `${countryCode}${phone.trim()}`;
 
+      const isReferralStudent = Boolean(referralCode || storedReferral.referralToken);
+      const studentReferralToken = (referralCode || storedReferral.referralToken || "").trim().toUpperCase();
+
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: cleanEmail,
         password,
-        options: { emailRedirectTo: getAuthCallbackUrl() },
+        options: {
+          emailRedirectTo: getAuthCallbackUrl(),
+          data: {
+            full_name: fullName.trim(),
+            role,
+            platform: "courses",
+            referral_source: isReferralStudent ? "instructor_referral" : "direct_platform",
+            referral_token: studentReferralToken || null,
+          },
+        },
       });
       if (authError) throw authError;
 

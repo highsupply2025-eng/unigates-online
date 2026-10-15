@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
-import { getPaddleEnvironment } from "@/lib/paddle";
+import { getPaddleEnvironment, COURSES_PLATFORM_PRODUCT } from "@/lib/paddle";
+import { CourseLedgerService } from "@/services/courseLedgerService";
+import { clearCourseReferral } from "@/services/courseReferralTracker";
 
 export interface ProvisioningPayload {
   transactionId: string;
@@ -99,7 +101,65 @@ export class PaddleProvisioningService {
         }
       }
 
-      // 3. Provision Database: Update User Profile Metadata / Tier if userId is present
+      // 3. Courses Platform: Process dynamic ledger allocation and enrollment
+      const isCourseTransaction = 
+        customData?.productContext === COURSES_PLATFORM_PRODUCT || 
+        customData?.productContext === "Unigates Courses Platform" || 
+        planKey === "courses";
+
+      if (isCourseTransaction) {
+        try {
+          const grossAmount = Number(customData?.grossAmount || (primaryItem?.price?.unit_price ? Number(primaryItem.price.unit_price) / 100 : 6.0));
+          const hasReferral = customData?.hasReferral === "true" || Boolean(customData?.referralToken);
+          
+          CourseLedgerService.recordTransaction({
+            productContext: COURSES_PLATFORM_PRODUCT,
+            productId: customData?.productId || "unigates_courses_platform",
+            planKey: "courses",
+            grossAmount,
+            currency: customData?.currency || "USD",
+            hasReferral,
+            referralToken: customData?.referralToken || null,
+            referralSource: (customData?.referralSource as any) || (hasReferral ? "instructor_referral" : "direct_platform"),
+            instructorPercentage: Number(customData?.splitInstructorPct || (hasReferral ? 80 : 70)),
+            platformPercentage: Number(customData?.splitPlatformPct || (hasReferral ? 20 : 30)),
+            instructorGross: Number(customData?.instructorGross || ((grossAmount * (hasReferral ? 80 : 70)) / 100)),
+            platformGross: Number(customData?.platformGross || ((grossAmount * (hasReferral ? 20 : 30)) / 100)),
+            processingFee: Number(customData?.processingFee || 0.47),
+            feeBearer: "instructor",
+            instructorNetPayout: Number(customData?.instructorNetPayout || 0),
+            courseId: customData?.courseId || undefined,
+            courseTitle: customData?.courseTitle || undefined,
+            instructorId: customData?.instructorId || undefined,
+            instructorName: customData?.instructorName || undefined,
+            studentId: userId,
+            studentEmail: userEmail,
+            calculatedAt: new Date().toISOString(),
+          }, txnId);
+
+          // Record client-side active course enrollment in storage
+          if (customData?.courseId) {
+            try {
+              const enrolledRaw = localStorage.getItem("unigates_enrolled_courses");
+              const enrolled: string[] = enrolledRaw ? JSON.parse(enrolledRaw) : [];
+              if (!enrolled.includes(customData.courseId)) {
+                enrolled.push(customData.courseId);
+                localStorage.setItem("unigates_enrolled_courses", JSON.stringify(enrolled));
+              }
+            } catch (e) {
+              console.warn("[PaddleProvisioningService] Course enroll storage notice:", e);
+            }
+          }
+
+          // Clear referral token after successful conversion
+          clearCourseReferral();
+          console.info("[PaddleProvisioningService] Course transaction & dynamic ledger recorded successfully");
+        } catch (ledgerErr) {
+          console.warn("[PaddleProvisioningService] Course ledger recording notice:", ledgerErr);
+        }
+      }
+
+      // 4. Provision Database: Update User Profile Metadata / Tier if userId is present
       if (userId) {
         try {
           const env = getPaddleEnvironment();

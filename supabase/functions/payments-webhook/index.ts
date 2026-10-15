@@ -125,10 +125,10 @@ async function upsertSubscription(data: any, env: PaddleEnv, statusOverride?: st
   }
 
   const item = items?.[0];
-  const priceId = item?.price?.importMeta?.externalId;
-  const productId = item?.product?.importMeta?.externalId;
+  const priceId = item?.price?.importMeta?.externalId || item?.price?.id || customData?.priceId;
+  const productId = item?.product?.importMeta?.externalId || item?.product?.id || customData?.productId || customData?.productContext || "unigates_courses_platform";
   if (!priceId || !productId) {
-    console.warn("Skipping subscription: missing importMeta.externalId", {
+    console.warn("Skipping subscription: missing priceId or productId", {
       rawPriceId: item?.price?.id,
       rawProductId: item?.product?.id,
     });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter, ArrowRight, ArrowLeft, User, LogOut } from "lucide-react";
+import { GraduationCap, Globe, Play, Clock, Lock, ChevronDown, Filter, ArrowRight, ArrowLeft, User, LogOut, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useCourseCheckout } from "@/hooks/useCourseCheckout";
+import { captureCourseReferralFromUrl } from "@/services/courseReferralTracker";
 
 const categoryColors: Record<string, string> = {
   "برمجة": "from-teal-800 to-teal-600",
@@ -36,6 +38,11 @@ const Courses = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { data: courses = [], isLoading: loading } = useAllCourses();
+  const { checkoutCourse, loading: checkoutLoading } = useCourseCheckout();
+
+  useEffect(() => {
+    captureCourseReferralFromUrl();
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -234,11 +241,16 @@ const Courses = () => {
                     )}
                   </div>
 
-                  <Link to="/signup">
-                    <Button variant="default" size="sm" className="w-full font-semibold mt-2">
-                      {t.coursesPage.subscribeToWatch}
-                    </Button>
-                  </Link>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    disabled={checkoutLoading}
+                    onClick={() => checkoutCourse({ course })}
+                    className="w-full font-semibold mt-2 gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-sm"
+                  >
+                    <CreditCard className="w-3.5 h-3.5" />
+                    <span>{t.coursesPage.subscribeToWatch}</span>
+                  </Button>
                 </div>
               </div>
             ))}

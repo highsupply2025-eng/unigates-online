@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -7,7 +7,8 @@ import {
   Code2, Briefcase, Palette, Microscope, HeartPulse,
   Lock, Play,
   Search, Flame, Layers, Sparkles, Star, Zap, X,
-  ShieldCheck, Award, GraduationCap, Home, Menu, Volume2, BadgePercent
+  ShieldCheck, Award, GraduationCap, Home, Menu, Volume2, BadgePercent,
+  CheckCircle2, CreditCard
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,8 @@ import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAllCourses } from "@/hooks/useCourses";
 import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
+import { useCourseCheckout } from "@/hooks/useCourseCheckout";
+import { captureCourseReferralFromUrl } from "@/services/courseReferralTracker";
 
 export interface CourseCatalogItem {
   id: string;
@@ -62,6 +65,12 @@ const CoursesPlatform = () => {
   const navigate = useNavigate();
   const { dir, language } = useLanguage();
   const isRtl = dir === "rtl";
+
+  const { checkoutCourse, loading: checkoutLoading, referralInfo } = useCourseCheckout();
+
+  useEffect(() => {
+    captureCourseReferralFromUrl();
+  }, []);
 
   const { data: allCourses = [] } = useAllCourses();
 
@@ -620,6 +629,29 @@ const CoursesPlatform = () => {
               </div>
             </div>
 
+            {/* Active Referral Token Indicator Banner */}
+            {referralInfo.isReferral && (
+              <div className="rounded-2xl border-2 border-emerald-500/50 bg-emerald-500/10 p-3.5 flex items-center justify-between gap-3 animate-fade-in shadow-sm">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                  <p className="text-xs sm:text-[13px] font-bold text-foreground">
+                    {isRtl ? (
+                      <>
+                        تم تفعيل كود إحالة المحاضر: <span className="font-mono text-emerald-600 dark:text-emerald-400 font-black">{referralInfo.referralToken}</span> — تم تطبيق حصة <span className="text-emerald-600 dark:text-emerald-400 font-black">80%</span> للمحاضر (20% للمنصة).
+                      </>
+                    ) : (
+                      <>
+                        Instructor referral active: <span className="font-mono text-emerald-600 dark:text-emerald-400 font-black">{referralInfo.referralToken}</span> — <span className="text-emerald-600 dark:text-emerald-400 font-black">80%</span> instructor share applied (20% platform fee).
+                      </>
+                    )}
+                  </p>
+                </div>
+                <Badge className="bg-emerald-600 text-white font-black text-xs shrink-0">
+                  {isRtl ? "إحالة نشطة (80%)" : "Referral Active (80%)"}
+                </Badge>
+              </div>
+            )}
+
             {/* Status bar if filtered */}
             {activeSubCategory !== "all" && (
               <div className="flex items-center justify-between pb-2">
@@ -783,15 +815,15 @@ const CoursesPlatform = () => {
                           <span>{isRtl ? "مشاهدة الحلقة المجانية 🎬" : "Watch Free Lecture"}</span>
                         </Button>
 
-                        <Link to="/courses/signup?role=personal" className="block w-full">
-                          <Button
-                            variant="outline"
-                            className="w-full h-9 rounded-xl border-border dark:border-slate-700 text-foreground dark:text-slate-300 hover:bg-muted dark:hover:bg-slate-800 font-bold text-xs gap-1"
-                          >
-                            <GraduationCap className="w-3.5 h-3.5" />
-                            <span>{isRtl ? "التسجيل في الدورة" : "Enroll Course"}</span>
-                          </Button>
-                        </Link>
+                        <Button
+                          type="button"
+                          disabled={checkoutLoading}
+                          onClick={() => checkoutCourse({ course })}
+                          className="w-full h-9 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs gap-1.5 shadow-md shadow-emerald-500/20"
+                        >
+                          <CreditCard className="w-3.5 h-3.5" />
+                          <span>{isRtl ? "شراء الدورة والتسجيل الفوري 💳" : "Buy & Enroll Course"}</span>
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -886,14 +918,22 @@ const CoursesPlatform = () => {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-                  <Link to="/courses/signup?role=personal" className="w-full sm:flex-1">
-                    <Button className="w-full h-11 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-sm gap-2 shadow-lg shadow-purple-500/25">
+                  <Button
+                    disabled={checkoutLoading}
+                    onClick={() => checkoutCourse({ course: previewCourse })}
+                    className="w-full sm:flex-1 h-11 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm gap-2 shadow-lg shadow-emerald-500/25"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>{isRtl ? "شراء الدورة كاملة عبر Paddle 💳" : "Purchase Course via Paddle"}</span>
+                  </Button>
+                  <Link to="/courses/signup?role=personal" className="w-full sm:w-auto">
+                    <Button variant="outline" className="w-full h-11 px-5 rounded-xl border-border font-bold text-xs gap-1.5">
                       <GraduationCap className="w-4 h-4" />
-                      <span>{isRtl ? "إنشاء حساب طالب والتسجيل في الدورة" : "Enroll Full Course Now"}</span>
+                      <span>{isRtl ? "إنشاء حساب طالب" : "Create Account"}</span>
                     </Button>
                   </Link>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => setPreviewCourse(null)}
                     className="w-full sm:w-auto h-11 px-5 rounded-xl border-border"
                   >

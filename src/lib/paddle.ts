@@ -146,6 +146,9 @@ export async function getPaddlePriceId(priceId: string): Promise<string> {
 export type PlanKey = "university" | "school" | "courses";
 export type BillingInterval = "monthly" | "annual";
 
+export const COURSES_PLATFORM_PRODUCT = "Unigates Courses Platform";
+export const COURSES_PRODUCT_ID = "unigates_courses_platform";
+
 /** $6 per month, annual billed at 12 months with a 10% discount. */
 export const PLAN_PRICING: Record<PlanKey, Record<BillingInterval, { priceId: string; amount: number }>> = {
   university: {

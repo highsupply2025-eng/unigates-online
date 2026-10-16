@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Loader2, Eye, EyeOff, CheckCircle2, ArrowLeft, ArrowRight,
-  Lock, KeyRound, ShieldCheck, LogIn, Check, X, Sparkles, Search, Home
+  Lock, KeyRound, ShieldCheck, LogIn, Check, X, Sparkles, Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,23 +143,6 @@ const ResetPassword = () => {
                   </div>
                 </div>
                 <span className="hidden sm:inline font-bold text-white text-xs">{t.loginPage?.backToLogin || t.login || (isRtl ? "تسجيل الدخول" : "Sign In")}</span>
-              </Button>
-            </Link>
-
-            {/* Search & Explore */}
-            <Link to="/courses" title={isRtl ? "البحث واستكشاف المنظومة" : "Search & Explore"} className="inline-flex">
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-9 px-2.5 sm:px-3 rounded-xl font-bold text-xs gap-2 border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
-              >
-                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-cyan-400 via-teal-500 to-blue-600 p-0.5 shadow-sm shadow-cyan-500/30 flex items-center justify-center shrink-0">
-                  <div className="w-full h-full rounded-[6px] bg-slate-950/70 flex items-center justify-center">
-                    <Search className="w-3.5 h-3.5 text-teal-300 shrink-0" strokeWidth={2.4} />
-                  </div>
-                </div>
-                <span className="hidden md:inline font-bold text-white text-xs">{isRtl ? "بحث" : "Search"}</span>
               </Button>
             </Link>
 

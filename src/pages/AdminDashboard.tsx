@@ -22,6 +22,8 @@ import {
   GraduationCap, 
   RefreshCw, 
   Lock, 
+  Key,
+  Copy,
   Send, 
   DollarSign, 
   Image as ImageIcon, 
@@ -1468,6 +1470,28 @@ export const AdminDashboard = () => {
                             <Badge variant="outline" className="font-mono text-[10px] font-bold">
                               {author.authorCode}
                             </Badge>
+                            {author.tempPassword && (
+                              <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-[11px] font-mono font-bold flex items-center gap-1.5 px-2 py-0.5 shadow-xs">
+                                <Key className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                                <span>{isRtl ? "كلمة المرور المؤقتة:" : "Temp Pass:"}</span>
+                                <span className="select-all font-black text-amber-900 dark:text-amber-100 bg-amber-500/20 px-1.5 py-0.2 rounded">{author.tempPassword}</span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(author.tempPassword!);
+                                    toast({
+                                      title: isRtl ? "تم نسخ كلمة المرور" : "Password Copied",
+                                      description: author.tempPassword
+                                    });
+                                  }}
+                                  className="hover:text-amber-900 dark:hover:text-white p-0.5 transition-colors"
+                                  title={isRtl ? "نسخ كلمة المرور المؤقتة" : "Copy Password"}
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                              </Badge>
+                            )}
                             {author.idType === "passport" ? (
                               <Badge className="bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-[10px] font-bold">
                                 🛂 {isRtl ? "جواز سفر دولي" : "Passport"}{author.passportNumber ? `: ${author.passportNumber}` : ""}
@@ -3152,7 +3176,35 @@ export const AdminDashboard = () => {
                       <div>🎓 <strong className="text-foreground">{isRtl ? "التخصص:" : "Field:"}</strong> {selectedAuthor.specialization}</div>
                       <div>🏛️ <strong className="text-foreground">{isRtl ? "الجامعة/الجهة:" : "Institution:"}</strong> {selectedAuthor.institution || (isRtl ? "مؤلف مستقل" : "Independent")}</div>
                       <div>📞 <strong className="text-foreground">{isRtl ? "الهاتف:" : "Phone:"}</strong> <span dir="ltr">{selectedAuthor.phone}</span></div>
-                      <div>✉️ <strong className="text-foreground">{isRtl ? "البريد:" : "Email:"}</strong> {selectedAuthor.email}</div>
+                      {/* Temporary Password Display & Copy */}
+                      {selectedAuthor.tempPassword && (
+                        <div className="sm:col-span-2 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <Key className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                            <span className="font-bold text-foreground">{isRtl ? "كلمة المرور المؤقتة للحساب:" : "Temporary Password:"}</span>
+                            <span className="font-mono font-black text-sm bg-background px-2.5 py-0.5 rounded border border-amber-500/40 text-amber-900 dark:text-amber-200 select-all">
+                              {selectedAuthor.tempPassword}
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              navigator.clipboard.writeText(selectedAuthor.tempPassword!);
+                              toast({
+                                title: isRtl ? "تم النسخ" : "Copied",
+                                description: selectedAuthor.tempPassword
+                              });
+                            }}
+                            className="h-7 px-2 text-xs font-bold text-amber-700 dark:text-amber-300 gap-1 rounded-lg hover:bg-amber-500/20"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>{isRtl ? "نسخ" : "Copy"}</span>
+                          </Button>
+                        </div>
+                      )}
+
                       {/* Document & Residency Meta */}
                       <div className="sm:col-span-2 flex flex-wrap items-center gap-2 pt-1.5 border-t border-border/40 text-xs">
                         {selectedAuthor.idType === "passport" ? (

@@ -3,12 +3,11 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Loader2, ArrowRight, ArrowLeft,
   Eye, EyeOff, UserPlus, Mail, Lock,
-  Home, Landmark
+  Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -659,37 +658,6 @@ const Login = () => {
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowIcon className="w-4 h-4" />}
               <span>{t.login}</span>
             </Button>
-
-            <Separator className="bg-white/10 my-4" />
-
-            {/* Quick Registration & Institutional Gateways */}
-            <div className="space-y-3.5 text-center">
-              <div className="flex items-center justify-center gap-1.5 text-xs text-slate-300 font-semibold">
-                <span>{t.loginPage.noAccount}</span>
-                <Link to="/signup" className="text-teal-300 font-black hover:underline hover:text-teal-200">
-                  {t.loginPage.createAccount}
-                </Link>
-              </div>
-
-              {/* Institutional Portals Grid */}
-              <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
-                <Link
-                  to="/signup/college/admin"
-                  className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 font-bold transition-all hover:scale-[1.02]"
-                >
-                  <Landmark className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span className="truncate">{isRtl ? "تسجيل كلية" : "Register College"}</span>
-                </Link>
-
-                <Link
-                  to="/signup/institute/admin"
-                  className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 font-bold transition-all hover:scale-[1.02]"
-                >
-                  <Landmark className="w-4 h-4 text-indigo-400 shrink-0" />
-                  <span className="truncate">{isRtl ? "تسجيل معهد" : "Register Institute"}</span>
-                </Link>
-              </div>
-            </div>
           </form>
         </div>
       </main>

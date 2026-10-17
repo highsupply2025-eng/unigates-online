@@ -22,12 +22,15 @@ import { useToast } from "@/hooks/use-toast";
 import { BookStoreDataStore } from "@/services/bookStoreDataStore";
 import { BookStoreItem } from "@/types/bookStore";
 import PlatformUnderDevelopmentOverlay from "@/components/PlatformUnderDevelopmentOverlay";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { CurrencySwitcher } from "@/components/CurrencySwitcher";
 
 const BookStorePlatform = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { t, dir, language } = useLanguage();
   const isRtl = dir === "rtl";
+  const { formatPrice, currency, symbol } = useCurrency();
   const { toast } = useToast();
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
@@ -420,7 +423,8 @@ const BookStorePlatform = () => {
               )}
 
               {/* Utility Dropdowns */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <CurrencySwitcher variant="dropdown" showLabel={false} />
                 <LanguageSelectorDropdown className="h-10 px-2.5 rounded-xl border-border/80 bg-card/90 text-foreground shadow-xs" />
                 <ThemeToggle className="h-10 w-10 p-0 rounded-xl border-border/80 bg-card/90 text-foreground shadow-xs" />
               </div>
@@ -494,6 +498,9 @@ const BookStorePlatform = () => {
                   </Link>
                 </div>
               )}
+              <div className="pt-2 border-t border-border flex items-center justify-between">
+                <CurrencySwitcher variant="dropdown" showLabel={true} />
+              </div>
             </div>
           )}
         </header>
@@ -800,7 +807,7 @@ const BookStorePlatform = () => {
                     {activeMainTab === "offers" && book.price_print > book.price_digital && (
                       <div className="absolute top-3 start-3 z-20">
                         <Badge className="bg-rose-600 text-white font-black text-[10px] shadow-lg">
-                          {isRtl ? `وفر ${book.price_print - book.price_digital} ج.م` : "Special Offer"}
+                          {isRtl ? `وفر ${formatPrice(book.price_print - book.price_digital)}` : `Save ${formatPrice(book.price_print - book.price_digital)}`}
                         </Badge>
                       </div>
                     )}
@@ -852,11 +859,11 @@ const BookStorePlatform = () => {
                           <span className="text-[11px] text-muted-foreground dark:text-slate-400 font-semibold">{isRtl ? "السعر:" : "Price:"}</span>
                           <div className="text-end">
                             <span className="text-sm font-black text-foreground dark:text-white">
-                              {book.price_digital} {isRtl ? "ج.م" : book.currency}
+                              {formatPrice(book.price_digital)}
                             </span>
                             {book.price_print > 0 && (
                               <span className="text-[10px] text-muted-foreground dark:text-slate-400 block">
-                                {isRtl ? `ورقي: ${book.price_print} ج.م` : `Print: ${book.price_print}`}
+                                {isRtl ? `ورقي: ${formatPrice(book.price_print)}` : `Print: ${formatPrice(book.price_print)}`}
                               </span>
                             )}
                           </div>
@@ -937,7 +944,7 @@ const BookStorePlatform = () => {
                       <span>{isRtl ? "نسخة رقمية" : "Digital E-Book"}</span>
                     </div>
                     <div className="text-xs font-bold text-foreground dark:text-white">
-                      {quickBuyBook.price_digital} {isRtl ? "ج.م" : quickBuyBook.currency}
+                      {formatPrice(quickBuyBook.price_digital)}
                     </div>
                     <div className="text-[10px] text-muted-foreground dark:text-slate-400 mt-1">{isRtl ? "قراءة سحابية فورية" : "Instant Cloud Read"}</div>
                   </button>
@@ -956,7 +963,7 @@ const BookStorePlatform = () => {
                       <span>{isRtl ? "نسخة ورقية" : "Printed Book"}</span>
                     </div>
                     <div className="text-xs font-bold text-foreground dark:text-white">
-                      {quickBuyBook.price_print} {isRtl ? "ج.م" : quickBuyBook.currency}
+                      {formatPrice(quickBuyBook.price_print)}
                     </div>
                     <div className="text-[10px] text-muted-foreground dark:text-slate-400 mt-1">{isRtl ? "شحن وتوصيل منزلي" : "Doorstep Delivery"}</div>
                   </button>

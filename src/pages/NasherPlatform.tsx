@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SiteFooter from "@/components/SiteFooter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { CurrencySwitcher } from "@/components/CurrencySwitcher";
 import {
   Sparkles,
   PenTool,
@@ -58,14 +60,28 @@ const NasherPlatform = () => {
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
   const navigate = useNavigate();
 
+  const { currency, currencyConfig, symbol, formatPrice } = useCurrency();
+
   // Interactive Live Profit Calculator State
   const [calcFormat, setCalcFormat] = useState<"digital" | "print">("digital");
-  const [calcPrice, setCalcPrice] = useState<number>(200);
+  const [calcPrice, setCalcPrice] = useState<number>(() => currencyConfig.calcRange.defaultPrice);
+
+  useEffect(() => {
+    setCalcPrice(currencyConfig.calcRange.defaultPrice);
+  }, [currency]);
 
   const authorRate = calcFormat === "digital" ? 0.7 : 0.3;
   const platformRate = calcFormat === "digital" ? 0.3 : 0.7;
-  const authorEarnings = Math.round(calcPrice * authorRate);
-  const platformEarnings = Math.round(calcPrice * platformRate);
+  const authorEarnings = currency === "USD"
+    ? Math.round(calcPrice * authorRate * 100) / 100
+    : currency === "EGP"
+      ? Math.round(calcPrice * authorRate)
+      : Math.round(calcPrice * authorRate * 10) / 10;
+  const platformEarnings = currency === "USD"
+    ? Math.round(calcPrice * platformRate * 100) / 100
+    : currency === "EGP"
+      ? Math.round(calcPrice * platformRate)
+      : Math.round(calcPrice * platformRate * 10) / 10;
 
   const statItems = [
     {
@@ -250,12 +266,14 @@ const NasherPlatform = () => {
               </Button>
             </Link>
             <div className="h-5 w-px bg-white/20 mx-1 hidden sm:block" />
+            <CurrencySwitcher variant="dropdown" showLabel={false} />
             <ThemeToggle className="h-10 w-10 p-0 rounded-xl bg-white/10 hover:bg-white/20 border-white/20 text-white" />
             <LanguageSelectorDropdown />
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-1.5">
+            <CurrencySwitcher variant="dropdown" showLabel={false} />
             <ThemeToggle className="h-9 w-9 p-0 rounded-xl bg-white/10 hover:bg-white/20 border-white/20 text-white" />
             <LanguageSelectorDropdown />
             <Button
@@ -294,6 +312,9 @@ const NasherPlatform = () => {
                 {isRtl ? "دخول المؤلفين" : "Author Sign In"}
               </Button>
             </Link>
+            <div className="pt-2 border-t border-white/15 flex items-center justify-between">
+              <CurrencySwitcher variant="dropdown" showLabel={true} />
+            </div>
           </div>
         )}
 
@@ -442,11 +463,11 @@ const NasherPlatform = () => {
               </div>
 
               <div className="p-4 rounded-2xl bg-muted/60 border border-border/80 text-xs space-y-1">
-                <span className="font-bold text-primary block">{isRtl ? "💡 مثال توضيحي لكتاب رقمي بسعر 200 ج.م:" : "💡 Example: Digital Book at 200 EGP:"}</span>
+                <span className="font-bold text-primary block">{isRtl ? `💡 مثال توضيحي لكتاب رقمي بسعر ${formatPrice(200)}:` : `💡 Example: Digital Book at ${formatPrice(200)}:`}</span>
                 <p className="text-muted-foreground">
                   {isRtl ? "يحصل المؤلف على " : "Author receives "}
-                  <strong className="text-amber-600 dark:text-amber-400 font-bold">140 ج.م (70%)</strong>
-                  {isRtl ? " والمنصة على 60 ج.م (30%) لتشغيل الخوادم والتشفير." : " and platform gets 60 EGP (30%) for infrastructure."}
+                  <strong className="text-amber-600 dark:text-amber-400 font-bold">{formatPrice(140)} (70%)</strong>
+                  {isRtl ? ` والمنصة على ${formatPrice(60)} (30%) لتشغيل الخوادم والتشفير.` : ` and platform gets ${formatPrice(60)} (30%) for infrastructure.`}
                 </p>
               </div>
             </CardContent>
@@ -502,11 +523,11 @@ const NasherPlatform = () => {
               </div>
 
               <div className="p-4 rounded-2xl bg-muted/60 border border-border/80 text-xs space-y-1">
-                <span className="font-bold text-primary block">{isRtl ? "💡 مثال توضيحي لكتاب ورقي بسعر 300 ج.م:" : "💡 Example: Print Book at 300 EGP:"}</span>
+                <span className="font-bold text-primary block">{isRtl ? `💡 مثال توضيحي لكتاب ورقي بسعر ${formatPrice(300)}:` : `💡 Example: Print Book at ${formatPrice(300)}:`}</span>
                 <p className="text-muted-foreground">
                   {isRtl ? "يحصل المؤلف على " : "Author receives "}
-                  <strong className="text-emerald-600 dark:text-emerald-400 font-bold">90 ج.م (30%)</strong>
-                  {isRtl ? " صافي ربح، وتتحمل دار عبيد 210 ج.م (70%) لتغطية تكاليف الورق والطباعة الفاخرة والشحن." : " net profit, while Dar Obeid uses 210 EGP (70%) for luxury printing, binding, and home delivery."}
+                  <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{formatPrice(90)} (30%)</strong>
+                  {isRtl ? ` صافي ربح، وتتحمل دار عبيد ${formatPrice(210)} (70%) لتغطية تكاليف الورق والطباعة الفاخرة والشحن.` : ` net profit, while Dar Obeid uses ${formatPrice(210)} (70%) for luxury printing, binding, and home delivery.`}
                 </p>
               </div>
             </CardContent>
@@ -561,22 +582,35 @@ const NasherPlatform = () => {
               </div>
             </div>
 
+            {/* Currency Selector Bar */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-muted/40 border border-border/70">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-foreground">
+                  {isRtl ? "اختر عملة الحساب والعرض:" : "Select Currency:"}
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  {isRtl ? "(متاحة لجميع مؤلفي وزوار المنصة دولياً)" : "(Available for authors worldwide)"}
+                </span>
+              </div>
+              <CurrencySwitcher showLabel={false} />
+            </div>
+
             {/* Price Selection & Presets */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-black text-foreground uppercase tracking-wider">
-                    {isRtl ? "سعر بيع الكتاب بالمتجر (ج.م):" : "Book Selling Price (EGP):"}
+                    {isRtl ? `سعر بيع الكتاب بالمتجر (${symbol}):` : `Book Selling Price (${symbol}):`}
                   </label>
-                  <span className="text-2xl font-black text-primary font-mono">{calcPrice} ج.م</span>
+                  <span className="text-2xl font-black text-primary font-mono">{calcPrice} {symbol}</span>
                 </div>
 
                 {/* Range Slider */}
                 <input
                   type="range"
-                  min="50"
-                  max="600"
-                  step="10"
+                  min={currencyConfig.calcRange.min}
+                  max={currencyConfig.calcRange.max}
+                  step={currencyConfig.calcRange.step}
                   value={calcPrice}
                   onChange={(e) => setCalcPrice(Number(e.target.value))}
                   className="w-full h-2.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
@@ -584,7 +618,7 @@ const NasherPlatform = () => {
 
                 {/* Preset Price Pills */}
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {[100, 150, 200, 250, 300, 400].map((preset) => (
+                  {currencyConfig.calcRange.presets.map((preset) => (
                     <button
                       key={preset}
                       type="button"
@@ -595,7 +629,7 @@ const NasherPlatform = () => {
                           : "bg-card border-border/80 text-muted-foreground hover:bg-muted"
                       }`}
                     >
-                      {preset} ج.م
+                      {preset} {symbol}
                     </button>
                   ))}
                 </div>
@@ -621,7 +655,7 @@ const NasherPlatform = () => {
                         {isRtl ? "صافي أرباح المؤلف لكل نسخة مبيعة:" : "Author Net Payout / Copy:"}
                       </span>
                       <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
-                        +{authorEarnings} ج.م
+                        +{authorEarnings} {symbol}
                       </span>
                     </div>
                     <Badge className="bg-emerald-600 text-white font-black text-sm px-3 py-1">
@@ -637,7 +671,7 @@ const NasherPlatform = () => {
                           : isRtl ? "حصة دار عبيد (الورق الفاخر والطباعة والتخزين والشحن):" : "Dar Obeid share (Print, Paper & Shipping):"}
                       </span>
                       <span className="text-xl font-black text-foreground font-mono">
-                        {platformEarnings} ج.م
+                        {platformEarnings} {symbol}
                       </span>
                     </div>
                     <span className="text-xs font-black text-muted-foreground">
@@ -648,8 +682,8 @@ const NasherPlatform = () => {
 
                 <div className="text-[11px] text-muted-foreground leading-relaxed pt-1">
                   {calcFormat === "digital"
-                    ? isRtl ? "✓ يتم إيداع الـ 140 ج.م في محفظتك لحظياً فور الشراء ويمكنك سحبها في أي وقت." : "✓ 70% is credited directly to your author wallet and ready for withdrawal."
-                    : isRtl ? "✓ لا تتحمل أي تكاليف للورق أو التجليد أو الشحن للعملاء، الـ 90 ج.م هي ربحك الصافي 100%." : "✓ You bear zero ongoing printing or courier fees; your 30% is pure net profit."}
+                    ? isRtl ? `✓ يتم إيداع الـ ${authorEarnings} ${symbol} في محفظتك لحظياً فور الشراء ويمكنك سحبها في أي وقت.` : `✓ ${authorEarnings} ${symbol} is credited directly to your author wallet and ready for withdrawal.`
+                    : isRtl ? `✓ لا تتحمل أي تكاليف للورق أو التجليد أو الشحن للعملاء، الـ ${authorEarnings} ${symbol} هي ربحك الصافي 100%.` : `✓ You bear zero ongoing printing or courier fees; your ${authorEarnings} ${symbol} is pure net profit.`}
                 </div>
               </div>
             </div>

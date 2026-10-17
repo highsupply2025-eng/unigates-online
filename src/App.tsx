@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { FirewallProvider } from "@/contexts/FirewallContext";
 import { SecurityBlockedScreen } from "@/components/security/SecurityBlockedScreen";
 import Index from "./pages/Index";
@@ -208,7 +209,8 @@ const App = () => (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <TooltipProvider>
         <LanguageProvider>
-        <Toaster />
+          <CurrencyProvider>
+          <Toaster />
         <Sonner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <FirewallProvider>
@@ -440,7 +442,8 @@ const App = () => (
           </Suspense>
           </FirewallProvider>
         </BrowserRouter>
-      </LanguageProvider>
+          </CurrencyProvider>
+        </LanguageProvider>
     </TooltipProvider>
   </ThemeProvider>
 </QueryClientProvider>

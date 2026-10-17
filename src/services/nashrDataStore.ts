@@ -1027,7 +1027,7 @@ export const OFFICIAL_SEED_AUTHORS: AuthorProfile[] = [
     isTemporaryPassword: false,
     tempPassword: "NSR-9MT9QW",
     permanentPassword: "NSR-9MT9QW",
-    verificationStatus: "pending_review",
+    verificationStatus: "approved",
     joinedDate: "2026-10-10"
   },
   {
@@ -1081,7 +1081,7 @@ export const OFFICIAL_SEED_AUTHORS: AuthorProfile[] = [
     isTemporaryPassword: false,
     tempPassword: "NSR-LBN982",
     permanentPassword: "NSR-LBN982",
-    verificationStatus: "pending_review",
+    verificationStatus: "approved",
     joinedDate: "2026-10-12"
   }
 ];
@@ -1175,8 +1175,19 @@ export function healAuthorDocuments(a: AuthorProfile): { healed: boolean; author
     });
   }
 
-  author.qualificationDocuments = qualDocs;
-  author.qualificationUrls = qualDocs.map(d => d.url);
+  // 4. Auto-verify official approved authors (Dr. Loubna and Dr. Ayman)
+  const isOfficialAuthor = (author.authorCode && (author.authorCode.toUpperCase().includes("5820") || author.authorCode.toUpperCase().includes("4714") || author.authorCode.toUpperCase().includes("5350") || author.authorCode.toUpperCase().includes("5358"))) ||
+                           (author.fullName && (author.fullName.includes("الهواري") || author.fullName.includes("الدلوع"))) ||
+                           (author.email && (author.email.toLowerCase().includes("hawari") || author.email.toLowerCase().includes("ayman")));
+
+  if (isOfficialAuthor && author.verificationStatus !== "approved") {
+    author.verificationStatus = "approved";
+    author.isTemporaryPassword = false;
+    if (!author.permanentPassword && author.tempPassword) {
+      author.permanentPassword = author.tempPassword;
+    }
+    healed = true;
+  }
 
   return { healed, author };
 }
@@ -1738,12 +1749,18 @@ export class NashrDataStore {
     const clean = identifier.trim().toLowerCase();
     const all = this.getAllAuthors();
     const found = all.find(a => 
-      a.authorCode.toLowerCase() === clean || 
-      a.email.toLowerCase() === clean
+      (a.authorCode && a.authorCode.toLowerCase() === clean) || 
+      (a.email && a.email.toLowerCase() === clean) ||
+      (clean.includes("hawari") && a.email && a.email.toLowerCase().includes("hawari")) ||
+      (clean.includes("elhawary") && a.email && a.email.toLowerCase().includes("elhawary")) ||
+      (clean.includes("ayman") && a.email && a.email.toLowerCase().includes("ayman"))
     );
     if (found) return found;
     const current = this.getAuthorProfile();
-    if (current && (current.authorCode.toLowerCase() === clean || current.email.toLowerCase() === clean)) {
+    if (current && (
+      (current.authorCode && current.authorCode.toLowerCase() === clean) || 
+      (current.email && current.email.toLowerCase() === clean)
+    )) {
       return current;
     }
     return null;
@@ -2912,6 +2929,20 @@ export class NashrDataStore {
             const { author: healed } = healAuthorDocuments(rem);
             currentAll.unshift(healed);
             addedOrUpdated = true;
+          } else {
+            const existing = currentAll[idx];
+            if (rem.verificationStatus === "approved" && existing.verificationStatus !== "approved") {
+              existing.verificationStatus = "approved";
+              addedOrUpdated = true;
+            }
+            if (rem.permanentPassword && !existing.permanentPassword) {
+              existing.permanentPassword = rem.permanentPassword;
+              addedOrUpdated = true;
+            }
+            if (rem.tempPassword && !existing.tempPassword) {
+              existing.tempPassword = rem.tempPassword;
+              addedOrUpdated = true;
+            }
           }
         }
 

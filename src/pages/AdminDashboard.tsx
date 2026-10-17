@@ -1485,11 +1485,38 @@ export const AdminDashboard = () => {
                                       description: author.tempPassword
                                     });
                                   }}
-                                  className="hover:text-amber-900 dark:hover:text-white p-0.5 transition-colors"
+                                  className="hover:text-amber-900 dark:hover:text-white p-0.5 transition-colors cursor-pointer"
                                   title={isRtl ? "نسخ كلمة المرور المؤقتة" : "Copy Password"}
                                 >
                                   <Copy className="w-3 h-3" />
                                 </button>
+                              </Badge>
+                            )}
+                            {author.permanentPassword ? (
+                              <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 text-[11px] font-mono font-bold flex items-center gap-1.5 px-2 py-0.5 shadow-xs">
+                                <Lock className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                <span>{isRtl ? "الرقم السري الدائم:" : "Permanent Pass:"}</span>
+                                <span className="select-all font-black text-emerald-900 dark:text-emerald-100 bg-emerald-500/20 px-1.5 py-0.2 rounded">{author.permanentPassword}</span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(author.permanentPassword!);
+                                    toast({
+                                      title: isRtl ? "تم نسخ الرقم السري الدائم" : "Password Copied",
+                                      description: author.permanentPassword
+                                    });
+                                  }}
+                                  className="hover:text-emerald-900 dark:hover:text-white p-0.5 transition-colors cursor-pointer"
+                                  title={isRtl ? "نسخ الرقم السري الدائم" : "Copy Permanent Password"}
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-slate-500 dark:text-slate-400 border-dashed border-slate-300 dark:border-slate-700 text-[10px] font-mono flex items-center gap-1 px-1.5 py-0.5">
+                                <Lock className="w-2.5 h-2.5 opacity-60 text-slate-400" />
+                                <span>{isRtl ? "الرقم الدائم: (لم يُعيّن بعد)" : "Perm Pass: (Not set)"}</span>
                               </Badge>
                             )}
                             {author.idType === "passport" ? (
@@ -3200,10 +3227,79 @@ export const AdminDashboard = () => {
                             className="h-7 px-2 text-xs font-bold text-amber-700 dark:text-amber-300 gap-1 rounded-lg hover:bg-amber-500/20"
                           >
                             <Copy className="w-3.5 h-3.5" />
-                            <span>{isRtl ? "نسخ" : "Copy"}</span>
+                            <span>{isRtl ? "نسخ المؤقتة" : "Copy"}</span>
                           </Button>
                         </div>
                       )}
+
+                      {/* Permanent Password Display & Copy & Edit */}
+                      <div className="sm:col-span-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs flex-wrap gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <span className="font-bold text-foreground">{isRtl ? "الرقم السري الدائم للحساب:" : "Permanent Password:"}</span>
+                          {selectedAuthor.permanentPassword ? (
+                            <span className="font-mono font-black text-sm bg-background px-2.5 py-0.5 rounded border border-emerald-500/40 text-emerald-900 dark:text-emerald-200 select-all">
+                              {selectedAuthor.permanentPassword}
+                            </span>
+                          ) : (
+                            <span className="font-mono text-xs text-muted-foreground italic bg-muted/60 px-2 py-0.5 rounded border border-border/60">
+                              {isRtl ? "لم يتم التعيين بعد (المؤلف لم يقم بتغيير كلمة المرور المؤقتة بعد)" : "Not set yet (Author hasn't changed temp password)"}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {selectedAuthor.permanentPassword && (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                navigator.clipboard.writeText(selectedAuthor.permanentPassword!);
+                                toast({
+                                  title: isRtl ? "تم النسخ" : "Copied",
+                                  description: selectedAuthor.permanentPassword
+                                });
+                              }}
+                              className="h-7 px-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 gap-1 rounded-lg hover:bg-emerald-500/20"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>{isRtl ? "نسخ الدائم" : "Copy"}</span>
+                            </Button>
+                          )}
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const newPass = window.prompt(
+                                isRtl ? "أدخل الرقم السري الدائم لهذا المؤلف (6 خانات على الأقل):" : "Enter new permanent password for this author (min 6 characters):",
+                                selectedAuthor.permanentPassword || ""
+                              );
+                              if (newPass && newPass.trim().length >= 6) {
+                                const passVal = newPass.trim();
+                                NashrDataStore.updatePassword(passVal, selectedAuthor.id);
+                                const updated = { ...selectedAuthor, permanentPassword: passVal, isTemporaryPassword: false };
+                                setSelectedAuthor(updated);
+                                setAuthors(prev => prev.map(a => a.id === selectedAuthor.id ? updated : a));
+                                toast({
+                                  title: isRtl ? "تم حفظ وتعيين الرقم السري الدائم" : "Permanent Password Saved",
+                                  description: passVal
+                                });
+                              } else if (newPass !== null) {
+                                toast({
+                                  title: isRtl ? "كلمة المرور قصيرة" : "Password Too Short",
+                                  description: isRtl ? "يجب أن تكون 6 أحرف أو أرقام على الأقل." : "Must be at least 6 characters.",
+                                  variant: "destructive"
+                                });
+                              }
+                            }}
+                            className="h-7 px-2.5 text-xs font-bold gap-1 rounded-lg hover:bg-emerald-500/10 border-emerald-500/40 text-emerald-700 dark:text-emerald-300"
+                          >
+                            <Lock className="w-3 h-3" />
+                            <span>{selectedAuthor.permanentPassword ? (isRtl ? "تعديل الكلمة الدائمة" : "Edit") : (isRtl ? "تعيين رقم دائم" : "Set Perm Pass")}</span>
+                          </Button>
+                        </div>
+                      </div>
 
                       {/* Document & Residency Meta */}
                       <div className="sm:col-span-2 flex flex-wrap items-center gap-2 pt-1.5 border-t border-border/40 text-xs">

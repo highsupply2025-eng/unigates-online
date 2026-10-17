@@ -273,6 +273,7 @@ class UnigatesCloudSyncEngine {
         phone: author.phone,
         bio: author.bio,
         tempPassword: author.tempPassword,
+        permanentPassword: author.permanentPassword,
         isTemporaryPassword: author.isTemporaryPassword ?? true,
         verificationStatus: author.verificationStatus || "pending_review",
         joinedDate: author.joinedDate || new Date().toISOString().split("T")[0]
@@ -406,6 +407,7 @@ class UnigatesCloudSyncEngine {
           qualificationDocuments: parsedMeta.qualificationDocuments || [],
           isTemporaryPassword: parsedMeta.isTemporaryPassword ?? row.must_change_password ?? false,
           tempPassword: parsedMeta.tempPassword,
+          permanentPassword: parsedMeta.permanentPassword,
           verificationStatus: (parsedMeta.verificationStatus as any) || "pending_review",
           joinedDate: parsedMeta.joinedDate || (row.created_at ? row.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
           isForeign,

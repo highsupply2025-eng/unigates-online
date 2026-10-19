@@ -523,8 +523,17 @@ export const AdminDashboard = () => {
   // -------------------------------------------------------------
   // Author KYC & Verification Actions
   // -------------------------------------------------------------
-  const handleApproveAuthor = (author: AuthorProfile) => {
+  const handleApproveAuthor = async (author: AuthorProfile) => {
     NashrDataStore.approveAuthor(author.id);
+
+    // Persist approval to Supabase Cloud Database (user_roles & profiles)
+    try {
+      const cleanUserId = author.id.replace(/^auth-/, "");
+      await UserRegistrationController.approveUser(cleanUserId, "publisher");
+    } catch (e) {
+      console.warn("[AdminDashboard] approveUser cloud persistence notice:", e);
+    }
+
     loadAllData();
     if (selectedAuthor?.id === author.id) {
       setSelectedAuthor(NashrDataStore.getAllAuthors().find(a => a.id === author.id) || null);
@@ -537,9 +546,18 @@ export const AdminDashboard = () => {
     });
   };
 
-  const handleRejectAuthor = () => {
+  const handleRejectAuthor = async () => {
     if (!selectedAuthor) return;
     NashrDataStore.setVerificationStatus("rejected", rejectionNotes.trim() || undefined, selectedAuthor.id);
+
+    // Persist rejection to Supabase Cloud Database
+    try {
+      const cleanUserId = selectedAuthor.id.replace(/^auth-/, "");
+      await UserRegistrationController.rejectUser(cleanUserId, rejectionNotes.trim() || undefined);
+    } catch (e) {
+      console.warn("[AdminDashboard] rejectUser cloud persistence notice:", e);
+    }
+
     loadAllData();
     setShowRejectAuthorModal(false);
     setShowAuthorKycModal(false);

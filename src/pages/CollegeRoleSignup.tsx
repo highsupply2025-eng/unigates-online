@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeCompleteSignup } from "@/integrations/supabase/completeSignupHelper";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
@@ -237,15 +238,16 @@ const CollegeRoleSignup = () => {
 
       if (authData.user) {
         // 2. Create profile + role via RPC (force approved for invitation-based signup)
-        const { data: rpcData, error: rpcError } = await supabase.rpc("complete_signup", {
-          p_user_id: authData.user.id,
-          p_role: config.appRole,
-          p_full_name: fullName,
-          p_phone: `${countryCode}${phone}`,
-          p_email: email,
-          p_platform: "courses",
-          p_force_approve: true,
-        } as any);
+        const { data: rpcData, error: rpcError } = await invokeCompleteSignup({
+          userId: authData.user.id,
+          role: config.appRole,
+          fullName: fullName,
+          phone: `${countryCode}${phone}`,
+          email: email,
+          platform: "courses",
+          countryCode: countryCode,
+          forceApprove: true,
+        });
 
         if (rpcError) throw rpcError;
         const result = rpcData as any;

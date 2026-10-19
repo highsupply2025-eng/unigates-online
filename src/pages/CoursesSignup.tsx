@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeCompleteSignup } from "@/integrations/supabase/completeSignupHelper";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
@@ -243,19 +244,19 @@ const CoursesSignup = () => {
 
       const isForeign = countryCode !== "+966" || idType === "passport";
 
-      const { data: rpcResult, error: rpcError } = await supabase.rpc("complete_signup" as any, {
-        p_user_id: userId,
-        p_role: role,
-        p_full_name: fullName.trim(),
-        p_phone: fullPhone,
-        p_email: cleanEmail,
-        p_platform: "courses",
-        p_country_code: countryCode,
-        p_country: isForeign ? "OTHER" : "SA",
-        p_is_foreign: isForeign,
-        p_id_type: idType,
-        p_id_number: idNumber.trim() || null,
-        p_verification_status: isForeign ? "pending_review" : (role === "personal" ? "approved" : "pending_review"),
+      const { data: rpcResult, error: rpcError } = await invokeCompleteSignup({
+        userId,
+        role,
+        fullName: fullName.trim(),
+        phone: fullPhone,
+        email: cleanEmail,
+        platform: "courses",
+        countryCode,
+        country: isForeign ? "OTHER" : "SA",
+        isForeign,
+        idType,
+        idNumber: idNumber.trim() || null,
+        verificationStatus: isForeign ? "pending_review" : (role === "personal" ? "approved" : "pending_review"),
       });
 
       if (rpcError) {

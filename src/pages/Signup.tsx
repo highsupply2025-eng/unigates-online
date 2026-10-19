@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeCompleteSignup } from "@/integrations/supabase/completeSignupHelper";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
@@ -307,23 +308,23 @@ const Signup = () => {
       const isForeign = countryCode !== "+966" || idType === "passport";
 
       // Use RPC to create profile & role (works without session)
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('complete_signup' as any, {
-        p_user_id: userId,
-        p_role: role,
-        p_full_name: fullName,
-        p_phone: `${countryCode}${phone}`,
-        p_email: email,
-        p_platform: 'courses',
-        p_id_photo_url: idPhotoUrl || null,
-        p_university_cert_url: uniCertUrl || null,
-        p_additional_certs_urls: additionalCertUrls,
-        p_live_photo_url: livePhotoUrl || null,
-        p_country_code: countryCode,
-        p_country: isForeign ? "OTHER" : "SA",
-        p_is_foreign: isForeign,
-        p_id_type: idType,
-        p_id_number: idNumber.trim() || null,
-        p_verification_status: isForeign ? "pending_review" : (role === "personal" ? "approved" : "pending_review"),
+      const { data: rpcResult, error: rpcError } = await invokeCompleteSignup({
+        userId,
+        role,
+        fullName,
+        phone: `${countryCode}${phone}`,
+        email,
+        platform: 'courses',
+        idPhotoUrl: idPhotoUrl || null,
+        universityCertUrl: uniCertUrl || null,
+        additionalCertsUrls: additionalCertUrls,
+        livePhotoUrl: livePhotoUrl || null,
+        countryCode,
+        country: isForeign ? "OTHER" : "SA",
+        isForeign,
+        idType,
+        idNumber: idNumber.trim() || null,
+        verificationStatus: isForeign ? "pending_review" : (role === "personal" ? "approved" : "pending_review"),
       });
       if (rpcError) throw rpcError;
       const result = rpcResult as any;

@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeCompleteSignup } from "@/integrations/supabase/completeSignupHelper";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
@@ -116,13 +117,15 @@ const BookStoreSignup = () => {
 
       // Attempt to save role in database if configured
       try {
-        await supabase.rpc('complete_signup', {
-          p_user_id: userId,
-          p_role: "reader",
-          p_full_name: fullName,
-          p_phone: `${countryCode}${phone}`,
-          p_email: email,
-          p_platform: 'bookstore',
+        await invokeCompleteSignup({
+          userId,
+          role: "reader",
+          fullName,
+          phone: `${countryCode}${phone}`,
+          email,
+          platform: 'bookstore',
+          countryCode,
+          forceApprove: true,
         });
       } catch (rpcErr) {
         // Fallback gracefully

@@ -14,6 +14,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { invokeCompleteSignup, generateSecureAuthPassword } from "@/integrations/supabase/completeSignupHelper";
 import type { 
   AuthorProfile, 
   ManuscriptSubmission, 
@@ -260,7 +261,15 @@ class UnigatesCloudSyncEngine {
   public async syncAuthorToSupabaseAuth(author: AuthorProfile): Promise<void> {
     if (!author.email) return;
     try {
-      const defaultPassword = author.tempPassword || "UnigatesAuthor@2026";
+      // Ensure we have a cryptographically secure, non-pwned password that complies with Supabase Auth policy
+      const securePassword = author.tempPassword && author.tempPassword.length >= 8 && !author.tempPassword.includes("UnigatesAuthor")
+        ? author.tempPassword
+        : generateSecureAuthPassword(author.authorCode || "Nsr");
+      
+      if (!author.tempPassword) {
+        author.tempPassword = securePassword;
+      }
+
       const metadataPayload = {
         id: author.id,
         authorCode: author.authorCode,
@@ -276,12 +285,16 @@ class UnigatesCloudSyncEngine {
         permanentPassword: author.permanentPassword,
         isTemporaryPassword: author.isTemporaryPassword ?? true,
         verificationStatus: author.verificationStatus || "pending_review",
-        joinedDate: author.joinedDate || new Date().toISOString().split("T")[0]
+        joinedDate: author.joinedDate || new Date().toISOString().split("T")[0],
+        isForeign: author.isForeign ?? false,
+        idType: author.idType || (author.isForeign ? "passport" : "national_id"),
+        passportNumber: author.passportNumber,
+        countryOfResidence: author.countryOfResidence
       };
 
       const { data, error } = await supabase.auth.signUp({
         email: author.email.trim().toLowerCase(),
-        password: defaultPassword,
+        password: securePassword,
         options: {
           data: {
             role: "author",
@@ -296,125 +309,183 @@ class UnigatesCloudSyncEngine {
         }
       });
 
-      if (error) {
-        console.info("[UnigatesCloudSync] Supabase Auth registration notice:", error.message);
-      } else if (data.user) {
-        console.info("[UnigatesCloudSync] Author account created in Supabase Cloud Auth:", data.user.id);
-        // Persist into public.profiles, public.profile_documents, and public.user_roles
-        try {
-          const encodedPlatform = `nashr:${JSON.stringify(metadataPayload)}`;
-          await (supabase.rpc as any)("complete_signup", {
-            p_user_id: data.user.id,
-            p_role: "publisher",
-            p_full_name: author.fullName,
-            p_phone: author.phone || "",
-            p_email: author.email.trim().toLowerCase(),
-            p_platform: encodedPlatform,
-            p_id_photo_url: author.nationalIdUrl && !author.nationalIdUrl.startsWith("data:") ? author.nationalIdUrl : `meta:${author.authorCode}`,
-            p_university_cert_url: author.qualificationDocuments?.[0]?.name || author.specialization,
-            p_additional_certs_urls: (author.qualificationDocuments || []).map(d => d.name),
-            p_live_photo_url: author.avatarName || author.authorCode
-          });
-        } catch (rpcErr) {
-          console.warn("[UnigatesCloudSync] complete_signup RPC notice:", rpcErr);
-        }
+      let userId = data?.user?.id;
+      if (!userId && error && error.message?.includes("already registered")) {
+        console.info("[UnigatesCloudSync] User already registered in Auth, proceeding to sync profile");
+      }
+
+      if (userId) {
+        console.info("[UnigatesCloudSync] Author account created in Supabase Cloud Auth:", userId);
+        const encodedPlatform = `nashr:${JSON.stringify(metadataPayload)}`;
+        
+        await invokeCompleteSignup({
+          userId: userId,
+          role: "publisher",
+          fullName: author.fullName,
+          phone: author.phone || "",
+          email: author.email.trim().toLowerCase(),
+          platform: encodedPlatform,
+          idPhotoUrl: author.nationalIdUrl && !author.nationalIdUrl.startsWith("data:") ? author.nationalIdUrl : `meta:${author.authorCode}`,
+          universityCertUrl: author.qualificationDocuments?.[0]?.name || author.specialization,
+          additionalCertsUrls: (author.qualificationDocuments || []).map(d => d.name),
+          livePhotoUrl: author.avatarName || author.authorCode,
+          countryCode: author.phone?.startsWith("+") ? author.phone.split(" ")[0] : "+966",
+          country: author.isForeign ? (author.countryOfResidence || "OTHER") : "SA",
+          isForeign: author.isForeign ?? false,
+          idType: author.idType || (author.isForeign ? "passport" : "national_id"),
+          idNumber: author.passportNumber || null,
+          verificationStatus: author.verificationStatus || "pending_review"
+        });
       }
     } catch (err) {
-      console.warn("[UnigatesCloudSync] Auth sync non-fatal warning:", err);
+      console.warn("[UnigatesCloudSync] Auth sync warning:", err);
     }
   }
 
   /**
-   * Fetch all Nashr authors stored in Supabase PostgreSQL (public.profiles)
+   * Fetch all Nashr authors stored in Supabase PostgreSQL
    * and merge them into local storage for the Admin Dashboard.
    */
   public async fetchCloudAuthorsFromSupabase(): Promise<AuthorProfile[]> {
     try {
-      // Pull authors/publishers strictly belonging to publishing platform (nashr / publishing / author / publisher)
-      const { data: profilesData, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .or("platform.ilike.nashr%,platform.eq.publishing,role.eq.publisher,role.eq.author")
-        .order("created_at", { ascending: false });
-
-      if (error || !profilesData) return [];
-
       const cloudAuthors: AuthorProfile[] = [];
-      for (const row of profilesData) {
-        let parsedMeta: Partial<AuthorProfile> = {};
-        if (row.platform && row.platform.startsWith("nashr:")) {
-          try {
-            parsedMeta = JSON.parse(row.platform.slice(6));
-          } catch {
-            // fallback
-          }
-        }
+      const seenIds = new Set<string>();
 
-        // Strict check: Never re-import hard-deleted or tombstoned accounts
-        let isTombstoned = false;
+      const isTombstoned = (userId: string, email?: string) => {
         try {
           const rawT = localStorage.getItem("nashr_deleted_authors_tombstones");
           if (rawT) {
             const tSet = new Set(JSON.parse(rawT));
-            if (row.user_id && (tSet.has(row.user_id.toLowerCase()) || tSet.has(`auth-${row.user_id.toLowerCase()}`))) isTombstoned = true;
-            if (row.email && tSet.has(row.email.toLowerCase())) isTombstoned = true;
+            if (userId && (tSet.has(userId.toLowerCase()) || tSet.has(`auth-${userId.toLowerCase()}`))) return true;
+            if (email && tSet.has(email.toLowerCase())) return true;
           }
         } catch {}
-        if (isTombstoned) continue;
+        return false;
+      };
 
-        // Strict platform filter: only accounts belonging to the publishing house platform (nashr / publishing / author / publisher)
-        // Completely exclude university / courses / school platforms unless the role is strictly publisher/author
-        const pStr = (row.platform || "").trim().toLowerCase();
-        const roleStr = (row.role || "").trim().toLowerCase();
-        if (["university", "college", "institute", "academic", "school", "courses", "bookstore"].includes(pStr)) {
-          if (roleStr !== "publisher" && roleStr !== "author") {
-            continue;
+      // 1. Fetch via get_admin_pending_users RPC (SECURITY DEFINER, bypasses RLS safely)
+      try {
+        const { data: rpcData, error: rpcErr } = await supabase.rpc("get_admin_pending_users" as any, {
+          p_only_foreign: false,
+          p_search: null,
+          p_platform: null
+        });
+
+        if (!rpcErr && Array.isArray(rpcData)) {
+          for (const row of rpcData) {
+            if (!row.user_id) continue;
+            if (isTombstoned(row.user_id, row.email)) continue;
+
+            const pStr = (row.platform || "").trim().toLowerCase();
+            const rStr = (row.role || "").trim().toLowerCase();
+            const isPublishing = pStr === "publishing" || pStr.startsWith("nashr") || rStr === "publisher" || rStr === "author";
+            if (!isPublishing) continue;
+            if (["student", "dean", "vice_dean", "department_head", "faculty", "lecturer"].includes(rStr)) continue;
+
+            let parsedMeta: Partial<AuthorProfile> = {};
+            if (pStr.startsWith("nashr:")) {
+              try {
+                parsedMeta = JSON.parse(row.platform.slice(6));
+              } catch {}
+            }
+
+            const authorCode = parsedMeta.authorCode || `AUT-${row.user_id.substring(0, 4).toUpperCase()}`;
+            const id = parsedMeta.id || `auth-${row.user_id}`;
+            seenIds.add(id);
+
+            const isApproved = Boolean(row.approved) || row.verification_status === "approved";
+            cloudAuthors.push({
+              id,
+              authorCode,
+              fullName: parsedMeta.fullName || row.full_name || "مؤلف مسجل",
+              academicTitle: (parsedMeta.academicTitle as any) || "dr",
+              academicTitleLabel: parsedMeta.academicTitleLabel || "دكتور / باحث أكاديمي",
+              specialization: parsedMeta.specialization || "الدراسات الأكاديمية والبحث العلمي",
+              institution: parsedMeta.institution || row.country || "دار عبيد للنشر",
+              email: (row.email || parsedMeta.email || "").toLowerCase(),
+              phone: row.phone || parsedMeta.phone || "",
+              bio: parsedMeta.bio || "مؤلف وباحث مسجل عبر منصة نشر الموحدة.",
+              avatarUrl: parsedMeta.avatarUrl || undefined,
+              nationalIdUrl: parsedMeta.nationalIdUrl || (row.id_photo_url && !row.id_photo_url.startsWith("meta:") ? row.id_photo_url : undefined),
+              nationalIdName: parsedMeta.nationalIdName || undefined,
+              qualificationUrls: parsedMeta.qualificationUrls || [],
+              qualificationDocuments: parsedMeta.qualificationDocuments || [],
+              isTemporaryPassword: parsedMeta.isTemporaryPassword ?? !isApproved,
+              tempPassword: parsedMeta.tempPassword,
+              permanentPassword: parsedMeta.permanentPassword,
+              verificationStatus: isApproved ? "approved" : ((parsedMeta.verificationStatus as any) || row.verification_status || "pending_review"),
+              joinedDate: parsedMeta.joinedDate || (row.created_at ? row.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+              isForeign: Boolean(row.is_foreign),
+              idType: (row.id_type as any) || (row.is_foreign ? "passport" : "national_id"),
+              passportNumber: parsedMeta.passportNumber || row.id_number,
+              countryOfResidence: parsedMeta.countryOfResidence || row.country
+            });
           }
         }
-        if (["student", "dean", "vice_dean", "department_head", "faculty", "lecturer"].includes(roleStr)) {
-          continue;
+      } catch (rpcEx) {
+        console.warn("[UnigatesCloudSync] get_admin_pending_users fallback:", rpcEx);
+      }
+
+      // 2. Direct profiles fallback (in case user has an authenticated session)
+      try {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("*")
+          .or("platform.ilike.nashr%,platform.eq.publishing,role.eq.publisher,role.eq.author")
+          .order("created_at", { ascending: false });
+
+        if (Array.isArray(profilesData)) {
+          for (const row of profilesData) {
+            const id = `auth-${row.user_id}`;
+            if (seenIds.has(id) || seenIds.has(row.user_id)) continue;
+            if (isTombstoned(row.user_id, row.email)) continue;
+
+            const pStr = (row.platform || "").trim().toLowerCase();
+            const roleStr = (row.role || "").trim().toLowerCase();
+            const isPublishing = pStr === "publishing" || pStr.startsWith("nashr") || roleStr === "publisher" || roleStr === "author";
+            if (!isPublishing) continue;
+            if (["student", "dean", "vice_dean", "department_head", "faculty", "lecturer"].includes(roleStr)) continue;
+
+            let parsedMeta: Partial<AuthorProfile> = {};
+            if (pStr.startsWith("nashr:")) {
+              try {
+                parsedMeta = JSON.parse(row.platform.slice(6));
+              } catch {}
+            }
+
+            const authorCode = parsedMeta.authorCode || `AUT-${row.user_id.substring(0, 4).toUpperCase()}`;
+            seenIds.add(id);
+
+            cloudAuthors.push({
+              id: parsedMeta.id || id,
+              authorCode,
+              fullName: parsedMeta.fullName || row.full_name || "مؤلف مسجل",
+              academicTitle: (parsedMeta.academicTitle as any) || "dr",
+              academicTitleLabel: parsedMeta.academicTitleLabel || "دكتور / باحث أكاديمي",
+              specialization: parsedMeta.specialization || "الدراسات الأكاديمية والبحث العلمي",
+              institution: parsedMeta.institution || "مؤسسة أكاديمية",
+              email: (row.email || parsedMeta.email || "").toLowerCase(),
+              phone: row.phone || parsedMeta.phone || "",
+              bio: parsedMeta.bio || "مؤلف وباحث مسجل عبر منصة نشر الموحدة.",
+              avatarUrl: parsedMeta.avatarUrl || undefined,
+              nationalIdUrl: parsedMeta.nationalIdUrl || undefined,
+              nationalIdName: parsedMeta.nationalIdName || undefined,
+              qualificationUrls: parsedMeta.qualificationUrls || [],
+              qualificationDocuments: parsedMeta.qualificationDocuments || [],
+              isTemporaryPassword: parsedMeta.isTemporaryPassword ?? row.must_change_password ?? false,
+              tempPassword: parsedMeta.tempPassword,
+              permanentPassword: parsedMeta.permanentPassword,
+              verificationStatus: (parsedMeta.verificationStatus as any) || "pending_review",
+              joinedDate: parsedMeta.joinedDate || (row.created_at ? row.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+              isForeign: parsedMeta.isForeign || false,
+              idType: parsedMeta.idType || "national_id",
+              passportNumber: parsedMeta.passportNumber,
+              countryOfResidence: parsedMeta.countryOfResidence
+            });
+          }
         }
-
-        const isPublishingPlatform = 
-          pStr === "publishing" || 
-          pStr.startsWith("nashr") || 
-          roleStr === "publisher" || 
-          roleStr === "author";
-
-        if (!isPublishingPlatform) {
-          continue;
-        }
-
-        const authorCode = parsedMeta.authorCode || `AUT-${row.user_id.substring(0, 4).toUpperCase()}`;
-        const isForeign = parsedMeta.isForeign || false;
-        const idType = parsedMeta.idType || (isForeign ? "passport" : "national_id");
-
-        cloudAuthors.push({
-          id: parsedMeta.id || `auth-${row.user_id}`,
-          authorCode,
-          fullName: parsedMeta.fullName || row.full_name || "مؤلف مسجل",
-          academicTitle: (parsedMeta.academicTitle as any) || "dr",
-          academicTitleLabel: parsedMeta.academicTitleLabel || "دكتور / باحث أكاديمي",
-          specialization: parsedMeta.specialization || "الدراسات الأكاديمية والبحث العلمي",
-          institution: parsedMeta.institution || "مؤسسة أكاديمية",
-          email: (row.email || parsedMeta.email || "").toLowerCase(),
-          phone: row.phone || parsedMeta.phone || "",
-          bio: parsedMeta.bio || "مؤلف وباحث مسجل عبر منصة نشر الموحدة.",
-          avatarUrl: parsedMeta.avatarUrl || undefined,
-          nationalIdUrl: parsedMeta.nationalIdUrl || undefined,
-          nationalIdName: parsedMeta.nationalIdName || undefined,
-          qualificationUrls: parsedMeta.qualificationUrls || [],
-          qualificationDocuments: parsedMeta.qualificationDocuments || [],
-          isTemporaryPassword: parsedMeta.isTemporaryPassword ?? row.must_change_password ?? false,
-          tempPassword: parsedMeta.tempPassword,
-          permanentPassword: parsedMeta.permanentPassword,
-          verificationStatus: (parsedMeta.verificationStatus as any) || "pending_review",
-          joinedDate: parsedMeta.joinedDate || (row.created_at ? row.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
-          isForeign,
-          idType,
-          passportNumber: parsedMeta.passportNumber,
-          countryOfResidence: parsedMeta.countryOfResidence
-        });
+      } catch (profEx) {
+        // Non-fatal if RLS blocks profiles table
       }
 
       return cloudAuthors;

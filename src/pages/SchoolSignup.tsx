@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeCompleteSignup } from "@/integrations/supabase/completeSignupHelper";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
@@ -84,13 +85,15 @@ const SchoolSignup = () => {
       if (!userId) throw new Error(t.signupPage.errorNoUser);
 
       // Use RPC to create profile & role (works without session)
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('complete_signup', {
-        p_user_id: userId,
-        p_role: selectedRole,
-        p_full_name: fullName,
-        p_phone: `${countryCode}${phone}`,
-        p_email: email,
-        p_platform: 'school',
+      const { data: rpcResult, error: rpcError } = await invokeCompleteSignup({
+        userId,
+        role: selectedRole,
+        fullName,
+        phone: `${countryCode}${phone}`,
+        email,
+        platform: 'school',
+        countryCode,
+        forceApprove: true,
       });
       if (rpcError) throw rpcError;
       const result = rpcResult as any;

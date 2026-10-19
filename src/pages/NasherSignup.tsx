@@ -50,6 +50,7 @@ import {
   generateSampleCertificateSvg 
 } from "@/services/nashrDataStore";
 import { NashrFileStore } from "@/services/nashrFileStore";
+import { UnigatesCloudSync } from "@/services/unigatesCloudSync";
 
 const ACADEMIC_TITLES = [
   { value: "prof", labelAr: "أ.د. / أستاذ دكتور", labelEn: "Prof. Dr." },
@@ -524,11 +525,12 @@ const NasherSignup = () => {
         console.warn("[NasherSignup] IndexedDB saveFiles warning:", fErr);
       }
 
-      // Save to store safely
+      // Save to store safely and synchronize with Supabase Cloud Auth & PostgreSQL
       try {
         NashrDataStore.saveAuthorProfile(newProfile);
+        await UnigatesCloudSync.syncAuthorToSupabaseAuth(newProfile);
       } catch (sErr) {
-        console.warn("[NasherSignup] saveAuthorProfile non-fatal warning:", sErr);
+        console.warn("[NasherSignup] saveAuthorProfile / cloud sync warning:", sErr);
       }
 
       setGeneratedAccount({

@@ -44,7 +44,7 @@ import {
   CreditCard,
   TrendingUp,
   Home,
-  FileSignature
+  FileSignature,
   Lock,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

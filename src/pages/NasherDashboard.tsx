@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useLanguage, ALL_SUPPORTED_LANGUAGES, type Language } from "@/contexts/LanguageContext";
 import { 
@@ -147,6 +148,53 @@ const NasherDashboard = () => {
   const [authorProfile, setAuthorProfile] = useState<AuthorProfile>(NashrDataStore.getAuthorProfile());
   const [avatarUrl, setAvatarUrl] = useState<string>(authorProfile.avatarUrl || "");
   const isUnderReview = authorProfile.verificationStatus === "pending_review";
+
+  // Sync verification status from the same column the admin panel updates (profiles.verification_status)
+  useEffect(() => {
+    let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let timer: ReturnType<typeof setInterval> | null = null;
+
+    const apply = (status?: string | null) => {
+      if (!status || cancelled) return;
+      setAuthorProfile((prev) => {
+        if (prev.verificationStatus === status) return prev;
+        const next = { ...prev, verificationStatus: status as AuthorProfile["verificationStatus"] };
+        try { NashrDataStore.saveAuthorProfile(next); } catch {}
+        return next;
+      });
+    };
+
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      const fetchStatus = async () => {
+        const { data } = await supabase
+          .from("profiles")
+          .select("verification_status")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        apply((data as any)?.verification_status);
+      };
+      await fetchStatus();
+      channel = supabase
+        .channel(`author-status-${user.id}`)
+        .on(
+          "postgres_changes" as any,
+          { event: "UPDATE", schema: "public", table: "profiles", filter: `user_id=eq.${user.id}` },
+          (payload: any) => apply(payload?.new?.verification_status)
+        )
+        .subscribe();
+      timer = setInterval(fetchStatus, 15000);
+      window.addEventListener("focus", fetchStatus);
+    })();
+
+    return () => {
+      cancelled = true;
+      if (channel) supabase.removeChannel(channel);
+      if (timer) clearInterval(timer);
+    };
+  }, []);
 
   const [submissions, setSubmissions] = useState<ManuscriptSubmission[]>(NashrDataStore.getSubmissions());
   const [invoices, setInvoices] = useState<NashrInvoice[]>(NashrDataStore.getInvoices());

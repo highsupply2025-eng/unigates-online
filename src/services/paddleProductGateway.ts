@@ -42,6 +42,12 @@ export class PaddleProductGateway {
       successUrl,
     } = options;
 
+    // Safety: there is no Paddle price matching variable book/invoice amounts yet.
+    // Never charge a fixed subscription price for them.
+    if (productType !== "courses" && !options.priceId) {
+      throw new Error("Card checkout is not available for this product yet (no matching price).");
+    }
+
     // 1. Resolve product metadata
     let productContext: string;
     let productId: string;

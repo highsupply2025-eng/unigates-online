@@ -523,15 +523,32 @@ export const AdminDashboard = () => {
   // -------------------------------------------------------------
   // Author KYC & Verification Actions
   // -------------------------------------------------------------
+  const resolveAuthorUserId = async (author: AuthorProfile): Promise<string | null> => {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const candidate = (author.id || "").replace(/^auth-/, "");
+    if (UUID_RE.test(candidate)) return candidate;
+    const email = (author.email || "").trim().toLowerCase();
+    if (!email) return null;
+    const { data } = await supabase.from("profiles").select("user_id").ilike("email", email).maybeSingle();
+    return (data as any)?.user_id || null;
+  };
+
   const handleApproveAuthor = async (author: AuthorProfile) => {
     NashrDataStore.approveAuthor(author.id);
 
     // Persist approval to Supabase Cloud Database (user_roles & profiles)
     try {
-      const cleanUserId = author.id.replace(/^auth-/, "");
-      await UserRegistrationController.approveUser(cleanUserId, "publisher");
+      const cleanUserId = await resolveAuthorUserId(author);
+      if (!cleanUserId) throw new Error("Author account not found in database");
+      const ok = await UserRegistrationController.approveUser(cleanUserId, "publisher");
+      if (!ok) throw new Error("Approval not saved");
     } catch (e) {
       console.warn("[AdminDashboard] approveUser cloud persistence notice:", e);
+      toast({
+        title: isRtl ? "تعذّر حفظ الاعتماد في قاعدة البيانات" : "Approval not saved to the database",
+        description: isRtl ? "لم يتم العثور على حساب المؤلف. تحقق من البريد الإلكتروني." : "The author's account could not be found.",
+        variant: "destructive",
+      });
     }
 
     loadAllData();
@@ -552,10 +569,15 @@ export const AdminDashboard = () => {
 
     // Persist rejection to Supabase Cloud Database
     try {
-      const cleanUserId = selectedAuthor.id.replace(/^auth-/, "");
+      const cleanUserId = await resolveAuthorUserId(selectedAuthor);
+      if (!cleanUserId) throw new Error("Author account not found in database");
       await UserRegistrationController.rejectUser(cleanUserId, rejectionNotes.trim() || undefined);
     } catch (e) {
       console.warn("[AdminDashboard] rejectUser cloud persistence notice:", e);
+      toast({
+        title: isRtl ? "تعذّر حفظ الرفض في قاعدة البيانات" : "Rejection not saved to the database",
+        variant: "destructive",
+      });
     }
 
     loadAllData();

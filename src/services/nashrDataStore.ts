@@ -1176,10 +1176,12 @@ export function healAuthorDocuments(a: AuthorProfile): { healed: boolean; author
     });
   }
 
-  // 4. Auto-verify official approved authors (Dr. Loubna and Dr. Ayman)
-  const isOfficialAuthor = (author.authorCode && (author.authorCode.toUpperCase().includes("5820") || author.authorCode.toUpperCase().includes("4714") || author.authorCode.toUpperCase().includes("5350") || author.authorCode.toUpperCase().includes("5358"))) ||
-                           (author.fullName && (author.fullName.includes("الهواري") || author.fullName.includes("الدلوع"))) ||
-                           (author.email && (author.email.toLowerCase().includes("hawari") || author.email.toLowerCase().includes("ayman")));
+  author.qualificationDocuments = qualDocs;
+  author.qualificationUrls = qualDocs.map(d => d.url);
+
+  // 4. Auto-verify official approved authors (Dr. Loubna and Dr. Ayman) — exact seed emails only
+  const officialEmails = ["dr.aymaneldlloa@gmail.com", "dr.loubna.elhawary@gmail.com"];
+  const isOfficialAuthor = Boolean(author.email && officialEmails.includes(author.email.trim().toLowerCase()));
 
   if (isOfficialAuthor && author.verificationStatus !== "approved") {
     author.verificationStatus = "approved";
@@ -1751,10 +1753,7 @@ export class NashrDataStore {
     const all = this.getAllAuthors();
     const found = all.find(a => 
       (a.authorCode && a.authorCode.toLowerCase() === clean) || 
-      (a.email && a.email.toLowerCase() === clean) ||
-      (clean.includes("hawari") && a.email && a.email.toLowerCase().includes("hawari")) ||
-      (clean.includes("elhawary") && a.email && a.email.toLowerCase().includes("elhawary")) ||
-      (clean.includes("ayman") && a.email && a.email.toLowerCase().includes("ayman"))
+      (a.email && a.email.toLowerCase() === clean)
     );
     if (found) return found;
     const current = this.getAuthorProfile();

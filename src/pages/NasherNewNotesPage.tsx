@@ -45,6 +45,7 @@ import {
   TrendingUp,
   Home,
   FileSignature
+  Lock,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -65,13 +66,8 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { 
-  NashrDataStore, 
-  NashrSubmission, 
-  NashrAuthorProfile, 
-  NashrMessage, 
-  NashrInvoice 
-} from "@/services/nashrDataStore";
+import { NashrDataStore } from "@/services/nashrDataStore";
+import type { ManuscriptSubmission as NashrSubmission, AuthorProfile as NashrAuthorProfile, NashrMessage, NashrInvoice } from "@/types/nashr";
 import { AuthorContract } from "@/types/nashr";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
@@ -194,13 +190,7 @@ const NasherNewNotesPage = () => {
     setTimeout(() => {
       // If author added a reply, send it to the chat as well
       if (authorNoteReply.trim()) {
-        NashrDataStore.addMessage({
-          sender: "author",
-          senderName: authorProfile.fullName,
-          text: `[بخصوص ملاحظة ${editingSub.title}]: ${authorNoteReply.trim()}`,
-          timestamp: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }),
-          read: true
-        });
+        NashrDataStore.sendMessage(`[بخصوص ملاحظة ${editingSub.title}]: ${authorNoteReply.trim()}`);
       }
 
       NashrDataStore.updateSubmission(editingSub.id, {
@@ -295,7 +285,6 @@ const NasherNewNotesPage = () => {
             <DropdownMenuContent 
               align={isRtl ? "start" : "end"} 
               className="w-80 sm:w-88 max-h-[85vh] overflow-y-auto rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl space-y-1 z-50 font-sans"
-              dir={dir}
             >
               {/* Account Header in Dropdown */}
               <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-2 shadow-xs mb-1">

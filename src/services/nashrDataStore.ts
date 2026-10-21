@@ -6,7 +6,8 @@ import {
   BookSaleRecord, 
   PayoutRequest,
   AuthorContract,
-  PublishType
+  PublishType,
+  AuthorVerificationStatus
 } from "@/types/nashr";
 import { NashrFileStore } from "./nashrFileStore";
 import { UnigatesCloudSync, type CloudSyncPayload } from "./unigatesCloudSync";

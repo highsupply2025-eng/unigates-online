@@ -831,7 +831,7 @@ const CoursesSignup = () => {
                     </div>
 
                     {/* Credit Rental Selector for Educators and Lecturers */}
-                    {(role === "lecturer" || role === "teacher") && (
+                    {(role === "lecturer" || (role as string) === "teacher") && (
                       <div className="pt-2 pb-1">
                         <CreditRentalSelector
                           selectedPackageId={creditPlan}

@@ -622,8 +622,8 @@ const NasherDashboard = () => {
         currency: "USD",
         invoiceId: inv.id,
         invoiceNumber: inv.invoiceNumber,
-        userId: inv.authorId || currentAuthor?.id || "author-demo",
-        userEmail: currentAuthor?.email || "author@unigates.online",
+        userId: inv.authorId || authorProfile?.id || "author-demo",
+        userEmail: authorProfile?.email || "author@unigates.online",
         serviceName: inv.manuscriptTitle || "خدمات نشر وتحكيم أكاديمي",
       });
     } catch (err) {
@@ -978,7 +978,6 @@ const NasherDashboard = () => {
             <DropdownMenuContent 
               align={isRtl ? "start" : "end"} 
               className="w-80 sm:w-88 max-h-[85vh] overflow-y-auto rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl space-y-1 z-50 font-sans"
-              dir={dir}
             >
               {/* Account Header in Dropdown */}
               <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-2 shadow-xs">
@@ -1802,7 +1801,7 @@ const NasherDashboard = () => {
                     <div className="p-3 rounded-2xl bg-teal-500/10 border-2 border-teal-500/20 text-start space-y-1">
                       <span className="text-[10px] font-black text-muted-foreground block">{isRtl ? "إجمالي عوائد المبيعات" : "Total Royalties"}</span>
                       <span className="text-base sm:text-lg font-black text-teal-600 dark:text-teal-400 block">
-                        {financials.totalRoyalties} ج.م
+                        {financials.totalAuthorRoyalties} ج.م
                       </span>
                       <span className="text-[9px] font-bold text-muted-foreground block">{isRtl ? "أرباح تراكمية موثقة" : "Cumulative earnings"}</span>
                     </div>
@@ -1823,7 +1822,7 @@ const NasherDashboard = () => {
                 // Real Author Numerical Computations:
                 const totalSubs = submissions.length;
                 const publishedSubs = submissions.filter(s => s.status === "published" || s.status === "approved").length;
-                const pendingSubs = submissions.filter(s => s.status === "pending_review" || s.status === "in_review" || s.status === "pending").length;
+                const pendingSubs = submissions.filter(s => s.status === "pending_review" || (s.status as string) === "in_review" || (s.status as string) === "pending").length;
                 const feedbackSubs = submissions.filter(s => Boolean(s.adminFeedback)).length;
 
                 const totalCopies = sales.reduce((sum, s) => sum + (s.quantity || 1), 0);
@@ -2102,7 +2101,7 @@ const NasherDashboard = () => {
                               </span>
                               <div className="flex items-center gap-2">
                                 <span className="text-emerald-600 dark:text-emerald-400 font-extrabold text-sm">
-                                  {totalCopies} {isRtl ? "نسخة مباعة" : "Copies"} • {financials.totalRoyalties} ج.م
+                                  {totalCopies} {isRtl ? "نسخة مباعة" : "Copies"} • {financials.totalAuthorRoyalties} ج.م
                                 </span>
                                 <Button
                                   type="button"
@@ -3417,7 +3416,7 @@ const NasherDashboard = () => {
                                         type="button"
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          handleDownloadDoc(msg.attachmentUrl!, msg.attachmentName || "image.jpg");
+                                          { const a = document.createElement("a"); a.href = msg.attachmentUrl!; a.download = msg.attachmentName || "image.jpg"; a.target = "_blank"; a.click(); }
                                         }}
                                         className="hover:underline font-bold"
                                       >

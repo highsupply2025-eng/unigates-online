@@ -407,7 +407,6 @@ const NasherProfilePage = () => {
             <DropdownMenuContent 
               align={isRtl ? "start" : "end"} 
               className="w-80 sm:w-88 max-h-[85vh] overflow-y-auto rounded-3xl p-2.5 shadow-2xl border-2 border-border/80 bg-popover/95 backdrop-blur-xl space-y-1 z-50 font-sans"
-              dir={dir}
             >
               {/* Account Header in Dropdown */}
               <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/15 border-2 border-amber-500/30 text-start space-y-2 shadow-xs">

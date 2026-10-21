@@ -15,6 +15,13 @@
       "when": 1788564127832,
       "tag": "0001_scope_course_attachment_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792601959206,
+      "tag": "0002_handle_new_user_profile_sync",
+      "breakpoints": true
     }
   ]
 }

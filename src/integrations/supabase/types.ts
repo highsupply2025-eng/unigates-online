@@ -3761,6 +3761,7 @@ export type Database = {
         Args: { p_quiz_id: string; p_reviewers: Json; p_user_id?: string }
         Returns: Json
       }
+      sync_auth_user_profile: { Args: { _u: unknown }; Returns: undefined }
       update_faculty_member_tx: {
         Args: {
           p_app_role: Database["public"]["Enums"]["app_role"]

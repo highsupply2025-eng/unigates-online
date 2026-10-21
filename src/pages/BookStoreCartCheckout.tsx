@@ -154,20 +154,18 @@ export const BookStoreCartCheckout: React.FC = () => {
           },
           successUrl: `${window.location.origin}/payment-success?product=${productType}&order=${orderNumber}`,
         });
-
-        // Add digital books to Reader Library immediately upon initiating session
-        cart.forEach((item) => {
-          if (item.format === "digital") {
-            BookStoreDataStore.addPurchasedBook(item.book, "digital", orderNumber, item.book.price_digital);
-          }
-        });
-
-        BookStoreDataStore.clearCart();
-        setCart([]);
+        // Books are unlocked only after payment is confirmed — not when the window opens.
         setIsProcessing(false);
         return;
       } catch (paddleErr) {
         console.warn("[Paddle Book Checkout Launch Notice]:", paddleErr);
+        setIsProcessing(false);
+        toast({
+          title: isRtl ? "الدفع بالبطاقة غير متاح حاليًا" : "Card payment is unavailable",
+          description: isRtl ? "يرجى اختيار طريقة دفع أخرى." : "Please choose another payment method.",
+          variant: "destructive",
+        });
+        return;
       }
     }
 

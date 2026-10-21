@@ -836,7 +836,7 @@ const CoursesSignup = () => {
                         <CreditRentalSelector
                           selectedPackageId={creditPlan}
                           onSelectPackage={(pkg) => setCreditPlan(pkg.id)}
-                          institutionType={role}
+                          institutionType={role as "lecturer"}
                         />
                       </div>
                     )}

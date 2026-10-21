@@ -65,7 +65,7 @@ const CoursesLogin = () => {
           .or(`user_id.eq.${userId},id.eq.${userId}`)
           .maybeSingle(),
         supabase.from("user_roles").select("role, approved").eq("user_id", userId),
-        supabase.rpc("get_or_create_login_profile").catch(() => ({ data: null, error: null })),
+        Promise.resolve(supabase.rpc("get_or_create_login_profile")).catch(() => ({ data: null, error: null })),
       ]);
 
       const profile = (profileRow || (profileRpc as any)) as { role?: string; platform?: string } | null;

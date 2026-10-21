@@ -66,6 +66,8 @@ export interface AuthorProfile {
 }
 
 export interface ManuscriptSubmission {
+  submittedDate?: string;
+  contractAccepted?: boolean;
   id: string;
   format?: "digital" | "print" | "both" | string;
   authorId: string;
@@ -100,6 +102,7 @@ export interface ManuscriptSubmission {
 
 export interface NashrInvoice {
   id: string;
+  manuscriptId?: string;
   invoiceNumber: string;
   authorId: string;
   authorName: string;
@@ -140,6 +143,8 @@ export interface NashrMessage {
 
 export interface BookSaleRecord {
   id: string;
+  bookId?: string;
+  authorId?: string;
   bookCode: string;
   bookTitle: string;
   format: "digital" | "print" | "both";

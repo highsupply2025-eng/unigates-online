@@ -99,7 +99,7 @@ export const BookStoreCartCheckout: React.FC = () => {
     const newOrder: BookOrder = {
       id: `ord-${Date.now()}`,
       orderNumber,
-      userId: currentSession?.id || "reader-demo",
+      userId: (currentSession as any)?.id || "reader-demo",
       userEmail: currentSession?.email || "reader@unigates.online",
       userName: fullName || "قارئ متميز",
       items: cart.map((item) => ({
@@ -145,7 +145,7 @@ export const BookStoreCartCheckout: React.FC = () => {
           grossAmount: usdGross,
           currency: "USD",
           orderNumber,
-          userId: currentSession?.id || "reader-demo",
+          userId: (currentSession as any)?.id || "reader-demo",
           userEmail: currentSession?.email || "reader@unigates.online",
           metadata: {
             hasPhysicalBooks: String(hasPhysicalBooks),

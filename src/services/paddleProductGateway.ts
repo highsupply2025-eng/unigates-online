@@ -90,19 +90,17 @@ export class PaddleProductGateway {
     let referralToken: string | null = null;
     if (productType === "courses") {
       referralToken = getCourseReferralToken();
-      ledgerAllocation = CourseLedgerService.calculateAllocation(
-        grossAmount,
-        Boolean(referralToken),
-        referralToken,
-        {
+      ledgerAllocation = CourseLedgerService.calculateAllocation({
+          grossAmount,
+          hasReferralToken: Boolean(referralToken),
+          referralToken,
           courseId,
           courseTitle,
           instructorId,
           instructorName,
           studentId: userId,
           studentEmail: userEmail,
-        }
-      );
+        });
     }
 
     // 5. Build secure customData payload

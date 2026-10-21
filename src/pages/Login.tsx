@@ -169,7 +169,7 @@ const Login = () => {
           .from("user_roles")
           .select("role, approved")
           .eq("user_id", userId),
-        supabase.rpc("get_or_create_login_profile").catch((err) => {
+        Promise.resolve(supabase.rpc("get_or_create_login_profile")).catch((err) => {
           console.warn("[Login] get_or_create_login_profile warning:", err?.message || err);
           return { data: null, error: null };
         }),

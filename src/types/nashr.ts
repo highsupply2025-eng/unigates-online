@@ -100,6 +100,7 @@ export interface ManuscriptSubmission {
 
 export interface NashrInvoice {
   id: string;
+  manuscriptId?: string;
   invoiceNumber: string;
   authorId: string;
   authorName: string;
@@ -140,6 +141,7 @@ export interface NashrMessage {
 
 export interface BookSaleRecord {
   id: string;
+  bookId?: string;
   bookCode: string;
   bookTitle: string;
   format: "digital" | "print" | "both";

@@ -2,6 +2,7 @@ export type BookFormat = "digital" | "print" | "both";
 
 export interface BookStoreItem {
   id: string;
+  created_at?: string;
   code: string;
   title_ar: string;
   title_en: string;
@@ -101,8 +102,8 @@ export interface BookOrder {
   platformFee: number; // 20%
   totalAmount: number;
   currency: string;
-  status: "completed" | "processing" | "shipped" | "delivered" | "cancelled";
-  paymentMethod: "credit_card" | "instapay" | "fawry" | "vodafone_cash" | "apple_pay" | "cod";
+  status: "completed" | "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  paymentMethod: "credit_card" | "instapay" | "fawry" | "vodafone_cash" | "apple_pay" | "cod" | "bank_transfer";
   shippingAddress?: ShippingAddress;
   trackingNumber?: string;
   createdAt: string;

@@ -48,6 +48,8 @@ describe("Live Production Paddle Products Gateway", () => {
     // Create an unpaid invoice
     const inv = NashrDataStore.createInvoice({
       authorId: "auth-live-test",
+      authorName: "Live Test Author",
+      publishType: "digital",
       manuscriptId: "ms-live-test",
       manuscriptTitle: "كتاب الأبحاث المتقدمة",
       amount: 150,

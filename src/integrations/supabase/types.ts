@@ -3472,6 +3472,10 @@ export type Database = {
           verification_status: string
         }[]
       }
+      get_author_verification_status: {
+        Args: { p_email: string }
+        Returns: string
+      }
       get_bank_details: { Args: never; Returns: Json }
       get_cleanup_candidates: {
         Args: never

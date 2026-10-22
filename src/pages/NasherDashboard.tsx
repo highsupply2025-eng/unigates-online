@@ -167,7 +167,19 @@ const NasherDashboard = () => {
 
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user || cancelled) return;
+      if (cancelled) return;
+      if (!user) {
+        const email = authorProfile.email;
+        if (!email) return;
+        const fetchByEmail = async () => {
+          const { data } = await supabase.rpc("get_author_verification_status" as any, { p_email: email });
+          apply(data as any);
+        };
+        await fetchByEmail();
+        timer = setInterval(fetchByEmail, 15000);
+        window.addEventListener("focus", fetchByEmail);
+        return;
+      }
       const fetchStatus = async () => {
         const { data } = await supabase
           .from("profiles")

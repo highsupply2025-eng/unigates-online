@@ -41,7 +41,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
-import CreditRentalSelector, { CreditPackage } from "@/components/CreditRentalSelector";
+import LecturerRevenuePolicyCard from "@/components/LecturerRevenuePolicyCard";
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
 
@@ -95,10 +95,10 @@ const ROLES: {
     value: "lecturer",
     labelAr: "محاضر ومدرب",
     labelEn: "Instructor & Lecturer",
-    descAr: "أنشئ استوديو دوراتك الخاص، ارفع فيديوهاتك المحمية بنظام DRM، مع باقة 20 مقعداً مجاناً لأول شهر.",
-    descEn: "Build your course studio, upload DRM-encrypted video lectures, with 20 free seats for the 1st month.",
-    featuresAr: ["🎁 20 كريدت سحابي مجاناً", "حماية الفيديو بنظام DRM", "أرباح 80% للدعوات الخاصة و70% لتسويق المنصة"],
-    featuresEn: ["🎁 20 Free Welcome Credits", "Enterprise DRM protection", "80% direct invite & 70% platform marketing revenue"],
+    descAr: "أنشئ استوديو دوراتك الخاص، ارفع فيديوهاتك المحمية بنظام DRM، واربح حتى 80% من مبيعات دوراتك بدون أي رسوم مسبقة أو كريدت.",
+    descEn: "Build your course studio, upload DRM-encrypted video lectures, and earn up to 80% course revenue with zero upfront fees or credits.",
+    featuresAr: ["💰 أرباح 80% لدعواتك الخاصة", "📈 أرباح 70% لتسويق المنصة", "🔒 حماية الفيديو بنظام تشفير DRM", "✨ تسجيل وتدريس مجاني 100% بدون كريدت"],
+    featuresEn: ["💰 80% Direct Invite Revenue", "📈 70% Platform Marketing Revenue", "🔒 DRM Video Encryption Protection", "✨ 100% Free - Zero Credit Fees"],
     icon: BookOpenCheck,
     color: "from-purple-600 via-indigo-600 to-pink-600",
     glowColor: "shadow-purple-500/25 border-purple-500/40",
@@ -151,7 +151,6 @@ const CoursesSignup = () => {
   const [idNumber, setIdNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [creditPlan, setCreditPlan] = useState("welcome_gift");
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -830,14 +829,10 @@ const CoursesSignup = () => {
                       </div>
                     </div>
 
-                    {/* Credit Rental Selector for Educators and Lecturers */}
+                    {/* Lecturer Revenue Policy & Interactive Calculator (Zero Credit / Zero Fees) */}
                     {(role === "lecturer" || (role as string) === "teacher") && (
                       <div className="pt-2 pb-1">
-                        <CreditRentalSelector
-                          selectedPackageId={creditPlan}
-                          onSelectPackage={(pkg) => setCreditPlan(pkg.id)}
-                          institutionType={role as "lecturer"}
-                        />
+                        <LecturerRevenuePolicyCard />
                       </div>
                     )}
 

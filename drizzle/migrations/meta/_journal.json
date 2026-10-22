@@ -29,6 +29,13 @@
       "when": 1792691045012,
       "tag": "0003_sync_author_signups_pending",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792691471445,
+      "tag": "0004_author_status_lookup",
+      "breakpoints": true
     }
   ]
 }

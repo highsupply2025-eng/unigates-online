@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import ugLogo from "@/assets/ug-logo.png";
+import CloudFooter from "@/components/cloud/CloudFooter";
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" xmlns="http://www.w3.org/2000/svg">
@@ -56,6 +57,8 @@ const SiteFooter = () => {
   const { t, dir, language, translate } = useLanguage();
   const { toast } = useToast();
   const isRtl = dir === "rtl";
+
+  return <div className="cloud-site"><CloudFooter /></div>;
 
   const handleSocialClick = (e: React.MouseEvent, label: string) => {
     e.preventDefault();

@@ -18,12 +18,15 @@ import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import ThemeToggle from "@/components/ThemeToggle";
 import ugLogo from "@/assets/ug-logo.png";
 import { preloadRoute } from "@/PrefetchRoutes";
+import CloudHeader from "@/components/cloud/CloudHeader";
 
 const SiteHeader = () => {
   const { t, dir, tText, isRtl, translate } = useLanguage();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  return <div className="cloud-site"><CloudHeader /></div>;
 
   useEffect(() => {
     const handleScroll = () => {

@@ -224,10 +224,11 @@ const App = () => (
             <PageTransition>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/index" element={<Navigate to="/" replace />} />
               {/* Courses platform */}
-              <Route path="/courses" element={<CoursesPlatform />} />
-              <Route path="/courses/browse" element={<Courses />} />
-              <Route path="/courses/catalog" element={<Courses />} />
+              <Route path="/courses" element={<Navigate to="/" replace />} />
+              <Route path="/courses/browse" element={<Navigate to="/" replace />} />
+              <Route path="/courses/catalog" element={<Navigate to="/" replace />} />
               <Route path="/courses/login" element={<CoursesLogin />} />
               <Route path="/courses/signup" element={<CoursesSignup />} />
               <Route path="/signup" element={<Signup />} />
@@ -257,9 +258,9 @@ const App = () => (
               <Route path="/stream/:streamId" element={<WatchStream />} />
               <Route path="/live" element={<LiveStreams />} />
               {/* Book Store + dedicated auth + reader & publisher portals */}
-              <Route path="/book-store" element={<BookStorePlatform />} />
-              <Route path="/book-store/catalog" element={<BookStore />} />
-              <Route path="/book-store/browse" element={<BookStore />} />
+              <Route path="/book-store" element={<Navigate to="/" replace />} />
+              <Route path="/book-store/catalog" element={<Navigate to="/" replace />} />
+              <Route path="/book-store/browse" element={<Navigate to="/" replace />} />
               <Route path="/book-store/login" element={<BookStoreLogin />} />
               <Route path="/book-store/signup" element={<BookStoreSignup />} />
               <Route path="/book-store/reader-dashboard" element={<ReaderDashboard />} />
@@ -303,7 +304,7 @@ const App = () => (
               <Route path="/nasher/login" element={<Navigate to="/nashr/login" replace />} />
               <Route path="/nasher/signup" element={<Navigate to="/nashr/signup" replace />} />
               {/* School Platform */}
-              <Route path="/school-platform" element={<SchoolPlatform />} />
+              <Route path="/school-platform" element={<Navigate to="/" replace />} />
               <Route path="/school-platform/register" element={<SchoolRegistration />} />
               <Route path="/school-platform/login" element={<SchoolLogin />} />
               <Route path="/school-platform/signup" element={<SchoolSignup />} />

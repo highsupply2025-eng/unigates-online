@@ -1,69 +1,62 @@
-import SiteHeader from "@/components/SiteHeader";
-import HeroSection from "@/components/HeroSection";
-import StatsSection from "@/components/StatsSection";
-import EcosystemPortals from "@/components/EcosystemPortals";
-import HomepageSections from "@/components/HomepageSections";
-import FeaturesSection from "@/components/FeaturesSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import FAQSection from "@/components/FAQSection";
-import CTASection from "@/components/CTASection";
-import SiteFooter from "@/components/SiteFooter";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowUpLeft, ArrowUpRight, ArrowLeft, Play, Cloud, Landmark, School, Languages, Presentation, Building2, Video, Users, FileCheck2, ShieldCheck, Palette, Layers, Check, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import CloudHeader from "@/components/cloud/CloudHeader";
+import CloudFooter from "@/components/cloud/CloudFooter";
+import CloudIllustration from "@/components/cloud/CloudIllustration";
 import SEO from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-import AppDownloadSection from "@/components/AppDownloadSection";
+import { cloudSpaces } from "@/lib/cloudSpaces";
+import campus from "@/assets/cloud-campus.jpg";
 
 const Index = () => {
-  const { dir, language } = useLanguage();
-  const isRtl = dir === "rtl";
-
-  return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20" dir={dir}>
-      <SEO
-        title={
-          isRtl
-            ? "UNIGATES — المنظومة التعليمية الرقمية الموحدة | دار عبيد"
-            : "UNIGATES — The Unified Educational Digital Ecosystem | Dar Obeid"
-        }
-        description={
-          isRtl
-            ? "منظومة UNIGATES التعليمية المتكاملة التابعة لدار عبيد: منصة جامعية للكليات والمعاهد، منصة مدرسية، أكاديمية دورات تدريبية، ومتجر كتب ومكتبة رقمية شاملة."
-            : "UNIGATES by Dar Obeid: integrated university platform, K-12 school platform, professional courses academy, and digital bookstore."
-        }
-      />
-
-      <SiteHeader />
-
-      <main className="flex-1 space-y-0">
-        {/* 1. Dynamic Hero Section with Integrated 14 Stats */}
-        <HeroSection />
-
-        {/* 2. The 6 Specialized Portals Ecosystem */}
-        <EcosystemPortals />
-
-        {/* 4. Live Institution, Course & Book Carousels */}
-        <HomepageSections />
-
-        {/* 5. Smart Features & Technical Capabilities */}
-        <FeaturesSection />
-
-        {/* 6. Native Mobile Apps Showcase (iOS & Android) */}
-        <AppDownloadSection />
-
-        {/* 7. Authentic Testimonials & Success Stories */}
-        <TestimonialsSection />
-
-        {/* 8. Comprehensive FAQs */}
-        <FAQSection />
-
-        {/* 9. Call to Action Banner */}
-        <CTASection />
-      </main>
-
-      {/* 9. Comprehensive Footer */}
-      <SiteFooter />
-    </div>
-  );
+  const { dir, isRtl } = useLanguage();
+  const [selected, setSelected] = useState(0);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const text = (ar: string, en: string) => isRtl ? ar : en;
+  const Arrow = isRtl ? ArrowUpLeft : ArrowUpRight;
+  const icons = [Landmark, Building2, School, Languages, Presentation];
+  const space = cloudSpaces[selected];
+  const features = [
+    { icon: Palette, ar: "هويتك في كل تفصيلة", en: "Your identity, everywhere", arBody: "اسم مؤسستك وشعارها في واجهة تجمع مجتمعك التعليمي.", enBody: "Your institution's name and logo, bringing your learning community together." },
+    { icon: Video, ar: "التعليم يتجاوز القاعة", en: "Learning beyond the classroom", arBody: "محاضرات مباشرة ومحتوى تعليمي يصل إلى طلابك أينما كانوا.", enBody: "Live lectures and educational content that reach your students wherever they are." },
+    { icon: Users, ar: "فريق واحد. مساحة واحدة.", en: "One team. One space.", arBody: "الإدارة وأعضاء هيئة التدريس والطلاب، بأدوار واضحة ومتّصلة.", enBody: "Administrators, faculty and students with clear, connected roles." },
+    { icon: FileCheck2, ar: "من التعلّم إلى التقييم", en: "From learning to assessment", arBody: "تكليفات واختبارات ونتائج تدعم متابعة الرحلة التعليمية.", enBody: "Assignments, assessments and results to follow the learning journey." },
+  ];
+  return <div className="cloud-site bg-background text-foreground" dir={dir}>
+    <SEO title={text("UNIGATES — تأجير مساحات تعليمية سحابية", "UNIGATES — Cloud educational spaces")} description={text("استأجر مساحة تعليمية سحابية بهوية مؤسستك للكليات والمعاهد والمدارس ومراكز اللغة والتدريب. اجمع إدارتك ومعلميك وطلابك مع UNIGATES.", "Rent a cloud educational workspace for your college, institute, school, language or training center. Bring your administration, teachers and students together with UNIGATES.")} />
+    <CloudHeader />
+    <main>
+      <section className="cloud-hero">
+        <img src={campus} alt={text("حرم تعليمي معاصر يمثل امتداد مؤسستك إلى العالم الرقمي", "A modern educational campus representing your institution's digital extension")} width={1920} height={1088} className="cloud-hero-image" fetchPriority="high" />
+        <div className="cloud-hero-shade" />
+        <div className="cloud-hero-copy">
+          <div className="cloud-eyebrow cloud-hero-eyebrow"><span className="cloud-status-dot" />{text("مستقبل مؤسستك… يبدأ بمساحة", "YOUR NEXT CHAPTER STARTS WITH A SPACE")}</div>
+          <h1>UNIGATES<span>{text("مساحات تعليمية", "Educational spaces")}<br /><em>{text("على السحابة.", "in the cloud.")}</em></span></h1>
+          <p>{text("استأجر مساحتك، وضع عليها اسمك. كل ما تحتاجه لإدارة مؤسستك وتعليم طلابك، في مكان واحد يتجاوز حدود المبنى.", "Rent your space. Make it your own. Bring your institution and students together in one place, beyond the walls of a building.")}</p>
+          <div className="cloud-hero-actions"><Button className="cloud-primary" size="lg" asChild><a href="#spaces">{text("اختر مساحة مؤسستك", "Find your institution's space")}<Arrow /></a></Button><Button className="cloud-watch" size="lg" variant="ghost" onClick={() => setVideoOpen(true)}><span className="cloud-play-circle"><Play fill="currentColor" /></span>{text("شاهد الفكرة", "Watch the idea")}</Button></div>
+          <div className="cloud-hero-notes"><span><Check />{text("بهوية مؤسستك", "Your own identity")}</span><span><Check />{text("إدارة وتعليم في مكان واحد", "Management and learning, together")}</span></div>
+        </div>
+        <div className="cloud-hero-caption"><span className="cloud-caption-icon"><Cloud /></span><div><strong>{text("لا تستأجر مبنى. افتح أفقًا.", "Don't rent walls. Open possibilities.")}</strong><span>{text("حرمك التعليمي، أينما كان طلابك.", "Your campus, wherever your students are.")}</span></div></div>
+        <div className="cloud-hero-bottom"><span>EDUCATION WITHOUT WALLS</span><a href="#spaces">{text("اكتشف مساحتك", "Discover your space")}<ArrowLeft size={16} /></a><span>01 / UNIGATES CLOUD</span></div>
+      </section>
+      <div className="cloud-audience-strip"><span>{text("مساحة لكل طموح تعليمي", "A SPACE FOR EVERY EDUCATIONAL AMBITION")}</span>{cloudSpaces.map((s, i) => { const Icon = icons[i]; return <a key={s.id} href="#spaces" onClick={() => setSelected(i)}><Icon />{isRtl ? s.ar : s.en}</a>; })}</div>
+      <section id="spaces" className="cloud-section cloud-spaces-section">
+        <div className="cloud-section-heading"><div><div className="cloud-eyebrow"><span className="cloud-small-line" />{text("مساحتك. على مقاس رؤيتك.", "YOUR SPACE. YOUR VISION.")}</div><h2>{text("مؤسسات مختلفة.", "Different institutions.")}<br /><span className="text-primary">{text("أفق سحابي واحد.", "One cloud horizon.")}</span></h2></div><p>{text("مهما كانت رسالتك التعليمية، امنحها مساحة رقمية تجمع فريقك ومحتواك وطلابك تحت هوية واحدة: هويتك.", "Whatever your educational mission, give it a digital home that connects your team, content and students under one identity: yours.")}</p></div>
+        <div className="cloud-space-tabs" role="tablist" aria-label={text("نوع المؤسسة", "Institution type")}>{cloudSpaces.map((s, i) => { const Icon = icons[i]; return <Button key={s.id} id={`space-tab-${s.id}`} role="tab" aria-selected={selected === i} aria-controls="space-panel" tabIndex={selected === i ? 0 : -1} variant="ghost" className={selected === i ? "cloud-space-tab active" : "cloud-space-tab"} onClick={() => setSelected(i)} onKeyDown={e => { if (["ArrowRight", "ArrowLeft", "Home", "End"].includes(e.key)) { e.preventDefault(); const next = e.key === "Home" ? 0 : e.key === "End" ? 4 : (selected + (e.key === "ArrowRight" ? 1 : -1) + 5) % 5; setSelected(next); document.getElementById(`space-tab-${cloudSpaces[next].id}`)?.focus(); } }}><Icon />{isRtl ? s.ar : s.en}</Button>; })}</div>
+        <div id="space-panel" role="tabpanel" aria-labelledby={`space-tab-${space.id}`} className="cloud-space-panel"><div className="cloud-space-copy"><span className="cloud-eyebrow text-primary">UNIGATES / {space.id.toUpperCase()}</span><h3>{text("مساحة ترتقي بـ", "A space built for ")}{isRtl ? space.ar : space.en}</h3><p>{isRtl ? space.arDetail : space.enDetail}</p><ul><li><Check />{text("واجهة تحمل اسم مؤسستك وشعارها", "An interface with your institution's name and logo")}</li><li><Check />{text("إدارة المحتوى والفريق والطلاب", "Manage your content, team and students")}</li><li><Check />{text("محاضرات وتكليفات واختبارات", "Lectures, assignments and assessments")}</li></ul><Button asChild className="cloud-primary" size="lg"><Link to={space.route}>{text("ابدأ مساحة مؤسستك", "Start your institution's space")}<Arrow /></Link></Button><p className="cloud-small-note">{text("طلبات المؤسسات تخضع للمراجعة والاعتماد.", "Institution applications are reviewed before approval.")}</p></div><CloudIllustration /></div>
+      </section>
+      <section id="possibilities" className="cloud-section cloud-features-section"><div className="cloud-section-heading"><div><div className="cloud-eyebrow"><span className="cloud-small-line" />{text("أكثر من استضافة", "MORE THAN HOSTING")}</div><h2>{text("مساحة تعمل معك.", "A space that works with you.")}<br />{text("وتكبر مع فكرتك.", "And grows with your vision.")}</h2></div><span className="cloud-outline-mark"><Layers /></span></div><div className="cloud-feature-grid">{features.map((f, i) => <article key={f.en}><div className="cloud-feature-top"><f.icon /><span>0{i + 1}</span></div><h3>{isRtl ? f.ar : f.en}</h3><p>{isRtl ? f.arBody : f.enBody}</p></article>)}</div></section>
+      <section id="how-it-works" className="cloud-section cloud-how-section"><div className="cloud-eyebrow"><span className="cloud-small-line" />{text("من الفكرة إلى المساحة", "FROM VISION TO WORKSPACE")}</div><div className="cloud-section-heading"><h2>{text("خطوتك القادمة، أبسط.", "Your next step, simplified.")}</h2><Button variant="link" onClick={() => setVideoOpen(true)}><Play />{text("شاهد الشرح القصير", "Watch the short explainer")}</Button></div><div className="cloud-steps">{[["اختر نوع مؤسستك", "Choose your institution", "كلية، معهد، مدرسة، مركز لغة أو تدريب.", "College, institute, school, language or training center."], ["سجّل بيانات مساحتك", "Register your workspace", "قدّم بيانات مؤسستك ليراجع فريقنا طلبك.", "Submit your institution's details for our team's review."], ["انطلق بهويتك", "Launch with your identity", "بعد الاعتماد، جهّز مساحتك وأضف فريقك وطلابك.", "Once approved, set up your space and invite your team and students."]].map(([ar, en, arBody, enBody], i) => <article key={en}><span className="cloud-step-number">0{i + 1}</span><h3>{text(ar, en)}</h3><p>{text(arBody, enBody)}</p></article>)}</div></section>
+      <section className="cloud-vision-band"><div><div className="cloud-eyebrow">BUILT FOR YOUR NEXT CHAPTER</div><h2>{text("المكان تغيّر.", "The place has changed.")}<br /><span>{text("رسالتك باقية.", "Your mission stays.")}</span></h2><p>{text("انقل طموح مؤسستك إلى مساحة لا تحدّها الجدران.", "Take your institution's ambition to a space beyond walls.")}</p><Button asChild className="cloud-lime-button" size="lg"><a href="#spaces">{text("لنبدأ مساحتك", "Let's start your space")}<Arrow /></a></Button></div><div className="cloud-vision-art" aria-hidden="true"><Cloud /><span>YOUR NAME.<br />YOUR SPACE.<br /><em>YOUR FUTURE.</em></span><Plus className="cloud-plus-one" /><Plus className="cloud-plus-two" /></div></section>
+      <section id="questions" className="cloud-section cloud-faq-section"><div><div className="cloud-eyebrow"><span className="cloud-small-line" />{text("إجابات واضحة", "CLEAR ANSWERS")}</div><h2>{text("كل مساحة عظيمة", "Every great space")}<br />{text("تبدأ بسؤال.", "starts with a question.")}</h2><Link to="/contact" className="inline-flex items-center gap-2 text-primary mt-5 text-sm">{text("لديك سؤال آخر؟ تواصل معنا", "Another question? Get in touch")}<Arrow /></Link></div><Accordion type="single" collapsible className="cloud-faq">{[["ما المقصود بتأجير مساحة تعليمية سحابية؟", "What is a cloud educational workspace?", "مساحة رقمية لمؤسستك داخل UNIGATES، تجمع إدارتك ومحتواك ومعلميك وطلابك بدل الاعتماد على أدوات منفصلة.", "A digital home for your institution within UNIGATES, bringing together management, content, teachers and students instead of disconnected tools."], ["هل تظهر المساحة باسم مؤسستي؟", "Will the space carry my institution's name?", "نعم، يمكنك تجهيز المساحة باسم مؤسستك وشعارها ليجد فريقك وطلابك بيئتهم التعليمية بهويتك.", "Yes. Set up the workspace with your institution's name and logo so your team and students recognize your identity."], ["كيف يتم تفعيل حساب المؤسسة؟", "How is the institution account activated?", "اختر نوع المؤسسة وسجّل بياناتها. تُراجع طلبات المؤسسات قبل اعتمادها، ثم يمكنك تجهيز مساحتك التعليمية.", "Choose your institution type and submit its details. Applications are reviewed before approval, then you can set up your workspace."], ["أين أعرف الخطط والتكلفة؟", "Where can I find plans and pricing?", "تظهر خيارات الخطط المتاحة أثناء تسجيل المؤسسة. يمكنك التواصل معنا لمناقشة احتياجات مؤسستك قبل الاختيار.", "Available plan options appear during institution registration. Contact us to discuss your institution's needs before choosing."]].map(([ar, en, arBody, enBody], i) => <AccordionItem key={en} value={`q${i}`}><AccordionTrigger>{text(ar, en)}</AccordionTrigger><AccordionContent>{text(arBody, enBody)}</AccordionContent></AccordionItem>)}</Accordion></section>
+    </main>
+    <CloudFooter />
+    <Dialog open={videoOpen} onOpenChange={setVideoOpen}><DialogContent className="cloud-site cloud-video-dialog"><DialogTitle>{text("UNIGATES — مساحتك التعليمية على السحابة", "UNIGATES — Your educational space in the cloud")}</DialogTitle><DialogDescription>{text("من فكرة مؤسستك إلى مساحة تجمع مجتمعك التعليمي.", "From your institution's vision to a space that connects your learning community.")}</DialogDescription><video controls autoPlay playsInline preload="metadata" poster={campus} className="cloud-explainer-video" src="/videos/unigates-cloud-spaces-explainer.mp4"><track kind="captions" src="/videos/unigates-cloud-spaces-ar.vtt" srcLang="ar" label="العربية" /></video></DialogContent></Dialog>
+  </div>;
 };
 
 export default Index;

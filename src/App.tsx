@@ -433,9 +433,6 @@ const App = () => (
             </Routes>
             </PageTransition>
           </Suspense>
-          <Suspense fallback={null}>
-            <AIChatWidget />
-          </Suspense>
           <BottomNav />
           <Suspense fallback={null}>
             <ForcePasswordChangeDialog />

@@ -20,7 +20,6 @@ import BottomNav from "./components/BottomNav";
 import StudentAccessGuard from "./components/StudentAccessGuard";
 import NavigationProgress from "./components/NavigationProgress";
 
-const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
 const ForcePasswordChangeDialog = lazy(() => import("./components/ForcePasswordChangeDialog"));
 
 const Signup = lazy(() => import("./pages/Signup"));

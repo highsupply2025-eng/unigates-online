@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpLeft, ArrowUpRight, ArrowLeft, Cloud, Landmark, School, Languages, Presentation, Building2, Video, Users, FileCheck2, ShieldCheck, Palette, Layers, Check, Plus, Volume2, VolumeX } from "lucide-react";
+import { ArrowUpLeft, ArrowUpRight, ArrowLeft, Cloud, Landmark, School, Languages, Presentation, Building2, Video, Users, FileCheck2, ShieldCheck, Palette, Layers, Check, Plus, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import CloudHeader from "@/components/cloud/CloudHeader";
@@ -56,10 +56,10 @@ const Index = () => {
         <div className="cloud-section-heading"><div><div className="cloud-eyebrow"><span className="cloud-small-line" />{text("شاهد الفكرة في ٣٥ ثانية", "THE IDEA IN 35 SECONDS")}</div><h2>{text("مساحتك التعليمية على السحابة", "Your educational space in the cloud")}</h2></div></div>
         <div className="cloud-explainer-wrap">
           <video ref={videoRef} autoPlay muted loop playsInline preload="auto" poster={campus} className="cloud-explainer-video" src={`https://unigates.online${explainer.url}`} aria-label={text("شرح تأجير المساحات التعليمية السحابية من UNIGATES", "UNIGATES cloud educational workspace explainer")} />
-          <button type="button" className={soundOn ? "cloud-sound-toggle on" : "cloud-sound-toggle"} onClick={toggleSound} aria-pressed={soundOn} aria-label={text(soundOn ? "كتم صوت الفيديو" : "تشغيل صوت الفيديو", soundOn ? "Mute explainer video" : "Unmute explainer video")}>
-            {soundOn ? <Volume2 /> : <VolumeX />}
-            <span>{soundOn ? text("الصوت يعمل", "Sound on") : text("شغّل الصوت", "Tap for sound")}</span>
-          </button>
+          {!soundOn && <button type="button" className="cloud-sound-toggle" onClick={toggleSound} aria-label={text("تشغيل صوت الفيديو", "Unmute explainer video")}>
+            <VolumeX />
+            <span>{text("شغّل الصوت", "Tap for sound")}</span>
+          </button>}
         </div>
       </section>
       <div className="cloud-audience-strip"><span>{text("مساحة لكل طموح تعليمي", "A SPACE FOR EVERY EDUCATIONAL AMBITION")}</span>{cloudSpaces.map((s, i) => { const Icon = icons[i]; return <a key={s.id} href="#spaces" onClick={() => setSelected(i)}><Icon />{isRtl ? s.ar : s.en}</a>; })}</div>

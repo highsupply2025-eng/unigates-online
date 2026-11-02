@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpLeft, ArrowUpRight, ArrowLeft, Cloud, Landmark, School, Languages, Presentation, Building2, Video, Users, FileCheck2, ShieldCheck, Palette, Layers, Check, Plus, Volume2, VolumeX } from "lucide-react";
+import { ArrowUpLeft, ArrowUpRight, ArrowLeft, Cloud, Landmark, School, Languages, Presentation, Building2, Video, Users, FileCheck2, ShieldCheck, Palette, Layers, Check, Plus, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import CloudHeader from "@/components/cloud/CloudHeader";

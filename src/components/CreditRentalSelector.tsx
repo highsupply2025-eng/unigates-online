@@ -152,9 +152,6 @@ export const CreditRentalSelector: React.FC<CreditRentalSelectorProps> = ({
         return isRtl ? "سعة المتدربين بالأكاديمية" : "Academy Trainees Capacity";
       case "language_center":
         return isRtl ? "سعة دارسي اللغات" : "Language Students Capacity";
-      case "lecturer":
-      case "teacher":
-        return isRtl ? "سعة طلاب الدورة والمحاضرات" : "Course Students Capacity";
       default:
         return isRtl ? "سعة المقاعد المستأجرة" : "Rental Seats Capacity";
     }

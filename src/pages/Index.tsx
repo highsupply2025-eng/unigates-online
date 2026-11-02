@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpLeft, ArrowUpRight, ArrowLeft, Cloud, Landmark, School, Languages, Presentation, Building2, Video, Users, FileCheck2, ShieldCheck, Palette, Layers, Check, Plus } from "lucide-react";
+import { ArrowUpLeft, ArrowUpRight, ArrowLeft, Cloud, Landmark, School, Languages, Presentation, Building2, Video, Users, FileCheck2, ShieldCheck, Palette, Layers, Check, Plus, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import CloudHeader from "@/components/cloud/CloudHeader";
@@ -15,6 +15,16 @@ import explainer from "@/assets/cloud-spaces-explainer.mp4.asset.json";
 const Index = () => {
   const { dir, isRtl } = useLanguage();
   const [selected, setSelected] = useState(0);
+  const [soundOn, setSoundOn] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const toggleSound = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const next = !soundOn;
+    video.muted = !next;
+    setSoundOn(next);
+    if (next && video.paused) video.play().catch(() => {});
+  };
   const text = (ar: string, en: string) => isRtl ? ar : en;
   const Arrow = isRtl ? ArrowUpLeft : ArrowUpRight;
   const icons = [Landmark, Building2, School, Languages, Presentation];
@@ -42,11 +52,17 @@ const Index = () => {
         <div className="cloud-hero-caption"><span className="cloud-caption-icon"><Cloud /></span><div><strong>{text("لا تستأجر مبنى. افتح أفقًا.", "Don't rent walls. Open possibilities.")}</strong><span>{text("حرمك التعليمي، أينما كان طلابك.", "Your campus, wherever your students are.")}</span></div></div>
         <div className="cloud-hero-bottom"><span>EDUCATION WITHOUT WALLS</span><a href="#spaces">{text("اكتشف مساحتك", "Discover your space")}<ArrowLeft size={16} /></a><span>01 / UNIGATES CLOUD</span></div>
       </section>
-      <div className="cloud-audience-strip"><span>{text("مساحة لكل طموح تعليمي", "A SPACE FOR EVERY EDUCATIONAL AMBITION")}</span>{cloudSpaces.map((s, i) => { const Icon = icons[i]; return <a key={s.id} href="#spaces" onClick={() => setSelected(i)}><Icon />{isRtl ? s.ar : s.en}</a>; })}</div>
-      <section id="explainer" className="cloud-section" aria-label={text("الفيديو التعريفي", "Introduction video")}>
-        <div className="cloud-section-heading"><h2>{text("مساحتك التعليمية على السحابة", "Your educational space in the cloud")}</h2></div>
-        <video autoPlay muted loop playsInline preload="auto" poster={campus} className="cloud-explainer-video" src={`https://unigates.online${explainer.url}`} aria-label={text("شرح تأجير المساحات التعليمية السحابية من UNIGATES", "UNIGATES cloud educational workspace explainer")} />
+      <section id="explainer" className="cloud-section cloud-explainer-section" aria-label={text("الفيديو التعريفي", "Introduction video")}>
+        <div className="cloud-section-heading"><div><div className="cloud-eyebrow"><span className="cloud-small-line" />{text("شاهد الفكرة في ٣٥ ثانية", "THE IDEA IN 35 SECONDS")}</div><h2>{text("مساحتك التعليمية على السحابة", "Your educational space in the cloud")}</h2></div></div>
+        <div className="cloud-explainer-wrap">
+          <video ref={videoRef} autoPlay muted loop playsInline preload="auto" poster={campus} className="cloud-explainer-video" src={`https://unigates.online${explainer.url}`} aria-label={text("شرح تأجير المساحات التعليمية السحابية من UNIGATES", "UNIGATES cloud educational workspace explainer")} />
+          <button type="button" className={soundOn ? "cloud-sound-toggle on" : "cloud-sound-toggle"} onClick={toggleSound} aria-pressed={soundOn} aria-label={text(soundOn ? "كتم صوت الفيديو" : "تشغيل صوت الفيديو", soundOn ? "Mute explainer video" : "Unmute explainer video")}>
+            {soundOn ? <Volume2 /> : <VolumeX />}
+            <span>{soundOn ? text("الصوت يعمل", "Sound on") : text("شغّل الصوت", "Tap for sound")}</span>
+          </button>
+        </div>
       </section>
+      <div className="cloud-audience-strip"><span>{text("مساحة لكل طموح تعليمي", "A SPACE FOR EVERY EDUCATIONAL AMBITION")}</span>{cloudSpaces.map((s, i) => { const Icon = icons[i]; return <a key={s.id} href="#spaces" onClick={() => setSelected(i)}><Icon />{isRtl ? s.ar : s.en}</a>; })}</div>
       <section id="spaces" className="cloud-section cloud-spaces-section">
         <div className="cloud-section-heading"><div><div className="cloud-eyebrow"><span className="cloud-small-line" />{text("مساحتك. على مقاس رؤيتك.", "YOUR SPACE. YOUR VISION.")}</div><h2>{text("مؤسسات مختلفة.", "Different institutions.")}<br /><span className="text-primary">{text("أفق سحابي واحد.", "One cloud horizon.")}</span></h2></div><p>{text("مهما كانت رسالتك التعليمية، امنحها مساحة رقمية تجمع فريقك ومحتواك وطلابك تحت هوية واحدة: هويتك.", "Whatever your educational mission, give it a digital home that connects your team, content and students under one identity: yours.")}</p></div>
         <div className="cloud-space-tabs" role="tablist" aria-label={text("نوع المؤسسة", "Institution type")}>{cloudSpaces.map((s, i) => { const Icon = icons[i]; return <Button key={s.id} id={`space-tab-${s.id}`} role="tab" aria-selected={selected === i} aria-controls="space-panel" tabIndex={selected === i ? 0 : -1} variant="ghost" className={selected === i ? "cloud-space-tab active" : "cloud-space-tab"} onClick={() => setSelected(i)} onKeyDown={e => { if (["ArrowRight", "ArrowLeft", "Home", "End"].includes(e.key)) { e.preventDefault(); const next = e.key === "Home" ? 0 : e.key === "End" ? 4 : (selected + (e.key === "ArrowRight" ? 1 : -1) + 5) % 5; setSelected(next); document.getElementById(`space-tab-${cloudSpaces[next].id}`)?.focus(); } }}><Icon />{isRtl ? s.ar : s.en}</Button>; })}</div>

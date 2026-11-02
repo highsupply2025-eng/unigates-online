@@ -94,7 +94,7 @@ export const CREDIT_TIERS: CreditPackage[] = [
 interface CreditRentalSelectorProps {
   selectedPackageId: string;
   onSelectPackage: (pkg: CreditPackage) => void;
-  institutionType?: "college" | "institute" | "training_center" | "language_center" | "lecturer" | "teacher";
+  institutionType?: "college" | "institute" | "training_center" | "language_center";
 }
 
 export const CreditRentalSelector: React.FC<CreditRentalSelectorProps> = ({
@@ -208,13 +208,13 @@ export const CreditRentalSelector: React.FC<CreditRentalSelectorProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/80 shadow-sm">
-          <div className="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border shadow-xs">
+          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <ShieldCheck className="w-5 h-5 font-bold" />
           </div>
           <div className="space-y-0.5">
-            <p className="text-xs font-black text-foreground">{isRtl ? "عمولة المنصة 5% فقط عند جلب طلاب" : "Only 5% fee on platform referrals"}</p>
-            <p className="text-[11px] text-muted-foreground">{isRtl ? "تحصيل أرباحك الصافية 100% لطلابك" : "Keep 100% of your enrolled students"}</p>
+            <p className="text-xs font-black text-foreground">{isRtl ? "استقلالية وهوية مؤسسية كاملة" : "Full Institutional Autonomy"}</p>
+            <p className="text-[11px] text-muted-foreground">{isRtl ? "شعارك، كادرك التعليمي، ولوحة تحكم خاصة" : "Your brand, faculty staff & private studio"}</p>
           </div>
         </div>
       </div>

@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Loader2, ArrowRight, ArrowLeft,
-  Eye, EyeOff, UserPlus, Mail, Lock,
-  Home
+  Eye, EyeOff, Mail, Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,9 +10,9 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import ugLogo from "@/assets/ug-logo.png";
+import CloudHeader from "@/components/cloud/CloudHeader";
+import CloudFooter from "@/components/cloud/CloudFooter";
+import ugLogo from "@/assets/unigates-logo-transparent.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -475,119 +474,39 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden relative selection:bg-teal-500 selection:text-white" dir={dir}>
-      {/* Dynamic Ambient Background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/80" />
-      <div
-        className="fixed inset-0 -z-10 opacity-20 pointer-events-none"
-        style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, rgba(20,184,166,0.3) 1px, transparent 0)",
-          backgroundSize: "36px 36px",
-        }}
-      />
-      <div className="fixed top-1/4 start-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-teal-500/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="fixed bottom-10 end-10 w-[450px] h-[450px] bg-indigo-500/10 rounded-full blur-[130px] pointer-events-none" />
-
-      {/* Top Header */}
-      <header className="border-b border-white/10 px-4 sm:px-8 py-3.5 bg-slate-950/70 backdrop-blur-xl sticky top-0 z-40 shadow-lg">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-          <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-            <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-lg shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 to-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-black text-white tracking-tight">UNIGATES</span>
-              <p className="text-[10px] font-bold text-teal-300">
-                {t.loginPage.title || (isRtl ? "بوابة تسجيل الدخول الموحدة" : "Unified Login Gateway")}
-              </p>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* User Sign Up Button */}
-            <Link to="/signup" className="inline-flex">
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-9 px-2.5 sm:px-3.5 rounded-xl font-bold text-xs gap-2 border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
-              >
-                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 p-0.5 shadow-sm shadow-emerald-500/30 flex items-center justify-center shrink-0">
-                  <div className="w-full h-full rounded-[6px] bg-slate-950/70 flex items-center justify-center">
-                    <UserPlus className="w-3.5 h-3.5 text-teal-300 shrink-0" strokeWidth={2.4} />
-                  </div>
-                </div>
-                <span className="hidden sm:inline font-bold text-white text-xs">{t.signup}</span>
-              </Button>
-            </Link>
-
-            {/* Home Navigation Button */}
-            <Link to="/" title={t.home || (isRtl ? "الرئيسية" : "Home")} className="inline-flex">
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-9 px-2.5 sm:px-3 rounded-xl font-bold text-xs gap-2 border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
-              >
-                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-teal-400 via-emerald-500 to-indigo-600 p-0.5 shadow-sm shadow-teal-500/30 flex items-center justify-center shrink-0">
-                  <div className="w-full h-full rounded-[6px] bg-slate-950/70 flex items-center justify-center">
-                    <Home className="w-3.5 h-3.5 text-teal-300 shrink-0" strokeWidth={2.4} />
-                  </div>
-                </div>
-                <span className="hidden md:inline font-bold text-white text-xs">{t.home || (isRtl ? "الرئيسية" : "Home")}</span>
-              </Button>
-            </Link>
-
-            {/* Brightness / Theme Toggle (زر السطوع والمظهر) */}
-            <ThemeToggle
-              variant="dropdown"
-              className="h-9 px-2.5 sm:px-3 rounded-xl border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
-            />
-
-            {/* Multi-Language Selector Dropdown */}
-            <LanguageSelectorDropdown
-              className="h-9 px-2.5 sm:px-3 rounded-xl border border-white/20 bg-slate-900/60 hover:bg-slate-800/80 text-white shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0"
-            />
-          </div>
-        </div>
-      </header>
+    <div className="cloud-site min-h-screen bg-background text-foreground flex flex-col font-sans" dir={dir}>
+      <CloudHeader />
 
       {/* Main Login Hub Content */}
-      <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-12 md:py-16">
-        <div className="max-w-md w-full bg-slate-950/80 backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] shadow-2xl shadow-black/50 border border-white/15 p-6 sm:p-8 md:p-10 space-y-6">
+      <main className="flex-1 flex items-center justify-center px-4 py-12 md:py-16">
+        <div className="max-w-md w-full bg-card border border-border rounded-2xl shadow-xs p-6 sm:p-8 space-y-6">
           <form onSubmit={handleLogin} className="space-y-5">
-            {/* 3D Glowing Brand Logo */}
+            {/* Brand Logo & Title */}
             <div className="flex flex-col items-center text-center space-y-2.5">
-              <div className="relative">
-                <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-3xl p-1 bg-gradient-to-br from-teal-400 via-emerald-500 to-indigo-600 shadow-2xl shadow-teal-500/30 flex items-center justify-center">
-                  <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[20px]" />
-                </div>
-                <span className="absolute -top-1 -end-1 flex h-3.5 w-3.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-teal-500" />
-                </span>
+              <div className="w-16 h-16 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center p-2.5">
+                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-contain" />
               </div>
 
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-normal leading-normal">
+                <h1 className="text-2xl font-black text-foreground tracking-tight">
                   {t.loginPage.title}
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-300 font-medium mt-0.5">
+                <p className="text-xs text-muted-foreground font-medium mt-1">
                   {t.loginPage.subtitle}
                 </p>
               </div>
             </div>
 
-            {/* Form Fields: Symmetrical & Harmonized */}
+            {/* Form Fields */}
             <div className="space-y-4 pt-1">
               {/* Email Address Field */}
               <div className="space-y-1.5 text-start">
-                <Label htmlFor="login-email" className="text-xs font-bold text-slate-200 flex items-center gap-1.5 px-0.5">
-                  <Mail className="w-3.5 h-3.5 text-teal-400" />
+                <Label htmlFor="login-email" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-primary" />
                   <span>{isRtl ? "البريد الإلكتروني" : "Email Address"}</span>
                 </Label>
                 <div className="relative flex items-center">
-                  <div className="absolute start-0 top-0 bottom-0 w-11 flex items-center justify-center text-slate-400 pointer-events-none z-10">
+                  <div className="absolute start-0 top-0 bottom-0 w-10 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
                     <Mail className="w-4 h-4" />
                   </div>
                   <Input
@@ -597,7 +516,7 @@ const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t.loginPage.emailPlaceholder || "name@example.com"}
                     dir="ltr"
-                    className="h-12 ps-11 pe-4 text-sm font-medium bg-white/5 border border-white/15 focus:border-teal-400 focus:bg-white/10 text-white placeholder:text-slate-400 placeholder:text-start rounded-2xl transition-all shadow-inner"
+                    className="h-11 ps-9 pe-3 text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-lg focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     required
                     autoComplete="email"
                   />
@@ -606,22 +525,22 @@ const Login = () => {
 
               {/* Password Field */}
               <div className="space-y-1.5 text-start">
-                <div className="flex items-center justify-between px-0.5">
-                  <Label htmlFor="login-password" className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 text-teal-400" />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="login-password" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-primary" />
                     <span>{isRtl ? "كلمة المرور" : "Password"}</span>
                   </Label>
                   <Link
                     to="/forgot-password"
                     tabIndex={-1}
-                    className="text-[11px] font-bold text-teal-300 hover:text-teal-200 hover:underline transition-colors"
+                    className="text-[11px] font-bold text-primary hover:underline transition-colors"
                   >
                     {t.loginPage.forgotPassword}
                   </Link>
                 </div>
 
                 <div className="relative flex items-center">
-                  <div className="absolute start-0 top-0 bottom-0 w-11 flex items-center justify-center text-slate-400 pointer-events-none z-10">
+                  <div className="absolute start-0 top-0 bottom-0 w-10 flex items-center justify-center text-muted-foreground pointer-events-none z-10">
                     <Lock className="w-4 h-4" />
                   </div>
                   <Input
@@ -631,7 +550,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t.loginPage.passwordPlaceholder || "••••••••••••"}
                     dir="ltr"
-                    className="h-12 ps-11 pe-11 text-sm font-medium bg-white/5 border border-white/15 focus:border-teal-400 focus:bg-white/10 text-white placeholder:text-slate-400 placeholder:text-start rounded-2xl transition-all shadow-inner tracking-widest"
+                    className="h-11 ps-9 pe-10 text-sm bg-background border-border text-foreground placeholder:text-muted-foreground rounded-lg focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     required
                     autoComplete="current-password"
                   />
@@ -640,7 +559,7 @@ const Login = () => {
                     aria-label={showPassword ? (isRtl ? "إخفاء كلمة المرور" : "Hide password") : (isRtl ? "إظهار كلمة المرور" : "Show password")}
                     aria-pressed={showPassword}
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute end-1.5 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-teal-300 hover:bg-white/10 transition-colors z-10"
+                    className="absolute end-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors z-10"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -651,16 +570,24 @@ const Login = () => {
             {/* Login Submit Button */}
             <Button
               type="submit"
-              size="lg"
-              className="w-full h-12 text-sm font-black gap-2 bg-gradient-to-r from-teal-500 via-emerald-600 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white shadow-xl shadow-teal-500/25 rounded-2xl transition-all transform hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full h-11 cloud-primary text-sm font-bold flex items-center justify-center gap-2"
               disabled={loading}
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowIcon className="w-4 h-4" />}
               <span>{t.login}</span>
             </Button>
+
+            <p className="text-center text-xs text-muted-foreground pt-1">
+              {language === "ar" ? "ليس لديك حساب؟" : "Don't have an account?"}{" "}
+              <Link to="/signup" className="text-primary font-bold hover:underline">
+                {language === "ar" ? "تسجيل حساب جديد" : "Sign up"}
+              </Link>
+            </p>
           </form>
         </div>
       </main>
+
+      <CloudFooter />
     </div>
   );
 };

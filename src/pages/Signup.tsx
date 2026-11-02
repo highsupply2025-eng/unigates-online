@@ -13,9 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
-import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import ugLogo from "@/assets/ug-logo.png";
+import CloudHeader from "@/components/cloud/CloudHeader";
+import CloudFooter from "@/components/cloud/CloudFooter";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬", name: "Egypt" },
@@ -367,72 +366,8 @@ const Signup = () => {
   const pageTitle = isLecturer ? t.signupChoice.lecturerTitle : (language === "ar" ? "حساب شخصي" : "Personal Account");
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col institution-admin-scope transition-colors duration-300" dir={dir}>
-      {/* Unified UNIGATES Header */}
-      <header className="border-b border-primary/20 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-primary/15 via-primary/10 to-transparent sticky top-0 z-50 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          <Link to="/" className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1 group">
-            <div className="relative shrink-0">
-              <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-xl shadow-teal-500/25 p-0.5 bg-gradient-to-br from-teal-400 via-teal-600 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform">
-                <img src={ugLogo} alt="UNIGATES" className="w-full h-full object-cover rounded-[14px]" />
-              </div>
-              <span className="absolute -top-1 -end-1 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500" />
-              </span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap min-w-0">
-                <span className="text-lg sm:text-2xl font-black tracking-tight text-foreground">
-                  UNIGATES
-                </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                  {language === "ar" ? "بوابة التسجيل الموحدة" : "Registration Gateway"}
-                </span>
-              </div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold truncate mt-0.5">
-                {language === "ar" ? "المنظومة التعليمية الرقمية الموحدة — دار عبيد" : "Unified Digital Educational Platform — Dar Obeid"}
-              </p>
-            </div>
-          </Link>
-
-          {/* Action Hub */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <Link to="/" title={t.home || (language === "ar" ? "الرئيسية" : "Home")} className="inline-flex">
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-9 px-2.5 sm:px-3 rounded-xl font-bold text-xs gap-2 border border-border/80 bg-card/80 hover:bg-card text-foreground shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
-              >
-                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-teal-400 via-emerald-500 to-indigo-600 p-0.5 shadow-sm shadow-teal-500/30 flex items-center justify-center shrink-0">
-                  <div className="w-full h-full rounded-[6px] bg-card/90 flex items-center justify-center">
-                    <Home className="w-3.5 h-3.5 text-teal-600 dark:text-teal-300 shrink-0" strokeWidth={2.4} />
-                  </div>
-                </div>
-                <span className="hidden md:inline font-bold text-xs">{t.home || (language === "ar" ? "الرئيسية" : "Home")}</span>
-              </Button>
-            </Link>
-
-            <Link to="/login" title={t.login} className="inline-flex">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-9 px-2.5 sm:px-3 rounded-xl font-bold text-xs gap-2 border border-border/80 bg-card/80 hover:bg-card text-foreground shadow-xs backdrop-blur-md transition-all flex items-center justify-center shrink-0 active:scale-95"
-              >
-                <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 p-0.5 shadow-sm shadow-emerald-500/30 flex items-center justify-center shrink-0">
-                  <div className="w-full h-full rounded-[6px] bg-card/90 flex items-center justify-center">
-                    <LogIn className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-300 shrink-0" strokeWidth={2.4} />
-                  </div>
-                </div>
-                <span className="hidden sm:inline font-bold text-xs">{t.login}</span>
-              </Button>
-            </Link>
-            <LanguageSelectorDropdown className="h-9 px-2.5 sm:px-3 text-xs bg-card/80 border-border/80" />
-            <ThemeToggle className="h-9 px-2.5 sm:px-3 rounded-xl border-border/80 bg-card/80" />
-          </div>
-        </div>
-      </header>
+    <div className="cloud-site min-h-screen bg-background text-foreground flex flex-col font-sans" dir={dir}>
+      <CloudHeader />
 
       <main className="flex-1 flex items-center justify-center px-3 sm:px-6 py-6 sm:py-10 md:py-12">
         {!selectedRole ? (
@@ -806,26 +741,10 @@ const Signup = () => {
         )}
       </main>
 
-      <footer className="border-t border-border/80 bg-card/60 backdrop-blur-md px-4 sm:px-6 py-6 sm:py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-5 flex-wrap justify-center">
-            <span className="text-foreground font-bold text-sm">{language === "ar" ? "أسئلة؟ تواصل على" : "Questions? Contact us on"}</span>
-            <a href="https://wa.me/966563057356" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-gradient-to-r from-[#25D366] to-[#1ebe5a] hover:from-[#1ebe5a] hover:to-[#128c46] text-white font-bold px-5 py-2.5 rounded-2xl shadow-lg shadow-[#25D366]/25 hover:shadow-xl hover:shadow-[#25D366]/35 hover:scale-105 transition-all duration-300 text-sm">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              WhatsApp
-            </a>
-            <span className="text-primary font-bold text-sm flex items-center gap-1">⚡ {language === "ar" ? "استجابة فورية" : "Instant response"}</span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <Link to="/faq" className="text-primary font-bold hover:text-primary/80 py-1 transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary/30 hover:after:w-full after:transition-all after:duration-300">{t.footerLinks.faq}</Link>
-            <Link to="/help-center" className="text-primary font-bold hover:text-primary/80 py-1 transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary/30 hover:after:w-full after:transition-all after:duration-300">{t.footerLinks.helpCenter}</Link>
-            <Link to="/terms" className="text-primary font-bold hover:text-primary/80 py-1 transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary/30 hover:after:w-full after:transition-all after:duration-300">{t.footerLinks.usageTerms}</Link>
-            <Link to="/privacy" className="text-primary font-bold hover:text-primary/80 py-1 transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary/30 hover:after:w-full after:transition-all after:duration-300">{t.footerLinks.privacy}</Link>
-          </div>
-        </div>
-      </footer>
+      <CloudFooter />
     </div>
   );
 };
 
 export default Signup;
+

@@ -18,7 +18,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
 import { uploadSignupLogo } from "@/lib/signup-logo-upload";
-import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
+import CloudHeader from "@/components/cloud/CloudHeader";
+import CloudFooter from "@/components/cloud/CloudFooter";
 import CreditRentalSelector, { CREDIT_TIERS } from "@/components/CreditRentalSelector";
 
 const countryCodes = [
@@ -231,62 +232,11 @@ const LanguageCenterAdminSignup = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden" dir={dir}>
-      {/* Background Atmosphere */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 start-1/4 w-[600px] h-[600px] bg-rose-500/10 rounded-full blur-[160px]" />
-        <div className="absolute bottom-10 end-10 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[140px]" />
-      </div>
-
-      {/* Floating Header */}
-      <header className="relative z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl sticky top-0 px-4 sm:px-8 py-3.5 transition-all">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 via-pink-600 to-purple-600 p-0.5 shadow-lg shadow-rose-500/25 group-hover:scale-105 transition-transform flex items-center justify-center text-white">
-              <Languages className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-xl font-black tracking-tight drop-shadow-sm flex items-center gap-1.5">
-                UNIGATES
-                <Badge className="bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30 text-[10px] font-black px-1.5 py-0">
-                  {isRtl ? "مراكز لغات" : "Language Centers"}
-                </Badge>
-              </span>
-              <p className="text-[10px] font-bold text-muted-foreground">
-                {isRtl ? "بوابة تسجيل مراكز ومعاهد اللغات والترجمة" : "Language Center Onboarding Portal"}
-              </p>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-2.5">
-            <Link to="/login">
-              <Button
-                size="sm"
-                variant="outline"
-                className="font-bold text-xs h-9 px-3.5 rounded-xl border-border hover:bg-muted"
-              >
-                <Lock className="w-3.5 h-3.5 me-1 text-primary" />
-                <span>{t.login}</span>
-              </Button>
-            </Link>
-
-            <LanguageSelectorDropdown className="h-9 px-3" />
-
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={goBack}
-              className="h-9 px-3.5 rounded-xl font-bold text-xs border-border bg-background/50 hover:bg-muted text-foreground/90 hover:text-foreground shadow-xs transition-all gap-1.5 hover:scale-105 active:scale-95"
-            >
-              {isRtl ? <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" /> : <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground" />}
-              <span>{isRtl ? "رجوع" : "Back"}</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="cloud-site min-h-screen bg-background text-foreground flex flex-col font-sans" dir={dir}>
+      <CloudHeader />
 
       {/* Main Content Area */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-8 sm:py-12">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:py-12 max-w-5xl mx-auto w-full">
         {!submitted ? (
           <div className="max-w-4xl w-full mx-auto space-y-8 animate-fade-in">
             {/* Hero Header */}
@@ -778,6 +728,8 @@ const LanguageCenterAdminSignup = () => {
           </div>
         )}
       </main>
+
+      <CloudFooter />
     </div>
   );
 };

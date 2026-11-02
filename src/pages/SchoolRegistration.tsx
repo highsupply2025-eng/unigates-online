@@ -13,6 +13,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { isPlatformUnderDevelopment } from "@/lib/platformAvailability";
 import PlatformUnderDevelopment from "@/components/PlatformUnderDevelopment";
+import CloudHeader from "@/components/cloud/CloudHeader";
+import CloudFooter from "@/components/cloud/CloudFooter";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬" }, { code: "+966", country: "🇸🇦" },
@@ -79,28 +81,10 @@ const SchoolRegistration = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
-      <header className="border-b border-border px-6 py-4 bg-primary/5">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/school-platform" className="flex items-center gap-2">
-            <School className="w-8 h-8 text-primary" />
-            <span className="text-2xl font-black text-foreground tracking-tight">{t.schoolPlatform}</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="default" size="sm" onClick={toggleLanguage} className="font-semibold gap-1.5">
-              <Globe className="w-4 h-4" />
-              {t.langSwitch}
-            </Button>
-            <Button variant="default" size="icon" className="rounded-full w-9 h-9" onClick={goBack}>
-              {isRtl ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="cloud-site min-h-screen bg-background text-foreground flex flex-col font-sans" dir={dir}>
+      <CloudHeader />
 
-      <Separator />
-
-      <main className="flex-1 flex items-center justify-center px-4 py-10">
+      <main className="flex-1 flex items-center justify-center px-4 py-12 max-w-3xl mx-auto w-full">
         {!submitted ? (
           <div className="max-w-2xl w-full">
             <div className="text-center mb-8">
@@ -273,6 +257,8 @@ const SchoolRegistration = () => {
           </div>
         )}
       </main>
+
+      <CloudFooter />
     </div>
   );
 };

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpLeft, ArrowUpRight, ArrowLeft, Cloud, Landmark, School, Languages, Presentation, Building2, Video, Users, FileCheck2, ShieldCheck, Palette, Layers, Check, Plus } from "lucide-react";
+import { ArrowUpLeft, ArrowUpRight, ArrowLeft, Cloud, Landmark, School, Languages, Presentation, Building2, Video, Users, FileCheck2, ShieldCheck, Palette, Layers, Check, Plus, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import CloudHeader from "@/components/cloud/CloudHeader";
@@ -15,6 +15,16 @@ import explainer from "@/assets/cloud-spaces-explainer.mp4.asset.json";
 const Index = () => {
   const { dir, isRtl } = useLanguage();
   const [selected, setSelected] = useState(0);
+  const [soundOn, setSoundOn] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const toggleSound = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const next = !soundOn;
+    video.muted = !next;
+    setSoundOn(next);
+    if (next && video.paused) video.play().catch(() => {});
+  };
   const text = (ar: string, en: string) => isRtl ? ar : en;
   const Arrow = isRtl ? ArrowUpLeft : ArrowUpRight;
   const icons = [Landmark, Building2, School, Languages, Presentation];

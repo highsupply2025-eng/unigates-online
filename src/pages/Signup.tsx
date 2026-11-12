@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark, Ticket, Eye, EyeOff, Menu, LogIn, School, BookOpen, Sparkles, CheckCircle2, ArrowUpRight, ShieldCheck, Home, Languages } from "lucide-react";
+import { GraduationCap, ChevronLeft, ChevronRight, Loader2, ArrowRight, ArrowLeft, Upload, Camera, X, Globe, Phone, User, BookOpenCheck, Building2, Landmark, Ticket, Eye, EyeOff, Menu, LogIn, School, BookOpen, Sparkles, CheckCircle2, ArrowUpRight, ShieldCheck, Home, Languages, Award } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { useSmartBack } from "@/hooks/use-smart-back";
 import { getAuthCallbackUrl } from "@/lib/auth-redirect";
 import CloudHeader from "@/components/cloud/CloudHeader";
 import CloudFooter from "@/components/cloud/CloudFooter";
+import InstitutionRegistrationForm, { InstitutionKind } from "@/components/InstitutionRegistrationForm";
 
 const countryCodes = [
   { code: "+20", country: "🇪🇬", name: "Egypt" },
@@ -56,8 +57,8 @@ const registrationGateways = [
     labelEn: "University College Admin",
     badgeAr: "التعليم الجامعي",
     badgeEn: "Higher Education",
-    descAr: "تسجيل حساب الكلية وتفعيل الصلاحيات للعميد والوكلاء ورؤساء الأقسام مع 20 مقعداً مجاناً لأول شهر",
-    descEn: "Register college administration (Dean, Vice Deans, Dept Heads) with 20 free seats",
+    descAr: "تسجيل حساب الكلية وتفعيل الصلاحيات للعميد والوكلاء ورؤساء الأقسام مع مساحة سحابية مستقلة",
+    descEn: "Register college administration (Dean, Vice Deans, Dept Heads) with dedicated cloud workspace",
     icon: Landmark,
     href: "/signup/college/admin",
     gradient: "from-blue-600 via-indigo-600 to-indigo-700",
@@ -71,8 +72,8 @@ const registrationGateways = [
     labelEn: "Higher Institute Admin",
     badgeAr: "المعاهد الأكاديمية",
     badgeEn: "Academic Institutes",
-    descAr: "تسجيل المعهد العالي مع إدارة متكاملة للمدير والوكلاء والشعب العلمية مع 20 مقعداً مجاناً لأول شهر",
-    descEn: "Register higher institute leadership and departments with 20 free seats",
+    descAr: "تسجيل المعهد العالي مع إدارة متكاملة للمدير والوكلاء والشعب العلمية والمحاضرات",
+    descEn: "Register higher institute leadership and departments with full administrative powers",
     icon: Building2,
     href: "/signup/institute/admin",
     gradient: "from-teal-500 via-teal-600 to-emerald-700",
@@ -81,14 +82,29 @@ const registrationGateways = [
     lightBg: "bg-teal-50/50 dark:bg-teal-950/20",
   },
   {
+    id: "language_center",
+    labelAr: "إدارة مركز لغات وترجمة",
+    labelEn: "Language & Translation Center Admin",
+    badgeAr: "مراكز اللغات",
+    badgeEn: "Language Centers",
+    descAr: "تسجيل مركز اللغات والترجمة لتقديم دورات اللغات والإعداد لاختبارات IELTS / TOEFL",
+    descEn: "Register accredited language center offering language tracks and IELTS/TOEFL exam prep",
+    icon: Languages,
+    href: "/signup/language-center/admin",
+    gradient: "from-rose-500 via-pink-600 to-red-600",
+    shadow: "shadow-rose-500/25",
+    borderHover: "hover:border-rose-500/60 hover:shadow-rose-500/20",
+    lightBg: "bg-rose-50/50 dark:bg-rose-950/20",
+  },
+  {
     id: "training_center",
     labelAr: "إدارة مركز تدريب وأكاديمية",
     labelEn: "Training Center & Academy Admin",
     badgeAr: "مراكز التدريب",
     badgeEn: "Training Centers",
-    descAr: "تسجيل مركز التدريب والأكاديمية لإطلاق البرامج التدريبية والدبلومات المهنية مع 20 مقعداً مجاناً لأول شهر",
-    descEn: "Register training center & academy to launch accredited diplomas and issue certificates with 20 free seats",
-    icon: GraduationCap,
+    descAr: "تسجيل مركز التدريب والأكاديمية لإطلاق البرامج التدريبية والدبلومات المهنية والشهادات",
+    descEn: "Register training center & academy to launch accredited diplomas and issue certificates",
+    icon: Award,
     href: "/signup/training-center/admin",
     gradient: "from-amber-500 via-orange-600 to-yellow-600",
     shadow: "shadow-amber-500/25",
@@ -96,19 +112,34 @@ const registrationGateways = [
     lightBg: "bg-amber-50/50 dark:bg-amber-950/20",
   },
   {
-    id: "language_center",
-    labelAr: "إدارة مركز لغات وترجمة",
-    labelEn: "Language & Translation Center Admin",
-    badgeAr: "مراكز اللغات",
-    badgeEn: "Language Centers",
-    descAr: "تسجيل مركز اللغات والترجمة المعتمد لتقديم دورات اللغات والإعداد لاختبارات IELTS / TOEFL مع 20 مقعداً مجاناً لأول شهر",
-    descEn: "Register accredited language center offering language tracks and IELTS/TOEFL exam prep with 20 free seats",
-    icon: Languages,
-    href: "/signup/language-center/admin",
-    gradient: "from-rose-500 via-pink-600 to-red-600",
-    shadow: "shadow-rose-500/25",
-    borderHover: "hover:border-rose-500/60 hover:shadow-rose-500/20",
-    lightBg: "bg-rose-50/50 dark:bg-rose-950/20",
+    id: "school",
+    labelAr: "إدارة مدرسة تعليمية (K-12)",
+    labelEn: "School Administration (K-12)",
+    badgeAr: "التعليم المدرسي",
+    badgeEn: "K-12 Schools",
+    descAr: "بيئة رقمية موحدة للإدارة المدرسية، المعلمين، الفصول، المواد، والواجبات المدرسية",
+    descEn: "Unified digital campus for school administration, teachers, classrooms, and assignments",
+    icon: School,
+    href: "/school-registration",
+    gradient: "from-purple-600 via-violet-600 to-indigo-700",
+    shadow: "shadow-purple-500/25",
+    borderHover: "hover:border-purple-500/60 hover:shadow-purple-500/20",
+    lightBg: "bg-purple-50/50 dark:bg-purple-950/20",
+  },
+  {
+    id: "tutoring_center",
+    labelAr: "إدارة سنتر تعليمي",
+    labelEn: "Tutoring Center Admin",
+    badgeAr: "السناتر التعليمية",
+    badgeEn: "Tutoring Centers",
+    descAr: "إدارة مجموعات التقوية، الحصص، حجز القاعات، ومتابعة حضور وغياب الطلاب والمذكرات",
+    descEn: "Manage tutoring groups, classroom reservations, attendance logs, and study materials",
+    icon: BookOpen,
+    href: "/signup/tutoring-center/admin",
+    gradient: "from-emerald-600 via-teal-600 to-cyan-700",
+    shadow: "shadow-emerald-500/25",
+    borderHover: "hover:border-emerald-500/60 hover:shadow-emerald-500/20",
+    lightBg: "bg-emerald-50/50 dark:bg-emerald-950/20",
   },
 ];
 
@@ -120,6 +151,13 @@ const Signup = () => {
   const deptInviteFromUrl = searchParams.get("dept_invite") || "";
   const roleFromUrl = searchParams.get("role") || "";
   const collegeInviteFromUrl = searchParams.get("invite") || "";
+  const typeFromUrl = searchParams.get("type") as InstitutionKind | null;
+
+  const [activeInstitutionKind, setActiveInstitutionKind] = useState<InstitutionKind | null>(
+    typeFromUrl && ["college", "institute", "language_center", "training_center", "school", "tutoring_center"].includes(typeFromUrl)
+      ? typeFromUrl
+      : null
+  );
 
   // Redirect dept_invite links to the correct institution signup page
   useEffect(() => {
@@ -370,34 +408,51 @@ const Signup = () => {
       <CloudHeader />
 
       <main className="flex-1 flex items-center justify-center px-3 sm:px-6 py-6 sm:py-10 md:py-12">
-        {!selectedRole ? (
-          /* Step 1: Role Selection Cards */
-          <div className="max-w-4xl w-full">
+        {activeInstitutionKind ? (
+          /* Step: Dedicated Unified Institutional Registration Form */
+          <div className="max-w-4xl w-full py-2 space-y-6">
+            <button
+              type="button"
+              onClick={() => setActiveInstitutionKind(null)}
+              className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              <span>{language === "ar" ? "العودة لقائمة بوابات المؤسسات التعليمية" : "Back to Institutions Gateways"}</span>
+            </button>
+            <InstitutionRegistrationForm
+              initialKind={activeInstitutionKind}
+              onKindChange={setActiveInstitutionKind}
+              showKindSelector={true}
+            />
+          </div>
+        ) : !selectedRole ? (
+          /* Step 1: The 6 Institution Gateways */
+          <div className="max-w-5xl w-full">
             {/* Hero Badge & Title */}
             <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-3 shadow-xs">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{language === "ar" ? "المنظومة الجامعية والأكاديمية" : "University & Higher Education"}</span>
+                <span>{language === "ar" ? "المنظومة التعليمية السحابية الموحدة" : "Unified Educational Cloud Platform"}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground tracking-tight mb-2.5">
-                {language === "ar" ? "تسجيل إدارة مؤسسة أكاديمية" : "Register Academic Institution"}
+                {language === "ar" ? "تسجيل إدارة مؤسسة تعليمية سحابية" : "Register Educational Institution"}
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium max-w-xl mx-auto leading-relaxed">
                 {language === "ar"
-                  ? "اختر نوع المؤسسة (كلية جامعية، معهد عالي، مركز تدريب، أو مركز لغات) لإنشاء حساب الإدارة وتفعيل المنظومة مع باقة 20 مقعداً مجاناً لأول شهر"
-                  : "Select your institution type (College, Institute, Training Center, or Language Center) to create administration account with 20 free seats"}
+                  ? "اختر نوع المؤسسة (كلية، معهد، مركز لغات، مركز تدريب، مدرسة، أو سنتر تعليمي) لإنشاء حساب الإدارة ورفع الوثائق والتراخيص لاعتماد مساحتكم السحابية"
+                  : "Select your institution type (College, Institute, Language Center, Training Center, School, or Tutoring Center) to create administration account"}
               </p>
             </div>
 
-            {/* Grid of Registration Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-4xl mx-auto">
+            {/* Grid of the 6 Registration Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 max-w-5xl mx-auto">
               {registrationGateways.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <Link
+                  <div
                     key={item.id}
-                    to={item.href}
-                    className={`group relative flex flex-col justify-between p-5 sm:p-6 rounded-3xl border-2 border-border/80 bg-card hover:bg-card/90 shadow-md ${item.borderHover} transition-all duration-300 overflow-hidden hover:-translate-y-1`}
+                    onClick={() => setActiveInstitutionKind(item.id as InstitutionKind)}
+                    className={`group relative flex flex-col justify-between p-5 sm:p-6 rounded-3xl border-2 border-border/80 bg-card hover:bg-card/90 shadow-md ${item.borderHover} transition-all duration-300 overflow-hidden hover:-translate-y-1 cursor-pointer`}
                   >
                     <div className="space-y-4">
                       {/* Top Row: Icon + Badge */}
@@ -424,10 +479,10 @@ const Signup = () => {
 
                     {/* Bottom Action Hint */}
                     <div className="mt-5 pt-3.5 border-t border-border/60 flex items-center justify-between text-xs font-bold text-primary">
-                      <span>{language === "ar" ? "ابدأ التسجيل" : "Start Registration"}</span>
+                      <span>{language === "ar" ? "ابدأ التسجيل وإرفاق الأوراق" : "Start Registration & Attach Docs"}</span>
                       {isRtl ? <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> : <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
@@ -440,16 +495,22 @@ const Signup = () => {
                 </div>
                 <div>
                   <h3 className="text-sm sm:text-base font-black text-foreground">
-                    {language === "ar" ? "هل أنت طالب أو عضو هيئة تدريس في كلية أو معهد؟" : "Student or Faculty Member in College or Institute?"}
+                    {language === "ar" ? "هل أنت طالب أو محاضر فردي في منصة الدورات؟" : "Student or Individual Lecturer in Courses?"}
                   </h3>
                   <p className="text-xs text-muted-foreground font-medium mt-0.5">
                     {language === "ar"
-                      ? "يمكنك تسجيل الدخول مباشرة، أو استخدام رابط الدعوة المباشر المقدم من إدارتك الأكاديمية"
-                      : "Sign in directly or use the invitation link provided by your academic administration"}
+                      ? "يمكنك التسجيل المجاني مباشرة بحساب شخصي، أو تسجيل الدخول إن كان لديك حساب مسبق"
+                      : "Sign up directly for a free personal account, or log in if you already have one"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+                <Link to="/courses/signup" className="w-full sm:w-auto">
+                  <Button size="sm" variant="outline" className="w-full sm:w-auto h-10 px-4 rounded-xl font-bold text-xs border-primary/30 text-primary hover:bg-primary/10">
+                    <User className="w-3.5 h-3.5 me-1.5" />
+                    <span>{language === "ar" ? "تسجيل طالب / محاضر" : "Student / Lecturer"}</span>
+                  </Button>
+                </Link>
                 <Link to="/login" className="w-full sm:w-auto">
                   <Button size="sm" className="w-full sm:w-auto h-10 px-5 rounded-xl font-bold text-xs bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90">
                     <LogIn className="w-3.5 h-3.5 ml-1.5" />

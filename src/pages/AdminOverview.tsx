@@ -232,7 +232,14 @@ export default function AdminOverview() {
         kind: "college",
         id: c.id,
         title: c.college_name,
-        subtitle: `${c.city || ar("غير محدد", "Unspecified")} · ${ar("كلية جامعية", "College")}`,
+        subtitle: `${c.city || ar("غير محدد", "Unspecified")} · ${
+          c.type === "institute" ? ar("معهد عالي / تخصصي", "Higher Institute") :
+          c.type === "training_center" ? ar("مركز تدريب وأكاديمية", "Training Center") :
+          c.type === "language_center" ? ar("مركز لغات وترجمة", "Language Center") :
+          c.type === "school" ? ar("مدرسة تعليمية", "School") :
+          c.type === "tutoring_center" ? ar("سنتر تعليمي", "Tutoring Center") :
+          ar("كلية جامعية", "University College")
+        }`,
         phone: c.phone,
         email: c.email,
         createdAt: c.created_at,

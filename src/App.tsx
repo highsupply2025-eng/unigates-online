@@ -100,6 +100,7 @@ const TrainingCenterAdminSignup = lazy(() => import("./pages/TrainingCenterAdmin
 const LanguageCenterRegistration = lazy(() => import("./pages/LanguageCenterRegistration"));
 const LanguageCenterRoleSignup = lazy(() => import("./pages/LanguageCenterRoleSignup"));
 const LanguageCenterAdminSignup = lazy(() => import("./pages/LanguageCenterAdminSignup"));
+const TutoringCenterAdminSignup = lazy(() => import("./pages/TutoringCenterAdminSignup"));
 const InstitutionDashboard = lazy(() => import("./pages/InstitutionDashboard"));
 const InstitutionFacultyAdd = lazy(() => import("./pages/InstitutionFacultyAdd"));
 const FacultyInvitationRegistration = lazy(() => import("./pages/FacultyInvitationRegistration"));
@@ -330,6 +331,9 @@ const App = () => (
               <Route path="/signup/language-center/admin" element={<LanguageCenterAdminSignup />} />
               <Route path="/signup/language-center/:role" element={<LanguageCenterRoleSignup />} />
               <Route path="/language-center-registration" element={<LanguageCenterRegistration />} />
+              <Route path="/signup/tutoring-center" element={<Navigate to={`/signup/tutoring-center/admin${typeof window !== 'undefined' ? window.location.search : ''}`} replace />} />
+              <Route path="/signup/tutoring-center/admin" element={<TutoringCenterAdminSignup />} />
+              <Route path="/signup/school/admin" element={<Navigate to="/school-registration" replace />} />
               <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
               <Route path="/institution/faculty/invite/:token" element={<FacultyInvitationRegistration />} />
               <Route path="/institution/student/invite/:token" element={<StudentInvitationRegistration />} />

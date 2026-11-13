@@ -392,18 +392,60 @@ const Login = () => {
       }
 
       if (userEmail) {
-        const instituteResult = await supabase
-          .from("institute_registrations")
-          .select("id, status")
-          .eq("email", userEmail)
-          .limit(1)
-          .maybeSingle();
-        if (instituteResult.error) throw instituteResult.error;
+        const [instituteResult, collegeResult] = await Promise.all([
+          supabase
+            .from("institute_registrations")
+            .select("id, status")
+            .ilike("email", userEmail)
+            .limit(1)
+            .maybeSingle(),
+          supabase
+            .from("college_registrations")
+            .select("id, status, type")
+            .ilike("email", userEmail)
+            .limit(1)
+            .maybeSingle(),
+        ]);
+
+        if (instituteResult.error) console.warn("[Login] institute_registrations query error:", instituteResult.error);
+        if (collegeResult.error) console.warn("[Login] college_registrations query error:", collegeResult.error);
 
         const instituteReg = instituteResult.data;
+        const collegeReg = collegeResult.data;
 
-        if (collegeStatus === "approved" || instituteReg?.status === "approved") {
+        if (collegeStatus === "approved" || collegeReg?.status === "approved" || instituteReg?.status === "approved") {
+          const instType = collegeReg?.type;
+          if (instType === "school") {
+            goNext("/school/dashboard");
+            return;
+          }
+          if (instType === "training_center") {
+            goNext("/training-center/dashboard");
+            return;
+          }
+          if (instType === "language_center") {
+            goNext("/language-center/dashboard");
+            return;
+          }
           goNext("/institution/dashboard");
+          return;
+        }
+
+        if (collegeReg && (collegeReg.status === "pending" || collegeReg.status === "rejected")) {
+          const isPending = collegeReg.status === "pending";
+          toast({
+            title: language === "ar" ? "الحساب قيد المراجعة" : "Account Under Review",
+            description:
+              language === "ar"
+                ? isPending
+                  ? "طلب تسجيل مؤسستك لا يزال قيد المراجعة والتدقيق من قبل إدارة المنصة."
+                  : "تم رفض طلب تسجيل مؤسستك. يرجى التواصل مع إدارة المنصة."
+                : isPending
+                  ? "Your institution registration is still under review by platform administration."
+                  : "Your institution registration was rejected. Contact platform admin.",
+            variant: isPending ? "default" : "destructive",
+          });
+          await supabase.auth.signOut();
           return;
         }
 

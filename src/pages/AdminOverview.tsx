@@ -233,12 +233,12 @@ export default function AdminOverview() {
         id: c.id,
         title: c.college_name,
         subtitle: `${c.city || ar("غير محدد", "Unspecified")} · ${
-          c.type === "institute" ? ar("معهد عالي / تخصصي", "Higher Institute") :
-          c.type === "training_center" ? ar("مركز تدريب وأكاديمية", "Training Center") :
-          c.type === "language_center" ? ar("مركز لغات وترجمة", "Language Center") :
-          c.type === "school" ? ar("مدرسة تعليمية", "School") :
-          c.type === "tutoring_center" ? ar("سنتر تعليمي", "Tutoring Center") :
-          ar("كلية جامعية", "University College")
+          c.type === "institute" ? ar("إدارة معهد عالي / تخصصي", "Higher Institute Admin") :
+          c.type === "training_center" ? ar("إدارة مركز تدريب وأكاديمية", "Training Center Admin") :
+          c.type === "language_center" ? ar("إدارة مركز لغات وترجمة", "Language Center Admin") :
+          c.type === "school" ? ar("إدارة مدرسة تعليمية", "School Admin") :
+          c.type === "tutoring_center" ? ar("إدارة سنتر تعليمي", "Tutoring Center Admin") :
+          ar("إدارة كلية جامعية", "University College Admin")
         }`,
         phone: c.phone,
         email: c.email,
@@ -251,7 +251,7 @@ export default function AdminOverview() {
         kind: "institute",
         id: i.id,
         title: i.institute_name,
-        subtitle: `${i.city || ar("غير محدد", "Unspecified")} · ${ar("معهد تخصصي", "Institute")}`,
+        subtitle: `${i.city || ar("غير محدد", "Unspecified")} · ${ar("إدارة معهد تخصصي", "Institute Admin")}`,
         phone: i.phone,
         email: i.email,
         createdAt: i.created_at,
@@ -263,7 +263,7 @@ export default function AdminOverview() {
         kind: "school",
         id: s.id,
         title: s.school_name,
-        subtitle: `${s.city || ar("غير محدد", "Unspecified")} · ${ar("مدرسة تعليمية", "School")}`,
+        subtitle: `${s.city || ar("غير محدد", "Unspecified")} · ${ar("إدارة مدرسة تعليمية", "School Admin")}`,
         phone: s.phone,
         email: s.email,
         createdAt: s.created_at,

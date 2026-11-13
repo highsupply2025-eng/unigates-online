@@ -45,10 +45,10 @@ export interface InstitutionTypeOption {
 export const INSTITUTION_TYPES: InstitutionTypeOption[] = [
   {
     id: "college",
-    labelAr: "كلية جامعية",
-    labelEn: "University College",
-    badgeAr: "تعليم جامعي",
-    badgeEn: "Higher Education",
+    labelAr: "إدارة كلية جامعية",
+    labelEn: "University College Administration",
+    badgeAr: "حساب إدارة",
+    badgeEn: "Admin Account",
     descriptionAr: "مساحة سحابية مستقلة للأقسام الأكاديمية والعمادة وهيئة التدريس والطلاب",
     descriptionEn: "Independent cloud workspace for academic departments, deanery, faculty and students",
     icon: Landmark,
@@ -61,10 +61,10 @@ export const INSTITUTION_TYPES: InstitutionTypeOption[] = [
   },
   {
     id: "institute",
-    labelAr: "معهد عالي / تخصصي",
-    labelEn: "Higher Institute",
-    badgeAr: "معاهد تخصصية",
-    badgeEn: "Specialized Institutes",
+    labelAr: "إدارة معهد عالي / تخصصي",
+    labelEn: "Higher Institute Administration",
+    badgeAr: "حساب إدارة",
+    badgeEn: "Admin Account",
     descriptionAr: "إدارة البرامج التخصصية والشعب الأكاديمية والمحاضرات مع كامل الصلاحيات",
     descriptionEn: "Management of diploma programs, academic sections, and lectures",
     icon: Building2,
@@ -77,10 +77,10 @@ export const INSTITUTION_TYPES: InstitutionTypeOption[] = [
   },
   {
     id: "language_center",
-    labelAr: "مركز لغات وترجمة",
-    labelEn: "Language & Translation Center",
-    badgeAr: "مراكز لغات",
-    badgeEn: "Language Centers",
+    labelAr: "إدارة مركز لغات وترجمة",
+    labelEn: "Language & Translation Center Administration",
+    badgeAr: "حساب إدارة",
+    badgeEn: "Admin Account",
     descriptionAr: "مسارات تعليم اللغات الأجنبية والإعداد لاختبارات IELTS و TOEFL المعيارية",
     descriptionEn: "Foreign language tracks, conversational labs, and IELTS/TOEFL exam preparation",
     icon: Languages,
@@ -93,10 +93,10 @@ export const INSTITUTION_TYPES: InstitutionTypeOption[] = [
   },
   {
     id: "training_center",
-    labelAr: "مركز تدريب وأكاديمية",
-    labelEn: "Training Center & Academy",
-    badgeAr: "مراكز التدريب",
-    badgeEn: "Training Centers",
+    labelAr: "إدارة مركز تدريب وأكاديمية",
+    labelEn: "Training Center & Academy Administration",
+    badgeAr: "حساب إدارة",
+    badgeEn: "Admin Account",
     descriptionAr: "إطلاق الدبلومات المهنية والبرامج المعتمدة وإصدار شهادات التدريب السحابية",
     descriptionEn: "Professional diplomas, accredited training workshops, and cloud verification certificates",
     icon: Award,
@@ -109,10 +109,10 @@ export const INSTITUTION_TYPES: InstitutionTypeOption[] = [
   },
   {
     id: "school",
-    labelAr: "مدرسة تعليمية (K-12)",
-    labelEn: "School (K-12)",
-    badgeAr: "التعليم المدرسي",
-    badgeEn: "School Education",
+    labelAr: "إدارة مدرسة تعليمية (K-12)",
+    labelEn: "School Administration (K-12)",
+    badgeAr: "حساب إدارة",
+    badgeEn: "Admin Account",
     descriptionAr: "بيئة رقمية موحدة للإدارة المدرسية، المعلمين، الفصول، المواد، وجداول الطلاب",
     descriptionEn: "Unified digital campus for school administration, teachers, classrooms, and homework",
     icon: School,
@@ -125,10 +125,10 @@ export const INSTITUTION_TYPES: InstitutionTypeOption[] = [
   },
   {
     id: "tutoring_center",
-    labelAr: "سنتر تعليمي وقاعات تقوية",
-    labelEn: "Tutoring & Educational Center",
-    badgeAr: "سناتر تعليمية",
-    badgeEn: "Tutoring Centers",
+    labelAr: "إدارة سنتر تعليمي وقاعات تقوية",
+    labelEn: "Tutoring Center Administration",
+    badgeAr: "حساب إدارة",
+    badgeEn: "Admin Account",
     descriptionAr: "إدارة مجموعات التقوية، الحصص والمذكرات، وسجلات حضور وغياب الطلاب",
     descriptionEn: "Tutoring groups, study materials, live sessions, and student attendance logs",
     icon: BookOpen,
@@ -336,13 +336,17 @@ export default function InstitutionRegistrationForm({
         }
       }
 
-      // 2. Register Supabase Auth account
+      // 2. Register Supabase Auth account as an Administration account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: finalAdminEmail,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
+            full_name: `إدارة ${institutionName}`,
+            role: "institution_admin",
+            account_type: "admin",
+            account_nature: "institution_administration",
             institution_type: selectedKind,
             institution_name: institutionName,
             manager_name: managerName,
@@ -354,8 +358,8 @@ export default function InstitutionRegistrationForm({
 
       // 3. Compile structured dossier string for Admin review
       const dossierPayload = [
-        `═══ ملف اعتماد وتسجيل مؤسسة سحابية (UNIGATES) ═══`,
-        `• نوع المؤسسة: ${currentOption.labelAr} (${selectedKind})`,
+        `═══ ملف اعتماد وتسجيل حساب إدارة مؤسسة سحابية (UNIGATES) ═══`,
+        `• نوع الحساب: حساب إدارة ${currentOption.labelAr} (${selectedKind})`,
         `• الاسم الرسمي: ${institutionName}`,
         parentOrganization ? `• التبعية / الجامعة: ${parentOrganization}` : null,
         desiredSubdomain ? `• النطاق المطلوب: ${desiredSubdomain}.unigates.online` : null,
@@ -469,8 +473,8 @@ export default function InstitutionRegistrationForm({
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
             {isRtl
-              ? `تم تسجيل طلب «${institutionName}» (${currentOption.labelAr}) وهو الآن قيد المراجعة والتحقق الأكاديمي والقانوني من قِبل إدارة منصة UNIGATES.`
-              : `Application for "${institutionName}" has been received and is currently under official review by the UNIGATES Administration.`}
+              ? `تم تسجيل طلب حساب إدارة «${institutionName}» (${currentOption.labelAr}) بنجاح، وهو الآن قيد المراجعة والتحقق الأكاديمي والقانوني من قِبل إدارة منصة UNIGATES لتفعيل صلاحيات الإدارة الكاملة.`
+              : `Application for "${institutionName}" administration account has been received and is currently under official review by the UNIGATES Administration to activate full administrative privileges.`}
           </p>
         </div>
 

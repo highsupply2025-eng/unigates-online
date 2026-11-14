@@ -231,14 +231,39 @@ const InstitutionFacultyAdd = () => {
           throw new Error((resp as any).error);
 
         const r = resp as any;
+        const assignedTitle = data.customTitle || (isStudent ? "طالب" : data.role);
+        const permsCount = data.permissions?.length || 0;
+
+        // Persist custom title and permissions to the created user's records
+        if (r?.user_id) {
+          try {
+            await supabase
+              .from("institution_faculty_members")
+              .update({
+                specific_role: assignedTitle,
+                notes: data.notes,
+              })
+              .eq("user_id", r.user_id);
+
+            await supabase
+              .from("profiles")
+              .update({
+                full_name: baseRow.full_name,
+              })
+              .eq("user_id", r.user_id);
+          } catch (postErr) {
+            console.warn("Post-creation update skipped:", postErr);
+          }
+        }
+
         toast({
           title: isRtl
-            ? "تمت إضافة العضو وإنشاء حسابه بنجاح"
-            : "Member added and account created",
+            ? `تم إنشاء حساب «${assignedTitle}» بنجاح`
+            : `Account created for "${assignedTitle}" successfully`,
           description: isRtl
-            ? `تم إنشاء الحساب بنجاح، ويجب على العضو تغيير كلمة المرور المؤقتة عند أول تسجيل دخول لتفعيل حسابه بالكامل.\nالبريد: ${r.email}`
-            : `Account created successfully. The member must change the temporary password upon first sign-in to fully activate the account.\nEmail: ${r.email}`,
-          duration: 8000,
+            ? `تم تعيين المسمى: «${assignedTitle}» مع تفعيل (${permsCount}) صلاحية.\nالبريد: ${r.email}\nكلمة المرور المؤقتة: ${data.tempPassword || "-"}`
+            : `Assigned title: "${assignedTitle}" with (${permsCount}) permissions.\nEmail: ${r.email}`,
+          duration: 9000,
         });
       }
 

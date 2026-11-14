@@ -28,6 +28,11 @@ import { toast } from "@/hooks/use-toast";
 import LanguageSelectorDropdown from "@/components/LanguageSelectorDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import ugLogo from "@/assets/ug-logo.png";
+import {
+  PERMISSION_ITEMS,
+  ROLE_PERMISSION_PRESETS,
+  parseNotesWithPermissions,
+} from "@/components/FacultyMemberForm";
 
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -198,6 +203,39 @@ const InstitutionFacultyEdit = () => {
   const [photoUrl, setPhotoUrl] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
+  const [customTitle, setCustomTitle] = useState("");
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+
+  const togglePermission = (permId: string) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(permId) ? prev.filter((p) => p !== permId) : [...prev, permId]
+    );
+  };
+
+  const applyPermissionPreset = (presetKey: string) => {
+    if (presetKey === "all") {
+      setSelectedPermissions(PERMISSION_ITEMS.map((p) => p.id));
+      return;
+    }
+    if (presetKey === "none") {
+      setSelectedPermissions([]);
+      return;
+    }
+    if (ROLE_PERMISSION_PRESETS[presetKey]) {
+      setSelectedPermissions(ROLE_PERMISSION_PRESETS[presetKey]);
+    }
+  };
+
+  const handleRoleChange = (newRole: string) => {
+    setRole(newRole);
+    if (!customTitle.trim() || ROLE_OPTIONS.some(r => r.ar === customTitle || r.en === customTitle)) {
+      const match = ROLE_OPTIONS.find(r => r.value === newRole);
+      if (match) setCustomTitle(isRtl ? match.ar : match.en);
+    }
+    if (ROLE_PERMISSION_PRESETS[newRole]) {
+      setSelectedPermissions(ROLE_PERMISSION_PRESETS[newRole]);
+    }
+  };
   const [departmentIds, setDepartmentIds] = useState<string[]>([]);
   const [deptPopoverOpen, setDeptPopoverOpen] = useState(false);
   const [deptSearch, setDeptSearch] = useState("");
@@ -220,9 +258,10 @@ const InstitutionFacultyEdit = () => {
   const deptSnapshotKey = departmentIds.join("|");
 
   const snapshot = useMemo(() => JSON.stringify({
-    photoUrl, fullName, role, deptSnapshotKey, dateOfBirth, gender,
+    photoUrl, fullName, role, customTitle, selectedPermissions: [...selectedPermissions].sort().join(","),
+    deptSnapshotKey, dateOfBirth, gender,
     phone, nationalId, address, qualification, specialization, notes, banned,
-  }), [photoUrl, fullName, role, deptSnapshotKey, dateOfBirth, gender, phone,
+  }), [photoUrl, fullName, role, customTitle, selectedPermissions, deptSnapshotKey, dateOfBirth, gender, phone,
       nationalId, address, qualification, specialization, notes, banned]);
 
   const dirty = baseline !== "" && snapshot !== baseline;
@@ -471,7 +510,19 @@ const InstitutionFacultyEdit = () => {
       setAddress(safeStr((member as unknown as Record<string, unknown>)?.address ?? ""));
       setQualification(safeStr((member as unknown as Record<string, unknown>)?.qualification ?? ""));
       setSpecialization(safeStr((member as unknown as Record<string, unknown>)?.specialization ?? ""));
-      setNotes(safeStr((member as unknown as Record<string, unknown>)?.notes ?? ""));
+
+      const rawNotes = safeStr((member as unknown as Record<string, unknown>)?.notes ?? "");
+      const parsedNotes = parseNotesWithPermissions(rawNotes);
+      const rawSpecific = safeStr((member as unknown as Record<string, unknown>)?.specific_role ?? "");
+      const roleSafe = normalizeRole(rawSpecific || "");
+      const loadedTitle = parsedNotes.customTitle || rawSpecific || "";
+      const loadedPermissions = parsedNotes.permissions.length > 0
+        ? parsedNotes.permissions
+        : (ROLE_PERMISSION_PRESETS[normalizeRole(rawSpecific)] || ROLE_PERMISSION_PRESETS[roleSafe] || []);
+
+      setCustomTitle(loadedTitle);
+      setSelectedPermissions(loadedPermissions);
+      setNotes(parsedNotes.cleanNotes || rawNotes);
 
       const photoUrlSafe = safeStr((member as unknown as Record<string, unknown>)?.photo_url ?? "");
       const fullNameSafe = safeStr(
@@ -479,7 +530,6 @@ const InstitutionFacultyEdit = () => {
           (profile as unknown as Record<string, unknown>)?.full_name ??
           "",
       );
-      const roleSafe = normalizeRole((member as unknown as Record<string, unknown>)?.specific_role ?? "");
       const dobSafe = safeStr((member as unknown as Record<string, unknown>)?.date_of_birth ?? "");
       const genderSafe = normalizeGender((member as unknown as Record<string, unknown>)?.gender ?? "");
       const phoneSafe = safeStr(
@@ -492,6 +542,8 @@ const InstitutionFacultyEdit = () => {
         photoUrl: photoUrlSafe ?? "",
         fullName: fullNameSafe ?? "",
         role: roleSafe ?? "",
+        customTitle: loadedTitle,
+        selectedPermissions: [...loadedPermissions].sort().join(","),
         deptSnapshotKey: (initialDeptIds ?? []).join("|"),
         dateOfBirth: dobSafe ?? "",
         gender: genderSafe ?? "",
@@ -500,7 +552,7 @@ const InstitutionFacultyEdit = () => {
         address: safeStr((member as unknown as Record<string, unknown>)?.address ?? "") ?? "",
         qualification: safeStr((member as unknown as Record<string, unknown>)?.qualification ?? "") ?? "",
         specialization: safeStr((member as unknown as Record<string, unknown>)?.specialization ?? "") ?? "",
-        notes: safeStr((member as unknown as Record<string, unknown>)?.notes ?? "") ?? "",
+        notes: parsedNotes.cleanNotes || rawNotes || "",
         banned: false,
       });
 
@@ -610,6 +662,12 @@ const InstitutionFacultyEdit = () => {
       // department assignment. The first selection is the primary department.
       const selectedDepartmentId = departmentIds[0]?.trim() || null;
 
+      const notesPayload = JSON.stringify({
+        custom_title: customTitle.trim() || role,
+        permissions: selectedPermissions,
+        user_notes: notes.trim(),
+      });
+
       const { data: resp, error: fnErr } = await supabase.functions.invoke("update-faculty-member", {
         body: {
           member_id: memberId,
@@ -628,7 +686,7 @@ const InstitutionFacultyEdit = () => {
             address: address.trim() || null,
             qualification: qualification.trim() || null,
             specialization: specialization.trim() || null,
-            notes: notes.trim() || null,
+            notes: notesPayload,
           },
         },
       });
@@ -671,6 +729,15 @@ const InstitutionFacultyEdit = () => {
             (isRtl ? "لم تؤكد دالة الحفظ نجاح العملية" : "The save function did not confirm success"),
         );
       }
+
+      // Persist specific_role and notes in institution_faculty_members
+      await supabase
+        .from("institution_faculty_members")
+        .update({
+          specific_role: customTitle.trim() || role,
+          notes: notesPayload,
+        })
+        .eq("id", memberId);
 
       toast({ title: isRtl ? "تم حفظ التعديلات" : "Changes saved", duration: 2000 });
       try {
@@ -785,7 +852,7 @@ const InstitutionFacultyEdit = () => {
                 </div>
                 <div className="space-y-2.5">
                   <Label className={labelCls}><Users2 className={iconCls} strokeWidth={2.4} />{isRtl ? "المسمى الوظيفي" : "Role"} <span className="text-destructive text-lg">*</span></Label>
-                  <Select value={role} onValueChange={setRole}>
+                  <Select value={role} onValueChange={handleRoleChange}>
                     <SelectTrigger className={triggerCls}><SelectValue placeholder={isRtl ? "اختر المسمى" : "Select role"} /></SelectTrigger>
                     <SelectContent>
                       {ROLE_OPTIONS.map(r => (
@@ -793,6 +860,55 @@ const InstitutionFacultyEdit = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Custom Typed Account Title */}
+                <div className="space-y-2.5 md:col-span-2">
+                  <Label className={labelCls}>
+                    <ShieldCheck className={iconCls} strokeWidth={2.4} />
+                    {isRtl ? "المسمى الوظيفي المكتوب للحساب (تسمية مخصصة)" : "Custom Written Account Title"}
+                  </Label>
+                  <Input
+                    className={inputCls}
+                    placeholder={isRtl ? "اكتب المسمى كما تريده (مثال: عميد الكلية / دكتور مادة التشريح / طالب فرقة رابعة / معلم رياضيات)" : "Type title (e.g. Dean, Surgery Doctor, Student, Math Teacher)"}
+                    value={customTitle}
+                    onChange={(e) => setCustomTitle(e.target.value)}
+                  />
+                  <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                    <span className="text-[11px] font-bold text-muted-foreground me-1">
+                      {isRtl ? "تسميات سريعة مقترحة:" : "Quick suggested titles:"}
+                    </span>
+                    {[
+                      { ar: "🏛️ عميد الكلية", en: "Dean", roleKey: "dean" },
+                      { ar: "👨‍🏫 دكتور", en: "Doctor", roleKey: "doctor" },
+                      { ar: "🎓 أستاذ دكتور", en: "Professor", roleKey: "professor" },
+                      { ar: "🏢 رئيس قسم", en: "Dept Head", roleKey: "department_head" },
+                      { ar: "📖 محاضر", en: "Lecturer", roleKey: "lecturer" },
+                      { ar: "✏️ مدرس / معلم", en: "Teacher", roleKey: "teacher" },
+                      { ar: "💼 معيد / مساعد", en: "Assistant", roleKey: "assistant_lecturer" },
+                      { ar: "🎓 طالب / متدرب", en: "Student", roleKey: "student" },
+                    ].map((chip) => (
+                      <button
+                        key={chip.ar}
+                        type="button"
+                        onClick={() => {
+                          setCustomTitle(isRtl ? chip.ar.replace(/^[^\s]+\s*/, "") : chip.en);
+                          setRole(chip.roleKey);
+                          if (ROLE_PERMISSION_PRESETS[chip.roleKey]) {
+                            setSelectedPermissions(ROLE_PERMISSION_PRESETS[chip.roleKey]);
+                          }
+                        }}
+                        className="text-[11px] font-bold px-2.5 py-1 rounded-full border border-border bg-muted/50 hover:bg-emerald-500/10 hover:text-emerald-600 hover:border-emerald-500/40 transition-colors"
+                      >
+                        {isRtl ? chip.ar : chip.en}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {isRtl
+                      ? "المسمى الذي يكتبه الأدمن هنا هو الذي سيظهر كصفة رسمية للحساب في المنصة وقوائم الكلية ولوحة التحكم."
+                      : "The custom title entered here is displayed as the account's official title throughout the portal."}
+                  </p>
                 </div>
                 <div className="space-y-2.5 md:col-span-2">
                  <Label className={labelCls}>
@@ -982,6 +1098,118 @@ const InstitutionFacultyEdit = () => {
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="text-xs font-bold text-muted-foreground">{isRtl ? "إيقاف" : "Suspend"}</span>
                   <Switch checked={banned} onCheckedChange={setBanned} />
+                </div>
+              </div>
+
+              {/* Permissions & Privileges Section */}
+              <div className="space-y-4 pt-5 pb-2 border-t-2 border-border/80">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-foreground flex items-center gap-2">
+                      <KeyRound className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                      {isRtl ? "صلاحيات وأذونات الحساب في المنصة" : "Account Permissions & Access Rights"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {isRtl
+                        ? "حدد الصلاحيات التي يمتلكها صاحب هذا الحساب بدقة أو استخدم قوالب الصلاحيات السريعة."
+                        : "Configure granular permissions or use quick role presets."}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-xs font-bold text-muted-foreground me-1">
+                      {isRtl ? "قوالب سريعة:" : "Presets:"}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => applyPermissionPreset("dean")}
+                      className="h-7 text-xs font-bold hover:bg-emerald-500/10 hover:text-emerald-600"
+                    >
+                      {isRtl ? "عميد" : "Dean"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => applyPermissionPreset("doctor")}
+                      className="h-7 text-xs font-bold hover:bg-emerald-500/10 hover:text-emerald-600"
+                    >
+                      {isRtl ? "دكتور" : "Doctor"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => applyPermissionPreset("department_head")}
+                      className="h-7 text-xs font-bold hover:bg-emerald-500/10 hover:text-emerald-600"
+                    >
+                      {isRtl ? "رئيس قسم" : "Dept Head"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => applyPermissionPreset("student")}
+                      className="h-7 text-xs font-bold hover:bg-emerald-500/10 hover:text-emerald-600"
+                    >
+                      {isRtl ? "طالب" : "Student"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => applyPermissionPreset("all")}
+                      className="h-7 text-xs font-bold hover:bg-emerald-500/10 hover:text-emerald-600"
+                    >
+                      {isRtl ? "الكل" : "All"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => applyPermissionPreset("none")}
+                      className="h-7 text-xs font-bold text-muted-foreground hover:text-destructive"
+                    >
+                      {isRtl ? "تفريغ" : "Clear"}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                  {PERMISSION_ITEMS.map((perm) => {
+                    const isChecked = selectedPermissions.includes(perm.id);
+                    return (
+                      <label
+                        key={perm.id}
+                        onClick={() => togglePermission(perm.id)}
+                        className={`flex items-start gap-2.5 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                          isChecked
+                            ? "bg-emerald-500/10 border-emerald-500/60 shadow-sm"
+                            : "bg-background/70 border-border/70 hover:border-border hover:bg-muted/40"
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 rounded mt-0.5 flex items-center justify-center shrink-0 border transition-colors ${
+                            isChecked
+                              ? "bg-emerald-600 border-emerald-600 text-white"
+                              : "border-muted-foreground/40"
+                          }`}
+                        >
+                          {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs sm:text-sm font-bold text-foreground leading-snug">
+                            {isRtl ? perm.labelAr : perm.labelEn}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">
+                            {isRtl ? perm.descAr : perm.descEn}
+                          </p>
+                        </div>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 

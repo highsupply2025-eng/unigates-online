@@ -97,6 +97,252 @@ export const buildRoleOptions = (isCollege: boolean) => [
 export const ROLE_OPTIONS = buildRoleOptions(true);
 
 /* ------------------------------------------------------------------ */
+/*  Permissions & Custom Roles System                                 */
+/* ------------------------------------------------------------------ */
+
+export interface PermissionItem {
+  id: string;
+  labelAr: string;
+  labelEn: string;
+  descAr: string;
+  descEn: string;
+  category: "academic" | "assessment" | "students" | "admin" | "student_access";
+  badgeColor?: string;
+}
+
+export const PERMISSION_ITEMS: PermissionItem[] = [
+  // Academic & Lectures
+  {
+    id: "manage_lectures",
+    labelAr: "إدارة المحاضرات والدروس",
+    labelEn: "Manage Lectures & Lessons",
+    descAr: "إنشاء وإدارة المحاضرات، القاعات الافتراضية، وجلسات البث المباشر",
+    descEn: "Schedule lectures, virtual halls, and live video streaming",
+    category: "academic",
+    badgeColor: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+  },
+  {
+    id: "upload_materials",
+    labelAr: "رفع وتعديل المناهج والمذكرات",
+    labelEn: "Upload Materials & Notes",
+    descAr: "رفع الملازم والكتب والملفات الدراسية للطلاب في المقررات",
+    descEn: "Upload course files, textbooks, and handouts for students",
+    category: "academic",
+    badgeColor: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+  },
+  {
+    id: "manage_attendance",
+    labelAr: "رصد الحضور والغياب",
+    labelEn: "Attendance Tracking",
+    descAr: "تسجيل ومتابعة حضور وغياب الطلاب في المحاضرات والجلسات",
+    descEn: "Log and monitor student attendance in lectures and sessions",
+    category: "academic",
+    badgeColor: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+  },
+
+  // Assessment & Quizzes
+  {
+    id: "create_quizzes",
+    labelAr: "إنشاء وبنوك الاختبارات",
+    labelEn: "Create Quizzes & Exam Banks",
+    descAr: "إعداد الاختبارات القصيرة والامتحانات وبنوك الأسئلة الإلكترونية",
+    descEn: "Design quizzes, term exams, and question banks",
+    category: "assessment",
+    badgeColor: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
+  },
+  {
+    id: "grade_results",
+    labelAr: "تصحيح ورصد الدرجات والنتائج",
+    labelEn: "Grade Submissions & Results",
+    descAr: "تصحيح إجابات الطلاب وإدخال واعتماد النتائج الأكاديمية",
+    descEn: "Grade student submissions and post academic records",
+    category: "assessment",
+    badgeColor: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
+  },
+  {
+    id: "issue_certificates",
+    labelAr: "إصدار وتوثيق الشهادات",
+    labelEn: "Issue & Verify Certificates",
+    descAr: "منح شهادات إتمام المقررات والدبلومات الأكاديمية",
+    descEn: "Grant completion certificates and academic diplomas",
+    category: "assessment",
+    badgeColor: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
+  },
+
+  // Students & Community
+  {
+    id: "view_students",
+    labelAr: "استعراض بيانات وسجلات الطلاب",
+    labelEn: "View Student Directory",
+    descAr: "الاطلاع على قوائم الطلاب والملفات الأكاديمية والشعب",
+    descEn: "Access student roster and academic records",
+    category: "students",
+    badgeColor: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  },
+  {
+    id: "broadcast_messages",
+    labelAr: "إرسال الإعلانات والرسائل الجماعية",
+    labelEn: "Broadcast Announcements",
+    descAr: "نشر التنبيهات والإعلانات وإرسال الرسائل لطلاب الشعب والقاعات",
+    descEn: "Send notifications, circulars, and messages to students",
+    category: "students",
+    badgeColor: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  },
+  {
+    id: "manage_student_accounts",
+    labelAr: "إدارة وقبول حسابات الطلاب",
+    labelEn: "Manage Student Accounts",
+    descAr: "تفعيل وتعديل تسجيلات الطلاب في الفصول والأقسام",
+    descEn: "Approve and manage student registrations",
+    category: "students",
+    badgeColor: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  },
+
+  // Administration & Management
+  {
+    id: "manage_departments",
+    labelAr: "إدارة الأقسام والمقررات والشعب",
+    labelEn: "Manage Departments & Courses",
+    descAr: "إضافة وتعديل الأقسام وتوزيع المواد الدراسية",
+    descEn: "Create and update departments and course allocations",
+    category: "admin",
+    badgeColor: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  },
+  {
+    id: "manage_schedules",
+    labelAr: "تنظيم الجداول والقاعات",
+    labelEn: "Manage Schedules & Halls",
+    descAr: "إعداد الجداول الدراسية الأسبوعية وجداول الامتحانات",
+    descEn: "Organize weekly class timetables and hall reservations",
+    category: "admin",
+    badgeColor: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  },
+  {
+    id: "view_reports",
+    labelAr: "التقارير والإحصائيات الأكاديمية",
+    labelEn: "Academic Reports & Analytics",
+    descAr: "استخراج تقارير الأداء ومعدلات النجاح والإحصاءات",
+    descEn: "Generate performance reports and analytics",
+    category: "admin",
+    badgeColor: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  },
+
+  // Student Access Privileges
+  {
+    id: "access_lectures",
+    labelAr: "حضور المحاضرات والبث المباشر",
+    labelEn: "Attend Lectures & Live Streams",
+    descAr: "مشاهدة الدروس المسجلة وحضور غرف البث الافتراضية",
+    descEn: "Watch recorded lectures and join live virtual sessions",
+    category: "student_access",
+    badgeColor: "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20",
+  },
+  {
+    id: "submit_exams",
+    labelAr: "أداء الاختبارات والواجبات",
+    labelEn: "Take Exams & Homework",
+    descAr: "حل التكليفات والامتحانات الفصلية وتسليم الإجابات",
+    descEn: "Submit quizzes, assignments, and semester tests",
+    category: "student_access",
+    badgeColor: "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20",
+  },
+  {
+    id: "download_materials",
+    labelAr: "تحميل المذكرات والملفات التعليمية",
+    labelEn: "Download Resources & Notes",
+    descAr: "تنزيل الملازم الدراسية والملفات المرفقة",
+    descEn: "Download study notes and course handouts",
+    category: "student_access",
+    badgeColor: "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20",
+  },
+];
+
+export const ROLE_PERMISSION_PRESETS: Record<string, string[]> = {
+  dean: [
+    "manage_lectures", "upload_materials", "manage_attendance",
+    "create_quizzes", "grade_results", "issue_certificates",
+    "view_students", "broadcast_messages", "manage_student_accounts",
+    "manage_departments", "manage_schedules", "view_reports",
+  ],
+  vice_dean_postgrad: [
+    "manage_lectures", "upload_materials", "manage_attendance",
+    "create_quizzes", "grade_results", "issue_certificates",
+    "view_students", "broadcast_messages", "manage_departments", "view_reports",
+  ],
+  vice_dean_students: [
+    "manage_attendance", "view_students", "broadcast_messages",
+    "manage_student_accounts", "manage_schedules", "view_reports",
+  ],
+  vice_dean_community: [
+    "broadcast_messages", "view_students", "view_reports",
+  ],
+  college_secretary: [
+    "manage_attendance", "view_students", "broadcast_messages",
+    "manage_student_accounts", "manage_schedules", "view_reports",
+  ],
+  department_head: [
+    "manage_lectures", "upload_materials", "manage_attendance",
+    "create_quizzes", "grade_results", "view_students",
+    "broadcast_messages", "manage_departments", "manage_schedules", "view_reports",
+  ],
+  professor: [
+    "manage_lectures", "upload_materials", "manage_attendance",
+    "create_quizzes", "grade_results", "issue_certificates",
+    "view_students", "broadcast_messages",
+  ],
+  doctor: [
+    "manage_lectures", "upload_materials", "manage_attendance",
+    "create_quizzes", "grade_results", "view_students", "broadcast_messages",
+  ],
+  lecturer: [
+    "manage_lectures", "upload_materials", "manage_attendance",
+    "create_quizzes", "grade_results", "view_students", "broadcast_messages",
+  ],
+  teacher: [
+    "manage_lectures", "upload_materials", "manage_attendance",
+    "create_quizzes", "grade_results", "view_students", "broadcast_messages",
+  ],
+  teaching_assistant: [
+    "manage_lectures", "upload_materials", "manage_attendance",
+    "grade_results", "view_students",
+  ],
+  assistant_lecturer: [
+    "manage_lectures", "upload_materials", "manage_attendance",
+    "grade_results", "view_students",
+  ],
+  library_manager: [
+    "upload_materials", "view_students", "broadcast_messages",
+  ],
+  student: [
+    "access_lectures", "submit_exams", "download_materials",
+  ],
+  custom: [
+    "manage_lectures", "upload_materials", "view_students",
+  ],
+};
+
+export function parseNotesWithPermissions(rawNotes?: string | null): {
+  customTitle?: string;
+  permissions?: string[];
+  cleanNotes: string;
+} {
+  if (!rawNotes) return { cleanNotes: "" };
+  try {
+    if (rawNotes.startsWith("{") && rawNotes.endsWith("}")) {
+      const parsed = JSON.parse(rawNotes);
+      return {
+        customTitle: parsed.custom_title || parsed.customTitle || undefined,
+        permissions: Array.isArray(parsed.permissions) ? parsed.permissions : undefined,
+        cleanNotes: parsed.user_notes || parsed.cleanNotes || "",
+      };
+    }
+  } catch {
+    /* fallback to plain text notes */
+  }
+  return { cleanNotes: rawNotes };
+}
+
+/* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
@@ -106,6 +352,9 @@ export interface FacultyMemberFormData {
   photoUrl: string;
   fullName: string;
   role: string;
+  customTitle?: string;
+  permissions?: string[];
+  accountCategory?: string;
   dateOfBirth: string;
   gender: string;
   email: string;
@@ -229,6 +478,57 @@ export const FacultyMemberForm = ({
   );
   const [facultyDeptPopoverOpen, setFacultyDeptPopoverOpen] = useState(false);
   const [facultyDeptSearch, setFacultyDeptSearch] = useState("");
+
+  /* Custom Role Title & Granular Permissions */
+  const parsedNotes = useMemo(() => parseNotesWithPermissions(initialData?.notes), [initialData?.notes]);
+
+  const [customTitle, setCustomTitle] = useState<string>(() => {
+    if (initialData?.customTitle) return initialData.customTitle;
+    if (parsedNotes.customTitle) return parsedNotes.customTitle;
+    if (isStudent) return isRtl ? "طالب" : "Student";
+    const currentRole = initialData?.role ?? invitationRole ?? "";
+    const match = roleOptions.find((r) => r.value === currentRole);
+    return match ? (isRtl ? match.ar : match.en) : "";
+  });
+
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(() => {
+    if (initialData?.permissions && initialData.permissions.length > 0) return initialData.permissions;
+    if (parsedNotes.permissions && parsedNotes.permissions.length > 0) return parsedNotes.permissions;
+    const initialRole = initialData?.role ?? invitationRole ?? (isStudent ? "student" : "doctor");
+    return ROLE_PERMISSION_PRESETS[initialRole] || ROLE_PERMISSION_PRESETS.doctor || [];
+  });
+
+  const handleRoleSelect = (newRole: string) => {
+    setRole(newRole);
+    const match = roleOptions.find((r) => r.value === newRole);
+    const roleLabel = match ? (isRtl ? match.ar : match.en) : newRole;
+    if (!customTitle || customTitle.trim() === "" || roleOptions.some(r => r.ar === customTitle || r.en === customTitle)) {
+      setCustomTitle(roleLabel);
+    }
+    if (ROLE_PERMISSION_PRESETS[newRole]) {
+      setSelectedPermissions(ROLE_PERMISSION_PRESETS[newRole]);
+    }
+  };
+
+  const togglePermission = (permId: string) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(permId) ? prev.filter((p) => p !== permId) : [...prev, permId]
+    );
+  };
+
+  const applyPermissionPreset = (presetKey: string) => {
+    if (presetKey === "all") {
+      setSelectedPermissions(PERMISSION_ITEMS.map((p) => p.id));
+      return;
+    }
+    if (presetKey === "none") {
+      setSelectedPermissions([]);
+      return;
+    }
+    if (ROLE_PERMISSION_PRESETS[presetKey]) {
+      setSelectedPermissions(ROLE_PERMISSION_PRESETS[presetKey]);
+    }
+  };
 
   /* Keep role in sync if invitationRole changes */
   useEffect(() => {
@@ -386,10 +686,21 @@ export const FacultyMemberForm = ({
       }
     }
 
+    const effectiveCustomTitle = customTitle.trim() || (isStudent ? (isRtl ? "طالب" : "Student") : (roleOptions.find(r => r.value === role)?.ar || role));
+    const cleanNotesText = parsedNotes.cleanNotes || notes;
+    const notesPayload = JSON.stringify({
+      custom_title: effectiveCustomTitle,
+      permissions: selectedPermissions,
+      user_notes: cleanNotesText.trim(),
+    });
+
     const data: FacultyMemberFormData = {
       photoUrl,
       fullName: fullName.trim(),
-      role: isStudent ? "student" : role,
+      role: isStudent ? "student" : (role || "custom"),
+      customTitle: effectiveCustomTitle,
+      permissions: selectedPermissions,
+      accountCategory: isStudent ? "student" : (role === "dean" || String(role).startsWith("vice_dean") ? "leadership" : "faculty"),
       dateOfBirth,
       gender,
       email: email.trim(),
@@ -399,7 +710,7 @@ export const FacultyMemberForm = ({
       qualification: qualification.trim(),
       specialization: specialization.trim(),
       hireDate: "",
-      notes: notes.trim(),
+      notes: notesPayload,
       tempPassword: mode === "admin-add" ? tempPassword : undefined,
       password: mode === "invitation" ? password : undefined,
       confirmPassword: mode === "invitation" ? confirmPassword : undefined,
@@ -677,12 +988,46 @@ export const FacultyMemberForm = ({
                 </div>
               </div>
 
+              {/* Quick Role Selection Chips */}
+              {!roleReadonly && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[11px] font-bold text-muted-foreground me-1">
+                    {isRtl ? "اختيار سريع للمنصب:" : "Quick Role:"}
+                  </span>
+                  {[
+                    { val: "dean", ar: isCollege ? "🏛️ عميد الكلية" : "🏛️ مدير المعهد", en: "Dean" },
+                    { val: "doctor", ar: "👨‍🏫 دكتور", en: "Doctor" },
+                    { val: "professor", ar: "🎓 أستاذ دكتور", en: "Professor" },
+                    { val: "department_head", ar: "🏢 رئيس قسم", en: "Dept Head" },
+                    { val: "lecturer", ar: "📖 محاضر", en: "Lecturer" },
+                    { val: "teacher", ar: "✏️ مدرس / معلم", en: "Teacher" },
+                    { val: "teaching_assistant", ar: "💼 معيد / مساعد", en: "Assistant" },
+                  ].map((chip) => {
+                    const isSelected = role === chip.val;
+                    return (
+                      <button
+                        type="button"
+                        key={chip.val}
+                        onClick={() => handleRoleSelect(chip.val)}
+                        className={`text-[11px] font-bold px-2.5 py-1 rounded-xl border transition-all ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                            : "bg-background/80 hover:bg-muted text-foreground/80 border-border"
+                        }`}
+                      >
+                        {isRtl ? chip.ar : chip.en}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Role / Job Title */}
                 <div className="space-y-1.5">
                   <Label className={labelCls}>
                     <Users2 className={iconCls} />
-                    <span>{isRtl ? "المسمى والرتبة الأكاديمية" : "Academic Rank / Role"}</span>
+                    <span>{isRtl ? "الفئة والرتبة الأكاديمية" : "Academic Rank / Role"}</span>
                     <span className="text-destructive font-black">*</span>
                   </Label>
                   {roleReadonly ? (
@@ -696,9 +1041,9 @@ export const FacultyMemberForm = ({
                       </span>
                     </div>
                   ) : (
-                    <Select value={role} onValueChange={setRole}>
+                    <Select value={role} onValueChange={handleRoleSelect}>
                       <SelectTrigger className={triggerCls}>
-                        <SelectValue placeholder={isRtl ? "اختر المسمى الأكاديمي" : "Select Role"} />
+                        <SelectValue placeholder={isRtl ? "اختر الفئة أو الرتبة" : "Select Role"} />
                       </SelectTrigger>
                       <SelectContent className="z-50">
                         {roleOptions.map((r) => (
@@ -711,9 +1056,25 @@ export const FacultyMemberForm = ({
                   )}
                 </div>
 
+                {/* Custom Role Title Typed by Admin */}
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>
+                    <Sparkles className={iconCls} />
+                    <span>{isRtl ? "المسمى الوظيفي المكتوب للحساب" : "Custom Typed Title"}</span>
+                    <span className="text-destructive font-black">*</span>
+                  </Label>
+                  <Input
+                    className={`${inputCls} font-bold text-sm bg-primary/5 focus:bg-background border-primary/30`}
+                    value={customTitle}
+                    onChange={(e) => setCustomTitle(e.target.value)}
+                    placeholder={isRtl ? "اكتب المسمى (مثال: عميد الكلية / دكتور مادة الجراحة...)" : "Type role title..."}
+                    required
+                  />
+                </div>
+
                 {/* Department Multi-Select for Faculty */}
                 {mode === "admin-add" && departments.length > 0 && (
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 md:col-span-2">
                     <Label className={labelCls}>
                       <Building2 className={iconCls} />
                       <span>{isRtl ? "الأقسام التابع لها" : "Assigned Departments"}</span>
@@ -856,12 +1217,30 @@ export const FacultyMemberForm = ({
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label className={labelCls}>
-                  <Briefcase className={iconCls} />
-                  <span>{isRtl ? "الأقسام الدراسية" : "Departments"}</span>
-                  <span className="text-destructive font-black">*</span>
-                </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Custom Title for Student */}
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>
+                    <Sparkles className={iconCls} />
+                    <span>{isRtl ? "المسمى المكتوب للحساب (مثال: طالب / متدرب)" : "Custom Student Title"}</span>
+                    <span className="text-destructive font-black">*</span>
+                  </Label>
+                  <Input
+                    className={`${inputCls} font-bold text-sm bg-primary/5 focus:bg-background border-primary/30`}
+                    value={customTitle}
+                    onChange={(e) => setCustomTitle(e.target.value)}
+                    placeholder={isRtl ? "مثال: طالب / متدرب دبلومة / طالب فرقة ثالثة..." : "e.g. Student, Trainee..."}
+                    required
+                  />
+                </div>
+
+                {/* Departments */}
+                <div className="space-y-1.5">
+                  <Label className={labelCls}>
+                    <Briefcase className={iconCls} />
+                    <span>{isRtl ? "الأقسام الدراسية" : "Departments"}</span>
+                    <span className="text-destructive font-black">*</span>
+                  </Label>
                 <Popover open={deptPopoverOpen} onOpenChange={setDeptPopoverOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -978,7 +1357,144 @@ export const FacultyMemberForm = ({
                 )}
               </div>
             </div>
-          )}
+          </div>
+        )}
+
+          {/* Section: Granular Permissions Matrix */}
+          <div className="p-5 sm:p-6 rounded-3xl border-2 border-indigo-500/25 bg-card/90 backdrop-blur-xl shadow-lg space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-black text-foreground">
+                    {isRtl ? "الصلاحيات والأذونات الممنوحة للحساب" : "Account Permissions & Access Rights"}
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground font-medium">
+                    {isRtl
+                      ? `حدد بدقة الصلاحيات التي يحتاجها هذا الحساب (${selectedPermissions.length} صلاحية مفعلة حالياً)`
+                      : `Select exact privileges for this account (${selectedPermissions.length} granted)`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Presets Toolbar */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[10px] font-bold text-muted-foreground me-1">{isRtl ? "قوالب سريعة:" : "Presets:"}</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => applyPermissionPreset("dean")}
+                  className="h-7 px-2.5 text-[11px] font-bold rounded-lg border-indigo-500/30 hover:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400"
+                >
+                  🏛️ {isRtl ? "عميد" : "Dean"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => applyPermissionPreset("doctor")}
+                  className="h-7 px-2.5 text-[11px] font-bold rounded-lg border-purple-500/30 hover:bg-purple-500/10 text-purple-700 dark:text-purple-400"
+                >
+                  👨‍🏫 {isRtl ? "دكتور" : "Doctor"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => applyPermissionPreset("department_head")}
+                  className="h-7 px-2.5 text-[11px] font-bold rounded-lg border-amber-500/30 hover:bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                >
+                  🏢 {isRtl ? "رئيس قسم" : "Head"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => applyPermissionPreset("lecturer")}
+                  className="h-7 px-2.5 text-[11px] font-bold rounded-lg border-blue-500/30 hover:bg-blue-500/10 text-blue-700 dark:text-blue-400"
+                >
+                  🎓 {isRtl ? "محاضر / معلم" : "Lecturer"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => applyPermissionPreset("student")}
+                  className="h-7 px-2.5 text-[11px] font-bold rounded-lg border-teal-500/30 hover:bg-teal-500/10 text-teal-700 dark:text-teal-400"
+                >
+                  📚 {isRtl ? "طالب" : "Student"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applyPermissionPreset("all")}
+                  className="h-7 px-2 text-[10px] font-bold text-muted-foreground hover:text-foreground"
+                >
+                  {isRtl ? "تحديد الكل" : "Select All"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => applyPermissionPreset("none")}
+                  className="h-7 px-2 text-[10px] font-bold text-destructive hover:bg-destructive/10"
+                >
+                  {isRtl ? "تفريغ" : "Clear"}
+                </Button>
+              </div>
+            </div>
+
+            {/* Permissions Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {PERMISSION_ITEMS.map((perm) => {
+                const isChecked = selectedPermissions.includes(perm.id);
+                return (
+                  <div
+                    key={perm.id}
+                    onClick={() => togglePermission(perm.id)}
+                    className={`flex items-start gap-3 p-3.5 rounded-2xl border-2 cursor-pointer transition-all duration-200 select-none ${
+                      isChecked
+                        ? "bg-primary/10 border-primary shadow-sm"
+                        : "bg-background/60 border-border/80 hover:border-primary/40 hover:bg-muted/40"
+                    }`}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                        isChecked
+                          ? "bg-primary border-primary text-white shadow-xs"
+                          : "border-muted-foreground/40 bg-background"
+                      }`}
+                    >
+                      {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                    </div>
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="text-xs font-black text-foreground leading-snug">
+                          {isRtl ? perm.labelAr : perm.labelEn}
+                        </span>
+                        {perm.badgeColor && (
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md border shrink-0 ${perm.badgeColor}`}>
+                            {perm.category === "academic" ? (isRtl ? "تدريس" : "Academic") :
+                             perm.category === "assessment" ? (isRtl ? "اختبارات" : "Exams") :
+                             perm.category === "students" ? (isRtl ? "طلاب" : "Students") :
+                             perm.category === "admin" ? (isRtl ? "إدارة" : "Admin") :
+                             (isRtl ? "طالب" : "Student")}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed line-clamp-2">
+                        {isRtl ? perm.descAr : perm.descEn}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Section 3: Credentials & Access Security */}
           {mode === "admin-add" && (

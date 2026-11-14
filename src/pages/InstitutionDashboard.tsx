@@ -5,7 +5,7 @@ import {
   Layers, Copy, CheckCircle, Clock, Loader2, Plus, UserCheck,
   GraduationCap, Calendar, Phone, Mail, LinkIcon, CreditCard, Trash2, Share2,
   User, Radio, Eye, ClipboardList, Star, MessageCircle, Menu, LogOut, Bell, PlusCircle, Pencil, Download, ShieldAlert, AlertTriangle, UserPlus, FileSpreadsheet, RefreshCw, Zap, Shield,
-  ChevronLeft, ExternalLink, LayoutGrid, ListFilter, CheckCircle2, Building2, SlidersHorizontal, Check, X, MapPin, Sparkles, Save, Crown
+  ChevronLeft, ExternalLink, LayoutGrid, ListFilter, CheckCircle2, Building2, SlidersHorizontal, Check, X, MapPin, Sparkles, Save, Crown, ShieldCheck, KeyRound
 } from "lucide-react";
 
 import * as XLSX from "xlsx";
@@ -830,6 +830,7 @@ const InstitutionDashboard = () => {
             specialization: matchingIfm.specialization || m.specialization,
             qualification: matchingIfm.qualification || m.qualification,
             phone: matchingIfm.phone || m.phone,
+            notes: matchingIfm.notes || m.notes,
             __from_ifm: true,
           };
         }
@@ -854,6 +855,7 @@ const InstitutionDashboard = () => {
         email: f.email,
         phone: f.phone,
         photo_url: f.photo_url,
+        notes: f.notes || null,
         date_of_birth: null,
         invitation_code: null,
         created_at: f.created_at || new Date().toISOString(),
@@ -3416,6 +3418,26 @@ ${exams.map((s: any, i: number) => `<tr>
                                         <span>{isRtl ? roleConfig.ar : roleConfig.en}</span>
                                       </Badge>
 
+                                      {(() => {
+                                        try {
+                                          const parsed = m.notes ? JSON.parse(m.notes) : null;
+                                          const count = Array.isArray(parsed?.permissions) ? parsed.permissions.length : 0;
+                                          if (count > 0) {
+                                            return (
+                                              <Badge
+                                                variant="outline"
+                                                className="text-[10px] font-bold px-1.5 py-0.5 border bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/25"
+                                                title={isRtl ? `${count} صلاحيات مفعلة لهذا الحساب` : `${count} active permissions`}
+                                              >
+                                                <KeyRound className="w-3 h-3 me-1 text-teal-600 dark:text-teal-400" />
+                                                <span>{count} {isRtl ? "صلاحيات" : "perms"}</span>
+                                              </Badge>
+                                            );
+                                          }
+                                        } catch {}
+                                        return null;
+                                      })()}
+
                                       <Badge
                                         variant="outline"
                                         className={`text-[10px] font-bold px-1.5 py-0.5 border ${
@@ -3568,9 +3590,30 @@ ${exams.map((s: any, i: number) => `<tr>
                                       </span>
                                     </TableCell>
                                     <TableCell>
-                                      <Badge variant="outline" className={`text-[10px] font-bold border ${roleConfig.color}`}>
-                                        {isRtl ? roleConfig.ar : roleConfig.en}
-                                      </Badge>
+                                      <div className="flex items-center gap-1.5 flex-wrap">
+                                        <Badge variant="outline" className={`text-[10px] font-bold border ${roleConfig.color}`}>
+                                          {isRtl ? roleConfig.ar : roleConfig.en}
+                                        </Badge>
+                                        {(() => {
+                                          try {
+                                            const parsed = m.notes ? JSON.parse(m.notes) : null;
+                                            const count = Array.isArray(parsed?.permissions) ? parsed.permissions.length : 0;
+                                            if (count > 0) {
+                                              return (
+                                                <Badge
+                                                  variant="outline"
+                                                  className="text-[10px] font-bold px-1.5 py-0.5 border bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/25"
+                                                  title={isRtl ? `${count} صلاحيات مفعلة لهذا الحساب` : `${count} active permissions`}
+                                                >
+                                                  <KeyRound className="w-3 h-3 me-1 text-teal-600 dark:text-teal-400" />
+                                                  <span>{count} {isRtl ? "صلاحيات" : "perms"}</span>
+                                                </Badge>
+                                              );
+                                            }
+                                          } catch {}
+                                          return null;
+                                        })()}
+                                      </div>
                                     </TableCell>
                                     <TableCell>
                                       <Badge

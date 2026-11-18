@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { useInstitutionIdentity } from "@/hooks/useInstitutionIdentity";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Loader2 } from "lucide-react";
+import { InvitationCreatedDialog } from "@/components/InvitationCreatedDialog";
 import {
   FacultyMemberForm,
   isStrongPassword,
@@ -26,6 +27,16 @@ const InstitutionFacultyAdd = () => {
   const [createdStudentId, setCreatedStudentId] = useState<string | null>(null);
   const [createdStudentEmail, setCreatedStudentEmail] = useState<string | null>(null);
   const [departments, setDepartments] = useState<DepartmentOption[]>([]);
+  const [createdInviteInfo, setCreatedInviteInfo] = useState<{
+    code: string;
+    inviteLink: string;
+    role: string;
+    customTitle: string;
+    permissionsCount: number;
+    departmentName?: string;
+    institutionName?: string;
+    fullName?: string;
+  } | null>(null);
 
   const institutionId = identity?.institutionId ?? "";
   const institutionType: "college" | "institute" =
@@ -79,6 +90,69 @@ const InstitutionFacultyAdd = () => {
     setSaving(true);
 
     try {
+      if (data.creationMethod === "invitation") {
+        const rawCode = "UG-" + Array.from(crypto.getRandomValues(new Uint8Array(4)))
+          .map((b) => b.toString(16).padStart(2, "0").toUpperCase())
+          .join("");
+
+        const tableName = institutionType === "college" ? "college_invitations" : "institute_invitations";
+        const idColumn = institutionType === "college" ? "college_id" : "institute_id";
+        const assignedRole = isStudent ? "student" : (data.role || "lecturer");
+
+        const { error: invErr } = await supabase.from(tableName as any).insert({
+          [idColumn]: institutionId,
+          invitation_code: rawCode,
+          role: assignedRole,
+          max_uses: 1,
+          is_active: true,
+        });
+
+        if (invErr) {
+          console.error("Failed to insert invitation:", invErr);
+          throw new Error(isRtl ? "فشل إنشاء كود الدعوة في قاعدة البيانات" : "Failed to create invitation code");
+        }
+
+        const assignedTitle = data.customTitle || (isStudent ? (isRtl ? "طالب" : "Student") : data.role);
+        const perms = data.permissions || [];
+        const selectedDepts = isStudent ? (data.selectedDeptIds || []) : (data.selectedDepartmentIds || []);
+        const primaryDeptObj = departments.find((d) => selectedDepts.includes(d.id));
+
+        // Save metadata to cache so invite link automatically picks it up
+        try {
+          localStorage.setItem(`ug_invite_meta:${rawCode}`, JSON.stringify({
+            code: rawCode,
+            institutionId,
+            institutionType,
+            institutionName: identity?.collegeName || identity?.instituteName || "",
+            role: assignedRole,
+            customTitle: assignedTitle,
+            permissions: perms,
+            departmentIds: selectedDepts,
+            fullName: data.fullName,
+          }));
+        } catch { /* ignore */ }
+
+        const inviteUrl = `${window.location.origin}/invite?code=${rawCode}&title=${encodeURIComponent(assignedTitle)}&perms=${perms.join(",")}&dept=${selectedDepts.join(",")}&name=${encodeURIComponent(data.fullName || "")}`;
+
+        setCreatedInviteInfo({
+          code: rawCode,
+          inviteLink: inviteUrl,
+          role: assignedRole,
+          customTitle: assignedTitle,
+          permissionsCount: perms.length,
+          departmentName: primaryDeptObj?.department_name,
+          institutionName: identity?.collegeName || identity?.instituteName || "",
+          fullName: data.fullName,
+        });
+
+        toast({
+          title: isRtl ? "تم إنشاء كود الدعوة المؤقت بنجاح!" : "Invitation Code Generated!",
+          description: isRtl ? `كود الدعوة: ${rawCode} (صالح لمرة واحدة فقط)` : `Code: ${rawCode} (single use)`,
+        });
+
+        return;
+      }
+
       const baseRow: any = {
         full_name: data.fullName,
         role: data.role,
@@ -292,40 +366,63 @@ const InstitutionFacultyAdd = () => {
   };
 
   return (
-    <FacultyMemberForm
-      mode="admin-add"
-      isRtl={isRtl}
-      dir={dir}
-      saving={saving}
-      onSubmit={handleSubmit}
-      onCancel={() => navigate(-1)}
-      isStudent={isStudent}
-      departments={departments}
-      institutionType={institutionType}
-      paymentButton={
-        isStudent && createdStudentId && subscriptionPlan !== "free" ? (
-          <Button
-            type="button"
-            size="lg"
-            className="bg-teal-500 hover:bg-teal-600 text-white font-extrabold text-base gap-2 shadow-xl shadow-teal-500/40"
-            onClick={() => {
-              const months = subscriptionPlan === "annual" ? 12 : 1;
-              const params = new URLSearchParams({
-                studentIds: createdStudentId,
-                studentNames: "",
-                plan: subscriptionPlan,
-                months: String(months),
-                count: "1",
-              });
-              navigate(`/institution/payment?${params.toString()}`);
-            }}
-          >
-            <CreditCard className="w-5 h-5 shrink-0" />
-            <span>{isRtl ? "دفع الاشتراك" : "Pay Subscription"}</span>
-          </Button>
-        ) : undefined
-      }
-    />
+    <>
+      <FacultyMemberForm
+        mode="admin-add"
+        isRtl={isRtl}
+        dir={dir}
+        saving={saving}
+        onSubmit={handleSubmit}
+        onCancel={() => navigate(-1)}
+        isStudent={isStudent}
+        departments={departments}
+        institutionType={institutionType}
+        paymentButton={
+          isStudent && createdStudentId && subscriptionPlan !== "free" ? (
+            <Button
+              type="button"
+              size="lg"
+              className="bg-teal-500 hover:bg-teal-600 text-white font-extrabold text-base gap-2 shadow-xl shadow-teal-500/40"
+              onClick={() => {
+                const months = subscriptionPlan === "annual" ? 12 : 1;
+                const params = new URLSearchParams({
+                  studentIds: createdStudentId,
+                  studentNames: "",
+                  plan: subscriptionPlan,
+                  months: String(months),
+                  count: "1",
+                });
+                navigate(`/institution/payment?${params.toString()}`);
+              }}
+            >
+              <CreditCard className="w-5 h-5 shrink-0" />
+              <span>{isRtl ? "دفع الاشتراك" : "Pay Subscription"}</span>
+            </Button>
+          ) : undefined
+        }
+      />
+
+      {createdInviteInfo && (
+        <InvitationCreatedDialog
+          open={Boolean(createdInviteInfo)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setCreatedInviteInfo(null);
+              navigate(`/institution/dashboard?tab=${isStudent ? "students" : "faculty"}`, { replace: true });
+            }
+          }}
+          code={createdInviteInfo.code}
+          inviteLink={createdInviteInfo.inviteLink}
+          role={createdInviteInfo.role}
+          customTitle={createdInviteInfo.customTitle}
+          permissionsCount={createdInviteInfo.permissionsCount}
+          departmentName={createdInviteInfo.departmentName}
+          institutionName={createdInviteInfo.institutionName}
+          fullName={createdInviteInfo.fullName}
+          isRtl={isRtl}
+        />
+      )}
+    </>
   );
 };
 

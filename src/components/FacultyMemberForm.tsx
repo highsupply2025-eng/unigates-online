@@ -349,6 +349,7 @@ export function parseNotesWithPermissions(rawNotes?: string | null): {
 export type FacultyFormMode = "admin-add" | "invitation";
 
 export interface FacultyMemberFormData {
+  creationMethod?: "invitation" | "direct";
   photoUrl: string;
   fullName: string;
   role: string;
@@ -439,6 +440,8 @@ export const FacultyMemberForm = ({
   const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl ?? "");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const [creationMethod, setCreationMethod] = useState<"invitation" | "direct">("invitation");
 
   const [fullName, setFullName] = useState(initialData?.fullName ?? "");
   const [role, setRole] = useState(
@@ -625,7 +628,10 @@ export const FacultyMemberForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fullName.trim()) {
+    const effectiveCustomTitle = customTitle.trim() || (isStudent ? (isRtl ? "طالب" : "Student") : (roleOptions.find(r => r.value === role)?.ar || role));
+    const effectiveFullName = fullName.trim() || (isStudent ? (isRtl ? "طالب جديد" : "New Student") : effectiveCustomTitle);
+
+    if (mode === "admin-add" && creationMethod === "direct" && !fullName.trim()) {
       toast({
         title: isRtl ? "حقل مطلوب" : "Required field",
         description: isRtl ? "يرجى إدخال الاسم الكامل" : "Please enter the full name",
@@ -652,7 +658,7 @@ export const FacultyMemberForm = ({
       return;
     }
 
-    if (mode === "admin-add" && !isStrongPassword(tempPassword)) {
+    if (mode === "admin-add" && creationMethod === "direct" && !isStrongPassword(tempPassword)) {
       toast({
         title: isRtl ? "كلمة مرور مؤقتة غير صالحة" : "Invalid Temporary Password",
         description: isRtl
@@ -686,7 +692,6 @@ export const FacultyMemberForm = ({
       }
     }
 
-    const effectiveCustomTitle = customTitle.trim() || (isStudent ? (isRtl ? "طالب" : "Student") : (roleOptions.find(r => r.value === role)?.ar || role));
     const cleanNotesText = parsedNotes.cleanNotes || notes;
     const notesPayload = JSON.stringify({
       custom_title: effectiveCustomTitle,
@@ -695,8 +700,9 @@ export const FacultyMemberForm = ({
     });
 
     const data: FacultyMemberFormData = {
+      creationMethod: mode === "admin-add" ? creationMethod : "invitation",
       photoUrl,
-      fullName: fullName.trim(),
+      fullName: effectiveFullName,
       role: isStudent ? "student" : (role || "custom"),
       customTitle: effectiveCustomTitle,
       permissions: selectedPermissions,
@@ -747,6 +753,10 @@ export const FacultyMemberForm = ({
       ? isRtl
         ? "إنشاء الحساب"
         : "Create Account"
+      : creationMethod === "invitation"
+      ? isRtl
+        ? "إنشاء وتوليد كود الدعوة المؤقت"
+        : "Create & Generate Invite Code"
       : isRtl
         ? "حفظ البيانات والتسجيل"
         : "Save & Register");
@@ -791,6 +801,75 @@ export const FacultyMemberForm = ({
       {/* Main Form Content */}
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
         <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* Creation Method Banner */}
+          {mode === "admin-add" && (
+            <div className="p-4 sm:p-5 rounded-3xl border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent backdrop-blur-xl shadow-md space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                    <KeyRound className="w-4 h-4 stroke-[2.4]" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-foreground">
+                      {isRtl ? "طريقة إنشاء الحساب والتسجيل" : "Account Creation & Registration Method"}
+                    </h3>
+                    <p className="text-[11px] text-muted-foreground">
+                      {isRtl
+                        ? "اختر ما إذا كنت ترغب في إرسال رابط دعوة بكود مؤقت للشخص، أو تسجيله مباشرة"
+                        : "Choose between invitation code link or direct credential setup"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setCreationMethod("invitation")}
+                  className={`p-3.5 rounded-2xl border-2 text-start transition-all ${
+                    creationMethod === "invitation"
+                      ? "border-emerald-500 bg-emerald-500/15 shadow-md shadow-emerald-500/10 text-foreground"
+                      : "border-border/70 hover:border-border hover:bg-muted/40 text-muted-foreground"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
+                      🎟️ {isRtl ? "رابط دعوة وكود مؤقت (موصى به)" : "Invite Link & One-Time Code (Recommended)"}
+                    </span>
+                    {creationMethod === "invitation" && <Check className="w-4 h-4 text-emerald-600 stroke-[3]" />}
+                  </div>
+                  <p className="text-[11px] leading-relaxed">
+                    {isRtl
+                      ? "تحدد الإدارة المسمى والصلاحيات، ويقوم الشخص بالدخول عبر كود مؤقت لمرة واحدة لتحديد إيميله وكلمة سره ورفع صورته وشهادته."
+                      : "Admin sets role & permissions; invitee uses a one-time code to choose email, password, photo, and degree."}
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCreationMethod("direct")}
+                  className={`p-3.5 rounded-2xl border-2 text-start transition-all ${
+                    creationMethod === "direct"
+                      ? "border-primary bg-primary/10 shadow-md shadow-primary/10 text-foreground"
+                      : "border-border/70 hover:border-border hover:bg-muted/40 text-muted-foreground"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
+                      ⚡ {isRtl ? "إنشاء فوري بكلمة مرور مؤقتة" : "Direct Admin Creation"}
+                    </span>
+                    {creationMethod === "direct" && <Check className="w-4 h-4 text-primary stroke-[3]" />}
+                  </div>
+                  <p className="text-[11px] leading-relaxed">
+                    {isRtl
+                      ? "تقوم الإدارة بإدخال البريد الإلكتروني وكلمة المرور المؤقتة يدوياً الآن."
+                      : "Admin manually provides email and temporary password upfront."}
+                  </p>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Top Avatar Upload Card */}
           <div className="p-6 rounded-3xl border-2 border-primary/20 bg-card/80 backdrop-blur-xl shadow-lg text-center relative overflow-hidden flex flex-col items-center justify-center gap-3">
@@ -1523,83 +1602,101 @@ export const FacultyMemberForm = ({
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className={labelCls}>
-                  <Lock className={iconCls} />
-                  <span>
-                    {isRtl
-                      ? isStudent
-                        ? "الرقم السري المؤقت للطالب"
-                        : "كلمة المرور المؤقتة"
-                      : "Temporary Password"}
-                  </span>
-                  <span className="text-destructive font-black">*</span>
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    className={`${inputCls} font-mono tracking-wider flex-1 text-sm font-bold`}
-                    type={showPassword ? "text" : "password"}
-                    value={tempPassword}
-                    onChange={(e) => setTempPassword(e.target.value)}
-                    dir="ltr"
-                    autoComplete="new-password"
-                    spellCheck={false}
-                  />
-                  <div className="flex gap-1.5 shrink-0">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setShowPassword((v) => !v)}
-                      aria-label={isRtl ? "إظهار/إخفاء" : "Show/Hide"}
-                      className="h-11 w-11 rounded-xl border-primary/20"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(tempPassword);
-                          toast({
-                            title: isRtl ? "تم نسخ الرقم السري المؤقت" : "Temporary password copied",
-                            description: tempPassword,
-                          });
-                        } catch {
-                          /* ignore */
-                        }
-                      }}
-                      aria-label={isRtl ? "نسخ" : "Copy"}
-                      className="h-11 w-11 rounded-xl border-primary/20"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setTempPassword(generateStrongPassword())}
-                      aria-label={isRtl ? "توليد رقم سري مؤقت جديد" : "Generate new temporary password"}
-                      className="h-11 w-11 rounded-xl border-primary/20 text-teal-600 dark:text-teal-400 hover:text-teal-500"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
+              {creationMethod === "invitation" ? (
+                <div className="p-4 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/30 flex items-start gap-3.5 text-xs leading-relaxed">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
+                    <KeyRound className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                  <div className="space-y-1">
+                    <strong className="text-sm font-black text-foreground block">
+                      {isRtl ? "✓ التسجيل بواسطة كود الدعوة المؤقت (صالح لمرة واحدة)" : "✓ Single-Use Invitation Code Mode"}
+                    </strong>
+                    <p className="text-muted-foreground text-xs leading-relaxed">
+                      {isRtl
+                        ? "لا داعي لتعيين كلمة مرور مؤقتة هنا. عند الضغط على 'إنشاء'، سيتم توليد كود دعوة مؤقت ورابط تسجيل مخصص. سيقوم الشخص المدعو بالدخول وتحديد بريده الإلكتروني وكلمة المرور الخاصة به وصورته وآخر شهادة حصل عليها بنفسه."
+                        : "No temporary password required here. Clicking 'Create' generates a single-use invite code and link. The invitee will choose their own email, password, photo, and degree certificate."}
+                    </p>
                   </div>
                 </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label className={labelCls}>
+                    <Lock className={iconCls} />
+                    <span>
+                      {isRtl
+                        ? isStudent
+                          ? "الرقم السري المؤقت للطالب"
+                          : "كلمة المرور المؤقتة"
+                        : "Temporary Password"}
+                    </span>
+                    <span className="text-destructive font-black">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      className={`${inputCls} font-mono tracking-wider flex-1 text-sm font-bold`}
+                      type={showPassword ? "text" : "password"}
+                      value={tempPassword}
+                      onChange={(e) => setTempPassword(e.target.value)}
+                      dir="ltr"
+                      autoComplete="new-password"
+                      spellCheck={false}
+                    />
+                    <div className="flex gap-1.5 shrink-0">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setShowPassword((v) => !v)}
+                        aria-label={isRtl ? "إظهار/إخفاء" : "Show/Hide"}
+                        className="h-11 w-11 rounded-xl border-primary/20"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(tempPassword);
+                            toast({
+                              title: isRtl ? "تم نسخ الرقم السري المؤقت" : "Temporary password copied",
+                              description: tempPassword,
+                            });
+                          } catch {
+                            /* ignore */
+                          }
+                        }}
+                        aria-label={isRtl ? "نسخ" : "Copy"}
+                        className="h-11 w-11 rounded-xl border-primary/20"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setTempPassword(generateStrongPassword())}
+                        aria-label={isRtl ? "توليد رقم سري مؤقت جديد" : "Generate new temporary password"}
+                        className="h-11 w-11 rounded-xl border-primary/20 text-teal-600 dark:text-teal-400 hover:text-teal-500"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
 
-                <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-[11px] text-muted-foreground flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
-                  <span>
-                    {isRtl
-                      ? isStudent
-                        ? "يجب تزويد الطالب بالبريد الإلكتروني والرقم السري المؤقت. عند أول تسجيل دخول سيُطلب منه إدخال الرقم السري المؤقت وتعيين كلمة سر جديدة لحسابه."
-                        : "شارك هذه البيانات مع العضو الآن. سيُطلب منه تغيير كلمة المرور عند أول تسجيل دخول."
-                      : "Provide student with email and temporary password. Upon first sign-in, they will be required to change it."}
-                  </span>
+                  <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-[11px] text-muted-foreground flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                    <span>
+                      {isRtl
+                        ? isStudent
+                          ? "يجب تزويد الطالب بالبريد الإلكتروني والرقم السري المؤقت. عند أول تسجيل دخول سيُطلب منه إدخال الرقم السري المؤقت وتعيين كلمة سر جديدة لحسابه."
+                          : "شارك هذه البيانات مع العضو الآن. سيُطلب منه تغيير كلمة المرور عند أول تسجيل دخول."
+                        : "Provide student with email and temporary password. Upon first sign-in, they will be required to change it."}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 

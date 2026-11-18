@@ -542,9 +542,7 @@ const InstitutionDashboard = () => {
       });
       if (error) throw error;
 
-      const link = isFaculty
-        ? `${window.location.origin}/institution/faculty/invite/${code}`
-        : `${window.location.origin}/institution/student/invite/${code}`;
+      const link = `${window.location.origin}/invite?code=${code}`;
       setGeneratedInviteLink(link);
       setGeneratedInviteCode(code);
 

@@ -103,6 +103,7 @@ const LanguageCenterAdminSignup = lazy(() => import("./pages/LanguageCenterAdmin
 const TutoringCenterAdminSignup = lazy(() => import("./pages/TutoringCenterAdminSignup"));
 const InstitutionDashboard = lazy(() => import("./pages/InstitutionDashboard"));
 const InstitutionFacultyAdd = lazy(() => import("./pages/InstitutionFacultyAdd"));
+const InvitationRegistration = lazy(() => import("./pages/InvitationRegistration"));
 const FacultyInvitationRegistration = lazy(() => import("./pages/FacultyInvitationRegistration"));
 const StudentInvitationRegistration = lazy(() => import("./pages/StudentInvitationRegistration"));
 const InstitutionFacultyImport = lazy(() => import("./pages/InstitutionFacultyImport"));
@@ -335,8 +336,12 @@ const App = () => (
               <Route path="/signup/tutoring-center/admin" element={<TutoringCenterAdminSignup />} />
               <Route path="/signup/school/admin" element={<Navigate to="/school-registration" replace />} />
               <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
-              <Route path="/institution/faculty/invite/:token" element={<FacultyInvitationRegistration />} />
-              <Route path="/institution/student/invite/:token" element={<StudentInvitationRegistration />} />
+              <Route path="/invite" element={<InvitationRegistration />} />
+              <Route path="/invite/:token" element={<InvitationRegistration />} />
+              <Route path="/institution/invite" element={<InvitationRegistration />} />
+              <Route path="/institution/invite/:token" element={<InvitationRegistration />} />
+              <Route path="/institution/faculty/invite/:token" element={<InvitationRegistration />} />
+              <Route path="/institution/student/invite/:token" element={<InvitationRegistration />} />
               <Route path="/institution/faculty/add" element={<InstitutionFacultyAdd />} />
               <Route path="/institution/faculty/import" element={<InstitutionFacultyImport />} />
               <Route path="/institution/faculty/:memberId/edit" element={<InstitutionFacultyEdit />} />
